@@ -3,18 +3,20 @@ import { Calendar, FileText, CreditCard, Building2 } from "@/constants/icons";
 import { COLORS } from "@/constants/colors";
 import { memo } from "react";
 import { cn } from "@/lib/utils";
+import type { Tables } from "@/types/database.types";
+import { dateFormat } from "@/lib/date-format";
 
 type Props = {
-  selectedReceipt: any;
+  selectedReceipt: Tables<"receipts">;
 };
 
 function ReceiptCard({ selectedReceipt }: Props) {
   return (
     <View className="px-6 py-8">
-      {selectedReceipt.imageUrl && (
+      {selectedReceipt.image_url && (
         <View className="mb-8 overflow-hidden rounded-lg border border-neutral-border">
           <Image
-            source={{ uri: selectedReceipt.imageUrl }}
+            source={{ uri: selectedReceipt.image_url }}
             resizeMode="cover"
             style={{ width: "100%", height: 100 }}
             alt="Comprobante"
@@ -28,7 +30,7 @@ function ReceiptCard({ selectedReceipt }: Props) {
             Monto
           </Text>
           <Text className="text-4xl font-light text-neutral-foreground">
-            {selectedReceipt.amount}
+            S/ {selectedReceipt.total_amount?.toFixed(2)}
           </Text>
         </View>
 
@@ -43,12 +45,12 @@ function ReceiptCard({ selectedReceipt }: Props) {
               Fecha
             </Text>
             <Text className="text-base font-light text-neutral-foreground">
-              {selectedReceipt.date}
+              {dateFormat(selectedReceipt.created_at ?? "")}
             </Text>
           </View>
         </View>
 
-        {selectedReceipt.receiptNumber && (
+        {selectedReceipt.receipt_number && (
           <View className="flex-row items-start gap-4">
             <FileText
               className="mt-0.5"
@@ -60,7 +62,7 @@ function ReceiptCard({ selectedReceipt }: Props) {
                 N° Comprobante
               </Text>
               <Text className="text-base font-light text-neutral-foreground">
-                {selectedReceipt.receiptNumber}
+                {selectedReceipt.receipt_number}
               </Text>
             </View>
           </View>
@@ -84,7 +86,7 @@ function ReceiptCard({ selectedReceipt }: Props) {
           </View>
         )}
 
-        {selectedReceipt.businessName && (
+        {selectedReceipt.business_name && (
           <View className="flex-row items-start gap-4">
             <Building2
               className="mt-0.5"
@@ -96,7 +98,7 @@ function ReceiptCard({ selectedReceipt }: Props) {
                 Razón social
               </Text>
               <Text className="text-base font-light text-neutral-foreground">
-                {selectedReceipt.businessName}
+                {selectedReceipt.business_name}
               </Text>
             </View>
           </View>
@@ -121,13 +123,13 @@ function ReceiptCard({ selectedReceipt }: Props) {
             <View
               className={cn(
                 "h-2 w-2 rounded-full",
-                selectedReceipt.isExpense
+                selectedReceipt.is_expense
                   ? "bg-primary"
                   : "border border-muted-foreground/30",
               )}
             />
             <Text className="text-base font-light text-neutral-foreground">
-              {selectedReceipt.isExpense ? "Sí" : "No"}
+              {selectedReceipt.is_expense ? "Sí" : "No"}
             </Text>
           </View>
         </View>

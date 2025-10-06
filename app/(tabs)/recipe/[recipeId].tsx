@@ -1,27 +1,21 @@
-import { View, Text, Pressable, Image } from "react-native";
+import { View, Text, Pressable, Image, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft } from "@/constants/icons";
 import { COLORS } from "@/constants/colors";
 import ReceiptCard from "@/components/shared/receipt/receipt-card";
 import { useLocalSearchParams, useRouter } from "expo-router";
-
-const selectedReceipt = {
-  id: "001",
-  date: "15 Mar 2025",
-  amount: "S/ 1,250.00",
-  isExpense: true,
-  ruc: "20123456789",
-  businessName: "Corporación Tech Solutions S.A.C.",
-  receiptNumber: "F001-00001234",
-  description: "Servicios de consultoría tecnológica",
-  imageUrl: "https://picsum.photos/seed/696/3000/2000",
-};
+import { useReceiptDetails } from "@/hooks/receipts/use-receipts";
+import type { Tables } from "@/types/database.types";
 
 export default function RecipeDetails() {
-  const { recipeId } = useLocalSearchParams<{ recipeId: string }>();
   const router = useRouter();
+  const { recipeId } = useLocalSearchParams<{ recipeId: string }>();
+  const { data, isPending, isError, isLoading } = useReceiptDetails(recipeId);
 
-  console.log({ recipeId });
+  if (isError) {
+    return <Text>Error: {isError}</Text>;
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="border-b border-neutral-border bg-white">
@@ -39,7 +33,13 @@ export default function RecipeDetails() {
         </View>
       </View>
 
-      <ReceiptCard selectedReceipt={selectedReceipt} />
+      {isLoading || isPending ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      ) : (
+        <ReceiptCard selectedReceipt={data as Tables<"receipts">} />
+      )}
     </SafeAreaView>
   );
 }

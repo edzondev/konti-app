@@ -4,9 +4,7 @@ import { Text, type TextProps } from "react-native";
 
 interface LabelProps extends TextProps {}
 
-const labelVariants = cva(
-  "text-xl font-medium leading-none peer-disabled:opacity-70 data-[error=true]:text-error-500"
-);
+const labelVariants = cva("text-lg text-neutral-foreground font-light");
 
 const Label = ({ children, className, ...props }: LabelProps) => {
   return (

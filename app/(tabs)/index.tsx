@@ -1,7 +1,7 @@
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Camera } from "@/constants/icons";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useCameraPermissions } from "expo-camera";
 import { cn } from "@/lib/utils";
 
@@ -70,45 +70,47 @@ export default function Index() {
               key={receipt.id}
               className="rounded-lg border border-neutral-border px-4 py-2"
             >
-              <Pressable className="flex-row items-end justify-between py-5">
-                {({ pressed }) => (
-                  <View className="flex-col items-start gap-y-2">
-                    <Text className="font-geist-semibold text-base font-semibold text-neutral-foreground">
-                      {receipt.businessName}
-                    </Text>
-                    <View className="w-full flex-row items-center justify-between">
-                      <View className="flex-row items-center gap-2">
-                        <View
-                          className={cn(
-                            "h-2 w-2 flex-shrink-0 rounded-full",
-                            receipt.isExpense
-                              ? "bg-primary"
-                              : "border border-muted-foreground/30",
-                          )}
-                        />
+              <Link href={`/recipe/${receipt.id}`} asChild>
+                <Pressable className="flex-row items-end justify-between py-5">
+                  {({ pressed }) => (
+                    <View className="flex-col items-start gap-y-2">
+                      <Text className="font-geist-semibold text-base font-semibold text-neutral-foreground">
+                        {receipt.businessName}
+                      </Text>
+                      <View className="w-full flex-row items-center justify-between">
+                        <View className="flex-row items-center gap-2">
+                          <View
+                            className={cn(
+                              "h-2 w-2 flex-shrink-0 rounded-full",
+                              receipt.isExpense
+                                ? "bg-primary"
+                                : "border border-muted-foreground/30",
+                            )}
+                          />
+
+                          <Text
+                            className={cn(
+                              "font-geist-regular  text-base font-normal text-neutral-foreground",
+                              pressed ? "text-primary" : "",
+                            )}
+                          >
+                            {receipt.amount}
+                          </Text>
+                        </View>
 
                         <Text
                           className={cn(
-                            "font-geist-regular  text-base font-normal text-neutral-foreground",
-                            pressed ? "text-primary" : "",
+                            "font-geist-regular text-sm font-light text-muted-foreground",
+                            pressed ? "text-primary" : "text-muted-foreground",
                           )}
                         >
-                          {receipt.amount}
+                          {receipt.date}
                         </Text>
                       </View>
-
-                      <Text
-                        className={cn(
-                          "font-geist-regular text-sm font-light text-muted-foreground",
-                          pressed ? "text-primary" : "text-muted-foreground",
-                        )}
-                      >
-                        {receipt.date}
-                      </Text>
                     </View>
-                  </View>
-                )}
-              </Pressable>
+                  )}
+                </Pressable>
+              </Link>
             </View>
           ))}
         </ScrollView>

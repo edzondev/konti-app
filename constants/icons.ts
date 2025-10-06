@@ -1,3 +1,41 @@
-import { Camera, Home, User, Sparkles, Check } from "lucide-react-native";
+import {
+  Camera,
+  Home,
+  User,
+  Sparkles,
+  Check,
+  ChevronLeft,
+  Calendar,
+  FileText,
+  CreditCard,
+  Building2,
+  File,
+  ChevronRight,
+  Crown,
+  HelpCircle,
+  Lock,
+  LogOut,
+  Shield,
+  Zap,
+} from "lucide-react-native";
 
-export { Camera, Home, User, Sparkles, Check };
+export {
+  Camera,
+  Home,
+  User,
+  Sparkles,
+  Check,
+  ChevronLeft,
+  Calendar,
+  FileText,
+  CreditCard,
+  Building2,
+  File,
+  ChevronRight,
+  Crown,
+  HelpCircle,
+  Lock,
+  LogOut,
+  Shield,
+  Zap,
+};

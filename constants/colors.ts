@@ -8,4 +8,5 @@ export const COLORS = {
   muted: {
     foreground: "#636363", //verdadero mutedForeground
   },
+  destructive: "#e7000b",
 };

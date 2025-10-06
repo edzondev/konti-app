@@ -4,6 +4,11 @@ import { useFonts } from "expo-font";
 import "./globals.css";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import QueryProvider from "@/components/providers/query-provider";
+import {
+  initialWindowMetrics,
+  SafeAreaProvider,
+} from "react-native-safe-area-context";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -51,9 +56,11 @@ function Layout() {
 
 export default function RootLayout() {
   return (
-    <>
-      <Layout />
-      <StatusBar style="dark" />
-    </>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+      <QueryProvider>
+        <Layout />
+        <StatusBar style="dark" />
+      </QueryProvider>
+    </SafeAreaProvider>
   );
 }

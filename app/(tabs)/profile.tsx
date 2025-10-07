@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS } from "@/constants/colors";
 import { useRouter } from "expo-router";
@@ -14,10 +14,31 @@ import {
   User,
   Zap,
 } from "@/constants/icons";
+import { useAuth } from "@/components/providers/auth-provider";
 const userPlan = ["free", "pro", "premium"] as const;
 
 export default function Profile() {
   const router = useRouter();
+  const { signOut } = useAuth();
+  const handleLogout = async () => {
+    Alert.alert(
+      "Cerrar sesión",
+      "¿Estás seguro de querer cerrar sesión?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Cerrar sesión",
+          onPress: async () => await signOut(),
+        },
+      ],
+      {
+        cancelable: true,
+      },
+    );
+  };
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="my-8 px-6">
@@ -156,9 +177,12 @@ export default function Profile() {
           </View>
 
           {/* Cerrar sesión */}
-          <Pressable className="text-destructive bg-destructive/5 w-full flex-row items-center justify-center gap-3 rounded-lg py-4">
+          <Pressable
+            onPress={handleLogout}
+            className="w-full flex-row items-center justify-center gap-3 rounded-lg bg-destructive/5 py-4 "
+          >
             <LogOut size={20} color={COLORS.destructive} />
-            <Text className="text-destructive font-regular text-destructive text-lg">
+            <Text className="font-regular text-lg text-destructive">
               Cerrar sesión
             </Text>
           </Pressable>

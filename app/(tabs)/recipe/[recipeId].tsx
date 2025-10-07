@@ -1,4 +1,11 @@
-import { View, Text, Pressable, Image, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  Image,
+  ActivityIndicator,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft } from "@/constants/icons";
 import { COLORS } from "@/constants/colors";
@@ -18,28 +25,34 @@ export default function RecipeDetails() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="border-b border-neutral-border bg-white">
-        <View className="flex-row items-center gap-4 px-6 py-4">
-          <Pressable
-            className="hover:bg-muted -ml-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors"
-            aria-label="Volver"
-            onPress={() => router.back()}
-          >
-            <ChevronLeft size={24} color={COLORS.neutral.foreground} />
-          </Pressable>
-          <Text className="text-lg font-light text-neutral-foreground">
-            Detalle de boleta
-          </Text>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View className="border-b border-neutral-border bg-white">
+          <View className="flex-row items-center gap-4 px-6 py-4">
+            <Pressable
+              className="hover:bg-muted -ml-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors"
+              aria-label="Volver"
+              onPress={() => router.back()}
+            >
+              <ChevronLeft size={24} color={COLORS.neutral.foreground} />
+            </Pressable>
+            <Text className="text-lg font-light text-neutral-foreground">
+              Detalle de boleta
+            </Text>
+          </View>
         </View>
-      </View>
 
-      {isLoading || isPending ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      ) : (
-        <ReceiptCard selectedReceipt={data as Tables<"receipts">} />
-      )}
+        {isLoading || isPending ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color={COLORS.primary} />
+          </View>
+        ) : (
+          <ReceiptCard selectedReceipt={data as Tables<"receipts">} />
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }

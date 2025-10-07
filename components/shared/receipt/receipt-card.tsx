@@ -18,7 +18,7 @@ function ReceiptCard({ selectedReceipt }: Props) {
           <Image
             source={{ uri: selectedReceipt.image_url }}
             resizeMode="cover"
-            style={{ width: "100%", height: 100 }}
+            style={{ width: "100%", height: 350 }}
             alt="Comprobante"
           />
         </View>
@@ -115,7 +115,7 @@ function ReceiptCard({ selectedReceipt }: Props) {
           </View>
         )}
 
-        <View className="bg-muted/30 flex-row items-center justify-between rounded-lg px-4 py-4">
+        <View className="flex-row items-center justify-between rounded-lg bg-neutral-100 px-4 py-4">
           <Text className="text-base font-light text-muted-foreground">
             Gasto contable
           </Text>

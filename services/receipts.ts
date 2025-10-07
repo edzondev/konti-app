@@ -24,9 +24,9 @@ export async function getReceiptDetails(receiptId: string) {
 export async function createByEdgeFunction(
   data: ReceiptSchema,
   imageUri: string,
+  userId: string,
 ) {
   try {
-    const userId = "";
     const fileName = imageUri.split("/").pop();
 
     // Generamos la url

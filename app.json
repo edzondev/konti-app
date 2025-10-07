@@ -33,7 +33,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
+          "cameraPermission": "Permitir a $(PRODUCT_NAME) acceder a tu cámara para escanear boletas y tomar fotos"
         }
       ]
     ]

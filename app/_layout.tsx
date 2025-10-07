@@ -9,6 +9,7 @@ import {
   initialWindowMetrics,
   SafeAreaProvider,
 } from "react-native-safe-area-context";
+import { AuthProvider } from "@/components/providers/auth-provider";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -36,16 +37,16 @@ function Layout() {
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="camera" options={{ headerShown: false }} />
-      <Stack.Screen name="preview" options={{ headerShown: false }} />
-      <Stack.Screen name="success" options={{ headerShown: false }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="camera" />
+      <Stack.Screen name="preview" />
+      <Stack.Screen name="success" />
       <Stack.Screen
-        name="camera-permission"
+        name="onboarding"
         options={{
           presentation: "modal",
-          headerShown: false,
           animation: "slide_from_bottom",
         }}
       />
@@ -55,11 +56,13 @@ function Layout() {
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <QueryProvider>
-        <Layout />
-        <StatusBar style="dark" />
-      </QueryProvider>
-    </SafeAreaProvider>
+    <AuthProvider>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <QueryProvider>
+          <Layout />
+          <StatusBar style="dark" />
+        </QueryProvider>
+      </SafeAreaProvider>
+    </AuthProvider>
   );
 }

@@ -81,8 +81,8 @@ export default function Preview({ isExtracting }: Props) {
             </Pressable>
           </View>
 
-          {/* Formulario Futuro */}
-          <ReceiptForm />
+          {/* Formulario de Comprobante */}
+          <ReceiptForm imageUri={imageUri} />
         </View>
       </ScrollView>
     </SafeAreaView>

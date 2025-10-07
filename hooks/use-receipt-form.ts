@@ -5,6 +5,11 @@ import {
   type ReceiptSchema,
 } from "@/utils/schemas/receipt.schema";
 import { useRouter } from "expo-router";
+import { Alert } from "react-native";
+import { useCreateReceipt } from "./receipts/use-receipts";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import { useAuth } from "@/components/providers/auth-provider";
 
 const defaultValues: ReceiptSchema = {
   amount: "",
@@ -15,17 +20,48 @@ const defaultValues: ReceiptSchema = {
   description: "",
 };
 
-export default function useReceiptForm() {
+export default function useReceiptForm(imageUri: string) {
   const router = useRouter();
+  const { session } = useAuth();
+
+  const queryClient = useQueryClient();
   const form = useForm<ReceiptSchema>({
     resolver: zodResolver(receiptSchema),
     defaultValues,
   });
+  const {
+    mutateAsync: createReceiptFn,
+    isPending,
+    isError,
+  } = useCreateReceipt(imageUri, session?.user.id || "");
 
-  const onSubmit = async (data: ReceiptSchema) => {
-    console.log(data);
-    router.push("/success");
+  const handleCancel = () => {
+    form.reset();
+    router.back();
   };
 
-  return { form, onSubmit };
+  const onSubmit = async (data: ReceiptSchema) => {
+    try {
+      if (!session) {
+        Alert.alert(
+          "Error",
+          "Debes iniciar sesión para guardar un comprobante",
+        );
+        return;
+      }
+
+      await createReceiptFn(data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.receipts.all });
+      form.reset();
+      router.push("/success");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Ocurrió un error inesperado. Intenta nuevamente.";
+      Alert.alert("Error", errorMessage);
+    }
+  };
+
+  return { form, onSubmit, isPending, isError, handleCancel };
 }

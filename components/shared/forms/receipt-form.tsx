@@ -1,5 +1,5 @@
 import useReceiptForm from "@/hooks/use-receipt-form";
-import { View, Text, Pressable, Switch } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import {
   Form,
   FormControl,
@@ -11,10 +11,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { COLORS } from "@/constants/colors";
-import { Check } from "@/constants/icons";
+import { AnimatedSwitch } from "@/components/ui/animated-switch";
+import { ActivityIndicator } from "react-native";
 
-export default function ReceiptForm() {
-  const { form, onSubmit } = useReceiptForm();
+type Props = {
+  imageUri: string;
+};
+
+export default function ReceiptForm({ imageUri }: Props) {
+  const { form, onSubmit, isPending, isError, handleCancel } =
+    useReceiptForm(imageUri);
   return (
     <>
       <View className="mb-12 gap-y-6">
@@ -31,6 +37,7 @@ export default function ReceiptForm() {
                       S/
                     </Text>
                     <Input
+                      readOnly={isPending}
                       className="pl-8 text-3xl"
                       placeholder="0.00"
                       {...field}
@@ -55,6 +62,7 @@ export default function ReceiptForm() {
                 <FormLabel>Número de comprobante</FormLabel>
                 <FormControl>
                   <Input
+                    readOnly={isPending}
                     placeholder="F001-00001234"
                     {...field}
                     value={field.value.toString()}
@@ -72,12 +80,16 @@ export default function ReceiptForm() {
                 <FormLabel>RUC</FormLabel>
                 <FormControl>
                   <Input
+                    readOnly={isPending}
                     placeholder="20123456789"
                     {...field}
-                    value={field.value.toString()}
+                    value={field.value?.toString()}
                     onChangeText={field.onChange}
                   />
                 </FormControl>
+                {form.formState.errors.ruc && (
+                  <FormMessage>{form.formState.errors.ruc.message}</FormMessage>
+                )}
               </FormItem>
             )}
           />
@@ -89,6 +101,7 @@ export default function ReceiptForm() {
                 <FormLabel>Razón social</FormLabel>
                 <FormControl>
                   <Input
+                    readOnly={isPending}
                     placeholder="Nombre de la empresa"
                     {...field}
                     value={field.value.toString()}
@@ -106,6 +119,7 @@ export default function ReceiptForm() {
                 <FormLabel>Descripción</FormLabel>
                 <FormControl>
                   <Input
+                    readOnly={isPending}
                     placeholder="Concepto o detalle del comprobante"
                     multiline={true}
                     numberOfLines={4}
@@ -128,15 +142,13 @@ export default function ReceiptForm() {
               <FormItem className="flex-row items-center justify-between">
                 <FormLabel>Es gasto contable</FormLabel>
                 <FormControl>
-                  <Switch
+                  <AnimatedSwitch
                     trackColor={{
                       false: "#bdbdbd",
                       true: COLORS.primary,
                     }}
                     thumbColor={COLORS.neutral.white}
-                    aria-label="Toggle gasto contable"
-                    ios_backgroundColor="#3e3e3e"
-                    {...field}
+                    disabled={isPending}
                     value={field.value}
                     onValueChange={field.onChange}
                   />
@@ -149,8 +161,9 @@ export default function ReceiptForm() {
       {/* Botones de Acción */}
       <View className="flex-row gap-x-4">
         <Pressable
-          onPress={() => {}}
-          className="flex-1 flex-row items-center justify-center rounded-lg bg-muted-foreground/10 py-3 text-neutral-foreground"
+          disabled={isPending}
+          onPress={handleCancel}
+          className="flex-1 flex-row items-center justify-center rounded-lg bg-muted-foreground/10 py-3 text-neutral-foreground disabled:opacity-50"
         >
           {({ pressed }) => (
             <Text
@@ -165,7 +178,8 @@ export default function ReceiptForm() {
         </Pressable>
         <Pressable
           onPress={form.handleSubmit(onSubmit)}
-          className="flex-1 rounded-lg bg-primary py-3 text-white"
+          className="flex-1 rounded-lg bg-primary py-3 text-white disabled:opacity-50"
+          disabled={isPending}
         >
           {({ pressed }) => (
             <View
@@ -174,8 +188,12 @@ export default function ReceiptForm() {
                 pressed ? "opacity-70" : "",
               )}
             >
-              <Check size={20} color={COLORS.neutral.white} />
-              <Text className="font-geist-regular text-white">Guardar</Text>
+              {isPending && (
+                <ActivityIndicator size="small" color={COLORS.neutral.white} />
+              )}
+              <Text className="font-geist-regular text-white">
+                {isPending ? "Guardando..." : "Guardar"}
+              </Text>
             </View>
           )}
         </Pressable>

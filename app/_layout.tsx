@@ -4,6 +4,12 @@ import { useFonts } from "expo-font";
 import "./globals.css";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import QueryProvider from "@/components/providers/query-provider";
+import {
+  initialWindowMetrics,
+  SafeAreaProvider,
+} from "react-native-safe-area-context";
+import { AuthProvider, useAuth } from "@/components/providers/auth-provider";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,41 +25,51 @@ function Layout() {
     GeistRegular: require("../assets/fonts/Geist-Regular.ttf"),
     GeistSemibold: require("../assets/fonts/Geist-SemiBold.ttf"),
   });
+  const { loading, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (loaded) {
-      console.log("loaded", loaded);
+    if (loaded && !loading) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [loaded, loading]);
 
-  if (!loaded) {
+  if (!loaded || loading) {
     return null;
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="camera" options={{ headerShown: false }} />
-      <Stack.Screen name="preview" options={{ headerShown: false }} />
-      <Stack.Screen name="success" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="camera-permission"
-        options={{
-          presentation: "modal",
-          headerShown: false,
-          animation: "slide_from_bottom",
-        }}
-      />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={!isAuthenticated}>
+        <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+      <Stack.Protected guard={isAuthenticated}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="camera" />
+        <Stack.Screen name="preview" />
+        <Stack.Screen name="success" />
+        <Stack.Screen 
+          name="subscription" 
+          options={{ 
+            presentation: 'modal',
+            headerShown: false,
+            gestureEnabled: true,
+            animationTypeForReplace: 'push'
+          }} 
+        />
+      </Stack.Protected>
     </Stack>
   );
 }
 
 export default function RootLayout() {
   return (
-    <>
-      <Layout />
-      <StatusBar style="dark" />
-    </>
+    <AuthProvider>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <QueryProvider>
+          <Layout />
+          <StatusBar style="dark" />
+        </QueryProvider>
+      </SafeAreaProvider>
+    </AuthProvider>
   );
 }

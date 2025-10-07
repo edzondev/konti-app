@@ -6,7 +6,13 @@ export const receiptSchema = z.object({
     return !isNaN(num) && num >= 0;
   }, "El monto debe ser un número válido"),
   isExpense: z.boolean(),
-  ruc: z.string(),
+  ruc: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || val.length === 11,
+      "El RUC debe tener exactamente 11 dígitos",
+    ),
   businessName: z.string(), //Razon social
   receiptNumber: z.string(),
   description: z.string(),

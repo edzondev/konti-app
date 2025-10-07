@@ -17,6 +17,8 @@ import {
   LogOut,
   Shield,
   Zap,
+  Eye,
+  EyeOff,
 } from "lucide-react-native";
 
 export {
@@ -38,4 +40,6 @@ export {
   LogOut,
   Shield,
   Zap,
+  Eye,
+  EyeOff,
 };

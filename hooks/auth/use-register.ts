@@ -1,23 +1,27 @@
-import { loginSchema, type LoginSchema } from "@/utils/schemas/auth.schema";
+import {
+  registerSchema,
+  type RegisterSchema,
+} from "@/utils/schemas/auth.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useRouter } from "expo-router";
 
-export const useLogin = () => {
-  const { signIn } = useAuth();
+export const useRegister = () => {
+  const { signUp } = useAuth();
   const router = useRouter();
-  const form = useForm<LoginSchema>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<RegisterSchema>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
       password: "",
+      name: "",
     },
   });
 
-  const onSubmit = async (data: LoginSchema) => {
+  const onSubmit = async (data: RegisterSchema) => {
     try {
-      await signIn(data);
+      await signUp(data);
       form.reset();
       // User will be automatically redirected to tabs by the layout
     } catch (error) {

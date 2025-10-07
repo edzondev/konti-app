@@ -9,7 +9,7 @@ import {
   initialWindowMetrics,
   SafeAreaProvider,
 } from "react-native-safe-area-context";
-import { AuthProvider } from "@/components/providers/auth-provider";
+import { AuthProvider, useAuth } from "@/components/providers/auth-provider";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -25,31 +25,38 @@ function Layout() {
     GeistRegular: require("../assets/fonts/Geist-Regular.ttf"),
     GeistSemibold: require("../assets/fonts/Geist-SemiBold.ttf"),
   });
+  const { loading, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (loaded) {
+    if (loaded && !loading) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [loaded, loading]);
 
-  if (!loaded) {
+  if (!loaded || loading) {
     return null;
   }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="camera" />
-      <Stack.Screen name="preview" />
-      <Stack.Screen name="success" />
-      <Stack.Screen
-        name="onboarding"
-        options={{
-          presentation: "modal",
-          animation: "slide_from_bottom",
-        }}
-      />
+      <Stack.Protected guard={!isAuthenticated}>
+        <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+      <Stack.Protected guard={isAuthenticated}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="camera" />
+        <Stack.Screen name="preview" />
+        <Stack.Screen name="success" />
+        <Stack.Screen 
+          name="subscription" 
+          options={{ 
+            presentation: 'modal',
+            headerShown: false,
+            gestureEnabled: true,
+            animationTypeForReplace: 'push'
+          }} 
+        />
+      </Stack.Protected>
     </Stack>
   );
 }

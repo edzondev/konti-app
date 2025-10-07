@@ -14,10 +14,12 @@ import {
   useMemo,
   useState,
 } from "react";
+
 type AuthState = {
   isAuthenticated: boolean;
   session: Session | null;
   loading: boolean;
+  isNewUser: boolean;
 };
 
 type SignInProps = {
@@ -35,6 +37,7 @@ type AuthContextType = {
   signIn: (props: SignInProps) => Promise<AuthTokenResponsePassword>;
   signUp: (props: SignUpProps) => Promise<AuthResponse>;
   signOut: () => Promise<void>;
+  clearNewUserFlag: () => void;
 } & AuthState;
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -52,6 +55,7 @@ export function useAuth(): AuthContextType {
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   // Configurar listener para cambios de autenticación
   useEffect(() => {
@@ -99,15 +103,20 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       },
     });
 
+    // Mark as new user if signup was successful
+    if (result.data.user && !result.error) {
+      setIsNewUser(true);
+    }
+
     return result;
   }, []);
 
   const signOut = useCallback(async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error("SignOut error:", error);
-    }
+    await supabase.auth.signOut();
+  }, []);
+
+  const clearNewUserFlag = useCallback(() => {
+    setIsNewUser(false);
   }, []);
 
   // Memoizar el valor del contexto para evitar re-renders innecesarios
@@ -116,11 +125,13 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       isAuthenticated: !!session,
       session,
       loading,
+      isNewUser,
       signIn,
       signUp,
       signOut,
+      clearNewUserFlag,
     }),
-    [session, loading, signIn, signUp, signOut],
+    [session, loading, isNewUser, signIn, signUp, signOut, clearNewUserFlag],
   );
 
   return (

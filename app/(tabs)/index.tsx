@@ -7,18 +7,31 @@ import { FlashList } from "@shopify/flash-list";
 import ReceiptListItem from "@/components/shared/receipt/receipt-list-item";
 import { COLORS } from "@/constants/colors";
 import { useReceipts } from "@/hooks/receipts/use-receipts";
+import { useAuth } from "@/components/providers/auth-provider";
+import { SuccessModal } from "@/components/ui/success-modal";
+import Empty from "@/components/shared/empty/empty";
+import { useCallback } from "react";
+import DashboardHeader from "@/components/shared/dashboard/dashboard-header";
 
 export default function Index() {
   const router = useRouter();
   const { data, isPending, isError, refetch, isLoading, error } = useReceipts();
   const [permission, requestPermission] = useCameraPermissions();
+  const { isNewUser, clearNewUserFlag } = useAuth();
 
-  const handleCameraPress = () => {
+  const handleCameraPress = useCallback(async () => {
     if (permission && permission.granted) {
       router.push("/camera");
     } else {
-      router.push("/camera-permission");
+      const result = await requestPermission();
+      if (result.granted) {
+        router.push("/camera");
+      }
     }
+  }, [permission, requestPermission, router]);
+
+  const handleWelcomeModalClose = () => {
+    clearNewUserFlag();
   };
 
   if (isError || error) {
@@ -40,7 +53,8 @@ export default function Index() {
             refreshing={isLoading || isPending}
             onRefresh={refetch}
             ItemSeparatorComponent={() => <View className="h-4" />}
-            ListEmptyComponent={() => <Text>No hay comprobantes</Text>}
+            ListEmptyComponent={() => <Empty />}
+            ListHeaderComponent={() => <DashboardHeader />}
           />
         )}
       </View>
@@ -52,6 +66,14 @@ export default function Index() {
       >
         <Camera size={28} color="white" />
       </Pressable>
+
+      <SuccessModal
+        visible={isNewUser}
+        onClose={handleWelcomeModalClose}
+        title="¡Bienvenido!"
+        message="Tu cuenta ha sido creada exitosamente. Ya puedes comenzar a subir tus boletas y organizar tus comprobantes."
+        buttonText="Empezar"
+      />
     </SafeAreaView>
   );
 }

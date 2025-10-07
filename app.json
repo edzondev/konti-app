@@ -1,10 +1,11 @@
 {
   "expo": {
-    "name": "app-boletas",
-    "slug": "app-boletas",
+    "name": "KontiApp",
+    "slug": "KontiApp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "scheme": "KontiApp",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -22,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.edzon2121.appboletas"
+      "package": "com.edzon2121.KontiApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,7 +34,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
+          "cameraPermission": "Permitir a $(PRODUCT_NAME) acceder a tu cámara para escanear boletas y tomar fotos"
         }
       ]
     ]

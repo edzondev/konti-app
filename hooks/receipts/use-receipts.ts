@@ -29,9 +29,9 @@ function useReceiptDetails(id: string) {
   return { data, isPending, isError, refetch, isLoading };
 }
 
-function useCreateReceipt(imageUri: string) {
+function useCreateReceipt(imageUri: string, userId: string) {
   const { mutateAsync, isPending, isError } = useMutation({
-    mutationFn: (data: any) => createByEdgeFunction(data, imageUri),
+    mutationFn: (data: any) => createByEdgeFunction(data, imageUri, userId),
   });
   return { mutateAsync, isPending, isError };
 }

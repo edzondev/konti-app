@@ -9,6 +9,7 @@ import { Alert } from "react-native";
 import { useCreateReceipt } from "./receipts/use-receipts";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query-keys";
+import { useAuth } from "@/components/providers/auth-provider";
 
 const defaultValues: ReceiptSchema = {
   amount: "",
@@ -21,6 +22,8 @@ const defaultValues: ReceiptSchema = {
 
 export default function useReceiptForm(imageUri: string) {
   const router = useRouter();
+  const { session } = useAuth();
+
   const queryClient = useQueryClient();
   const form = useForm<ReceiptSchema>({
     resolver: zodResolver(receiptSchema),
@@ -30,7 +33,7 @@ export default function useReceiptForm(imageUri: string) {
     mutateAsync: createReceiptFn,
     isPending,
     isError,
-  } = useCreateReceipt(imageUri);
+  } = useCreateReceipt(imageUri, session?.user.id || "");
 
   const handleCancel = () => {
     form.reset();
@@ -39,17 +42,13 @@ export default function useReceiptForm(imageUri: string) {
 
   const onSubmit = async (data: ReceiptSchema) => {
     try {
-      /*const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
+      if (!session) {
         Alert.alert(
           "Error",
           "Debes iniciar sesión para guardar un comprobante",
         );
         return;
-      }*/
+      }
 
       await createReceiptFn(data);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.receipts.all });

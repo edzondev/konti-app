@@ -16,8 +16,15 @@ export default memo(function ReceiptListItem({ receipt }: Props) {
         <Pressable className="flex-row items-end justify-between py-5">
           {({ pressed }) => (
             <View className="flex-col items-start gap-y-2">
-              <Text className="font-geist-semibold text-base font-semibold text-neutral-foreground">
-                {receipt.business_name}
+              <Text
+                className={cn(
+                  "text-lg font-medium text-neutral-foreground",
+                  pressed ? "text-primary" : "",
+                )}
+              >
+                {receipt.business_name
+                  ? receipt.business_name
+                  : "Sin razón social"}
               </Text>
               <View className="w-full flex-row items-center justify-between">
                 <View className="flex-row items-center gap-2">

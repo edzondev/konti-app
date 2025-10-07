@@ -53,7 +53,7 @@ export default function Success() {
           Tu comprobante ha sido registrado exitosamente
         </Text>
 
-        <Link href="/" asChild dismissTo>
+        <Link href="/(tabs)" asChild dismissTo>
           <Pressable className="flex-row items-center justify-center rounded-lg bg-primary py-3 text-white">
             <Text className="font-geist-regular text-white">Continuar</Text>
           </Pressable>

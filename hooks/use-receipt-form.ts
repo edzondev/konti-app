@@ -7,8 +7,8 @@ import {
 import { useRouter } from "expo-router";
 import { Alert } from "react-native";
 import { useCreateReceipt } from "./receipts/use-receipts";
-import { supabase } from "@/utils/supabase/supabase";
-import { TablesInsert } from "@/types/database.types";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
 
 const defaultValues: ReceiptSchema = {
   amount: "",
@@ -19,13 +19,18 @@ const defaultValues: ReceiptSchema = {
   description: "",
 };
 
-export default function useReceiptForm() {
+export default function useReceiptForm(imageUri: string) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const form = useForm<ReceiptSchema>({
     resolver: zodResolver(receiptSchema),
     defaultValues,
   });
-  const { mutateAsync: createReceipt, isPending, isError } = useCreateReceipt();
+  const {
+    mutateAsync: createReceiptFn,
+    isPending,
+    isError,
+  } = useCreateReceipt(imageUri);
 
   const handleCancel = () => {
     form.reset();
@@ -34,7 +39,7 @@ export default function useReceiptForm() {
 
   const onSubmit = async (data: ReceiptSchema) => {
     try {
-      const {
+      /*const {
         data: { user },
       } = await supabase.auth.getUser();
 
@@ -44,32 +49,18 @@ export default function useReceiptForm() {
           "Debes iniciar sesión para guardar un comprobante",
         );
         return;
-      }
+      }*/
 
-      const receiptData: Omit<TablesInsert<"receipts">, "id"> = {
-        total_amount: parseFloat(data.amount),
-        is_expense: data.isExpense,
-        ruc: data.ruc || null,
-        business_name: data.businessName || null,
-        receipt_number: data.receiptNumber || null,
-        description: data.description || null,
-        image_url: "https://",
-        user_id: user.id,
-      };
-
-      createReceipt(receiptData, {
-        onSuccess: () => {
-          router.push("/success");
-        },
-        onError: (error) => {
-          Alert.alert(
-            "Error",
-            "No se pudo guardar el comprobante. Intenta nuevamente.",
-          );
-        },
-      });
+      await createReceiptFn(data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.receipts.all });
+      form.reset();
+      router.push("/success");
     } catch (error) {
-      Alert.alert("Error", "Ocurrió un error inesperado. Intenta nuevamente.");
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Ocurrió un error inesperado. Intenta nuevamente.";
+      Alert.alert("Error", errorMessage);
     }
   };
 

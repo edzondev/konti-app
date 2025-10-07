@@ -11,11 +11,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { COLORS } from "@/constants/colors";
-import { Check } from "@/constants/icons";
 import { AnimatedSwitch } from "@/components/ui/animated-switch";
+import { ActivityIndicator } from "react-native";
 
-export default function ReceiptForm() {
-  const { form, onSubmit, isPending, isError, handleCancel } = useReceiptForm();
+type Props = {
+  imageUri: string;
+};
+
+export default function ReceiptForm({ imageUri }: Props) {
+  const { form, onSubmit, isPending, isError, handleCancel } =
+    useReceiptForm(imageUri);
   return (
     <>
       <View className="mb-12 gap-y-6">
@@ -78,10 +83,13 @@ export default function ReceiptForm() {
                     readOnly={isPending}
                     placeholder="20123456789"
                     {...field}
-                    value={field.value.toString()}
+                    value={field.value?.toString()}
                     onChangeText={field.onChange}
                   />
                 </FormControl>
+                {form.formState.errors.ruc && (
+                  <FormMessage>{form.formState.errors.ruc.message}</FormMessage>
+                )}
               </FormItem>
             )}
           />
@@ -155,7 +163,7 @@ export default function ReceiptForm() {
         <Pressable
           disabled={isPending}
           onPress={handleCancel}
-          className="flex-1 flex-row items-center justify-center rounded-lg bg-muted-foreground/10 py-3 text-neutral-foreground"
+          className="flex-1 flex-row items-center justify-center rounded-lg bg-muted-foreground/10 py-3 text-neutral-foreground disabled:opacity-50"
         >
           {({ pressed }) => (
             <Text
@@ -169,9 +177,9 @@ export default function ReceiptForm() {
           )}
         </Pressable>
         <Pressable
-          disabled={isPending}
           onPress={form.handleSubmit(onSubmit)}
-          className="flex-1 rounded-lg bg-primary py-3 text-white"
+          className="flex-1 rounded-lg bg-primary py-3 text-white disabled:opacity-50"
+          disabled={isPending}
         >
           {({ pressed }) => (
             <View
@@ -180,7 +188,9 @@ export default function ReceiptForm() {
                 pressed ? "opacity-70" : "",
               )}
             >
-              <Check size={20} color={COLORS.neutral.white} />
+              {isPending && (
+                <ActivityIndicator size="small" color={COLORS.neutral.white} />
+              )}
               <Text className="font-geist-regular text-white">
                 {isPending ? "Guardando..." : "Guardar"}
               </Text>

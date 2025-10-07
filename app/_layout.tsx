@@ -27,7 +27,6 @@ function Layout() {
 
   useEffect(() => {
     if (loaded) {
-      console.log("loaded", loaded);
       SplashScreen.hideAsync();
     }
   }, [loaded]);

@@ -1,10 +1,11 @@
 import { QUERY_KEYS } from "@/constants/query-keys";
-import getReceipts, {
-  createReceipt,
+import {
+  getReceipts,
+  createByEdgeFunction,
   getReceiptDetails,
 } from "@/services/receipts";
-import type { TablesInsert, Tables } from "@/types/database.types";
-import { useMutationBase, useQueryBase } from "@/utils/query/hooks/query-base";
+import type { Tables } from "@/types/database.types";
+import { useQueryBase } from "@/utils/query/hooks/query-base";
 import { useMutation } from "@tanstack/react-query";
 
 function useReceipts() {
@@ -28,9 +29,9 @@ function useReceiptDetails(id: string) {
   return { data, isPending, isError, refetch, isLoading };
 }
 
-function useCreateReceipt() {
+function useCreateReceipt(imageUri: string) {
   const { mutateAsync, isPending, isError } = useMutation({
-    mutationFn: createReceipt,
+    mutationFn: (data: any) => createByEdgeFunction(data, imageUri),
   });
   return { mutateAsync, isPending, isError };
 }

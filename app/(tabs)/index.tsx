@@ -40,6 +40,7 @@ export default function Index() {
             refreshing={isLoading || isPending}
             onRefresh={refetch}
             ItemSeparatorComponent={() => <View className="h-4" />}
+            ListEmptyComponent={() => <Text>No hay comprobantes</Text>}
           />
         )}
       </View>

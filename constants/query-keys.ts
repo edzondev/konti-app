@@ -6,4 +6,7 @@ export const QUERY_KEYS = {
   profile: {
     details: ["profile"] as const,
   },
+  purchases: {
+    data: ["purchases", "data"] as const,
+  },
 } as const;

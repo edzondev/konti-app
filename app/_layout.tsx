@@ -10,6 +10,8 @@ import {
   SafeAreaProvider,
 } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "@/components/providers/auth-provider";
+import { usePurchasesMonitor } from "@/hooks/subscriptions/use-purchases-monitor";
+import { usePurchasesInitialize } from "@/hooks/subscriptions/use-purchases-initialize";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -47,14 +49,14 @@ function Layout() {
         <Stack.Screen name="camera" />
         <Stack.Screen name="preview" />
         <Stack.Screen name="success" />
-        <Stack.Screen 
-          name="subscription" 
-          options={{ 
-            presentation: 'modal',
+        <Stack.Screen
+          name="subscription"
+          options={{
+            presentation: "modal",
             headerShown: false,
             gestureEnabled: true,
-            animationTypeForReplace: 'push'
-          }} 
+            animationTypeForReplace: "push",
+          }}
         />
       </Stack.Protected>
     </Stack>
@@ -62,6 +64,11 @@ function Layout() {
 }
 
 export default function RootLayout() {
+  const isMonitorInitialized = usePurchasesMonitor();
+  const isInitialized = usePurchasesInitialize();
+
+  console.log("isMonitorInitialized", isMonitorInitialized);
+  console.log("isInitialized", isInitialized);
   return (
     <AuthProvider>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>

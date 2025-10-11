@@ -14,6 +14,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import Purchases from "react-native-purchases";
 
 type AuthState = {
   isAuthenticated: boolean;
@@ -65,11 +66,23 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       switch (event) {
         case "SIGNED_OUT":
           setSession(null);
+          try {
+            await Purchases.logOut();
+          } catch (error) {
+            console.error("RevenueCat logout error:", error);
+          }
           break;
         case "INITIAL_SESSION":
         case "SIGNED_IN":
         case "TOKEN_REFRESHED":
           setSession(newSession);
+          if (newSession?.user?.id) {
+            try {
+              await Purchases.logIn(newSession.user.id);
+            } catch (error) {
+              console.error("RevenueCat login error:", error);
+            }
+          }
           break;
         default:
           break;

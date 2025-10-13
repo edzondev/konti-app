@@ -1,19 +1,20 @@
 import { QUERY_KEYS } from "@/constants/query-keys";
 import {
   getReceipts,
-  createByEdgeFunction,
+  createReceipt,
   getReceiptDetails,
 } from "@/services/receipts";
 import type { Tables } from "@/types/database.types";
+import { FiltersType } from "@/types/receipt.type";
 import { useQueryBase } from "@/utils/query/hooks/query-base";
 import { useMutation } from "@tanstack/react-query";
 
-function useReceipts() {
+function useReceipts(filters: Partial<FiltersType>) {
   const { data, isPending, isError, refetch, isLoading, error } = useQueryBase<
     Tables<"receipts">[]
   >({
-    queryKey: QUERY_KEYS.receipts.all,
-    queryFn: getReceipts,
+    queryKey: [...QUERY_KEYS.receipts.all, filters],
+    queryFn: () => getReceipts(filters),
   });
   return { data, isPending, isError, refetch, isLoading, error };
 }
@@ -29,9 +30,9 @@ function useReceiptDetails(id: string) {
   return { data, isPending, isError, refetch, isLoading };
 }
 
-function useCreateReceipt(imageUri: string, userId: string) {
+function useCreateReceipt(imageUrl: string, userId: string) {
   const { mutateAsync, isPending, isError } = useMutation({
-    mutationFn: (data: any) => createByEdgeFunction(data, imageUri, userId),
+    mutationFn: (data: any) => createReceipt(data, imageUrl, userId),
   });
   return { mutateAsync, isPending, isError };
 }

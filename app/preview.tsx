@@ -13,20 +13,26 @@ import { useEffect } from "react";
 import { Sparkles } from "@/constants/icons";
 import { COLORS } from "@/constants/colors";
 import ReceiptForm from "@/components/shared/forms/receipt-form";
+import { useUserPlan } from "@/hooks/profile/use-user-plan";
+import { useAiExtraction } from "@/hooks/receipts/use-ai-extraction";
+import { Alert } from "react-native";
+import { AiExtractedData } from "@/types/ai-extraction.types";
+import { useState } from "react";
 
-type Props = {
-  isExtracting: boolean;
-};
-
-export default function Preview({ isExtracting }: Props) {
-  const { imageUri } = useLocalSearchParams<{
-    imageUri: string;
+export default function Preview() {
+  const { imageUrl } = useLocalSearchParams<{
+    imageUrl: string;
   }>();
-
+  const { hasProOrBetter } = useUserPlan();
+  const { mutateAsync: extractData, isPending: isExtractingData } =
+    useAiExtraction();
+  const [extractedData, setExtractedData] = useState<
+    AiExtractedData | undefined
+  >();
   const opacity = useSharedValue(1);
 
   useEffect(() => {
-    if (isExtracting) {
+    if (isExtractingData) {
       opacity.value = withRepeat(
         withSequence(
           withTiming(0.5, { duration: 800, easing: Easing.inOut(Easing.ease) }),
@@ -38,7 +44,27 @@ export default function Preview({ isExtracting }: Props) {
     } else {
       opacity.value = withTiming(1, { duration: 300 });
     }
-  }, [isExtracting]);
+  }, [isExtractingData]);
+
+  const handleAiExtraction = async () => {
+    if (!imageUrl) return;
+
+    try {
+      const response = await extractData(imageUrl);
+      if (response.success && response.data) {
+        setExtractedData(response.data);
+        Alert.alert(
+          "Éxito",
+          "Información extraída correctamente. El formulario se ha autocompletado.",
+        );
+      } else {
+        Alert.alert("Error", "No se pudieron extraer los datos de la imagen");
+      }
+    } catch (error) {
+      console.error("Error en extracción:", error);
+      Alert.alert("Error", "No se pudo extraer la información de la imagen");
+    }
+  };
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -56,33 +82,37 @@ export default function Preview({ isExtracting }: Props) {
         keyboardShouldPersistTaps="handled"
       >
         <View className="px-6 py-8">
-          {imageUri && (
+          {imageUrl && (
             <View className="mb-8">
               <Image
-                source={{ uri: imageUri }}
+                source={{ uri: imageUrl }}
                 className="h-96 rounded-lg"
                 resizeMode="cover"
               />
             </View>
           )}
 
-          <View className="mb-8">
-            <Pressable
-              onPress={() => {}}
-              disabled={false}
-              className="w-full flex-row items-center justify-center gap-2 rounded-lg border border-primary py-3  transition-colors hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Animated.View style={animatedStyle}>
-                <Sparkles size={20} color={COLORS.primary} />
-              </Animated.View>
-              <Text className="font-geist-regular text-base text-primary">
-                {isExtracting ? "Extrayendo información..." : "Extraer con IA"}
-              </Text>
-            </Pressable>
-          </View>
+          {hasProOrBetter && (
+            <View className="mb-8">
+              <Pressable
+                onPress={handleAiExtraction}
+                disabled={isExtractingData}
+                className="w-full flex-row items-center justify-center gap-2 rounded-lg border border-primary py-3  transition-colors hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Animated.View style={animatedStyle}>
+                  <Sparkles size={20} color={COLORS.primary} />
+                </Animated.View>
+                <Text className="font-geist-regular text-base text-primary">
+                  {isExtractingData
+                    ? "Extrayendo información..."
+                    : "Extraer con IA"}
+                </Text>
+              </Pressable>
+            </View>
+          )}
 
           {/* Formulario de Comprobante */}
-          <ReceiptForm imageUri={imageUri} />
+          <ReceiptForm imageUrl={imageUrl} extractedData={extractedData} />
         </View>
       </ScrollView>
     </SafeAreaView>

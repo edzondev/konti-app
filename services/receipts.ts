@@ -1,8 +1,33 @@
 import { ReceiptSchema } from "@/utils/schemas/receipt.schema";
 import { supabase } from "@/utils/supabase/supabase";
+import { AiExtractionResponse } from "@/types/ai-extraction.types";
+import { FiltersType, ReceiptKpis } from "@/types/receipt.type";
 
-export async function getReceipts() {
-  const { data, error } = await supabase.from("receipts").select("*");
+export async function getReceipts(filters: Partial<FiltersType>) {
+  let query = supabase.from("receipts").select("*");
+
+  // Filter by accounting type (is_expense)
+  if (filters.isExpense !== undefined) {
+    query = query.eq("is_expense", filters.isExpense);
+  }
+
+  // Search by business name, RUC, or receipt number
+  if (filters.search) {
+    query = query.or(
+      `business_name.ilike.%${filters.search}%,ruc.ilike.%${filters.search}%,receipt_number.ilike.%${filters.search}%`,
+    );
+  }
+
+  // Sort by date
+  if (filters.sortBy) {
+    const ascending = filters.sortBy === "date_asc";
+    query = query.order("created_at", { ascending });
+  } else {
+    // Default sort: newest first
+    query = query.order("created_at", { ascending: false });
+  }
+
+  const { data, error } = await query;
   if (error) {
     throw error;
   }
@@ -21,43 +46,50 @@ export async function getReceiptDetails(receiptId: string) {
   return data;
 }
 
-export async function createByEdgeFunction(
-  data: ReceiptSchema,
+export async function uploadImageToStorage(
   imageUri: string,
+  userId: string,
+): Promise<string> {
+  try {
+    const fileName = imageUri.split("/").pop();
+    const filePath = `${userId}/${Date.now()}-${fileName}`;
+
+    // En React Native, necesitamos usar FormData para subir archivos
+    const formData = new FormData();
+    formData.append("file", {
+      uri: imageUri,
+      type: "image/jpeg",
+      name: fileName || "image.jpg",
+    } as any);
+
+    // Subir directamente a Supabase Storage usando FormData
+    const { data, error } = await supabase.storage
+      .from("receipts")
+      .upload(filePath, formData, {
+        contentType: "image/jpeg",
+      });
+
+    if (error) {
+      throw new Error("Error al subir la imagen");
+    }
+
+    // Obtener URL pública
+    const { data: publicUrlData } = supabase.storage
+      .from("receipts")
+      .getPublicUrl(filePath);
+
+    return publicUrlData.publicUrl;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function createReceipt(
+  data: ReceiptSchema,
+  imageUrl: string,
   userId: string,
 ) {
   try {
-    const fileName = imageUri.split("/").pop();
-
-    // Generamos la url
-    const { data: urlData, error: urlError } = await supabase.functions.invoke(
-      "generate-upload-url",
-      {
-        body: { file_name: fileName, user_id: userId },
-      },
-    );
-
-    if (urlError) {
-      throw new Error("Error al generar la url de subida");
-    }
-
-    // Subimos la imagen
-    const { signedUrl, filePath } = urlData;
-    const imageResponse = await fetch(imageUri);
-    const blob = await imageResponse.blob();
-    const uploadResponse = await fetch(signedUrl, {
-      method: "PUT",
-      body: blob,
-    });
-
-    if (uploadResponse.status !== 200) {
-      throw new Error("Error al subir la imagen");
-    }
-    if (!uploadResponse.ok) throw new Error("Error subiendo imagen");
-
-    // enerar URL pública
-    const imageUrl = `${process.env.EXPO_PUBLIC_SUPABASE_URL}/storage/v1/object/public/receipts/${filePath}`;
-
     const body = {
       total_amount:
         typeof data.amount === "string" ? parseFloat(data.amount) : data.amount,
@@ -98,4 +130,39 @@ export async function createByEdgeFunction(
   } catch (error) {
     throw error;
   }
+}
+
+export async function getReceiptDataByAi(
+  imageUrl: string,
+): Promise<AiExtractionResponse> {
+  try {
+    const { data, error } = await supabase.functions.invoke("ai-extract-info", {
+      body: { imageUrl: imageUrl },
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data as AiExtractionResponse;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getReceiptKpis(): Promise<ReceiptKpis> {
+  const { data, error } = await supabase
+    .from("receipt_kpis")
+    .select("*")
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return {
+    total_receipts: data.total_receipts,
+    expense_receipts: data.expense_receipts,
+    total_amount_sum: parseFloat(data.total_amount_sum),
+  };
 }

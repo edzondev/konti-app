@@ -16,9 +16,7 @@ import {
 import { useAuth } from "@/components/providers/auth-provider";
 import { useGetProfile } from "@/hooks/profile/use-profile";
 import { useMemo } from "react";
-import { RefreshCcw } from "lucide-react-native";
-import { QUERY_KEYS } from "@/constants/query-keys";
-import { useQueryClient } from "@tanstack/react-query";
+
 const PLAN_CONFIG = {
   free: {
     icon: { Component: Zap, color: COLORS.muted.foreground },
@@ -49,8 +47,7 @@ const PLAN_CONFIG = {
 export default function Profile() {
   const router = useRouter();
   const { signOut } = useAuth();
-  const { data: profile, isLoading, refetch, isRefetching } = useGetProfile();
-  const queryClient = useQueryClient();
+  const { data: profile, isLoading } = useGetProfile();
 
   const planConfig = useMemo(() => {
     return (
@@ -79,19 +76,12 @@ export default function Profile() {
     );
   };
 
-  const handleRefresh = async () => {
-    await refetch();
-    await queryClient.invalidateQueries({
-      queryKey: QUERY_KEYS.profile.details,
-    });
-  };
-
-  if (isRefetching) {
+  if (isLoading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator size="large" color={COLORS.primary} />
         <Text className="font-regular text-lg text-primary">
-          Actualizando información...
+          Cargando información...
         </Text>
       </SafeAreaView>
     );
@@ -205,13 +195,6 @@ export default function Profile() {
             <Text className="font-regular text-lg text-destructive">
               Cerrar sesión
             </Text>
-          </Pressable>
-          <Pressable
-            onPress={handleRefresh}
-            className="w-full flex-row items-center justify-center gap-3 rounded-lg bg-primary/5 py-4 "
-          >
-            <RefreshCcw size={20} color={COLORS.primary} />
-            <Text className="font-regular text-lg text-primary">Refrescar</Text>
           </Pressable>
         </View>
       </View>

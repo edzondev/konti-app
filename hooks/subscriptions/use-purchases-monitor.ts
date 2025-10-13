@@ -1,30 +1,24 @@
 import { useEffect, useRef } from "react";
 import { AppState, AppStateStatus } from "react-native";
-import Purchases, { CustomerInfo } from "react-native-purchases";
-
-import { usePurchasesStore } from "@/hooks/use-app-store";
+import Purchases from "react-native-purchases";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
 
 const PURCHASES_CONFIG_CHECK_INTERVAL_MS = 1000;
 
 export function usePurchasesMonitor(): void {
-  const setSubscriptionStatus = usePurchasesStore(
-    (state) => state.setSubscriptionStatus,
-  );
+  const queryClient = useQueryClient();
   const isConfiguredRef = useRef(false);
 
   useEffect(() => {
     let configCheckInterval: NodeJS.Timeout | null = null;
     let appStateSubscription: any = null;
 
-    const checkSubscriptionStatus = async () => {
-      try {
-        const customerInfo: CustomerInfo = await Purchases.getCustomerInfo();
-        const hasActiveSubscription =
-          Object.keys(customerInfo.entitlements.active).length > 0;
-        setSubscriptionStatus(hasActiveSubscription);
-      } catch (error) {
-        console.error("[PurchasesMonitor] Status check failed:", error);
-      }
+    const refreshProfile = () => {
+      // Cuando RevenueCat detecta cambios, invalida el perfil
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.profile.details,
+      });
     };
 
     const setupMonitoring = () => {
@@ -32,12 +26,13 @@ export function usePurchasesMonitor(): void {
         "change",
         (nextAppState: AppStateStatus) => {
           if (nextAppState === "active") {
-            checkSubscriptionStatus();
+            refreshProfile();
           }
         },
       );
 
-      Purchases.addCustomerInfoUpdateListener(checkSubscriptionStatus);
+      // Escuchar actualizaciones de RevenueCat
+      Purchases.addCustomerInfoUpdateListener(refreshProfile);
     };
 
     const waitForConfiguration = async () => {
@@ -60,5 +55,5 @@ export function usePurchasesMonitor(): void {
       if (configCheckInterval) clearInterval(configCheckInterval);
       if (appStateSubscription) appStateSubscription.remove();
     };
-  }, [setSubscriptionStatus]);
+  }, [queryClient]);
 }

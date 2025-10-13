@@ -13,14 +13,29 @@ import { cn } from "@/lib/utils";
 import { COLORS } from "@/constants/colors";
 import { AnimatedSwitch } from "@/components/ui/animated-switch";
 import { ActivityIndicator } from "react-native";
+import { AiExtractedData } from "@/types/ai-extraction.types";
+import { useEffect } from "react";
 
 type Props = {
-  imageUri: string;
+  imageUrl: string;
+  extractedData?: AiExtractedData;
 };
 
-export default function ReceiptForm({ imageUri }: Props) {
-  const { form, onSubmit, isPending, isError, handleCancel } =
-    useReceiptForm(imageUri);
+export default function ReceiptForm({ imageUrl, extractedData }: Props) {
+  const {
+    form,
+    onSubmit,
+    isPending,
+    isError,
+    handleCancel,
+    fillFormWithExtractedData,
+  } = useReceiptForm(imageUrl);
+
+  useEffect(() => {
+    if (extractedData) {
+      fillFormWithExtractedData(extractedData);
+    }
+  }, [extractedData, fillFormWithExtractedData]);
   return (
     <>
       <View className="mb-12 gap-y-6">

@@ -1,4 +1,4 @@
-import { Home, User } from "@/constants/icons";
+import { Home, ReceiptText, User } from "@/constants/icons";
 import { Tabs } from "expo-router";
 
 export default function TabsLayout() {
@@ -9,6 +9,15 @@ export default function TabsLayout() {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="recipes"
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <ReceiptText color={color} size={size} />
+          ),
         }}
       />
       <Tabs.Screen

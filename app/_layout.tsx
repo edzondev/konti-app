@@ -12,6 +12,7 @@ import {
 import { AuthProvider, useAuth } from "@/components/providers/auth-provider";
 import { usePurchasesMonitor } from "@/hooks/subscriptions/use-purchases-monitor";
 import { usePurchasesInitialize } from "@/hooks/subscriptions/use-purchases-initialize";
+import { useAppStateRefresh } from "@/hooks/use-app-state-refresh";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -28,6 +29,10 @@ function Layout() {
     GeistSemibold: require("../assets/fonts/Geist-SemiBold.ttf"),
   });
   const { loading, isAuthenticated } = useAuth();
+
+  usePurchasesMonitor();
+  usePurchasesInitialize();
+  useAppStateRefresh();
 
   useEffect(() => {
     if (loaded && !loading) {
@@ -64,11 +69,6 @@ function Layout() {
 }
 
 export default function RootLayout() {
-  const isMonitorInitialized = usePurchasesMonitor();
-  const isInitialized = usePurchasesInitialize();
-
-  console.log("isMonitorInitialized", isMonitorInitialized);
-  console.log("isInitialized", isInitialized);
   return (
     <AuthProvider>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>

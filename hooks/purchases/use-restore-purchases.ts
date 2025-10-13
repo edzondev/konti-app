@@ -1,25 +1,22 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { restorePurchases, formatPurchasesError } from "@/services/purchases";
-import { usePurchasesStore } from "@/hooks/use-app-store";
 
 export function useRestorePurchases() {
   const queryClient = useQueryClient();
-  const setSubscriptionStatus = usePurchasesStore(
-    (state) => state.setSubscriptionStatus,
-  );
 
   const mutation = useMutation({
     mutationFn: restorePurchases,
-    onSuccess: (customerInfo) => {
-      queryClient.setQueryData(QUERY_KEYS.purchases.data, (old: any) => ({
-        ...old,
-        customerInfo,
-      }));
+    onSuccess: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      const hasActive =
-        Object.keys(customerInfo.entitlements.active).length > 0;
-      setSubscriptionStatus(hasActive);
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.profile.details,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.purchases.data,
+      });
     },
     onError: (error) => {
       const formattedError = formatPurchasesError(error);

@@ -11,12 +11,17 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { SuccessModal } from "@/components/ui/success-modal";
 import Empty from "@/components/shared/empty/empty";
 import { useCallback } from "react";
-import DashboardHeader from "@/components/shared/dashboard/dashboard-header";
+import DashboardHeader from "@/components/shared/dashboard/header";
+import { useReceiptKpis } from "@/hooks/receipts/use-receipt-kpis";
 
 export default function Index() {
   const router = useRouter();
-  const { data, isPending, isError, refetch, isLoading, error } = useReceipts();
   const [permission, requestPermission] = useCameraPermissions();
+  const { data, isPending, isError, refetch, isLoading, error } = useReceipts(
+    {},
+  );
+  const { refetch: refetchKpis, isRefetching } = useReceiptKpis();
+
   const { isNewUser, clearNewUserFlag } = useAuth();
 
   const handleCameraPress = useCallback(async () => {
@@ -47,14 +52,18 @@ export default function Index() {
           </View>
         ) : (
           <FlashList
-            data={data}
+            data={data?.slice(0, 3) ?? []}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => <ReceiptListItem receipt={item} />}
-            refreshing={isLoading || isPending}
-            onRefresh={refetch}
+            refreshing={isLoading || isPending || isRefetching}
+            onRefresh={() => {
+              refetchKpis();
+              refetch();
+            }}
             ItemSeparatorComponent={() => <View className="h-4" />}
             ListEmptyComponent={() => <Empty />}
-            ListHeaderComponent={() => <DashboardHeader />}
+            ListHeaderComponent={() => <DashboardHeader data={data ?? []} />}
+            showsVerticalScrollIndicator={false}
           />
         )}
       </View>
@@ -67,13 +76,15 @@ export default function Index() {
         <Camera size={28} color="white" />
       </Pressable>
 
-      <SuccessModal
-        visible={isNewUser}
-        onClose={handleWelcomeModalClose}
-        title="¡Bienvenido!"
-        message="Tu cuenta ha sido creada exitosamente. Ya puedes comenzar a subir tus boletas y organizar tus comprobantes."
-        buttonText="Empezar"
-      />
+      {isNewUser && (
+        <SuccessModal
+          visible={isNewUser}
+          onClose={handleWelcomeModalClose}
+          title="¡Bienvenido!"
+          message="Tu cuenta ha sido creada exitosamente. Ya puedes comenzar a subir tus boletas y organizar tus comprobantes."
+          buttonText="Empezar"
+        />
+      )}
     </SafeAreaView>
   );
 }

@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { View, Text, Pressable, ActivityIndicator } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
-import { Check, Crown } from "lucide-react-native";
+import { Check, Crown } from "@/constants/icons";
 import { COLORS } from "@/constants/colors";
 import type { PurchasesPackage } from "react-native-purchases";
 import { cn } from "@/lib/utils";

@@ -1,9 +1,9 @@
-import { SupportedStorage } from "@supabase/supabase-js";
-import { MMKV } from "react-native-mmkv";
+import { SupportedStorage } from '@supabase/supabase-js';
+import { MMKV } from 'react-native-mmkv';
 
 const storage = new MMKV({
-  id: "supabase-storage",
-  encryptionKey: "my-encryption-key",
+  id: 'supabase-storage',
+  encryptionKey: 'my-encryption-key',
 });
 
 const supabaseStorage: SupportedStorage = {

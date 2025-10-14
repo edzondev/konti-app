@@ -1,13 +1,14 @@
-import { View, Text, Image } from "react-native";
-import { Calendar, FileText, CreditCard, Building2 } from "@/constants/icons";
-import { COLORS } from "@/constants/colors";
-import { memo } from "react";
-import { cn } from "@/lib/utils";
-import type { Tables } from "@/types/database.types";
-import { dateFormat } from "@/lib/date-format";
+import { View, Text } from 'react-native';
+import ImageComponent from '@/components/ui/image';
+import { Calendar, FileText, CreditCard, Building2 } from 'lucide-react-native';
+import { COLORS } from '@/constants/colors';
+import { memo } from 'react';
+import { cn } from '@/lib/utils';
+import type { Tables } from '@/types/database.types';
+import { dateFormat } from '@/lib/date-format';
 
 type Props = {
-  selectedReceipt: Tables<"receipts">;
+  selectedReceipt: Tables<'receipts'>;
 };
 
 function ReceiptCard({ selectedReceipt }: Props) {
@@ -15,10 +16,10 @@ function ReceiptCard({ selectedReceipt }: Props) {
     <View className="px-6 py-8">
       {selectedReceipt.image_url && (
         <View className="mb-8 overflow-hidden rounded-lg border border-neutral-border">
-          <Image
-            source={{ uri: selectedReceipt.image_url }}
-            resizeMode="cover"
-            style={{ width: "100%", height: 350 }}
+          <ImageComponent
+            source={selectedReceipt.image_url}
+            contentFit="cover"
+            style={{ width: '100%', height: 350 }}
             alt="Comprobante"
           />
         </View>
@@ -45,7 +46,7 @@ function ReceiptCard({ selectedReceipt }: Props) {
               Fecha
             </Text>
             <Text className="text-base font-light text-neutral-foreground">
-              {dateFormat(selectedReceipt.created_at ?? "")}
+              {dateFormat(selectedReceipt.created_at ?? '')}
             </Text>
           </View>
         </View>
@@ -122,14 +123,14 @@ function ReceiptCard({ selectedReceipt }: Props) {
           <View className="flex-row items-center gap-2">
             <View
               className={cn(
-                "h-2 w-2 rounded-full",
+                'h-2 w-2 rounded-full',
                 selectedReceipt.is_expense
-                  ? "bg-primary"
-                  : "border border-muted-foreground/30",
+                  ? 'bg-primary'
+                  : 'border border-muted-foreground/30',
               )}
             />
             <Text className="text-base font-light text-neutral-foreground">
-              {selectedReceipt.is_expense ? "Sí" : "No"}
+              {selectedReceipt.is_expense ? 'Sí' : 'No'}
             </Text>
           </View>
         </View>

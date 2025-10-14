@@ -1,12 +1,12 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Welcome() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-purple-200" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-purple-200" edges={['top']}>
       <View className="flex-1 justify-end">
         <View className="h-96 w-full items-center rounded-3xl bg-white px-6 py-8">
           <View className="flex-auto flex-col justify-around">
@@ -22,7 +22,7 @@ export default function Welcome() {
             </View>
 
             <TouchableOpacity
-              onPress={() => router.push("/(auth)/login")}
+              onPress={() => router.push('/(auth)/login')}
               className="flex-row items-center justify-center rounded-full bg-primary py-5"
             >
               <Text className="text-lg font-semibold text-white">

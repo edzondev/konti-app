@@ -1,7 +1,7 @@
-import { View, Text, Pressable, Alert, ActivityIndicator } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { COLORS } from "@/constants/colors";
-import { useRouter } from "expo-router";
+import { View, Text, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS } from '@/constants/colors';
+import { useRouter } from 'expo-router';
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,34 +12,34 @@ import {
   Shield,
   User,
   Zap,
-} from "@/constants/icons";
-import { useAuth } from "@/components/providers/auth-provider";
-import { useGetProfile } from "@/hooks/profile/use-profile";
-import { useMemo } from "react";
+} from 'lucide-react-native';
+import { useAuth } from '@/components/providers/auth-provider';
+import { useGetProfile } from '@/hooks/profile/use-profile';
+import { useMemo } from 'react';
 
 const PLAN_CONFIG = {
   free: {
     icon: { Component: Zap, color: COLORS.muted.foreground },
     badge: {
-      label: "Free",
+      label: 'Free',
       className:
-        "bg-neutral-100 rounded px-2 py-0.5 text-xs font-light text-neutral-foreground",
+        'bg-neutral-100 rounded px-2 py-0.5 text-xs font-light text-neutral-foreground',
     },
   },
   pro: {
     icon: { Component: Zap, color: COLORS.primary },
     badge: {
-      label: "Pro",
+      label: 'Pro',
       className:
-        "rounded bg-primary/10 px-2 py-0.5 text-xs font-light text-primary",
+        'rounded bg-primary/10 px-2 py-0.5 text-xs font-light text-primary',
     },
   },
   premium: {
-    icon: { Component: Crown, color: "#d97706" },
+    icon: { Component: Crown, color: '#d97706' },
     badge: {
-      label: "Premium",
+      label: 'Premium',
       className:
-        "rounded bg-amber-500/10 px-2 py-0.5 text-xs font-light text-amber-600",
+        'rounded bg-amber-500/10 px-2 py-0.5 text-xs font-light text-amber-600',
     },
   },
 } as const;
@@ -58,15 +58,15 @@ export default function Profile() {
 
   const handleLogout = async () => {
     Alert.alert(
-      "Cerrar sesión",
-      "¿Estás seguro de querer cerrar sesión?",
+      'Cerrar sesión',
+      '¿Estás seguro de querer cerrar sesión?',
       [
         {
-          text: "Cancelar",
-          style: "cancel",
+          text: 'Cancelar',
+          style: 'cancel',
         },
         {
-          text: "Cerrar sesión",
+          text: 'Cerrar sesión',
           onPress: async () => await signOut(),
         },
       ],
@@ -90,16 +90,9 @@ export default function Profile() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="my-8 px-6">
-        <View className="flex-row items-center gap-x-4">
-          <Pressable
-            onPress={() => router.back()}
-            className="rounded-full bg-gray-100 p-2"
-            aria-label="Volver"
-          >
-            <ChevronLeft size={20} color={COLORS.neutral.foreground} />
-          </Pressable>
-          <Text className="font-regular text-lg text-neutral-foreground">
-            Mi perfil
+        <View className="mt-4">
+          <Text className="text-3xl font-semibold text-neutral-foreground">
+            Perfil
           </Text>
         </View>
 
@@ -126,7 +119,7 @@ export default function Profile() {
             </Text>
             <View className="overflow-hidden rounded-lg border border-neutral-border bg-white">
               <Pressable
-                onPress={() => router.push("/subscription")}
+                onPress={() => router.push('/subscription')}
                 className="w-full flex-row items-center justify-between border-y border-neutral-border px-4 py-6"
               >
                 <View className="flex-row items-center gap-3">

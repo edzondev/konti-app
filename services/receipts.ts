@@ -1,14 +1,14 @@
-import { ReceiptSchema } from "@/utils/schemas/receipt.schema";
-import { supabase } from "@/utils/supabase/supabase";
-import { AiExtractionResponse } from "@/types/ai-extraction.types";
-import { FiltersType, ReceiptKpis } from "@/types/receipt.type";
+import { ReceiptSchema } from '@/utils/schemas/receipt.schema';
+import { supabase } from '@/utils/supabase/supabase';
+import { AiExtractionResponse } from '@/types/ai-extraction.types';
+import { FiltersType, ReceiptKpis } from '@/types/receipt.type';
 
 export async function getReceipts(filters: Partial<FiltersType>) {
-  let query = supabase.from("receipts").select("*");
+  let query = supabase.from('receipts').select('*');
 
   // Filter by accounting type (is_expense)
   if (filters.isExpense !== undefined) {
-    query = query.eq("is_expense", filters.isExpense);
+    query = query.eq('is_expense', filters.isExpense);
   }
 
   // Search by business name, RUC, or receipt number
@@ -20,11 +20,11 @@ export async function getReceipts(filters: Partial<FiltersType>) {
 
   // Sort by date
   if (filters.sortBy) {
-    const ascending = filters.sortBy === "date_asc";
-    query = query.order("created_at", { ascending });
+    const ascending = filters.sortBy === 'date_asc';
+    query = query.order('created_at', { ascending });
   } else {
     // Default sort: newest first
-    query = query.order("created_at", { ascending: false });
+    query = query.order('created_at', { ascending: false });
   }
 
   const { data, error } = await query;
@@ -36,9 +36,9 @@ export async function getReceipts(filters: Partial<FiltersType>) {
 
 export async function getReceiptDetails(receiptId: string) {
   const { data, error } = await supabase
-    .from("receipts")
-    .select("*")
-    .eq("id", receiptId)
+    .from('receipts')
+    .select('*')
+    .eq('id', receiptId)
     .single();
   if (error) {
     throw error;
@@ -51,31 +51,31 @@ export async function uploadImageToStorage(
   userId: string,
 ): Promise<string> {
   try {
-    const fileName = imageUri.split("/").pop();
+    const fileName = imageUri.split('/').pop();
     const filePath = `${userId}/${Date.now()}-${fileName}`;
 
     // En React Native, necesitamos usar FormData para subir archivos
     const formData = new FormData();
-    formData.append("file", {
+    formData.append('file', {
       uri: imageUri,
-      type: "image/jpeg",
-      name: fileName || "image.jpg",
+      type: 'image/jpeg',
+      name: fileName || 'image.jpg',
     } as any);
 
     // Subir directamente a Supabase Storage usando FormData
     const { data, error } = await supabase.storage
-      .from("receipts")
+      .from('receipts')
       .upload(filePath, formData, {
-        contentType: "image/jpeg",
+        contentType: 'image/jpeg',
       });
 
     if (error) {
-      throw new Error("Error al subir la imagen");
+      throw new Error('Error al subir la imagen');
     }
 
     // Obtener URL pública
     const { data: publicUrlData } = supabase.storage
-      .from("receipts")
+      .from('receipts')
       .getPublicUrl(filePath);
 
     return publicUrlData.publicUrl;
@@ -92,7 +92,7 @@ export async function createReceipt(
   try {
     const body = {
       total_amount:
-        typeof data.amount === "string" ? parseFloat(data.amount) : data.amount,
+        typeof data.amount === 'string' ? parseFloat(data.amount) : data.amount,
       is_expense: data.isExpense,
       ruc: data.ruc,
       business_name: data.businessName,
@@ -103,26 +103,26 @@ export async function createReceipt(
     };
 
     const { data: response, error: invokeError } =
-      await supabase.functions.invoke("validate-and-upload", {
+      await supabase.functions.invoke('validate-and-upload', {
         body,
       });
 
     if (invokeError) {
-      throw new Error("Error de conexión con el servidor");
+      throw new Error('Error de conexión con el servidor');
     }
 
     if (!response.success) {
       switch (response.code) {
-        case "UPLOAD_LIMIT_REACHED":
+        case 'UPLOAD_LIMIT_REACHED':
           throw new Error(
             `${response.error}. Has usado ${response.details?.current} de ${response.details?.limit} subidas en tu plan ${response.details?.plan}.`,
           );
-        case "MISSING_FIELDS":
-          throw new Error("Faltan campos obligatorios");
-        case "USER_NOT_FOUND":
-          throw new Error("Usuario no encontrado");
+        case 'MISSING_FIELDS':
+          throw new Error('Faltan campos obligatorios');
+        case 'USER_NOT_FOUND':
+          throw new Error('Usuario no encontrado');
         default:
-          throw new Error(response.error || "Error al procesar la boleta");
+          throw new Error(response.error || 'Error al procesar la boleta');
       }
     }
 
@@ -136,7 +136,7 @@ export async function getReceiptDataByAi(
   imageUrl: string,
 ): Promise<AiExtractionResponse> {
   try {
-    const { data, error } = await supabase.functions.invoke("ai-extract-info", {
+    const { data, error } = await supabase.functions.invoke('ai-extract-info', {
       body: { imageUrl: imageUrl },
     });
 
@@ -152,8 +152,8 @@ export async function getReceiptDataByAi(
 
 export async function getReceiptKpis(): Promise<ReceiptKpis> {
   const { data, error } = await supabase
-    .from("receipt_kpis")
-    .select("*")
+    .from('receipt_kpis')
+    .select('*')
     .single();
 
   if (error) {
@@ -161,8 +161,8 @@ export async function getReceiptKpis(): Promise<ReceiptKpis> {
   }
 
   return {
-    total_receipts: data.total_receipts,
-    expense_receipts: data.expense_receipts,
-    total_amount_sum: parseFloat(data.total_amount_sum),
+    total_receipts: data.total_receipts ?? 0,
+    expense_receipts: data.expense_receipts ?? 0,
+    total_amount_sum: data.total_amount_sum ?? 0,
   };
 }

@@ -1,37 +1,37 @@
-import { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-} from "react-native-reanimated";
-import { X } from "@/constants/icons";
-import { router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { COLORS } from "@/constants/colors";
-import PlanCard from "@/components/shared/suscription/plan-card";
-import { usePurchases } from "@/hooks/purchases/use-purchases";
-import { usePurchasePackage } from "@/hooks/purchases/use-purchases-package";
-import type { PurchasesPackage } from "react-native-purchases";
-import { FlashList } from "@shopify/flash-list";
-import { PaymentSuccessModal } from "@/components/shared/modals/payment-success-modal";
-import { QUERY_KEYS } from "@/constants/query-keys";
-import { useQueryClient } from "@tanstack/react-query";
-import { scheduleOnRN } from "react-native-worklets";
+} from 'react-native-reanimated';
+import { X } from 'lucide-react-native';
+import { router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS } from '@/constants/colors';
+import PlanCard from '@/components/shared/suscription/plan-card';
+import { usePurchases } from '@/hooks/purchases/use-purchases';
+import { usePurchasePackage } from '@/hooks/purchases/use-purchases-package';
+import type { PurchasesPackage } from 'react-native-purchases';
+import { FlashList } from '@shopify/flash-list';
+import { PaymentSuccessModal } from '@/components/shared/modals/payment-success-modal';
+import { QUERY_KEYS } from '@/constants/query-keys';
+import { useQueryClient } from '@tanstack/react-query';
+import { scheduleOnRN } from 'react-native-worklets';
 
 const featureMap = {
   pro: [
-    "Hasta 500 boletas por mes",
-    "Acceso a IA base para lectura y análisis.",
-    "Sin límites de uso diario.",
-    "Soporte estándar.",
+    'Hasta 500 boletas por mes',
+    'Acceso a IA base para lectura y análisis.',
+    'Sin límites de uso diario.',
+    'Soporte estándar.',
   ],
   premium: [
-    "Subidas ilimitadas",
-    "Acceso a IA avanzada.",
-    "Procesamiento más rápido",
-    "Acceso anticipado a nuevas funciones",
-    "Soporte prioritario 24/7",
+    'Subidas ilimitadas',
+    'Acceso a IA avanzada.',
+    'Procesamiento más rápido',
+    'Acceso anticipado a nuevas funciones',
+    'Soporte prioritario 24/7',
   ],
 };
 
@@ -44,14 +44,12 @@ export default function SubscriptionScreen() {
   const contentOpacity = useSharedValue(0);
   const queryClient = useQueryClient();
 
-  const fadeIn = useSharedValue(0);
-  const slideUp = useSharedValue(30);
   const fadeOut = useSharedValue(1);
   const slideDown = useSharedValue(0);
 
   useEffect(() => {
     contentOpacity.value = withTiming(1, { duration: 300 });
-  }, []);
+  }, [contentOpacity]);
 
   const contentAnimatedStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
@@ -97,7 +95,7 @@ export default function SubscriptionScreen() {
     <>
       <PaymentSuccessModal visible={showSuccessModal} />
 
-      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+      <SafeAreaView className="flex-1 bg-white" edges={['top']}>
         <View className="flex-1 px-6">
           <Animated.View style={[contentAnimatedStyle]} className="flex-1">
             <FlashList
@@ -109,7 +107,7 @@ export default function SubscriptionScreen() {
                   features={
                     featureMap[item.identifier as keyof typeof featureMap]
                   }
-                  isPopular={item.product.title.includes("Pro")}
+                  isPopular={item.product.title.includes('Pro')}
                   onSelect={handlePlanSelect}
                   isLoading={isPurchasing}
                 />

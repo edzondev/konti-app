@@ -1,17 +1,17 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const receiptSchema = z.object({
   amount: z.string().refine((val) => {
     const num = parseFloat(val);
     return !isNaN(num) && num >= 0;
-  }, "El monto debe ser un número válido"),
+  }, 'El monto debe ser un número válido'),
   isExpense: z.boolean(),
   ruc: z
     .string()
     .optional()
     .refine(
       (val) => !val || val.length === 11,
-      "El RUC debe tener exactamente 11 dígitos",
+      'El RUC debe tener exactamente 11 dígitos',
     ),
   businessName: z.string(), //Razon social
   receiptNumber: z.string(),

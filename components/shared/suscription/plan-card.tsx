@@ -1,10 +1,10 @@
-import { memo } from "react";
-import { View, Text, Pressable, ActivityIndicator } from "react-native";
-import Animated, { FadeIn } from "react-native-reanimated";
-import { Check, Crown } from "@/constants/icons";
-import { COLORS } from "@/constants/colors";
-import type { PurchasesPackage } from "react-native-purchases";
-import { cn } from "@/lib/utils";
+import { memo } from 'react';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
+import { Check, Crown } from 'lucide-react-native';
+import { COLORS } from '@/constants/colors';
+import type { PurchasesPackage } from 'react-native-purchases';
+import { cn } from '@/lib/utils';
 
 type Props = {
   plan: PurchasesPackage;
@@ -25,8 +25,8 @@ export default memo(function PlanCard({
     <Animated.View
       entering={FadeIn.duration(300)}
       className={cn(
-        "relative mb-4 flex-col gap-4 rounded-3xl border-2 border-neutral-border bg-white p-6 shadow-sm",
-        isPopular && "border-primary",
+        'relative mb-4 flex-col gap-4 rounded-3xl border-2 border-neutral-border bg-white p-6 shadow-sm',
+        isPopular && 'border-primary',
       )}
     >
       <View>
@@ -45,7 +45,7 @@ export default memo(function PlanCard({
           </View>
           <View className="gap-2 text-pretty">
             <Text className="text-2xl font-bold text-neutral-foreground">
-              {plan.product.title.split("(")[0]}
+              {plan.product.title.split('(')[0]}
             </Text>
             <Text
               className="text-base font-light text-muted-foreground"
@@ -85,7 +85,7 @@ export default memo(function PlanCard({
         className="h-14 flex-row items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2"
       >
         <Text className="text-lg font-semibold text-white">
-          {isLoading ? "Procesando..." : "Seleccionar este plan"}
+          {isLoading ? 'Procesando...' : 'Seleccionar este plan'}
         </Text>
         {isLoading && (
           <ActivityIndicator size="small" color={COLORS.neutral.white} />

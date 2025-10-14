@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Controller,
   FormProvider,
@@ -6,11 +6,11 @@ import {
   type ControllerProps,
   type FieldPath,
   type FieldValues,
-} from "react-hook-form";
-import { Text, View, type TextProps, type ViewProps } from "react-native";
+} from 'react-hook-form';
+import { Text, View, type TextProps, type ViewProps } from 'react-native';
 
-import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
+import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 
 type FormItemProps = ViewProps & {};
 
@@ -60,7 +60,7 @@ const useFormField = () => {
   const fieldState = getFieldState(fieldContext.name, formState);
 
   if (!fieldContext) {
-    throw new Error("useFormField should be used within <FormField>");
+    throw new Error('useFormField should be used within <FormField>');
   }
 
   const { id } = itemContext;
@@ -85,7 +85,7 @@ const FormItem = ({ className, ...props }: FormItemProps) => {
     <FormItemContext.Provider value={{ id }}>
       <View
         data-slot="form-item"
-        className={cn("gap-y-2", className)}
+        className={cn('gap-y-2', className)}
         {...props}
       />
     </FormItemContext.Provider>
@@ -99,7 +99,7 @@ const FormLabel = ({ className, children, ...props }: FormLabelProps) => {
       id={formItemId}
       data-slot="form-label"
       data-error={!!error}
-      className={cn("data-[error=true]:text-red-500", className)}
+      className={cn('data-[error=true]:text-red-500', className)}
       {...props}
     >
       {children}
@@ -115,7 +115,7 @@ const FormControl = ({ className, ...props }: FormControlProps) => {
     <View
       id={formItemId}
       data-slot="form-control"
-      className={cn("gap-y-2", className)}
+      className={cn('gap-y-2', className)}
       aria-describedby={
         !error
           ? `${formDescriptionId}`
@@ -138,7 +138,7 @@ const FormDescription = ({
     <Text
       id={formDescriptionId}
       data-slot="form-description"
-      className={cn("text-mutedForeground text-sm", className)}
+      className={cn('text-mutedForeground text-sm', className)}
       {...props}
     >
       {children}
@@ -148,7 +148,7 @@ const FormDescription = ({
 
 const FormMessage = ({ className, children, ...props }: FormMessageProps) => {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message ?? "") : children;
+  const body = error ? String(error?.message ?? '') : children;
 
   if (!body) {
     return null;
@@ -157,7 +157,7 @@ const FormMessage = ({ className, children, ...props }: FormMessageProps) => {
     <Text
       id={formMessageId}
       data-slot="form-message"
-      className={cn("text-base text-red-500", className)}
+      className={cn('text-base text-red-500', className)}
       {...props}
     >
       {body}

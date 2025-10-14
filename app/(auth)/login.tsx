@@ -5,22 +5,21 @@ import {
   ScrollView,
   Pressable,
   ActivityIndicator,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { ChevronLeft, Eye, EyeOff } from "@/constants/icons";
-import { Link } from "expo-router";
-import { COLORS } from "@/constants/colors";
-import { useLogin } from "@/hooks/auth/use-login";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ChevronLeft } from 'lucide-react-native';
+import { Link } from 'expo-router';
+import { COLORS } from '@/constants/colors';
+import { useLogin } from '@/hooks/auth/use-login';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 export default function Login() {
   const { form, onSubmit, handleCancel, isLoading } = useLogin();
@@ -131,7 +130,7 @@ export default function Login() {
                     color={COLORS.neutral.white}
                   />
                 ) : (
-                  "Iniciar sesión"
+                  'Iniciar sesión'
                 )}
               </Text>
             </TouchableOpacity>
@@ -139,7 +138,7 @@ export default function Login() {
             {/* Register Link */}
             <View className="mb-8 mt-6 flex-row justify-center">
               <Text className="text-sm text-muted-foreground">
-                ¿No tienes una cuenta?{" "}
+                ¿No tienes una cuenta?{' '}
               </Text>
               <Link href="/register" asChild>
                 <Pressable>

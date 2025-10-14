@@ -1,13 +1,13 @@
-import { CheckCircle } from "@/constants/icons";
-import { COLORS } from "@/constants/colors";
-import { useEffect } from "react";
-import { Modal, Text, View } from "react-native";
+import { CheckCircle } from 'lucide-react-native';
+import { COLORS } from '@/constants/colors';
+import { useEffect } from 'react';
+import { Modal, Text, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withTiming,
-} from "react-native-reanimated";
+  Easing,
+} from 'react-native-reanimated';
 
 type PaymentSuccessModalProps = {
   visible: boolean;
@@ -19,8 +19,14 @@ export function PaymentSuccessModal({ visible }: PaymentSuccessModalProps) {
 
   useEffect(() => {
     if (visible) {
-      scale.value = withSpring(1, { damping: 15 });
-      opacity.value = withTiming(1, { duration: 300 });
+      scale.value = withTiming(1, {
+        duration: 300,
+        easing: Easing.out(Easing.cubic),
+      });
+      opacity.value = withTiming(1, {
+        duration: 300,
+        easing: Easing.out(Easing.cubic),
+      });
     }
   }, [visible, scale, opacity]);
 

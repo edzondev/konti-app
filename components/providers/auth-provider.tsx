@@ -3,7 +3,7 @@ import {
   supabase,
   AuthResponse,
   AuthTokenResponsePassword,
-} from "@/utils/supabase/supabase";
+} from '@/utils/supabase/supabase';
 
 import {
   createContext,
@@ -13,8 +13,8 @@ import {
   useEffect,
   useMemo,
   useState,
-} from "react";
-import Purchases from "react-native-purchases";
+} from 'react';
+import Purchases from 'react-native-purchases';
 
 type AuthState = {
   isAuthenticated: boolean;
@@ -47,7 +47,7 @@ export function useAuth(): AuthContextType {
   const value = useContext(AuthContext);
 
   if (!value) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
 
   return value;
@@ -64,23 +64,23 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       switch (event) {
-        case "SIGNED_OUT":
+        case 'SIGNED_OUT':
           setSession(null);
           try {
             await Purchases.logOut();
           } catch (error) {
-            console.error("RevenueCat logout error:", error);
+            console.error('RevenueCat logout error:', error);
           }
           break;
-        case "INITIAL_SESSION":
-        case "SIGNED_IN":
-        case "TOKEN_REFRESHED":
+        case 'INITIAL_SESSION':
+        case 'SIGNED_IN':
+        case 'TOKEN_REFRESHED':
           setSession(newSession);
           if (newSession?.user?.id) {
             try {
               await Purchases.logIn(newSession.user.id);
             } catch (error) {
-              console.error("RevenueCat login error:", error);
+              console.error('RevenueCat login error:', error);
             }
           }
           break;

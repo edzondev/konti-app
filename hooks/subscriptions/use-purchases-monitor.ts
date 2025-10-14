@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
-import { AppState, AppStateStatus } from "react-native";
-import Purchases from "react-native-purchases";
-import { useQueryClient } from "@tanstack/react-query";
-import { QUERY_KEYS } from "@/constants/query-keys";
+import { useEffect, useRef } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
+import Purchases from 'react-native-purchases';
+import { useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEYS } from '@/constants/query-keys';
 
 const PURCHASES_CONFIG_CHECK_INTERVAL_MS = 1000;
 
@@ -23,9 +23,9 @@ export function usePurchasesMonitor(): void {
 
     const setupMonitoring = () => {
       appStateSubscription = AppState.addEventListener(
-        "change",
+        'change',
         (nextAppState: AppStateStatus) => {
-          if (nextAppState === "active") {
+          if (nextAppState === 'active') {
             refreshProfile();
           }
         },

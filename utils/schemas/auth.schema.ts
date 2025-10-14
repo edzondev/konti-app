@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const loginSchema = z.object({
   email: z.string().email(),
@@ -7,13 +7,13 @@ export const loginSchema = z.object({
 
 export const registerSchema = z.object({
   email: z.string().email({
-    message: "El email no es válido",
+    message: 'El email no es válido',
   }),
   password: z.string().min(8, {
-    message: "La contraseña debe tener al menos 8 caracteres",
+    message: 'La contraseña debe tener al menos 8 caracteres',
   }),
   name: z.string().min(1, {
-    message: "El nombre es requerido",
+    message: 'El nombre es requerido',
   }),
 });
 

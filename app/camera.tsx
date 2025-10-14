@@ -1,17 +1,15 @@
-import { type CameraType, CameraView } from "expo-camera";
-import { useRouter } from "expo-router";
-import { useRef } from "react";
-import { useState } from "react";
-import { Pressable, View, Text, ActivityIndicator, Alert } from "react-native";
-import { X } from "@/constants/icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { COLORS } from "@/constants/colors";
-import { useUploadImage } from "@/hooks/receipts/use-upload-image";
-import { useFlashStore } from "@/store/use-flash-store";
-import { Flashlight } from "lucide-react-native";
+import { CameraView } from 'expo-camera';
+import { useRouter } from 'expo-router';
+import { useRef } from 'react';
+import { Pressable, View, Alert } from 'react-native';
+import { X, Flashlight } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS } from '@/constants/colors';
+import { useUploadImage } from '@/hooks/receipts/use-upload-image';
+import { useFlashStore } from '@/store/use-flash-store';
+import { UploadModal } from '@/components/shared/modals/upload-modal';
 
 export default function Camera() {
-  const [facing, setFacing] = useState<CameraType>("back");
   const cameraRef = useRef<CameraView>(null);
   const router = useRouter();
   const { mutateAsync: uploadImage, isPending: isUploading } = useUploadImage();
@@ -27,31 +25,32 @@ export default function Camera() {
           // Subir imagen inmediatamente
           try {
             const imageUrl = await uploadImage(photo.uri);
+            //const imageUrl = await uploadImage(photo.uri);
             router.push({
-              pathname: "/preview",
+              pathname: '/preview',
               params: { imageUrl },
             });
           } catch (error) {
-            console.error("Error uploading image:", error);
+            console.error('Error uploading image:', error);
             Alert.alert(
-              "Error",
-              "No se pudo subir la imagen. Intenta nuevamente.",
+              'Error',
+              'No se pudo subir la imagen. Intenta nuevamente.',
             );
           }
         }
       } catch (error) {
-        console.error("Error taking picture:", error);
+        console.error('Error taking picture:', error);
       }
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white ">
       <View className="relative flex-1">
         <CameraView
           ref={cameraRef}
           style={{ flex: 1 }}
-          facing={facing}
+          facing="back"
           enableTorch={isFlashOn}
         />
         <View className="absolute bottom-8 left-0 right-0 flex justify-center">
@@ -62,18 +61,9 @@ export default function Camera() {
             className="items-center justify-center"
           >
             <View className="h-20 w-20 items-center justify-center rounded-full bg-white">
-              {isUploading ? (
-                <ActivityIndicator size="large" color={COLORS.primary} />
-              ) : (
-                <View className="h-16 w-16 rounded-full bg-primary" />
-              )}
+              <View className="h-16 w-16 rounded-full bg-primary" />
             </View>
           </Pressable>
-          {isUploading && (
-            <Text className="mt-2 text-center font-geist-regular text-white">
-              Subiendo imagen...
-            </Text>
-          )}
         </View>
 
         <Pressable
@@ -91,10 +81,12 @@ export default function Camera() {
           <Flashlight
             size={24}
             color={COLORS.neutral.white}
-            fill={isFlashOn ? "white" : "transparent"}
+            fill={isFlashOn ? 'white' : 'transparent'}
           />
         </Pressable>
       </View>
+
+      <UploadModal visible={isUploading} />
     </SafeAreaView>
   );
 }

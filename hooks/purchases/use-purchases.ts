@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { QUERY_KEYS } from "@/constants/query-keys";
-import { getPurchasesData } from "@/services/purchases";
+import { useQuery } from '@tanstack/react-query';
+import { QUERY_KEYS } from '@/constants/query-keys';
+import { getPurchasesData } from '@/services/purchases';
 
 export function usePurchases() {
   const { data, isPending, isError, isLoading, error, refetch, isRefetching } =

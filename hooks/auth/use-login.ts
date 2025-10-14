@@ -1,8 +1,8 @@
-import { loginSchema, type LoginSchema } from "@/utils/schemas/auth.schema";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuth } from "@/components/providers/auth-provider";
-import { useRouter } from "expo-router";
+import { loginSchema, type LoginSchema } from '@/utils/schemas/auth.schema';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAuth } from '@/components/providers/auth-provider';
+import { useRouter } from 'expo-router';
 
 export const useLogin = () => {
   const { signIn } = useAuth();
@@ -10,8 +10,8 @@ export const useLogin = () => {
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 

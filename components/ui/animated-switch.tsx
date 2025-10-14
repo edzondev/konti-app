@@ -1,11 +1,12 @@
-import { Pressable } from "react-native";
+import { Pressable } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
+  withTiming,
   interpolateColor,
-} from "react-native-reanimated";
-import { useEffect } from "react";
+  Easing,
+} from 'react-native-reanimated';
+import { useEffect } from 'react';
 
 interface AnimatedSwitchProps {
   value: boolean;
@@ -21,18 +22,17 @@ interface AnimatedSwitchProps {
 export function AnimatedSwitch({
   value,
   onValueChange,
-  trackColor = { false: "#bdbdbd", true: "#007AFF" },
-  thumbColor = "#ffffff",
+  trackColor = { false: '#bdbdbd', true: '#007AFF' },
+  thumbColor = '#ffffff',
   disabled = false,
 }: AnimatedSwitchProps) {
   const switchTranslate = useSharedValue(value ? 1 : 0);
   const switchScale = useSharedValue(1);
 
   useEffect(() => {
-    switchTranslate.value = withSpring(value ? 1 : 0, {
-      damping: 20,
-      stiffness: 300,
-      overshootClamping: true,
+    switchTranslate.value = withTiming(value ? 1 : 0, {
+      duration: 200,
+      easing: Easing.out(Easing.cubic),
     });
   }, [value, switchTranslate]);
 
@@ -60,18 +60,16 @@ export function AnimatedSwitch({
   const handlePress = () => {
     if (disabled) return;
 
-    switchScale.value = withSpring(
+    switchScale.value = withTiming(
       0.95,
       {
-        damping: 25,
-        stiffness: 400,
-        overshootClamping: true,
+        duration: 100,
+        easing: Easing.out(Easing.cubic),
       },
       () => {
-        switchScale.value = withSpring(1, {
-          damping: 25,
-          stiffness: 400,
-          overshootClamping: true,
+        switchScale.value = withTiming(1, {
+          duration: 100,
+          easing: Easing.out(Easing.cubic),
         });
       },
     );
@@ -87,7 +85,7 @@ export function AnimatedSwitch({
             width: 50,
             height: 30,
             borderRadius: 15,
-            justifyContent: "center",
+            justifyContent: 'center',
             paddingHorizontal: 2,
             opacity: disabled ? 0.6 : 1,
           },

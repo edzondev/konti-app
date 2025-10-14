@@ -1,10 +1,10 @@
-import { cn } from "@/lib/utils";
-import { cva } from "class-variance-authority";
-import { Text, type TextProps } from "react-native";
+import { cn } from '@/lib/utils';
+import { cva } from 'class-variance-authority';
+import { Text, type TextProps } from 'react-native';
 
-interface LabelProps extends TextProps {}
+type LabelProps = TextProps & {};
 
-const labelVariants = cva("text-lg text-neutral-foreground font-light");
+const labelVariants = cva('text-lg text-neutral-foreground font-light');
 
 const Label = ({ children, className, ...props }: LabelProps) => {
   return (
@@ -14,6 +14,6 @@ const Label = ({ children, className, ...props }: LabelProps) => {
   );
 };
 
-Label.displayName = "Label";
+Label.displayName = 'Label';
 
 export { Label };

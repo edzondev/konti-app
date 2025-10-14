@@ -2,22 +2,21 @@ import {
   View,
   Text,
   Pressable,
-  Image,
   ActivityIndicator,
   ScrollView,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { ChevronLeft } from "@/constants/icons";
-import { COLORS } from "@/constants/colors";
-import ReceiptCard from "@/components/shared/receipt/receipt-card";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useReceiptDetails } from "@/hooks/receipts/use-receipts";
-import type { Tables } from "@/types/database.types";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ChevronLeft } from 'lucide-react-native';
+import { COLORS } from '@/constants/colors';
+import ReceiptCard from '@/components/shared/receipt/receipt-card';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useReceiptDetails } from '@/hooks/receipts/use-receipts';
+import type { Tables } from '@/types/database.types';
 
-export default function RecipeDetails() {
+export default function ReceiptDetails() {
   const router = useRouter();
-  const { recipeId } = useLocalSearchParams<{ recipeId: string }>();
-  const { data, isPending, isError, isLoading } = useReceiptDetails(recipeId);
+  const { receiptId } = useLocalSearchParams<{ receiptId: string }>();
+  const { data, isPending, isError, isLoading } = useReceiptDetails(receiptId);
 
   if (isError) {
     return <Text>Error: {isError}</Text>;
@@ -50,7 +49,7 @@ export default function RecipeDetails() {
             <ActivityIndicator size="large" color={COLORS.primary} />
           </View>
         ) : (
-          <ReceiptCard selectedReceipt={data as Tables<"receipts">} />
+          <ReceiptCard selectedReceipt={data as Tables<'receipts'>} />
         )}
       </ScrollView>
     </SafeAreaView>

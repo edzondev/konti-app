@@ -1,10 +1,10 @@
-import Purchases, { PURCHASES_ERROR_CODE } from "react-native-purchases";
+import Purchases, { PURCHASES_ERROR_CODE } from 'react-native-purchases';
 
 import type {
   CustomerInfo,
   PurchasesPackage,
   PurchasesError,
-} from "react-native-purchases";
+} from 'react-native-purchases';
 
 export interface PurchasesHookError {
   message: string;
@@ -12,18 +12,18 @@ export interface PurchasesHookError {
 }
 
 export const NOT_INITIALIZED_ERROR: PurchasesHookError = {
-  message: "Purchases SDK is not initialized.",
-  code: "NOT_INITIALIZED",
+  message: 'Purchases SDK is not initialized.',
+  code: 'NOT_INITIALIZED',
 };
 
 function isPurchasesError(error: unknown): error is PurchasesError {
-  return typeof error === "object" && error !== null && "code" in error;
+  return typeof error === 'object' && error !== null && 'code' in error;
 }
 
 export function formatPurchasesError(err: unknown): PurchasesHookError {
   if (isPurchasesError(err)) {
     if (err.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) {
-      return { message: "Purchase cancelled", code: "CANCELLED" };
+      return { message: 'Purchase cancelled', code: 'CANCELLED' };
     }
     return { message: err.message, code: String(err.code) };
   }

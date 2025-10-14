@@ -1,31 +1,30 @@
-import { View, Text, Pressable } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, Pressable } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
   withTiming,
   Easing,
-} from "react-native-reanimated";
-import { useEffect } from "react";
-import { Check } from "@/constants/icons";
-import { COLORS } from "@/constants/colors";
-import { Link } from "expo-router";
+} from 'react-native-reanimated';
+import { useEffect } from 'react';
+import { Check } from 'lucide-react-native';
+import { COLORS } from '@/constants/colors';
+import { Link } from 'expo-router';
 
 export default function Success() {
   const scale = useSharedValue(0);
   const opacity = useSharedValue(0);
 
   useEffect(() => {
-    scale.value = withSpring(1, {
-      damping: 15,
-      stiffness: 150,
+    scale.value = withTiming(1, {
+      duration: 400,
+      easing: Easing.out(Easing.cubic),
     });
     opacity.value = withTiming(1, {
       duration: 300,
-      easing: Easing.out(Easing.ease),
+      easing: Easing.out(Easing.cubic),
     });
-  }, []);
+  }, [scale, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -46,16 +45,16 @@ export default function Success() {
           </Animated.View>
         </View>
 
-        <Text className="font-geist-regular mb-3 text-center text-2xl font-light text-neutral-foreground">
+        <Text className="font-regular mb-3 text-center text-2xl font-light text-neutral-foreground">
           Boleta guardada
         </Text>
-        <Text className="font-geist-regular mb-12 text-center text-base font-light text-muted-foreground">
+        <Text className="font-regular mb-12 text-center text-base font-light text-muted-foreground">
           Tu comprobante ha sido registrado exitosamente
         </Text>
 
         <Link href="/(tabs)" asChild dismissTo>
           <Pressable className="flex-row items-center justify-center rounded-lg bg-primary py-3 text-white">
-            <Text className="font-geist-regular text-white">Continuar</Text>
+            <Text className="font-regular text-white">Continuar</Text>
           </Pressable>
         </Link>
       </View>

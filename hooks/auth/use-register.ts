@@ -1,11 +1,11 @@
 import {
   registerSchema,
   type RegisterSchema,
-} from "@/utils/schemas/auth.schema";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuth } from "@/components/providers/auth-provider";
-import { useRouter } from "expo-router";
+} from '@/utils/schemas/auth.schema';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAuth } from '@/components/providers/auth-provider';
+import { useRouter } from 'expo-router';
 
 export const useRegister = () => {
   const { signUp } = useAuth();
@@ -13,9 +13,9 @@ export const useRegister = () => {
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      email: "",
-      password: "",
-      name: "",
+      email: '',
+      password: '',
+      name: '',
     },
   });
 

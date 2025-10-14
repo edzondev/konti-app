@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { QUERY_KEYS } from "@/constants/query-keys";
-import { restorePurchases, formatPurchasesError } from "@/services/purchases";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEYS } from '@/constants/query-keys';
+import { restorePurchases, formatPurchasesError } from '@/services/purchases';
 
 export function useRestorePurchases() {
   const queryClient = useQueryClient();
@@ -20,7 +20,7 @@ export function useRestorePurchases() {
     },
     onError: (error) => {
       const formattedError = formatPurchasesError(error);
-      console.error("[Restore] Failed:", formattedError);
+      console.error('[Restore] Failed:', formattedError);
     },
   });
 

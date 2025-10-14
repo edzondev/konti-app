@@ -1,6 +1,6 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { type PropsWithChildren } from "react";
-import useAppState from "@/hooks/use-app-state";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { type PropsWithChildren } from 'react';
+import useAppState from '@/hooks/use-app-state';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -10,11 +10,11 @@ const queryClient = new QueryClient({
       retry: 2,
       refetchOnReconnect: true,
       refetchOnMount: false,
-      networkMode: "online",
+      networkMode: 'online',
     },
     mutations: {
       retry: 2,
-      networkMode: "online",
+      networkMode: 'online',
     },
   },
 });

@@ -1,5 +1,5 @@
-import useReceiptForm from "@/hooks/use-receipt-form";
-import { View, Text, Pressable } from "react-native";
+import useReceiptForm from '@/hooks/use-receipt-form';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import {
   Form,
   FormControl,
@@ -7,14 +7,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { COLORS } from "@/constants/colors";
-import { AnimatedSwitch } from "@/components/ui/animated-switch";
-import { ActivityIndicator } from "react-native";
-import { AiExtractedData } from "@/types/ai-extraction.types";
-import { useEffect } from "react";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import { COLORS } from '@/constants/colors';
+import { AnimatedSwitch } from '@/components/ui/animated-switch';
+import { AiExtractedData } from '@/types/ai-extraction.types';
+import { useEffect } from 'react';
 
 type Props = {
   imageUrl: string;
@@ -22,14 +21,8 @@ type Props = {
 };
 
 export default function ReceiptForm({ imageUrl, extractedData }: Props) {
-  const {
-    form,
-    onSubmit,
-    isPending,
-    isError,
-    handleCancel,
-    fillFormWithExtractedData,
-  } = useReceiptForm(imageUrl);
+  const { form, onSubmit, isPending, handleCancel, fillFormWithExtractedData } =
+    useReceiptForm(imageUrl);
 
   useEffect(() => {
     if (extractedData) {
@@ -140,7 +133,7 @@ export default function ReceiptForm({ imageUrl, extractedData }: Props) {
                     numberOfLines={4}
                     style={{
                       height: 80,
-                      textAlignVertical: "top",
+                      textAlignVertical: 'top',
                     }}
                     {...field}
                     value={field.value.toString()}
@@ -159,7 +152,7 @@ export default function ReceiptForm({ imageUrl, extractedData }: Props) {
                 <FormControl>
                   <AnimatedSwitch
                     trackColor={{
-                      false: "#bdbdbd",
+                      false: '#bdbdbd',
                       true: COLORS.primary,
                     }}
                     thumbColor={COLORS.neutral.white}
@@ -183,8 +176,8 @@ export default function ReceiptForm({ imageUrl, extractedData }: Props) {
           {({ pressed }) => (
             <Text
               className={cn(
-                "font-geist-regular text-muted-foreground",
-                pressed ? "text-neutral-foreground" : "",
+                'font-regular text-muted-foreground',
+                pressed ? 'text-neutral-foreground' : '',
               )}
             >
               Cancelar
@@ -199,15 +192,15 @@ export default function ReceiptForm({ imageUrl, extractedData }: Props) {
           {({ pressed }) => (
             <View
               className={cn(
-                "flex-row items-center justify-center gap-2",
-                pressed ? "opacity-70" : "",
+                'flex-row items-center justify-center gap-2',
+                pressed ? 'opacity-70' : '',
               )}
             >
               {isPending && (
                 <ActivityIndicator size="small" color={COLORS.neutral.white} />
               )}
-              <Text className="font-geist-regular text-white">
-                {isPending ? "Guardando..." : "Guardar"}
+              <Text className="font-regular text-white">
+                {isPending ? 'Guardando...' : 'Guardar'}
               </Text>
             </View>
           )}

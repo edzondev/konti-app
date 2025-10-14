@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { Platform } from "react-native";
-import Purchases from "react-native-purchases";
+import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
+import Purchases from 'react-native-purchases';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 2000;
@@ -19,7 +19,7 @@ export function usePurchasesInitialize(): boolean {
 
     const initialize = async () => {
       if (!API_KEY) {
-        console.error("[Purchases] Missing API key");
+        console.error('[Purchases] Missing API key');
         return;
       }
 
@@ -31,7 +31,7 @@ export function usePurchasesInitialize(): boolean {
         }
       } catch (error) {
         if (isMounted) {
-          console.error("[Purchases] Init failed:", error);
+          console.error('[Purchases] Init failed:', error);
         }
       }
     };

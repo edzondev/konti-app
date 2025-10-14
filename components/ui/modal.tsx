@@ -1,26 +1,25 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 import {
   Modal as RNModal,
   View,
   Text,
   TouchableOpacity,
   Pressable,
-} from "react-native";
+} from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSpring,
-  runOnJS,
-} from "react-native-reanimated";
-import { COLORS } from "@/constants/colors";
+  Easing,
+} from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
-interface ModalProps {
+type ModalProps = {
   visible: boolean;
   onClose: () => void;
   children: React.ReactNode;
   transparent?: boolean;
-}
+};
 
 export const Modal: React.FC<ModalProps> = ({
   visible,
@@ -34,18 +33,33 @@ export const Modal: React.FC<ModalProps> = ({
 
   useEffect(() => {
     if (visible) {
-      overlayOpacity.value = withTiming(1, { duration: 250 });
-      modalScale.value = withSpring(1, {
-        damping: 20,
-        stiffness: 200,
+      overlayOpacity.value = withTiming(1, {
+        duration: 250,
+        easing: Easing.out(Easing.cubic),
       });
-      modalOpacity.value = withTiming(1, { duration: 250 });
+      modalScale.value = withTiming(1, {
+        duration: 300,
+        easing: Easing.out(Easing.cubic),
+      });
+      modalOpacity.value = withTiming(1, {
+        duration: 250,
+        easing: Easing.out(Easing.cubic),
+      });
     } else {
-      overlayOpacity.value = withTiming(0, { duration: 200 });
-      modalScale.value = withTiming(0.9, { duration: 200 });
-      modalOpacity.value = withTiming(0, { duration: 200 });
+      overlayOpacity.value = withTiming(0, {
+        duration: 200,
+        easing: Easing.in(Easing.cubic),
+      });
+      modalScale.value = withTiming(0.9, {
+        duration: 200,
+        easing: Easing.in(Easing.cubic),
+      });
+      modalOpacity.value = withTiming(0, {
+        duration: 200,
+        easing: Easing.in(Easing.cubic),
+      });
     }
-  }, [visible]);
+  }, [visible, overlayOpacity, modalScale, modalOpacity]);
 
   const overlayAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -61,13 +75,26 @@ export const Modal: React.FC<ModalProps> = ({
   });
 
   const handleClose = () => {
-    overlayOpacity.value = withTiming(0, { duration: 200 });
-    modalScale.value = withTiming(0.9, { duration: 200 });
-    modalOpacity.value = withTiming(0, { duration: 200 }, (finished) => {
-      if (finished) {
-        runOnJS(onClose)();
-      }
+    overlayOpacity.value = withTiming(0, {
+      duration: 200,
+      easing: Easing.in(Easing.cubic),
     });
+    modalScale.value = withTiming(0.9, {
+      duration: 200,
+      easing: Easing.in(Easing.cubic),
+    });
+    modalOpacity.value = withTiming(
+      0,
+      {
+        duration: 200,
+        easing: Easing.in(Easing.cubic),
+      },
+      (finished) => {
+        if (finished) {
+          scheduleOnRN(onClose);
+        }
+      },
+    );
   };
 
   return (
@@ -79,15 +106,15 @@ export const Modal: React.FC<ModalProps> = ({
     >
       <Animated.View
         style={[overlayAnimatedStyle]}
-        className="flex-1 justify-center items-center bg-black/50"
+        className="flex-1 items-center justify-center bg-black/50"
       >
         <Pressable
-          className="flex-1 justify-center items-center"
+          className="flex-1 items-center justify-center"
           onPress={handleClose}
         >
           <Animated.View
             style={[modalAnimatedStyle]}
-            className="bg-white rounded-2xl mx-6 p-6 shadow-lg"
+            className="mx-6 rounded-2xl bg-white p-6 shadow-lg"
           >
             <Pressable onPress={(e) => e.stopPropagation()}>
               {children}
@@ -99,14 +126,14 @@ export const Modal: React.FC<ModalProps> = ({
   );
 };
 
-interface ModalHeaderProps {
+type ModalHeaderProps = {
   title: string;
   onClose?: () => void;
-}
+};
 
 export const ModalHeader: React.FC<ModalHeaderProps> = ({ title, onClose }) => {
   return (
-    <View className="flex-row justify-between items-center mb-4">
+    <View className="mb-4 flex-row items-center justify-between">
       <Text className="text-xl font-semibold text-neutral-foreground">
         {title}
       </Text>
@@ -132,5 +159,5 @@ interface ModalFooterProps {
 }
 
 export const ModalFooter: React.FC<ModalFooterProps> = ({ children }) => {
-  return <View className="flex-row gap-3 justify-end">{children}</View>;
+  return <View className="flex-row justify-end gap-3">{children}</View>;
 };

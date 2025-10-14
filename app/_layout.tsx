@@ -1,18 +1,17 @@
-import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { useFonts } from "expo-font";
-import "./globals.css";
-import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
-import QueryProvider from "@/components/providers/query-provider";
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import './globals.css';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+import QueryProvider from '@/components/providers/query-provider';
 import {
   initialWindowMetrics,
   SafeAreaProvider,
-} from "react-native-safe-area-context";
-import { AuthProvider, useAuth } from "@/components/providers/auth-provider";
-import { usePurchasesMonitor } from "@/hooks/subscriptions/use-purchases-monitor";
-import { usePurchasesInitialize } from "@/hooks/subscriptions/use-purchases-initialize";
-import { useAppStateRefresh } from "@/hooks/use-app-state-refresh";
+} from 'react-native-safe-area-context';
+import { AuthProvider, useAuth } from '@/components/providers/auth-provider';
+import { usePurchasesMonitor } from '@/hooks/subscriptions/use-purchases-monitor';
+import { usePurchasesInitialize } from '@/hooks/subscriptions/use-purchases-initialize';
+import { useAppStateRefresh } from '@/hooks/use-app-state-refresh';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,12 +21,6 @@ SplashScreen.setOptions({
 });
 
 function Layout() {
-  const [loaded] = useFonts({
-    GeistBold: require("../assets/fonts/Geist-Bold.ttf"),
-    GeistMedium: require("../assets/fonts/Geist-Medium.ttf"),
-    GeistRegular: require("../assets/fonts/Geist-Regular.ttf"),
-    GeistSemibold: require("../assets/fonts/Geist-SemiBold.ttf"),
-  });
   const { loading, isAuthenticated } = useAuth();
 
   usePurchasesMonitor();
@@ -35,12 +28,12 @@ function Layout() {
   useAppStateRefresh();
 
   useEffect(() => {
-    if (loaded && !loading) {
+    if (!loading) {
       SplashScreen.hideAsync();
     }
-  }, [loaded, loading]);
+  }, [loading]);
 
-  if (!loaded || loading) {
+  if (loading) {
     return null;
   }
 
@@ -57,10 +50,10 @@ function Layout() {
         <Stack.Screen
           name="subscription"
           options={{
-            presentation: "modal",
+            presentation: 'modal',
             headerShown: false,
             gestureEnabled: true,
-            animationTypeForReplace: "push",
+            animationTypeForReplace: 'push',
           }}
         />
       </Stack.Protected>

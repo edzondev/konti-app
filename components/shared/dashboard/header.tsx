@@ -3,7 +3,7 @@ import { LIMIT_PLANS } from '@/constants/plans';
 import { useUserPlan } from '@/hooks/profile/use-user-plan';
 import { useReceiptKpis } from '@/hooks/receipts/use-receipt-kpis';
 import type { Tables } from '@/types/database.types';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import {
   Crown,
   Receipt,
@@ -13,7 +13,7 @@ import {
   Zap,
 } from 'lucide-react-native';
 import { useCallback, useEffect } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
 import ImageComponent from '@/components/ui/image';
 
 import Animated, {
@@ -57,27 +57,22 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
     <>
       <View className="mb-4">
         <View className="flex-row items-center justify-between">
-          <View className="flex-row items-center gap-2">
-            <ImageComponent
-              src={require('@/assets/adaptive-icon.png')}
-              style={{ width: 32, height: 32, borderRadius: 99999 }}
-              contentFit="cover"
+          <View className="">
+            <Image
+              source={require('@/assets/konti-logo-hd.jpg')}
+              style={{ width: 130, height: 50 }}
+              resizeMode="contain"
               alt="Konti"
             />
-            <Text className="text-2xl font-semibold text-[#27447b]">Konti</Text>
           </View>
 
           {!hasProOrBetter && (
-            <Pressable
-              className="flex-row items-center gap-2 rounded-full px-4 py-2"
-              style={{ backgroundColor: COLORS.primary }}
-              onPress={() => {
-                router.push('/subscription');
-              }}
-            >
-              <Sparkle size={14} color="white" fill="white" />
-              <Text className="text-sm font-bold text-white">Suscribete</Text>
-            </Pressable>
+            <Link href="/subscription" asChild className="px-4 py-2">
+              <Pressable className="flex-row items-center gap-x-2 rounded-full bg-primary">
+                <Sparkle size={14} color="white" fill="white" />
+                <Text className="text-sm font-bold text-white">Suscribete</Text>
+              </Pressable>
+            </Link>
           )}
         </View>
       </View>

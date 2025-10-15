@@ -21,11 +21,10 @@ SplashScreen.setOptions({
 });
 
 function Layout() {
-  const { loading, isAuthenticated } = useAuth();
-
   usePurchasesMonitor();
   usePurchasesInitialize();
   useAppStateRefresh();
+  const { loading, isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (!loading) {

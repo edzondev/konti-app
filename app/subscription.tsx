@@ -87,10 +87,6 @@ export default function SubscriptionScreen() {
     animateClose();
   };
 
-  if (isLoading) {
-    return <ActivityIndicator size="large" color={COLORS.primary} />;
-  }
-
   return (
     <>
       <PaymentSuccessModal visible={showSuccessModal} />
@@ -98,38 +94,42 @@ export default function SubscriptionScreen() {
       <SafeAreaView className="flex-1 bg-white" edges={['top']}>
         <View className="flex-1 px-6">
           <Animated.View style={[contentAnimatedStyle]} className="flex-1">
-            <FlashList
-              data={availablePackages}
-              keyExtractor={(item) => item.identifier}
-              renderItem={({ item }) => (
-                <PlanCard
-                  plan={item}
-                  features={
-                    featureMap[item.identifier as keyof typeof featureMap]
-                  }
-                  isPopular={item.product.title.includes('Pro')}
-                  onSelect={handlePlanSelect}
-                  isLoading={isPurchasing}
-                />
-              )}
-              onRefresh={() => refetch()}
-              refreshing={isRefetching}
-              ListHeaderComponent={() => (
-                <View className="py-8">
-                  <View className="flex-row items-center justify-between">
-                    <TouchableOpacity onPress={handleClose} className="p-2">
-                      <X size={24} color={COLORS.neutral.foreground} />
-                    </TouchableOpacity>
-                    <Text className="text-xl font-semibold text-neutral-foreground">
-                      Planes de suscripción
-                    </Text>
-                    <View className="w-6" />
+            {isLoading ? (
+              <ActivityIndicator size="large" color={COLORS.primary} />
+            ) : (
+              <FlashList
+                data={availablePackages}
+                keyExtractor={(item) => item.identifier}
+                renderItem={({ item }) => (
+                  <PlanCard
+                    plan={item}
+                    features={
+                      featureMap[item.identifier as keyof typeof featureMap]
+                    }
+                    isPopular={item.product.title.includes('Pro')}
+                    onSelect={handlePlanSelect}
+                    isLoading={isPurchasing}
+                  />
+                )}
+                onRefresh={() => refetch()}
+                refreshing={isRefetching}
+                ListHeaderComponent={() => (
+                  <View className="pb-6 pt-8">
+                    <View className="flex-row items-center justify-between">
+                      <TouchableOpacity onPress={handleClose} className="p-2">
+                        <X size={24} color={COLORS.neutral.foreground} />
+                      </TouchableOpacity>
+                      <Text className="text-xl font-semibold text-neutral-foreground">
+                        Planes de suscripción
+                      </Text>
+                      <View className="w-6" />
+                    </View>
                   </View>
-                </View>
-              )}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 20 }}
-            />
+                )}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              />
+            )}
           </Animated.View>
         </View>
       </SafeAreaView>

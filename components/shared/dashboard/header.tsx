@@ -59,7 +59,7 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-2">
             <ImageComponent
-              src={require('@/assets/images/icon.png')}
+              src={require('@/assets/adaptive-icon.png')}
               style={{ width: 32, height: 32, borderRadius: 99999 }}
               contentFit="cover"
               alt="Konti"

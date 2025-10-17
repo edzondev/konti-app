@@ -23,9 +23,11 @@ import { useDebounce } from '@/hooks/use-debounce';
 import useFilterReceipt from '@/hooks/receipts/use-filter-receipt';
 import { useState } from 'react';
 import ReceiptListItem from '@/components/shared/receipt/receipt-list-item';
+import { useAuth } from '@/components/providers/auth-provider';
 
 export default function Recipes() {
   const [searchText, setSearchText] = useState('');
+  const { session } = useAuth();
   const {
     filters,
     handleFilterChange,
@@ -34,7 +36,10 @@ export default function Recipes() {
     handleSearchChange,
   } = useFilterReceipt();
   const debouncedFilters = useDebounce(filters, 300);
-  const { data, isLoading, refetch } = useReceipts(debouncedFilters);
+  const { data, isLoading, refetch } = useReceipts(
+    session?.user.id || '',
+    debouncedFilters,
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-white py-4">

@@ -3,8 +3,11 @@ import { supabase } from '@/utils/supabase/supabase';
 import { AiExtractionResponse } from '@/types/ai-extraction.types';
 import { FiltersType, ReceiptKpis } from '@/types/receipt.type';
 
-export async function getReceipts(filters: Partial<FiltersType>) {
-  let query = supabase.from('receipts').select('*');
+export async function getReceipts(
+  userId: string,
+  filters: Partial<FiltersType>,
+) {
+  let query = supabase.from('receipts').select('*').eq('user_id', userId);
 
   // Filter by accounting type (is_expense)
   if (filters.isExpense !== undefined) {
@@ -150,10 +153,11 @@ export async function getReceiptDataByAi(
   }
 }
 
-export async function getReceiptKpis(): Promise<ReceiptKpis> {
+export async function getReceiptKpis(userId: string): Promise<ReceiptKpis> {
   const { data, error } = await supabase
     .from('receipt_kpis')
     .select('*')
+    .eq('user_id', userId)
     .single();
 
   if (error) {

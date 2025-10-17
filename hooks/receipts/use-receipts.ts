@@ -9,11 +9,11 @@ import { FiltersType } from '@/types/receipt.type';
 import { useQueryBase } from '@/utils/query/hooks/query-base';
 import { useMutation } from '@tanstack/react-query';
 
-function useReceipts(filters: Partial<FiltersType>) {
+function useReceipts(userId: string, filters: Partial<FiltersType>) {
   const { data, isPending, isError, refetch, isLoading, error, isRefetching } =
     useQueryBase<Tables<'receipts'>[]>({
       queryKey: [...QUERY_KEYS.receipts.all, filters],
-      queryFn: () => getReceipts(filters),
+      queryFn: () => getReceipts(userId, filters),
     });
   return { data, isPending, isError, refetch, isLoading, error, isRefetching };
 }

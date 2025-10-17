@@ -14,12 +14,12 @@ import { useCallback } from 'react';
 import DashboardHeader from '@/components/shared/dashboard/header';
 
 export default function Index() {
+  const { isNewUser, clearNewUserFlag, session } = useAuth();
+
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const { data, isPending, isError, isLoading, error, refetch, isRefetching } =
-    useReceipts({});
-
-  const { isNewUser, clearNewUserFlag } = useAuth();
+    useReceipts(session?.user.id || '', {});
 
   const handleCameraPress = useCallback(async () => {
     if (permission && permission.granted) {
@@ -54,7 +54,12 @@ export default function Index() {
             renderItem={({ item }) => <ReceiptListItem receipt={item} />}
             ItemSeparatorComponent={() => <View className="h-4" />}
             ListEmptyComponent={() => <Empty />}
-            ListHeaderComponent={() => <DashboardHeader data={data ?? []} />}
+            ListHeaderComponent={() => (
+              <DashboardHeader
+                userId={session?.user.id || ''}
+                data={data ?? []}
+              />
+            )}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 150 }}
             onRefresh={refetch}

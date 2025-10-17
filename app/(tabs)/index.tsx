@@ -16,7 +16,8 @@ import DashboardHeader from '@/components/shared/dashboard/header';
 export default function Index() {
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
-  const { data, isPending, isError, isLoading, error } = useReceipts({});
+  const { data, isPending, isError, isLoading, error, refetch, isRefetching } =
+    useReceipts({});
 
   const { isNewUser, clearNewUserFlag } = useAuth();
 
@@ -56,6 +57,8 @@ export default function Index() {
             ListHeaderComponent={() => <DashboardHeader data={data ?? []} />}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 150 }}
+            onRefresh={refetch}
+            refreshing={isRefetching}
           />
         )}
       </View>

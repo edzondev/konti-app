@@ -24,13 +24,17 @@ import Animated, {
 } from 'react-native-reanimated';
 
 type DashboardHeaderProps = {
+  userId: string;
   data: Tables<'receipts'>[];
 };
 
-export default function DashboardHeader({ data }: DashboardHeaderProps) {
+export default function DashboardHeader({
+  userId,
+  data,
+}: DashboardHeaderProps) {
   const router = useRouter();
   const { currentPlan, hasProOrBetter } = useUserPlan();
-  const { data: kpis, isLoading: kpisLoading } = useReceiptKpis();
+  const { data: kpis, isLoading: kpisLoading } = useReceiptKpis(userId ?? '');
   const progressWidth = useSharedValue(0);
 
   const getUsagePercentage = useCallback(() => {
@@ -57,7 +61,7 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
     <>
       <View className="mb-4">
         <View className="flex-row items-center justify-between">
-          <View className="">
+          <View>
             <Image
               source={require('@/assets/konti-logo-hd.jpg')}
               style={{ width: 130, height: 50 }}
@@ -158,7 +162,7 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
         <Text className="text-xl font-semibold text-muted-foreground">
           Archivos recientes
         </Text>
-        {data?.length && data.length > 2 && (
+        {data?.length > 2 && (
           <Pressable
             className="rounded-xl"
             onPress={() => router.push('/receipts')}

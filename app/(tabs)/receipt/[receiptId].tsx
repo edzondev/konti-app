@@ -26,21 +26,22 @@ export default function ReceiptDetails() {
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="border-b border-neutral-border bg-white">
-          <View className="flex-row items-center gap-4 px-6 py-4">
+        <View className="bg-white pt-6">
+          <View className="flex-row items-center justify-between px-6 py-4">
             <Pressable
-              className="hover:bg-muted -ml-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors"
+              className="h-10 w-10 flex-row items-center justify-center rounded-full bg-gray-100"
               aria-label="Volver"
               onPress={() => router.back()}
             >
               <ChevronLeft size={24} color={COLORS.neutral.foreground} />
             </Pressable>
-            <Text className="text-lg font-light text-neutral-foreground">
+            <Text className="text-2xl font-medium text-neutral-foreground">
               Detalle de boleta
             </Text>
+            <View className="w-8" />
           </View>
         </View>
 

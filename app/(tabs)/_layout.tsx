@@ -59,6 +59,7 @@ export default function TabsLayout() {
         name="receipt/[receiptId]"
         options={{
           title: 'Detalle de boleta',
+          animation: 'fade',
           href: null,
         }}
       />

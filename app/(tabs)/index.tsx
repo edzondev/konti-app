@@ -18,7 +18,7 @@ export default function Index() {
 
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
-  const { data, isPending, isError, isLoading, error, refetch, isRefetching } =
+  const { data, isPending, isLoading, error, refetch, isRefetching } =
     useReceipts(session?.user.id || '', {});
 
   const handleCameraPress = useCallback(async () => {
@@ -36,7 +36,7 @@ export default function Index() {
     clearNewUserFlag();
   };
 
-  if (isError || error) {
+  if (error) {
     return <Text>Error: {error as string}</Text>;
   }
 

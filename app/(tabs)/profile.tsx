@@ -1,9 +1,8 @@
-import { View, Text, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants/colors';
 import { useRouter } from 'expo-router';
 import {
-  ChevronLeft,
   ChevronRight,
   Crown,
   HelpCircle,
@@ -11,70 +10,21 @@ import {
   LogOut,
   Shield,
   User,
-  Zap,
 } from 'lucide-react-native';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useGetProfile } from '@/hooks/profile/use-profile';
-import { useMemo } from 'react';
-
-const PLAN_CONFIG = {
-  free: {
-    icon: { Component: Zap, color: COLORS.muted.foreground },
-    badge: {
-      label: 'Free',
-      className:
-        'bg-neutral-100 rounded px-2 py-0.5 text-xs font-light text-neutral-foreground',
-    },
-  },
-  pro: {
-    icon: { Component: Zap, color: COLORS.primary },
-    badge: {
-      label: 'Pro',
-      className:
-        'rounded bg-primary/10 px-2 py-0.5 text-xs font-light text-primary',
-    },
-  },
-  premium: {
-    icon: { Component: Crown, color: '#d97706' },
-    badge: {
-      label: 'Premium',
-      className:
-        'rounded bg-amber-500/10 px-2 py-0.5 text-xs font-light text-amber-600',
-    },
-  },
-} as const;
+import useProfileComponent from '@/hooks/profile/use-profile-component';
+import type { Tables } from '@/types/database.types';
 
 export default function Profile() {
   const router = useRouter();
   const { signOut } = useAuth();
   const { data: profile, isLoading } = useGetProfile();
-
-  const planConfig = useMemo(() => {
-    return (
-      PLAN_CONFIG[profile?.current_plan as keyof typeof PLAN_CONFIG] ??
-      PLAN_CONFIG.free
-    );
-  }, [profile?.current_plan]);
-
-  const handleLogout = async () => {
-    Alert.alert(
-      'Cerrar sesión',
-      '¿Estás seguro de querer cerrar sesión?',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Cerrar sesión',
-          onPress: async () => await signOut(),
-        },
-      ],
-      {
-        cancelable: true,
-      },
-    );
-  };
+  const { planConfig, handleLogout, handlePrivacyPolicy, handleHelp } =
+    useProfileComponent({
+      profile: profile as Tables<'profiles'>,
+      signOut: async () => await signOut(),
+    });
 
   if (isLoading) {
     return (
@@ -138,6 +88,7 @@ export default function Profile() {
                 </View>
                 <ChevronRight size={20} color={COLORS.muted.foreground} />
               </Pressable>
+              {/* Sección Soporte (deshabilitada por ahora)
 
               <Pressable className="w-full flex-row items-center justify-between px-4 py-6">
                 <View className="flex-row items-center gap-3">
@@ -148,6 +99,7 @@ export default function Profile() {
                 </View>
                 <ChevronRight size={20} color={COLORS.muted.foreground} />
               </Pressable>
+              */}
             </View>
           </View>
 
@@ -157,7 +109,10 @@ export default function Profile() {
               Soporte
             </Text>
             <View className="overflow-hidden rounded-lg border border-neutral-border bg-white">
-              <Pressable className="w-full flex-row items-center justify-between px-4 py-6">
+              <Pressable
+                onPress={handleHelp}
+                className="w-full flex-row items-center justify-between px-4 py-6"
+              >
                 <View className="flex-row items-center gap-3">
                   <HelpCircle size={20} color={COLORS.muted.foreground} />
                   <Text className="text-sm font-light text-neutral-foreground">
@@ -167,7 +122,10 @@ export default function Profile() {
                 <ChevronRight size={20} color={COLORS.muted.foreground} />
               </Pressable>
 
-              <Pressable className="w-full flex-row items-center justify-between border-y border-neutral-border px-4 py-6">
+              <Pressable
+                onPress={handlePrivacyPolicy}
+                className="w-full flex-row items-center justify-between border-y border-neutral-border px-4 py-6"
+              >
                 <View className="flex-row items-center gap-3">
                   <Shield size={20} color={COLORS.muted.foreground} />
                   <Text className="text-sm font-light text-neutral-foreground">

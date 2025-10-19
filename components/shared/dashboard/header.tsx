@@ -12,9 +12,8 @@ import {
   Wallet,
   Zap,
 } from 'lucide-react-native';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { View, Text, Pressable, Image } from 'react-native';
-import ImageComponent from '@/components/ui/image';
 
 import Animated, {
   useAnimatedStyle,
@@ -22,6 +21,43 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
+import KpiCard from './kpi-card';
+
+export const KPI_CARD_CONFIG = [
+  {
+    key: 'receipts',
+    icon: Receipt,
+    color: '#2563eb',
+    bgColor: 'bg-blue-500/10',
+    iconBgColor: 'bg-blue-500/20',
+    label: 'Boletas',
+    getValue: (kpis: any) => kpis?.total_receipts ?? 0,
+  },
+  {
+    key: 'total',
+    icon: Wallet,
+    color: '#10b981',
+    bgColor: 'bg-emerald-500/10',
+    iconBgColor: 'bg-emerald-500/20',
+    label: 'Total',
+    getValue: (kpis: any) => `S/${kpis?.total_amount_sum.toFixed(2) ?? '0.00'}`,
+  },
+  {
+    key: 'expenses',
+    icon: TrendingUp,
+    color: '#8b5cf6',
+    bgColor: 'bg-violet-500/10',
+    iconBgColor: 'bg-violet-500/20',
+    label: 'Contables',
+    getValue: (kpis: any) => kpis?.expense_receipts ?? 0,
+  },
+] as const;
+
+const PLAN_CONFIG = {
+  free: { icon: Zap, label: 'Free' },
+  pro: { icon: Zap, label: 'Pro' },
+  premium: { icon: Crown, label: 'Premium' },
+} as const;
 
 type DashboardHeaderProps = {
   userId: string;
@@ -37,25 +73,26 @@ export default function DashboardHeader({
   const { data: kpis, isLoading: kpisLoading } = useReceiptKpis(userId ?? '');
   const progressWidth = useSharedValue(0);
 
-  const getUsagePercentage = useCallback(() => {
-    const limit = LIMIT_PLANS[currentPlan as keyof typeof LIMIT_PLANS];
-    if (limit === Number.POSITIVE_INFINITY) return 0;
-    return ((kpis?.total_receipts ?? 0) / limit) * 100;
-  }, [kpis, currentPlan]);
+  const planLimit = LIMIT_PLANS[currentPlan as keyof typeof LIMIT_PLANS];
+  const planConfig =
+    PLAN_CONFIG[currentPlan as keyof typeof PLAN_CONFIG] || PLAN_CONFIG.free;
 
-  const animatedProgressStyle = useAnimatedStyle(() => {
-    return {
-      width: `${progressWidth.value}%`,
-    };
-  });
+  const animatedProgressStyle = useAnimatedStyle(() => ({
+    width: `${progressWidth.value}%`,
+  }));
 
   useEffect(() => {
+    const getUsagePercentage = () => {
+      if (planLimit === Number.POSITIVE_INFINITY) return 0;
+      return ((kpis?.total_receipts ?? 0) / planLimit) * 100;
+    };
+
     const percentage = getUsagePercentage();
     progressWidth.value = withTiming(Math.min(percentage, 100), {
       duration: 800,
       easing: Easing.out(Easing.cubic),
     });
-  }, [progressWidth, getUsagePercentage]);
+  }, [progressWidth, kpis?.total_receipts, planLimit]);
 
   return (
     <>
@@ -82,73 +119,30 @@ export default function DashboardHeader({
       </View>
 
       <View className="mb-6 mt-4 flex flex-row gap-3">
-        <View className="flex-auto rounded-2xl bg-blue-500/10 p-4">
-          <View className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/20">
-            <Receipt color={'#2563eb'} size={20} />
-          </View>
-          <Text className="text-foreground mb-0.5 text-2xl font-light">
-            {kpisLoading ? '...' : (kpis?.total_receipts ?? 0)}
-          </Text>
-          <Text className="text-xs font-light text-muted-foreground">
-            Boletas
-          </Text>
-        </View>
-
-        <View className="flex-auto rounded-2xl bg-emerald-500/10 p-4">
-          <View className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20">
-            <Wallet color={'#10b981'} size={20} />
-          </View>
-          <Text className="text-foreground mb-0.5 text-2xl font-light">
-            {kpisLoading
-              ? '...'
-              : `S/${kpis?.total_amount_sum.toFixed(2) ?? '0.00'}`}
-          </Text>
-          <Text className="text-xs font-light text-muted-foreground">
-            Total
-          </Text>
-        </View>
-
-        <View className="flex-auto rounded-2xl bg-violet-500/10 p-4">
-          <View className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/20">
-            <TrendingUp color={'#8b5cf6'} size={20} />
-          </View>
-          <Text className="text-foreground mb-0.5 text-2xl font-light">
-            {kpisLoading ? '...' : (kpis?.expense_receipts ?? 0)}
-          </Text>
-          <Text className="text-xs font-light text-muted-foreground">
-            Contables
-          </Text>
-        </View>
+        {KPI_CARD_CONFIG.map((config) => (
+          <KpiCard
+            key={config.key}
+            config={config}
+            kpis={kpis}
+            isLoading={kpisLoading}
+          />
+        ))}
       </View>
 
       <View className="mb-6 rounded-2xl bg-primary/5 p-4">
         <View className="mb-3 flex-row items-center justify-between">
           <View className="flex-row items-center gap-2">
-            {currentPlan === 'free' && <Zap size={16} color={COLORS.primary} />}
-            {currentPlan === 'pro' && <Zap size={16} color={COLORS.primary} />}
-            {currentPlan === 'premium' && (
-              <Crown size={16} color={COLORS.primary} />
-            )}
+            <planConfig.icon size={16} color={COLORS.primary} />
             <Text className="text-foreground text-sm font-normal">
-              Plan{' '}
-              {currentPlan === 'free'
-                ? 'Free'
-                : currentPlan === 'pro'
-                  ? 'Pro'
-                  : 'Premium'}
+              Plan {planConfig.label}
             </Text>
           </View>
           <Text className="text-sm font-light text-neutral-foreground">
             {kpis?.total_receipts ?? 0} de{' '}
-            {LIMIT_PLANS[currentPlan as keyof typeof LIMIT_PLANS] ===
-            Number.POSITIVE_INFINITY
-              ? '∞'
-              : LIMIT_PLANS[currentPlan as keyof typeof LIMIT_PLANS]}{' '}
-            boletas
+            {planLimit === Number.POSITIVE_INFINITY ? '∞' : planLimit} boletas
           </Text>
         </View>
-        {LIMIT_PLANS[currentPlan as keyof typeof LIMIT_PLANS] !==
-          Number.POSITIVE_INFINITY && (
+        {planLimit !== Number.POSITIVE_INFINITY && (
           <View className="h-2 w-full overflow-hidden rounded-full bg-white/50">
             <Animated.View
               className="h-full rounded-full bg-primary"

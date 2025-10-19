@@ -1,10 +1,17 @@
-import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import ImageComponent from '@/components/ui/image';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Sparkles } from 'lucide-react-native';
+import { Sparkle } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import ReceiptForm from '@/components/shared/forms/receipt-form';
 import { useUserPlan } from '@/hooks/profile/use-user-plan';
@@ -15,17 +22,20 @@ export default function Preview() {
   const { imageUrl } = useLocalSearchParams<{
     imageUrl: string;
   }>();
+  const router = useRouter();
   const { hasProOrBetter } = useUserPlan();
-  const {
-    mutateAsync: extractData,
-    isPending: isExtractingData,
-    isSuccess: isExtractingDataSuccess,
-  } = useAiExtraction();
+  const { mutateAsync: extractData, isPending: isExtractingData } =
+    useAiExtraction();
   const [extractedData, setExtractedData] = useState<
     AiExtractedData | undefined
   >();
 
-  const handleAiExtraction = async () => {
+  const handleButtonPress = async () => {
+    if (!hasProOrBetter) {
+      router.push('/subscription');
+      return;
+    }
+
     if (!imageUrl) return;
 
     try {
@@ -66,22 +76,26 @@ export default function Preview() {
             </View>
           )}
 
-          {hasProOrBetter && (
-            <View className="mb-8">
-              <Pressable
-                onPress={handleAiExtraction}
-                disabled={isExtractingData || isExtractingDataSuccess}
-                className="w-full flex-row items-center justify-center gap-2 rounded-lg border border-primary py-3  transition-colors hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Sparkles size={20} color={COLORS.primary} />
-                <Text className="font-regular text-base text-primary">
-                  {isExtractingData
-                    ? 'Extrayendo información...'
-                    : 'Extraer con IA'}
-                </Text>
-              </Pressable>
-            </View>
-          )}
+          <View className="mb-8">
+            <Pressable
+              onPress={handleButtonPress}
+              disabled={isExtractingData}
+              className="w-full flex-row items-center justify-center gap-2 rounded-lg border border-primary py-3 transition-colors hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isExtractingData ? (
+                <ActivityIndicator size="small" color={COLORS.primary} />
+              ) : (
+                <>
+                  <Sparkle size={18} color={COLORS.primary} />
+                  <Text className="font-regular text-base text-primary">
+                    {hasProOrBetter
+                      ? 'Extraer información con IA'
+                      : 'Suscríbete para usar esta función'}
+                  </Text>
+                </>
+              )}
+            </Pressable>
+          </View>
 
           {/* Formulario de Comprobante */}
           <ReceiptForm imageUrl={imageUrl} extractedData={extractedData} />

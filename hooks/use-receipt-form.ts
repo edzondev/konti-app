@@ -65,7 +65,11 @@ export default function useReceiptForm(imageUrl: string) {
       }
 
       await createReceiptFn(data);
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.receipts.all });
+      // KPI queries are already invalidated in useCreateReceipt hook
+      // Only invalidate receipts list for additional consistency
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.receipts.all,
+      });
       form.reset();
       router.push('/success');
     } catch (error) {

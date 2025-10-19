@@ -32,12 +32,12 @@ importers:
       expo-camera:
         specifier: ~17.0.8
         version: 17.0.8(expo@54.0.13)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      expo-dev-client:
-        specifier: ~6.0.15
-        version: 6.0.15(expo@54.0.13)
       expo-image:
         specifier: ~3.0.9
         version: 3.0.9(expo@54.0.13)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
+      expo-linking:
+        specifier: ~8.0.8
+        version: 8.0.8(expo@54.0.13)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       expo-router:
         specifier: ~6.0.10
         version: 6.0.12(@expo/metro-runtime@6.1.2)(@types/react@19.1.17)(expo-constants@18.0.9)(expo-linking@8.0.8)(expo@54.0.13)(react-dom@19.2.0(react@19.1.0))(react-native-reanimated@4.1.3(@babel/core@7.28.4)(react-native-worklets@0.6.1(@babel/core@7.28.4)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native-safe-area-context@5.6.1(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native-screens@4.17.1(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -2346,26 +2346,6 @@ packages:
     peerDependencies:
       expo: '*'
       react-native: '*'
-
-  expo-dev-client@6.0.15:
-    resolution: {integrity: sha512-zdpuK7wPp7q01qE90EDQunL49cumGPEKCGDykB86K0myCPZt1lvkpyy4OHTh3urm3pkikWOb9biuVgLdq7oq/g==}
-    peerDependencies:
-      expo: '*'
-
-  expo-dev-launcher@6.0.15:
-    resolution: {integrity: sha512-aFRKg9qcq47Y/1UGTPhtOWrbI5jOFgttOfhdBu9knLKl72jGXpDTdBHsHPkCfIezzDrSoZccl482Hv7RvKfrqA==}
-    peerDependencies:
-      expo: '*'
-
-  expo-dev-menu-interface@2.0.0:
-    resolution: {integrity: sha512-BvAMPt6x+vyXpThsyjjOYyjwfjREV4OOpQkZ0tNl+nGpsPfcY9mc6DRACoWnH9KpLzyIt3BOgh3cuy/h/OxQjw==}
-    peerDependencies:
-      expo: '*'
-
-  expo-dev-menu@7.0.14:
-    resolution: {integrity: sha512-nWyzSztFWfnhDOiKJ6DuZLjIbq+tG9e5y4TDmW6wYlSKKPBXbdOn2UdxaknhSqZrw6NwWMcjyhS+QG4MoDGD8w==}
-    peerDependencies:
-      expo: '*'
 
   expo-eas-client@1.0.7:
     resolution: {integrity: sha512-Q/b1X0fM+3beqqvffok14pjxMF600NxopdSr9WJY61fF4xllcVnALS0kEudffp9ihMOfcb5xWYqzKj6jMqYDIw==}
@@ -7558,34 +7538,6 @@ snapshots:
       react-native: 0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0)
     transitivePeerDependencies:
       - supports-color
-
-  expo-dev-client@6.0.15(expo@54.0.13):
-    dependencies:
-      expo: 54.0.13(@babel/core@7.28.4)(@expo/metro-runtime@6.1.2)(expo-router@6.0.12)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      expo-dev-launcher: 6.0.15(expo@54.0.13)
-      expo-dev-menu: 7.0.14(expo@54.0.13)
-      expo-dev-menu-interface: 2.0.0(expo@54.0.13)
-      expo-manifests: 1.0.8(expo@54.0.13)
-      expo-updates-interface: 2.0.0(expo@54.0.13)
-    transitivePeerDependencies:
-      - supports-color
-
-  expo-dev-launcher@6.0.15(expo@54.0.13):
-    dependencies:
-      expo: 54.0.13(@babel/core@7.28.4)(@expo/metro-runtime@6.1.2)(expo-router@6.0.12)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      expo-dev-menu: 7.0.14(expo@54.0.13)
-      expo-manifests: 1.0.8(expo@54.0.13)
-    transitivePeerDependencies:
-      - supports-color
-
-  expo-dev-menu-interface@2.0.0(expo@54.0.13):
-    dependencies:
-      expo: 54.0.13(@babel/core@7.28.4)(@expo/metro-runtime@6.1.2)(expo-router@6.0.12)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-
-  expo-dev-menu@7.0.14(expo@54.0.13):
-    dependencies:
-      expo: 54.0.13(@babel/core@7.28.4)(@expo/metro-runtime@6.1.2)(expo-router@6.0.12)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
-      expo-dev-menu-interface: 2.0.0(expo@54.0.13)
 
   expo-eas-client@1.0.7: {}
 

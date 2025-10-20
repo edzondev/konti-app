@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "135960293817",
+    "project_id": "kontiapp",
+    "storage_bucket": "kontiapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:135960293817:android:bc32d1ba4daced3e2a0668",
+        "android_client_info": {
+          "package_name": "com.edzon2121.KontiApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzBADl8J8OMzAvx2ugYOaJX3OA_R63gCA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

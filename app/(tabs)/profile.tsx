@@ -39,10 +39,10 @@ export default function Profile() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="my-8 px-6">
-        <View className="mt-4">
+      <View className="flex-1 px-6">
+        <View className="my-8">
           <Text className="text-3xl font-semibold text-neutral-foreground">
-            Perfil
+            Mi Perfil
           </Text>
         </View>
 

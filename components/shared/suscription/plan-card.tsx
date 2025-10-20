@@ -25,72 +25,99 @@ export default memo(function PlanCard({
     <Animated.View
       entering={FadeIn.duration(300)}
       className={cn(
-        'relative mb-4 flex-col gap-4 rounded-3xl border-2 border-neutral-border bg-white p-6 shadow-sm',
-        isPopular && 'border-primary',
+        'relative mb-4 overflow-hidden rounded-2xl bg-white',
+        isPopular
+          ? 'border-2 border-primary shadow-lg'
+          : 'border border-neutral-border/50 shadow-sm',
       )}
     >
-      <View>
-        <View className="flex-col gap-4">
-          <View className="flex-row items-start justify-between">
-            <View className="rounded-full bg-primary/10 p-4">
-              <Crown size={24} color={COLORS.primary} />
+      {/* Badge superior */}
+      {isPopular && (
+        <View className="bg-primary px-4 py-2">
+          <Text className="text-center text-xs font-semibold uppercase tracking-wide text-white">
+            Mejor valorado
+          </Text>
+        </View>
+      )}
+
+      <View className="p-6">
+        {/* Header con título y precio */}
+        <View className="mb-6 flex-col gap-3">
+          <View className="flex-row items-center gap-3">
+            <View
+              className={cn(
+                'rounded-xl p-2.5',
+                isPopular ? 'bg-primary/10' : 'bg-neutral-100',
+              )}
+            >
+              <Crown
+                size={20}
+                color={isPopular ? COLORS.primary : COLORS.neutral.foreground}
+              />
             </View>
-            {isPopular && (
-              <View className="rounded-full bg-primary/10 px-3 py-1">
-                <Text className="text-xs font-semibold text-primary">
-                  Mejor valorado
-                </Text>
-              </View>
-            )}
-          </View>
-          <View className="gap-2 text-pretty">
-            <Text className="text-2xl font-bold text-neutral-foreground">
+            <Text className="text-xl font-bold text-neutral-foreground">
               {plan.product.title.split('(')[0]}
             </Text>
-            <Text
-              className="text-base font-light text-muted-foreground"
-              numberOfLines={2}
-              ellipsizeMode="tail"
-              adjustsFontSizeToFit={false}
-            >
-              {plan.product.description}
+          </View>
+
+          <View className="flex-row items-end gap-1">
+            <Text className="text-4xl font-bold text-neutral-foreground">
+              {plan.product.priceString}
             </Text>
+            <Text className="mb-1 text-sm text-muted-foreground">/mes</Text>
           </View>
+
+          <Text
+            className="text-sm leading-5 text-muted-foreground"
+            numberOfLines={2}
+            ellipsizeMode="tail"
+          >
+            {plan.product.description}
+          </Text>
         </View>
 
-        <View className="mt-2 flex-row items-baseline gap-1">
-          <Text className="text-3xl font-bold text-neutral-foreground">
-            {plan.product.priceString}
-          </Text>
-          <Text className="text-base font-normal text-muted-foreground">
-            /mes
-          </Text>
+        {/* Divider */}
+        <View className="mb-6 h-px bg-neutral-border" />
+
+        {/* Features */}
+        <View className="mb-6 gap-3">
+          {features.map((feature, featureIndex) => (
+            <View key={featureIndex} className="flex-row items-start gap-2.5">
+              <View className="mt-0.5 rounded-full bg-primary/10 p-1">
+                <Check size={10} color={COLORS.primary} strokeWidth={3} />
+              </View>
+              <Text className="flex-1 text-sm leading-5 text-neutral-foreground">
+                {feature}
+              </Text>
+            </View>
+          ))}
         </View>
-      </View>
 
-      <View>
-        <Text className="mb-3 text-sm font-semibold text-neutral-foreground">
-          Lo que incluye
-        </Text>
-        {features.map((feature, featureIndex) => (
-          <View key={featureIndex} className="mb-2 flex-row items-center gap-2">
-            <Check size={12} color={COLORS.primary} />
-            <Text className="text-sm text-muted-foreground">{feature}</Text>
-          </View>
-        ))}
+        {/* CTA Button */}
+        <Pressable
+          onPress={() => onSelect(plan)}
+          disabled={isLoading}
+          className={cn(
+            'h-12 flex-row items-center justify-center gap-2 rounded-xl',
+            isPopular ? 'bg-primary' : 'border border-primary/20 bg-primary/5',
+          )}
+        >
+          <Text
+            className={cn(
+              'text-base font-semibold',
+              isPopular ? 'text-white' : 'text-primary',
+            )}
+          >
+            {isLoading ? 'Procesando...' : 'Seleccionar plan'}
+          </Text>
+          {isLoading && (
+            <ActivityIndicator
+              size="small"
+              color={isPopular ? COLORS.neutral.white : COLORS.primary}
+            />
+          )}
+        </Pressable>
       </View>
-
-      <Pressable
-        onPress={() => onSelect(plan)}
-        className="h-14 flex-row items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2"
-      >
-        <Text className="text-lg font-semibold text-white">
-          {isLoading ? 'Procesando...' : 'Seleccionar este plan'}
-        </Text>
-        {isLoading && (
-          <ActivityIndicator size="small" color={COLORS.neutral.white} />
-        )}
-      </Pressable>
     </Animated.View>
   );
 });

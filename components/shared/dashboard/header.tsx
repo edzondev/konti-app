@@ -60,17 +60,13 @@ const PLAN_CONFIG = {
 } as const;
 
 type DashboardHeaderProps = {
-  userId: string;
   data: Tables<'receipts'>[];
 };
 
-export default function DashboardHeader({
-  userId,
-  data,
-}: DashboardHeaderProps) {
+export default function DashboardHeader({ data }: DashboardHeaderProps) {
   const router = useRouter();
   const { currentPlan, hasProOrBetter } = useUserPlan();
-  const { data: kpis, isLoading: kpisLoading } = useReceiptKpis(userId ?? '');
+  const { data: kpis, isLoading: kpisLoading } = useReceiptKpis();
   const progressWidth = useSharedValue(0);
 
   const planLimit = LIMIT_PLANS[currentPlan as keyof typeof LIMIT_PLANS];
@@ -157,14 +153,13 @@ export default function DashboardHeader({
           Archivos recientes
         </Text>
         {data?.length > 2 && (
-          <Pressable
-            className="rounded-xl"
-            onPress={() => router.push('/receipts')}
-          >
-            <Text className="text-sm font-semibold text-primary">
-              Ver todos
-            </Text>
-          </Pressable>
+          <Link href="/receipt" asChild>
+            <Pressable className="rounded-xl">
+              <Text className="text-sm font-semibold text-primary">
+                Ver todos
+              </Text>
+            </Pressable>
+          </Link>
         )}
       </View>
     </>

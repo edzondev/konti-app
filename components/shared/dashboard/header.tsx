@@ -3,11 +3,11 @@ import { LIMIT_PLANS } from '@/constants/plans';
 import { useUserPlan } from '@/hooks/profile/use-user-plan';
 import { useReceiptKpis } from '@/hooks/receipts/use-receipt-kpis';
 import type { Tables } from '@/types/database.types';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import {
   Crown,
   Receipt,
-  Sparkle,
+  Sparkles,
   TrendingUp,
   Wallet,
   Zap,
@@ -27,9 +27,9 @@ export const KPI_CARD_CONFIG = [
   {
     key: 'receipts',
     icon: Receipt,
-    color: '#2563eb',
-    bgColor: 'bg-blue-500/10',
-    iconBgColor: 'bg-blue-500/20',
+    color: COLORS.primary,
+    bgColor: 'bg-primary/10',
+    iconBgColor: 'bg-primary/20',
     label: 'Boletas',
     getValue: (kpis: any) => kpis?.total_receipts ?? 0,
   },
@@ -64,7 +64,6 @@ type DashboardHeaderProps = {
 };
 
 export default function DashboardHeader({ data }: DashboardHeaderProps) {
-  const router = useRouter();
   const { currentPlan, hasProOrBetter } = useUserPlan();
   const { data: kpis, isLoading: kpisLoading } = useReceiptKpis();
   const progressWidth = useSharedValue(0);
@@ -94,20 +93,24 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
     <>
       <View className="mb-4">
         <View className="flex-row items-center justify-between">
-          <View>
-            <Image
-              source={require('@/assets/konti-logo-hd.jpg')}
-              style={{ width: 130, height: 50 }}
-              resizeMode="contain"
-              alt="Konti"
-            />
-          </View>
+          <Image
+            source={require('@/assets/konti-logo-hd.jpg')}
+            style={{ width: 130, height: 45 }}
+            resizeMode="contain"
+            alt="Konti"
+          />
 
           {!hasProOrBetter && (
             <Link href="/subscription" asChild className="px-4 py-2">
-              <Pressable className="flex-row items-center gap-x-2 rounded-full bg-primary">
-                <Sparkle size={14} color="white" fill="white" />
-                <Text className="text-sm font-bold text-white">Suscribete</Text>
+              <Pressable className="flex-row items-center gap-x-2 rounded-full border border-primary bg-primary/5">
+                <Sparkles
+                  size={14}
+                  color={COLORS.primary}
+                  fill={COLORS.primary}
+                />
+                <Text className="text-base font-semibold text-primary">
+                  Hazte Pro
+                </Text>
               </Pressable>
             </Link>
           )}

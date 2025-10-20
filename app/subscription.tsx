@@ -5,7 +5,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
-import { X } from 'lucide-react-native';
+import { X, Sparkles } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants/colors';
@@ -21,17 +21,17 @@ import { scheduleOnRN } from 'react-native-worklets';
 
 const featureMap = {
   pro: [
-    'Hasta 500 boletas por mes',
-    'Acceso a IA base para lectura y análisis.',
-    'Sin límites de uso diario.',
-    'Soporte estándar.',
+    'Hasta 20 boletas por mes',
+    'Procesamiento automático con OCR incluido',
+    'Exportación mensual en Excel (Proximamente)',
+    'Soporte en horario laboral',
   ],
   premium: [
-    'Subidas ilimitadas',
-    'Acceso a IA avanzada.',
-    'Procesamiento más rápido',
+    'Subidas ilimitadas de boletas',
+    'Procesamiento automático con OCR incluido',
+    'Reporte anual listo para SUNAT',
     'Acceso anticipado a nuevas funciones',
-    'Soporte prioritario 24/7',
+    'Soporte prioritario',
   ],
 };
 
@@ -116,13 +116,32 @@ export default function SubscriptionScreen() {
                 ListHeaderComponent={() => (
                   <View className="pb-6 pt-8">
                     <View className="flex-row items-center justify-between">
-                      <TouchableOpacity onPress={handleClose} className="p-2">
-                        <X size={24} color={COLORS.neutral.foreground} />
+                      <TouchableOpacity
+                        onPress={handleClose}
+                        className="rounded-full bg-neutral-border p-2"
+                      >
+                        <X size={20} color={COLORS.muted.foreground} />
                       </TouchableOpacity>
-                      <Text className="text-xl font-semibold text-neutral-foreground">
+                      <Text className="text-2xl font-semibold text-neutral-foreground">
                         Planes de suscripción
                       </Text>
                       <View className="w-6" />
+                    </View>
+
+                    {/* Free Trial Notice */}
+                    <View className="mt-6 flex-row items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
+                      <View className="rounded-full bg-primary/10 p-2">
+                        <Sparkles size={16} color={COLORS.primary} />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-sm font-semibold text-neutral-foreground">
+                          Obten tu prueba gratis por 3 días
+                        </Text>
+                        <Text className="text-xs text-muted-foreground">
+                          Después de la prueba, se te cobrará el plan
+                          seleccionado
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 )}

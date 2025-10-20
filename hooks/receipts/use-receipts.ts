@@ -3,13 +3,18 @@ import {
   getReceipts,
   createReceipt,
   getReceiptDetails,
+  deleteReceipt,
 } from '@/services/receipts';
 import type { Tables } from '@/types/database.types';
 import { FiltersType } from '@/types/receipt.type';
 import { useQueryBase } from '@/utils/query/hooks/query-base';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/components/providers/auth-provider';
+import { useRouter } from 'expo-router';
 
-function useReceipts(userId: string, filters: Partial<FiltersType>) {
+function useReceipts(filters: Partial<FiltersType>) {
+  const { session } = useAuth();
+  const userId = session?.user.id || '';
   const queryClient = useQueryClient();
   const { data, ...rest } = useQueryBase<Tables<'receipts'>[]>({
     queryKey: [...QUERY_KEYS.receipts.all, filters],
@@ -52,4 +57,20 @@ function useCreateReceipt(imageUrl: string, userId: string) {
   return { mutateAsync, isPending, isError };
 }
 
-export { useReceipts, useReceiptDetails, useCreateReceipt };
+function useDeleteReceipt() {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const { mutateAsync, isPending, isError } = useMutation({
+    mutationFn: (id: string) => deleteReceipt(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.receipts.all });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.receipts.kpis,
+      });
+      router.back();
+    },
+  });
+  return { mutateAsync, isPending, isError };
+}
+
+export { useReceipts, useReceiptDetails, useCreateReceipt, useDeleteReceipt };

@@ -4,19 +4,43 @@ import {
   Pressable,
   ActivityIndicator,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import ReceiptCard from '@/components/shared/receipt/receipt-card';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useReceiptDetails } from '@/hooks/receipts/use-receipts';
+import {
+  useDeleteReceipt,
+  useReceiptDetails,
+} from '@/hooks/receipts/use-receipts';
 import type { Tables } from '@/types/database.types';
 
 export default function ReceiptDetails() {
   const router = useRouter();
   const { receiptId } = useLocalSearchParams<{ receiptId: string }>();
   const { data, isPending, isError, isLoading } = useReceiptDetails(receiptId);
+  const { mutateAsync: deleteReceipt, isPending: isDeleting } =
+    useDeleteReceipt();
+
+  const handleDeleteReceipt = async () => {
+    Alert.alert(
+      'Eliminar boleta',
+      '¿Estás seguro de querer eliminar esta boleta?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          onPress: async () => await deleteReceipt(receiptId),
+          style: 'destructive',
+        },
+      ],
+    );
+  };
 
   if (isError) {
     return <Text>Error: {isError}</Text>;
@@ -50,7 +74,11 @@ export default function ReceiptDetails() {
             <ActivityIndicator size="large" color={COLORS.primary} />
           </View>
         ) : (
-          <ReceiptCard selectedReceipt={data as Tables<'receipts'>} />
+          <ReceiptCard
+            selectedReceipt={data as Tables<'receipts'>}
+            handleDeleteReceipt={handleDeleteReceipt}
+            isDeleting={isDeleting}
+          />
         )}
       </ScrollView>
     </SafeAreaView>

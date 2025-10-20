@@ -170,3 +170,15 @@ export async function getReceiptKpis(userId: string): Promise<ReceiptKpis> {
     total_amount_sum: data.total_amount_sum ?? 0,
   };
 }
+
+export async function deleteReceipt(id: string) {
+  //TODO: Implement delete a file in the storage
+
+  const { data, error } = await supabase.from('receipts').delete().eq('id', id);
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}

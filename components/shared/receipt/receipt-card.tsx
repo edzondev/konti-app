@@ -1,6 +1,12 @@
-import { View, Text } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import ImageComponent from '@/components/ui/image';
-import { Calendar, FileText, CreditCard, Building2 } from 'lucide-react-native';
+import {
+  Calendar,
+  FileText,
+  CreditCard,
+  Building2,
+  Trash,
+} from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import { memo } from 'react';
 import { cn } from '@/lib/utils';
@@ -9,15 +15,21 @@ import { dateFormat } from '@/lib/date-format';
 
 type Props = {
   selectedReceipt: Tables<'receipts'>;
+  handleDeleteReceipt: () => void;
+  isDeleting: boolean;
 };
 
-function ReceiptCard({ selectedReceipt }: Props) {
+function ReceiptCard({
+  selectedReceipt,
+  handleDeleteReceipt,
+  isDeleting,
+}: Props) {
   return (
     <View className="px-6 py-8">
       {selectedReceipt.image_url && (
         <View className="mb-8 overflow-hidden rounded-lg border border-neutral-border">
           <ImageComponent
-            source={selectedReceipt.image_url}
+            src={selectedReceipt.image_url}
             contentFit="cover"
             style={{ width: '100%', height: 350 }}
             alt="Comprobante"
@@ -135,6 +147,23 @@ function ReceiptCard({ selectedReceipt }: Props) {
           </View>
         </View>
       </View>
+
+      <Pressable
+        disabled={isDeleting}
+        className="mt-6 h-14 flex-row items-center justify-center gap-2 rounded-lg bg-red-500 px-4"
+        onPress={handleDeleteReceipt}
+      >
+        {isDeleting ? (
+          <ActivityIndicator size="small" color={COLORS.neutral.white} />
+        ) : (
+          <>
+            <Trash color={COLORS.neutral.white} size={20} />
+            <Text className="text-base font-light text-neutral-white">
+              Eliminar boleta
+            </Text>
+          </>
+        )}
+      </Pressable>
     </View>
   );
 }

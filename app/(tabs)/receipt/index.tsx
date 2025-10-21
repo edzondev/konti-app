@@ -183,7 +183,7 @@ export default function Recipes() {
         </View>
 
         {/* Contador de resultados */}
-        {data && data.length > 0 && (
+        {!isLoading && data && data.length > 0 && (
           <View className="my-4">
             <Text className="text-sm font-light text-muted-foreground">
               {data.length}{' '}
@@ -194,19 +194,15 @@ export default function Recipes() {
 
         {/* Lista de boletas */}
         <View className="flex-1">
-          {isLoading && (
+          {isLoading ? (
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator size="large" color={COLORS.primary} />
             </View>
-          )}
-
-          {!isLoading && data && data.length === 0 && (
+          ) : !data || data.length === 0 ? (
             <View className="flex-row items-center justify-center">
               <Empty />
             </View>
-          )}
-
-          {!isLoading && data && data.length > 0 && (
+          ) : (
             <FlashList
               data={data}
               keyExtractor={(item) => item.id}

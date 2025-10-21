@@ -17,7 +17,7 @@ export const ONBOARDING_SLIDES = [
     id: '3',
     title: 'Listo para tus declaraciones.',
     description:
-      'ccede a tu historial cuando quieras. Organiza tus gastos y declara sin estrés.',
+      'Accede a tu historial cuando quieras. Organiza tus gastos y declara sin estrés.',
     illustration: 'taxes',
   },
 ];

@@ -39,6 +39,3 @@ yarn-error.*
 # generated native folders
 /ios
 /android
-
-# google services
-kontiapp-e1ba87fec327.json

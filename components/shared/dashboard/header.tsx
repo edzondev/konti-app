@@ -90,34 +90,32 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
   }, [progressWidth, kpis?.total_receipts, planLimit]);
 
   return (
-    <>
-      <View className="mb-4">
-        <View className="flex-row items-center justify-between">
-          <Image
-            source={require('@/assets/konti-logo-hd.jpg')}
-            style={{ width: 130, height: 45 }}
-            resizeMode="contain"
-            alt="Konti"
-          />
+    <View className="flex-col gap-8 py-4">
+      <View className="flex-row items-center justify-between">
+        <Image
+          source={require('@/assets/konti-logo-hd.jpg')}
+          style={{ width: 130, height: 45 }}
+          resizeMode="contain"
+          alt="Konti"
+        />
 
-          {!hasProOrBetter && (
-            <Link href="/subscription" asChild className="px-4 py-2">
-              <Pressable className="flex-row items-center gap-x-2 rounded-full border border-primary bg-primary/5">
-                <Sparkles
-                  size={14}
-                  color={COLORS.primary}
-                  fill={COLORS.primary}
-                />
-                <Text className="text-base font-semibold text-primary">
-                  Hazte Pro
-                </Text>
-              </Pressable>
-            </Link>
-          )}
-        </View>
+        {!hasProOrBetter && (
+          <Link href="/subscription" asChild className="px-4 py-2">
+            <Pressable className="flex-row items-center gap-x-2 rounded-full border border-primary bg-primary/5">
+              <Sparkles
+                size={14}
+                color={COLORS.primary}
+                fill={COLORS.primary}
+              />
+              <Text className="text-base font-semibold text-primary">
+                Hazte Pro
+              </Text>
+            </Pressable>
+          </Link>
+        )}
       </View>
 
-      <View className="mb-6 mt-4 flex flex-row gap-3">
+      <View className="flex flex-row gap-3">
         {KPI_CARD_CONFIG.map((config) => (
           <KpiCard
             key={config.key}
@@ -128,7 +126,7 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
         ))}
       </View>
 
-      <View className="mb-6 rounded-2xl bg-primary/5 p-4">
+      <View className="rounded-2xl bg-primary/5 p-4">
         <View className="mb-3 flex-row items-center justify-between">
           <View className="flex-row items-center gap-2">
             <planConfig.icon size={16} color={COLORS.primary} />
@@ -151,7 +149,7 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
         )}
       </View>
 
-      <View className="my-4 flex-row items-center justify-between">
+      <View className="flex-row items-center justify-between">
         <Text className="text-xl font-semibold text-muted-foreground">
           Archivos recientes
         </Text>
@@ -165,6 +163,6 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
           </Link>
         )}
       </View>
-    </>
+    </View>
   );
 }

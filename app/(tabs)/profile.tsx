@@ -4,9 +4,7 @@ import { COLORS } from '@/constants/colors';
 import { useRouter } from 'expo-router';
 import {
   ChevronRight,
-  Crown,
   HelpCircle,
-  Lock,
   LogOut,
   Shield,
   User,
@@ -38,8 +36,8 @@ export default function Profile() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 px-6">
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+      <View className="flex-1 px-4">
         <View className="my-8">
           <Text className="text-3xl font-semibold text-neutral-foreground">
             Mi Perfil
@@ -52,8 +50,8 @@ export default function Profile() {
             <View className="h-16 w-16 items-center justify-center rounded-full bg-primary/20">
               <User size={32} color={COLORS.primary} />
             </View>
-            <View className="flex-col items-center gap-2">
-              <Text className="font-regular text-xl text-neutral-foreground">
+            <View className="flex-col items-center justify-center gap-2">
+              <Text className="font-regular text-center text-xl text-neutral-foreground">
                 {profile?.name}
               </Text>
               <Text className="text-sm font-light text-muted-foreground">

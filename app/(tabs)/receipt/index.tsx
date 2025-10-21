@@ -4,6 +4,7 @@ import {
   ReceiptText,
   Search,
   TrendingUp,
+  XCircle,
 } from 'lucide-react-native';
 import {
   View,
@@ -37,10 +38,10 @@ export default function Recipes() {
   const { data, isLoading, refetch } = useReceipts(debouncedFilters);
 
   return (
-    <SafeAreaView className="flex-1 bg-white py-4">
-      <View className="flex-1 px-6">
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+      <View className="flex-1 px-4">
         {/* Header */}
-        <View className="mb-6 mt-4">
+        <View className="mb-6 mt-8">
           <Text className="text-3xl font-semibold text-neutral-foreground">
             Tus Boletas
           </Text>
@@ -50,7 +51,7 @@ export default function Recipes() {
         <View className="relative mb-4">
           <View
             className="absolute left-4 top-1/2 z-10"
-            style={{ transform: [{ translateY: -12 }] }}
+            style={{ transform: [{ translateY: -10 }] }}
           >
             <Search color={COLORS.muted.foreground} size={20} />
           </View>
@@ -61,10 +62,25 @@ export default function Recipes() {
               setSearchText(text);
               handleSearchChange(text);
             }}
-            placeholder="Buscar por empresa, RUC, monto..."
+            placeholder="Buscar por empresa, RUC o N° boleta"
             className="bg-muted/30 h-14 w-full rounded-xl border border-neutral-border py-3 pl-12 pr-4 text-sm font-light outline-none"
             placeholderTextColor={COLORS.muted.foreground}
           />
+          {searchText && (
+            <View
+              className="absolute right-4 top-1/2 z-10 flex-row items-center justify-center p-2"
+              style={{ transform: [{ translateY: -16 }] }}
+            >
+              <Pressable
+                onPress={() => {
+                  setSearchText('');
+                  handleSearchChange('');
+                }}
+              >
+                <XCircle size={20} color={COLORS.muted.foreground} />
+              </Pressable>
+            </View>
+          )}
         </View>
 
         {/* Pills de filtros */}
@@ -178,11 +194,19 @@ export default function Recipes() {
 
         {/* Lista de boletas */}
         <View className="flex-1">
-          {isLoading ? (
+          {isLoading && (
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator size="large" color={COLORS.primary} />
             </View>
-          ) : (
+          )}
+
+          {!isLoading && data && data.length === 0 && (
+            <View className="flex-row items-center justify-center">
+              <Empty />
+            </View>
+          )}
+
+          {!isLoading && data && data.length > 0 && (
             <FlashList
               data={data}
               keyExtractor={(item) => item.id}
@@ -190,8 +214,7 @@ export default function Recipes() {
               onRefresh={refetch}
               refreshing={isLoading}
               ItemSeparatorComponent={() => <View className="h-4" />}
-              ListEmptyComponent={() => <Empty />}
-              contentContainerStyle={{ paddingBottom: 100 }}
+              contentContainerStyle={{ paddingBottom: 150 }}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             />

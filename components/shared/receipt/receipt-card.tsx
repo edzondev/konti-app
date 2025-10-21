@@ -25,7 +25,7 @@ function ReceiptCard({
   isDeleting,
 }: Props) {
   return (
-    <View className="px-6 py-8">
+    <View className="">
       {selectedReceipt.image_url && (
         <View className="mb-8 overflow-hidden rounded-lg border border-neutral-border">
           <ImageComponent

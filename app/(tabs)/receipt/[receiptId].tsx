@@ -47,18 +47,18 @@ export default function ReceiptDetails() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white px-6" edges={['top', 'bottom']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="bg-white pt-6">
-          <View className="flex-row items-center justify-between px-6 py-4">
+        <View className="bg-white pb-8 pt-6">
+          <View className="flex-row items-center justify-between">
             <Pressable
               className="h-10 w-10 flex-row items-center justify-center rounded-full bg-gray-100"
               aria-label="Volver"
-              onPress={() => router.back()}
+              onPress={() => router.push('/(tabs)/receipt/')}
             >
               <ChevronLeft size={24} color={COLORS.neutral.foreground} />
             </Pressable>

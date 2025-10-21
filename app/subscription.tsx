@@ -87,68 +87,74 @@ export default function SubscriptionScreen() {
     animateClose();
   };
 
+  if (isLoading) {
+    return (
+      <SafeAreaView
+        className="flex-1 items-center justify-center bg-white"
+        edges={['top']}
+      >
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <>
       <PaymentSuccessModal visible={showSuccessModal} />
 
-      <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+      <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
         <View className="flex-1 px-6">
           <Animated.View style={[contentAnimatedStyle]} className="flex-1">
-            {isLoading ? (
-              <ActivityIndicator size="large" color={COLORS.primary} />
-            ) : (
-              <FlashList
-                data={availablePackages}
-                keyExtractor={(item) => item.identifier}
-                renderItem={({ item }) => (
-                  <PlanCard
-                    plan={item}
-                    features={
-                      featureMap[item.identifier as keyof typeof featureMap]
-                    }
-                    isPopular={item.product.title.includes('Pro')}
-                    onSelect={handlePlanSelect}
-                    isLoading={isPurchasing}
-                  />
-                )}
-                onRefresh={() => refetch()}
-                refreshing={isRefetching}
-                ListHeaderComponent={() => (
-                  <View className="pb-6 pt-8">
-                    <View className="flex-row items-center justify-between">
-                      <TouchableOpacity
-                        onPress={handleClose}
-                        className="rounded-full bg-neutral-border p-2"
-                      >
-                        <X size={20} color={COLORS.muted.foreground} />
-                      </TouchableOpacity>
-                      <Text className="text-2xl font-semibold text-neutral-foreground">
-                        Planes de suscripción
-                      </Text>
-                      <View className="w-6" />
-                    </View>
+            <FlashList
+              data={availablePackages}
+              keyExtractor={(item) => item.identifier}
+              renderItem={({ item }) => (
+                <PlanCard
+                  plan={item}
+                  features={
+                    featureMap[item.identifier as keyof typeof featureMap]
+                  }
+                  isPopular={item.product.title.includes('Pro')}
+                  onSelect={handlePlanSelect}
+                  isLoading={isPurchasing}
+                />
+              )}
+              onRefresh={() => refetch()}
+              refreshing={isRefetching}
+              ListHeaderComponent={() => (
+                <View className="pb-6 pt-8">
+                  <View className="flex-row items-center justify-between">
+                    <TouchableOpacity
+                      onPress={handleClose}
+                      className="rounded-full bg-neutral-border p-2"
+                    >
+                      <X size={20} color={COLORS.muted.foreground} />
+                    </TouchableOpacity>
+                    <Text className="text-2xl font-semibold text-neutral-foreground">
+                      Planes de suscripción
+                    </Text>
+                    <View className="w-6" />
+                  </View>
 
-                    {/* Free Trial Notice */}
-                    <View className="mt-6 flex-row items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
-                      <View className="rounded-full bg-primary/10 p-2">
-                        <Sparkles size={16} color={COLORS.primary} />
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-sm font-semibold text-neutral-foreground">
-                          Obten tu prueba gratis por 3 días
-                        </Text>
-                        <Text className="text-xs text-muted-foreground">
-                          Después de la prueba, se te cobrará el plan
-                          seleccionado
-                        </Text>
-                      </View>
+                  {/* Free Trial Notice */}
+                  <View className="mt-6 flex-row items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
+                    <View className="rounded-full bg-primary/10 p-2">
+                      <Sparkles size={16} color={COLORS.primary} />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-sm font-semibold text-neutral-foreground">
+                        Obten tu prueba gratis por 3 días
+                      </Text>
+                      <Text className="text-xs text-muted-foreground">
+                        Después de la prueba, se te cobrará el plan seleccionado
+                      </Text>
                     </View>
                   </View>
-                )}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 20 }}
-              />
-            )}
+                </View>
+              )}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            />
           </Animated.View>
         </View>
       </SafeAreaView>

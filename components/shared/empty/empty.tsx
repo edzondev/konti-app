@@ -5,17 +5,18 @@ export default function Empty() {
   return (
     <View
       className="flex-1 items-center justify-center"
-      style={{ height: 300 }}
+      style={{ height: 400 }}
     >
       <View className="flex-col items-center justify-center">
         <ImageComponent
-          src={require('@/assets/images/no_data.png')}
-          style={{ width: 96, height: 96 }}
+          src={require('@/assets/images/empty.png')}
+          style={{ width: 300, height: 300 }}
           contentFit="contain"
           alt="No hay datos disponibles"
+          recyclingKey={`no-data-${Date.now()}`}
         />
-        <Text className="text-center text-base font-light text-muted-foreground">
-          No hay datos disponibles
+        <Text className="text-center text-lg font-normal text-muted-foreground">
+          Oops! Parece que no hay nada aquí
         </Text>
       </View>
     </View>

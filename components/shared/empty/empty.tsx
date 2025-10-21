@@ -13,7 +13,7 @@ export default function Empty() {
           style={{ width: 300, height: 300 }}
           contentFit="contain"
           alt="No hay datos disponibles"
-          recyclingKey={`no-data-${Date.now()}`}
+          recyclingKey="no-data"
         />
         <Text className="text-center text-lg font-normal text-muted-foreground">
           Oops! Parece que no hay nada aquí

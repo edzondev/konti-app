@@ -1,5 +1,8 @@
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { Camera } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useCameraPermissions } from 'expo-camera';
@@ -15,6 +18,7 @@ import DashboardHeader from '@/components/shared/dashboard/header';
 
 export default function Index() {
   const { isNewUser, clearNewUserFlag } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
@@ -41,8 +45,9 @@ export default function Index() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 px-6 py-8">
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+      <View className="flex-1 px-4">
+        <DashboardHeader data={data ?? []} />
         {isLoading || isPending ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color={COLORS.primary} />
@@ -54,9 +59,8 @@ export default function Index() {
             renderItem={({ item }) => <ReceiptListItem receipt={item} />}
             ItemSeparatorComponent={() => <View className="h-4" />}
             ListEmptyComponent={() => <Empty />}
-            ListHeaderComponent={() => <DashboardHeader data={data ?? []} />}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 150 }}
+            contentContainerStyle={{ paddingBottom: 100 }}
             onRefresh={refetch}
             refreshing={isRefetching}
           />
@@ -65,7 +69,12 @@ export default function Index() {
 
       <Pressable
         onPress={handleCameraPress}
-        className="absolute bottom-32 right-6 h-16 w-16 flex-row items-center justify-center rounded-3xl bg-primary"
+        style={{
+          position: 'absolute',
+          bottom: Math.max(insets.bottom, 40) + 60 + 20, // tab bar height + margin + extra space
+          right: 24,
+        }}
+        className="h-16 w-16 flex-row items-center justify-center rounded-3xl bg-primary"
         aria-label="Tomar foto de nueva boleta"
       >
         <Camera size={28} color="white" />

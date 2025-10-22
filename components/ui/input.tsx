@@ -1,6 +1,7 @@
 import { TextInput, type TextInputProps } from 'react-native';
 
 import { cn } from '@/lib/utils';
+import { COLORS } from '@/constants/colors';
 
 type InputProps = TextInputProps & {};
 
@@ -11,6 +12,9 @@ const Input = ({ className, ...props }: InputProps) => {
         'border-b border-neutral-border py-2 text-base font-light outline-none placeholder:text-muted-foreground/80',
         className,
       )}
+      style={{
+        color: COLORS.neutral.foreground,
+      }}
       {...props}
     />
   );

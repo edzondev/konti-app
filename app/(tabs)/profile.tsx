@@ -51,10 +51,16 @@ export default function Profile() {
               <User size={32} color={COLORS.primary} />
             </View>
             <View className="flex-col items-center justify-center gap-2">
-              <Text className="font-regular text-center text-xl text-neutral-foreground">
+              <Text
+                className="font-regular text-center text-xl text-neutral-foreground"
+                numberOfLines={1}
+              >
                 {profile?.name}
               </Text>
-              <Text className="text-sm font-light text-muted-foreground">
+              <Text
+                className="text-sm font-normal text-muted-foreground"
+                numberOfLines={1}
+              >
                 {profile?.email}
               </Text>
             </View>
@@ -76,10 +82,16 @@ export default function Profile() {
                     color={planConfig.icon.color}
                   />
                   <View className="flex-row items-center gap-2">
-                    <Text className="text-sm font-light text-neutral-foreground">
+                    <Text
+                      className="text-sm font-normal text-neutral-foreground"
+                      numberOfLines={1}
+                    >
                       Mi plan
                     </Text>
-                    <Text className={planConfig.badge.className}>
+                    <Text
+                      className={planConfig.badge.className}
+                      numberOfLines={1}
+                    >
                       {planConfig.badge.label}
                     </Text>
                   </View>
@@ -113,7 +125,10 @@ export default function Profile() {
               >
                 <View className="flex-row items-center gap-3">
                   <HelpCircle size={20} color={COLORS.muted.foreground} />
-                  <Text className="text-sm font-light text-neutral-foreground">
+                  <Text
+                    className="text-sm font-normal text-neutral-foreground"
+                    numberOfLines={1}
+                  >
                     ¿Necesitas ayuda?
                   </Text>
                 </View>
@@ -126,7 +141,10 @@ export default function Profile() {
               >
                 <View className="flex-row items-center gap-3">
                   <Shield size={20} color={COLORS.muted.foreground} />
-                  <Text className="text-sm font-light text-neutral-foreground">
+                  <Text
+                    className="text-sm font-normal text-neutral-foreground"
+                    numberOfLines={1}
+                  >
                     Política de privacidad
                   </Text>
                 </View>

@@ -41,7 +41,10 @@ export default function ReceiptForm({ imageUrl, extractedData }: Props) {
                 <FormLabel>Monto *</FormLabel>
                 <FormControl>
                   <View className="relative">
-                    <Text className="absolute left-2 top-1/2 -translate-y-1/2 text-base font-light text-muted-foreground">
+                    <Text
+                      className="absolute left-2 top-1/2 -translate-y-1/2 text-base font-normal text-muted-foreground"
+                      numberOfLines={1}
+                    >
                       S/
                     </Text>
                     <Input

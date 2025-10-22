@@ -185,7 +185,10 @@ export default function Recipes() {
         {/* Contador de resultados */}
         {!isLoading && data && data.length > 0 && (
           <View className="my-4">
-            <Text className="text-sm font-light text-muted-foreground">
+            <Text
+              className="text-sm font-normal text-muted-foreground"
+              numberOfLines={1}
+            >
               {data.length}{' '}
               {data.length === 1 ? 'boleta encontrada' : 'boletas encontradas'}
             </Text>

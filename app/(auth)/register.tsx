@@ -51,10 +51,16 @@ export default function Register() {
           <View className="flex-1 justify-center">
             <View className="px-6 pt-8">
               {/* Title */}
-              <Text className="text-3xl font-semibold text-neutral-foreground">
+              <Text
+                className="text-3xl font-bold text-neutral-foreground"
+                numberOfLines={1}
+              >
                 Registrarse
               </Text>
-              <Text className="mt-2 text-base font-light text-muted-foreground">
+              <Text
+                className="mt-2 text-base font-normal text-muted-foreground"
+                numberOfLines={2}
+              >
                 Ingresa tu email, nombre y contraseña para registrarte.
               </Text>
 

@@ -42,7 +42,10 @@ export default function Recipes() {
       <View className="flex-1 px-4">
         {/* Header */}
         <View className="mb-6 mt-8">
-          <Text className="text-3xl font-semibold text-neutral-foreground">
+          <Text
+            className="text-3xl font-bold text-neutral-foreground"
+            numberOfLines={1}
+          >
             Tus Boletas
           </Text>
         </View>

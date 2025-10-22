@@ -22,6 +22,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import KpiCard from './kpi-card';
+import { cn } from '@/lib/utils';
 
 export const KPI_CARD_CONFIG = [
   {
@@ -127,7 +128,12 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
       </View>
 
       <View className="rounded-2xl bg-primary/5 p-4">
-        <View className="mb-3 flex-row items-center justify-between">
+        <View
+          className={cn(
+            'flex-row items-center justify-between',
+            planLimit !== Number.POSITIVE_INFINITY && 'mb-3',
+          )}
+        >
           <View className="flex-row items-center gap-2">
             <planConfig.icon size={16} color={COLORS.primary} />
             <Text className="text-foreground text-sm font-normal">

@@ -6,12 +6,13 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { X, Sparkles } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants/colors';
 import PlanCard from '@/components/shared/suscription/plan-card';
 import { usePurchases } from '@/hooks/purchases/use-purchases';
 import { usePurchasePackage } from '@/hooks/purchases/use-purchases-package';
+import { useUserPlan } from '@/hooks/profile/use-user-plan';
 import type { PurchasesPackage } from 'react-native-purchases';
 import { FlashList } from '@shopify/flash-list';
 import { PaymentSuccessModal } from '@/components/shared/modals/payment-success-modal';
@@ -36,10 +37,15 @@ const featureMap = {
 };
 
 export default function SubscriptionScreen() {
+  const { fromPreview, imageUrl } = useLocalSearchParams<{
+    fromPreview?: string;
+    imageUrl?: string;
+  }>();
   const { availablePackages, isLoading, refetch, isRefetching } =
     usePurchases();
   const { purchasePackageAsync, isPending: isPurchasing } =
     usePurchasePackage();
+  const { currentPlan, hasProOrBetter } = useUserPlan();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const contentOpacity = useSharedValue(0);
   const queryClient = useQueryClient();
@@ -56,7 +62,14 @@ export default function SubscriptionScreen() {
   }));
 
   const handleClose = () => {
-    router.back();
+    if (fromPreview === 'true' && imageUrl) {
+      router.replace({
+        pathname: '/preview',
+        params: { imageUrl },
+      });
+    } else {
+      router.back();
+    }
   };
 
   const animateClose = () => {
@@ -84,7 +97,16 @@ export default function SubscriptionScreen() {
       queryKey: QUERY_KEYS.purchases.data,
     });
     setShowSuccessModal(false);
-    animateClose();
+
+    // Navigate back to preview if user came from there
+    if (fromPreview === 'true' && imageUrl) {
+      router.replace({
+        pathname: '/preview',
+        params: { imageUrl },
+      });
+    } else {
+      animateClose();
+    }
   };
 
   if (isLoading) {
@@ -117,6 +139,7 @@ export default function SubscriptionScreen() {
                   isPopular={item.product.title.includes('Pro')}
                   onSelect={handlePlanSelect}
                   isLoading={isPurchasing}
+                  currentUserPlan={currentPlan}
                 />
               )}
               onRefresh={() => refetch()}
@@ -137,19 +160,22 @@ export default function SubscriptionScreen() {
                   </View>
 
                   {/* Free Trial Notice */}
-                  <View className="mt-6 flex-row items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
-                    <View className="rounded-full bg-primary/10 p-2">
-                      <Sparkles size={16} color={COLORS.primary} />
+                  {!hasProOrBetter && (
+                    <View className="mt-6 flex-row items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
+                      <View className="rounded-full bg-primary/10 p-2">
+                        <Sparkles size={16} color={COLORS.primary} />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-sm font-semibold text-neutral-foreground">
+                          Obten tu prueba gratis por 3 días
+                        </Text>
+                        <Text className="text-xs text-muted-foreground">
+                          Después de la prueba, se te cobrará el plan
+                          seleccionado
+                        </Text>
+                      </View>
                     </View>
-                    <View className="flex-1">
-                      <Text className="text-sm font-semibold text-neutral-foreground">
-                        Obten tu prueba gratis por 3 días
-                      </Text>
-                      <Text className="text-xs text-muted-foreground">
-                        Después de la prueba, se te cobrará el plan seleccionado
-                      </Text>
-                    </View>
-                  </View>
+                  )}
                 </View>
               )}
               showsVerticalScrollIndicator={false}

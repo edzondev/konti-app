@@ -12,6 +12,7 @@ type Props = {
   isPopular: boolean;
   onSelect: (plan: PurchasesPackage) => void;
   isLoading: boolean;
+  currentUserPlan?: string;
 };
 
 export default memo(function PlanCard({
@@ -20,7 +21,13 @@ export default memo(function PlanCard({
   isPopular,
   onSelect,
   isLoading,
+  currentUserPlan,
 }: Props) {
+  // Determine if this is the user's current plan
+  const isCurrentPlan = Boolean(
+    currentUserPlan && plan.identifier === currentUserPlan,
+  );
+
   return (
     <Animated.View
       entering={FadeIn.duration(300)}
@@ -96,21 +103,33 @@ export default memo(function PlanCard({
         {/* CTA Button */}
         <Pressable
           onPress={() => onSelect(plan)}
-          disabled={isLoading}
+          disabled={isLoading || isCurrentPlan}
           className={cn(
             'h-12 flex-row items-center justify-center gap-2 rounded-xl',
-            isPopular ? 'bg-primary' : 'border border-primary/20 bg-primary/5',
+            isCurrentPlan
+              ? 'border border-neutral-border/50 bg-neutral-100'
+              : isPopular
+                ? 'bg-primary'
+                : 'border border-primary/20 bg-primary/5',
           )}
         >
           <Text
             className={cn(
               'text-base font-semibold',
-              isPopular ? 'text-white' : 'text-primary',
+              isCurrentPlan
+                ? 'text-muted-foreground'
+                : isPopular
+                  ? 'text-white'
+                  : 'text-primary',
             )}
           >
-            {isLoading ? 'Procesando...' : 'Seleccionar plan'}
+            {isLoading
+              ? 'Procesando...'
+              : isCurrentPlan
+                ? 'Plan actual'
+                : 'Seleccionar plan'}
           </Text>
-          {isLoading && (
+          {isLoading && !isCurrentPlan && (
             <ActivityIndicator
               size="small"
               color={isPopular ? COLORS.neutral.white : COLORS.primary}

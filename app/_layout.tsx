@@ -44,6 +44,15 @@ function Layout() {
       <Stack.Protected guard={isAuthenticated}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="camera" />
+        <Stack.Screen
+          name="photo-preview"
+          options={{
+            presentation: 'fullScreenModal',
+            headerShown: false,
+            gestureEnabled: true,
+            animation: 'slide_from_bottom',
+          }}
+        />
         <Stack.Screen name="preview" />
         <Stack.Screen name="success" />
         <Stack.Screen

@@ -1,21 +1,6 @@
-import { useEffect } from 'react';
-import { Stack, useRouter, usePathname } from 'expo-router';
-import { useOnboardingStore } from '@/store/use-onboarding-store';
+import { Stack } from 'expo-router';
 
 export default function AuthLayout() {
-  const { hasSeenOnboarding } = useOnboardingStore();
-  const pathname = usePathname();
-  const router = useRouter();
-
-  useEffect(() => {
-    // Only redirect if we're at the root auth screen
-    const isAuthIndex = pathname === '/' || pathname === '/(auth)';
-
-    if (isAuthIndex && !hasSeenOnboarding) {
-      router.replace('/(auth)/onboarding');
-    }
-  }, [hasSeenOnboarding, pathname, router]);
-
   return (
     <Stack>
       <Stack.Screen

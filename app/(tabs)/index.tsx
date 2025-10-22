@@ -15,6 +15,7 @@ import { SuccessModal } from '@/components/ui/success-modal';
 import Empty from '@/components/shared/empty/empty';
 import { useCallback } from 'react';
 import DashboardHeader from '@/components/shared/dashboard/header';
+import { useReceiptKpis } from '@/hooks/receipts/use-receipt-kpis';
 
 export default function Index() {
   const { isNewUser, clearNewUserFlag } = useAuth();
@@ -24,6 +25,7 @@ export default function Index() {
   const [permission, requestPermission] = useCameraPermissions();
   const { data, isPending, isLoading, error, refetch, isRefetching } =
     useReceipts({});
+  const { refetch: refetchKpis } = useReceiptKpis();
 
   const handleCameraPress = useCallback(async () => {
     if (permission && permission.granted) {
@@ -61,7 +63,9 @@ export default function Index() {
             ListEmptyComponent={() => <Empty />}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 100 }}
-            onRefresh={refetch}
+            onRefresh={() => {
+              Promise.all([refetchKpis(), refetch()]);
+            }}
             refreshing={isRefetching}
           />
         )}

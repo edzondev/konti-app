@@ -64,7 +64,7 @@ export default function Index() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 100 }}
             onRefresh={() => {
-              Promise.all([refetchKpis(), refetch()]);
+              return Promise.all([refetchKpis(), refetch()]);
             }}
             refreshing={isRefetching}
           />

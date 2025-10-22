@@ -1,9 +1,19 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useOnboardingStore } from '@/store/use-onboarding-store';
 
 export default function Welcome() {
   const router = useRouter();
+  const { hasSeenOnboarding } = useOnboardingStore();
+
+  const handleGetStarted = () => {
+    if (!hasSeenOnboarding) {
+      router.push('/(auth)/onboarding');
+    } else {
+      router.push('/(auth)/login');
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
@@ -33,7 +43,7 @@ export default function Welcome() {
 
         <View className="gap-y-4">
           <TouchableOpacity
-            onPress={() => router.push('/(auth)/login')}
+            onPress={handleGetStarted}
             className="items-center justify-center rounded-2xl bg-primary py-5 shadow-lg"
             activeOpacity={0.8}
           >

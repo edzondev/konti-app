@@ -17,21 +17,34 @@ export default memo(function ReceiptListItem({ receipt }: Props) {
             <>
               <View className="flex-row items-center gap-4 rounded-2xl border border-neutral-border bg-white p-4">
                 <View className="min-w-0 flex-1">
-                  <Text className="mb-0.5 truncate text-sm font-normal text-neutral-foreground">
+                  <Text
+                    className="mb-0.5 text-sm font-normal text-neutral-foreground"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     {receipt.business_name ||
                       receipt.receipt_number ||
                       'Comprobante'}
                   </Text>
-                  <Text className="text-xs font-light text-muted-foreground">
+                  <Text
+                    className="text-xs font-normal text-muted-foreground"
+                    numberOfLines={1}
+                  >
                     {dateFormat(receipt.created_at ?? '')}
                   </Text>
                 </View>
-                <View className="flex flex-col items-end gap-1">
-                  <Text className="text-base font-normal text-neutral-foreground">
+                <View className="flex shrink-0 flex-col items-end gap-1">
+                  <Text
+                    className="text-base font-semibold text-neutral-foreground"
+                    numberOfLines={1}
+                  >
                     S/ {receipt.total_amount?.toFixed(2)}
                   </Text>
                   {receipt.is_expense && (
-                    <Text className="rounded bg-primary/10 px-2 py-0.5 text-xs font-light text-primary">
+                    <Text
+                      className="rounded bg-primary/10 px-2 py-0.5 text-xs font-normal text-primary"
+                      numberOfLines={1}
+                    >
                       Contable
                     </Text>
                   )}

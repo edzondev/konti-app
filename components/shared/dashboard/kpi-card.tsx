@@ -17,10 +17,18 @@ export default function KpiCard({ config, kpis, isLoading }: KpiCardProps) {
       >
         <IconComponent color={config.color} size={20} />
       </View>
-      <Text className="text-foreground mb-0.5 text-2xl font-light">
+      <Text
+        className="text-foreground mb-0.5 text-2xl font-semibold"
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.7}
+      >
         {isLoading ? '...' : config.getValue(kpis)}
       </Text>
-      <Text className="text-xs font-light text-muted-foreground">
+      <Text
+        className="text-xs font-normal text-muted-foreground"
+        numberOfLines={1}
+      >
         {config.label}
       </Text>
     </View>

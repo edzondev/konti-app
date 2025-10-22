@@ -22,6 +22,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import KpiCard from './kpi-card';
+import { cn } from '@/lib/utils';
 
 export const KPI_CARD_CONFIG = [
   {
@@ -100,14 +101,17 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
         />
 
         {!hasProOrBetter && (
-          <Link href="/subscription" asChild className="px-4 py-2">
-            <Pressable className="flex-row items-center gap-x-2 rounded-full border border-primary bg-primary/5">
+          <Link href="/subscription" asChild>
+            <Pressable className="flex-row items-center gap-x-2 rounded-full border border-primary bg-primary/5 px-4 py-2">
               <Sparkles
                 size={14}
                 color={COLORS.primary}
                 fill={COLORS.primary}
               />
-              <Text className="text-base font-semibold text-primary">
+              <Text
+                className="text-sm font-semibold text-primary"
+                numberOfLines={1}
+              >
                 Hazte Pro
               </Text>
             </Pressable>
@@ -127,14 +131,24 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
       </View>
 
       <View className="rounded-2xl bg-primary/5 p-4">
-        <View className="mb-3 flex-row items-center justify-between">
+        <View
+          className={cn(
+            'flex-row items-center justify-between',
+            planLimit !== Number.POSITIVE_INFINITY && 'mb-3',
+          )}
+        >
           <View className="flex-row items-center gap-2">
             <planConfig.icon size={16} color={COLORS.primary} />
             <Text className="text-foreground text-sm font-normal">
               Plan {planConfig.label}
             </Text>
           </View>
-          <Text className="text-sm font-light text-neutral-foreground">
+          <Text
+            className="text-sm font-normal text-muted-foreground"
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
             {kpis?.total_receipts ?? 0} de{' '}
             {planLimit === Number.POSITIVE_INFINITY ? '∞' : planLimit} boletas
           </Text>

@@ -11,12 +11,12 @@ import ImageComponent from '@/components/ui/image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Sparkle } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import ReceiptForm from '@/components/shared/forms/receipt-form';
 import { useUserPlan } from '@/hooks/profile/use-user-plan';
 import { useAiExtraction } from '@/hooks/receipts/use-ai-extraction';
 import { AiExtractedData } from '@/types/ai-extraction.types';
+import { useAiTrialStore } from '@/store/use-ai-trial-store';
 
 export default function Preview() {
   const { imageUrl } = useLocalSearchParams<{
@@ -24,15 +24,22 @@ export default function Preview() {
   }>();
   const router = useRouter();
   const { hasProOrBetter } = useUserPlan();
+  const { hasUsedAiTrial, setHasUsedAiTrial } = useAiTrialStore();
   const { mutateAsync: extractData, isPending: isExtractingData } =
     useAiExtraction();
   const [extractedData, setExtractedData] = useState<
     AiExtractedData | undefined
   >();
 
+  const canUseAi = hasProOrBetter || !hasUsedAiTrial;
+  const isTrialMode = !hasProOrBetter && !hasUsedAiTrial;
+
   const handleButtonPress = async () => {
-    if (!hasProOrBetter) {
-      router.push('/subscription');
+    if (!canUseAi) {
+      router.push({
+        pathname: '/subscription',
+        params: { fromPreview: 'true', imageUrl },
+      });
       return;
     }
 
@@ -42,9 +49,17 @@ export default function Preview() {
       const response = await extractData(imageUrl);
       if (response.success && response.data) {
         setExtractedData(response.data);
+
+        // Mark trial as used if not subscribed
+        if (isTrialMode) {
+          setHasUsedAiTrial(true);
+        }
+
         Alert.alert(
           'Éxito',
-          'Información extraída correctamente. El formulario se ha autocompletado.',
+          isTrialMode
+            ? 'Información extraída correctamente. El formulario se ha autocompletado.\n\n¡Esta fue tu prueba gratuita! Suscríbete para seguir usando esta función.'
+            : 'Información extraída correctamente. El formulario se ha autocompletado.',
         );
       } else {
         Alert.alert('Error', 'No se pudieron extraer los datos de la imagen');
@@ -80,17 +95,18 @@ export default function Preview() {
             <Pressable
               onPress={handleButtonPress}
               disabled={isExtractingData}
-              className="w-full flex-row items-center justify-center gap-2 rounded-lg border border-primary py-3 transition-colors hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full flex-row items-center justify-center gap-2 rounded-lg border border-primary py-3  disabled:opacity-50"
             >
               {isExtractingData ? (
                 <ActivityIndicator size="small" color={COLORS.primary} />
               ) : (
                 <>
-                  <Sparkle size={18} color={COLORS.primary} />
                   <Text className="font-regular text-base text-primary">
-                    {hasProOrBetter
-                      ? 'Extraer información con IA'
-                      : 'Suscríbete para usar esta función'}
+                    {canUseAi
+                      ? isTrialMode
+                        ? 'Procesa gratis esta vez'
+                        : 'Procesar comprobante con IA'
+                      : 'Hazte Pro para usar esta función'}
                   </Text>
                 </>
               )}

@@ -42,7 +42,10 @@ export default function Recipes() {
       <View className="flex-1 px-4">
         {/* Header */}
         <View className="mb-6 mt-8">
-          <Text className="text-3xl font-semibold text-neutral-foreground">
+          <Text
+            className="text-3xl font-bold text-neutral-foreground"
+            numberOfLines={1}
+          >
             Tus Boletas
           </Text>
         </View>
@@ -185,7 +188,10 @@ export default function Recipes() {
         {/* Contador de resultados */}
         {!isLoading && data && data.length > 0 && (
           <View className="my-4">
-            <Text className="text-sm font-light text-muted-foreground">
+            <Text
+              className="text-sm font-normal text-muted-foreground"
+              numberOfLines={1}
+            >
               {data.length}{' '}
               {data.length === 1 ? 'boleta encontrada' : 'boletas encontradas'}
             </Text>

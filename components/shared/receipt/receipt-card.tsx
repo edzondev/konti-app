@@ -39,10 +39,15 @@ function ReceiptCard({
 
       <View className="gap-y-6">
         <View className="flex-col">
-          <Text className="mb-1 text-base font-light text-muted-foreground">
+          <Text className="mb-1 text-sm font-normal text-muted-foreground">
             Monto
           </Text>
-          <Text className="text-4xl font-light text-neutral-foreground">
+          <Text
+            className="text-4xl font-normal text-neutral-foreground"
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+          >
             S/ {selectedReceipt.total_amount?.toFixed(2)}
           </Text>
         </View>
@@ -54,10 +59,13 @@ function ReceiptCard({
             size={20}
           />
           <View className="flex-1">
-            <Text className="mb-1 text-base font-light text-muted-foreground">
+            <Text className="mb-1 text-sm font-normal text-muted-foreground">
               Fecha
             </Text>
-            <Text className="text-base font-light text-neutral-foreground">
+            <Text
+              className="text-base font-normal text-neutral-foreground"
+              numberOfLines={1}
+            >
               {dateFormat(selectedReceipt.created_at ?? '')}
             </Text>
           </View>
@@ -71,10 +79,13 @@ function ReceiptCard({
               size={20}
             />
             <View className="flex-1">
-              <Text className="mb-1 text-base font-light text-muted-foreground">
+              <Text className="mb-1 text-sm font-normal text-muted-foreground">
                 N° Comprobante
               </Text>
-              <Text className="text-base font-light text-neutral-foreground">
+              <Text
+                className="text-base font-normal text-neutral-foreground"
+                numberOfLines={2}
+              >
                 {selectedReceipt.receipt_number}
               </Text>
             </View>
@@ -89,10 +100,13 @@ function ReceiptCard({
               size={20}
             />
             <View className="flex-1">
-              <Text className="mb-1 text-base font-light text-muted-foreground">
+              <Text className="mb-1 text-sm font-normal text-muted-foreground">
                 RUC
               </Text>
-              <Text className="text-base font-light text-neutral-foreground">
+              <Text
+                className="text-base font-normal text-neutral-foreground"
+                numberOfLines={1}
+              >
                 {selectedReceipt.ruc}
               </Text>
             </View>
@@ -107,10 +121,13 @@ function ReceiptCard({
               size={20}
             />
             <View className="flex-1">
-              <Text className="mb-1 text-base font-light text-muted-foreground">
+              <Text className="mb-1 text-sm font-normal text-muted-foreground">
                 Razón social
               </Text>
-              <Text className="text-base font-light text-neutral-foreground">
+              <Text
+                className="text-base font-normal text-neutral-foreground"
+                numberOfLines={2}
+              >
                 {selectedReceipt.business_name}
               </Text>
             </View>
@@ -119,17 +136,20 @@ function ReceiptCard({
 
         {selectedReceipt.description && (
           <View className="flex-col">
-            <Text className="mb-2 text-base font-light text-muted-foreground">
+            <Text className="mb-2 text-sm font-normal text-muted-foreground">
               Descripción
             </Text>
-            <Text className="text-base font-light leading-relaxed text-neutral-foreground">
+            <Text className="text-base font-normal leading-relaxed text-neutral-foreground">
               {selectedReceipt.description}
             </Text>
           </View>
         )}
 
         <View className="flex-row items-center justify-between rounded-lg bg-neutral-100 px-4 py-4">
-          <Text className="text-base font-light text-muted-foreground">
+          <Text
+            className="text-base font-normal text-muted-foreground"
+            numberOfLines={1}
+          >
             Gasto contable
           </Text>
           <View className="flex-row items-center gap-2">
@@ -141,7 +161,10 @@ function ReceiptCard({
                   : 'border border-muted-foreground/30',
               )}
             />
-            <Text className="text-base font-light text-neutral-foreground">
+            <Text
+              className="text-base font-normal text-neutral-foreground"
+              numberOfLines={1}
+            >
               {selectedReceipt.is_expense ? 'Sí' : 'No'}
             </Text>
           </View>
@@ -158,7 +181,10 @@ function ReceiptCard({
         ) : (
           <>
             <Trash color={COLORS.neutral.white} size={20} />
-            <Text className="text-base font-light text-neutral-white">
+            <Text
+              className="text-base font-semibold text-neutral-white"
+              numberOfLines={1}
+            >
               Eliminar boleta
             </Text>
           </>

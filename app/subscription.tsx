@@ -22,14 +22,14 @@ import { scheduleOnRN } from 'react-native-worklets';
 
 const featureMap = {
   pro: [
-    'Hasta 20 boletas por mes',
-    'Procesamiento automático con OCR incluido',
-    'Exportación mensual en Excel (Proximamente)',
+    'Sube hasta 20 boletas por mes',
+    'Procesamiento automático con IA',
+    'Exportación mensual en Excel',
     'Soporte en horario laboral',
   ],
   premium: [
+    'Todo el plan Pro pero mejorado',
     'Subidas ilimitadas de boletas',
-    'Procesamiento automático con OCR incluido',
     'Reporte anual listo para SUNAT',
     'Acceso anticipado a nuevas funciones',
     'Soporte prioritario',
@@ -82,17 +82,17 @@ export default function SubscriptionScreen() {
   };
 
   const handlePlanSelect = async (plan: PurchasesPackage) => {
-    await purchasePackageAsync(plan);
+    const result = await purchasePackageAsync(plan);
     setShowSuccessModal(true);
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // Invalidar perfil para que refetch desde tu DB
-    queryClient.invalidateQueries({
-      queryKey: QUERY_KEYS.profile.details,
-    });
+    if (result?.originalAppUserId) {
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.profile.details(result.originalAppUserId),
+      });
+    }
 
-    // Invalidar datos de purchases también
     queryClient.invalidateQueries({
       queryKey: QUERY_KEYS.purchases.data,
     });

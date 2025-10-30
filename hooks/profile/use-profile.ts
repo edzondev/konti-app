@@ -7,12 +7,13 @@ import { useAuth } from '@/components/providers/auth-provider';
 
 function useGetProfile() {
   const { session } = useAuth();
+  const userId = session?.user.id ?? '';
 
   const { data, isPending, isError, isLoading, error, refetch, isRefetching } =
     useQueryBase<Tables<'profiles'>>({
-      queryKey: QUERY_KEYS.profile.details,
-      queryFn: () => getProfile(session?.user.id ?? ''),
-      enabled: !!session?.user.id,
+      queryKey: QUERY_KEYS.profile.details(userId),
+      queryFn: () => getProfile(userId),
+      enabled: !!userId,
     });
   return { data, isPending, isError, isLoading, error, refetch, isRefetching };
 }

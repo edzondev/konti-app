@@ -1,11 +1,11 @@
 export const QUERY_KEYS = {
   receipts: {
-    all: ['receipts'] as const,
+    all: (userId: string) => ['receipts', userId] as const,
     details: (id: string) => ['receipts', id] as const,
-    kpis: ['receipts', 'kpis'] as const,
+    kpis: (userId: string) => ['receipts', 'kpis', userId] as const,
   },
   profile: {
-    details: ['profile'] as const,
+    details: (userId: string) => ['profile', userId] as const,
   },
   purchases: {
     data: ['purchases', 'data'] as const,

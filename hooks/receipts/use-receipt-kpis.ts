@@ -12,7 +12,7 @@ export function useReceiptKpis() {
   }
 
   const { data, ...rest } = useQueryBase({
-    queryKey: [...QUERY_KEYS.receipts.kpis, userId],
+    queryKey: QUERY_KEYS.receipts.kpis(userId),
     queryFn: () => getReceiptKpis(userId),
   });
 

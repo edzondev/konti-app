@@ -16,7 +16,7 @@ export default function Empty() {
           recyclingKey="no-data"
         />
         <Text className="text-center text-lg font-normal text-muted-foreground">
-          Oops! Parece que no hay nada aquí
+          No hay datos disponibles
         </Text>
       </View>
     </View>

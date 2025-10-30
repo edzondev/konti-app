@@ -7,12 +7,14 @@ export function useRestorePurchases() {
 
   const mutation = useMutation({
     mutationFn: restorePurchases,
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.profile.details,
-      });
+      if (data?.userId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.profile.details(data.userId),
+        });
+      }
 
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.purchases.data,

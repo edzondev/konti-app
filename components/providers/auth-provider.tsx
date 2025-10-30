@@ -15,6 +15,7 @@ import {
   useState,
 } from 'react';
 import Purchases from 'react-native-purchases';
+import { useQueryClient } from '@tanstack/react-query';
 
 type AuthState = {
   isAuthenticated: boolean;
@@ -57,8 +58,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isNewUser, setIsNewUser] = useState(false);
+  const queryClient = useQueryClient();
 
-  // Configurar listener para cambios de autenticación
   useEffect(() => {
     const {
       data: { subscription },
@@ -66,6 +67,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       switch (event) {
         case 'SIGNED_OUT':
           setSession(null);
+          queryClient.clear();
           try {
             await Purchases.logOut();
           } catch (error) {
@@ -94,7 +96,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [queryClient]);
 
   const signIn = useCallback(async ({ email, password }: SignInProps) => {
     const result = await supabase.auth.signInWithPassword({
@@ -132,7 +134,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     setIsNewUser(false);
   }, []);
 
-  // Memoizar el valor del contexto para evitar re-renders innecesarios
   const contextValue = useMemo(
     () => ({
       isAuthenticated: !!session,

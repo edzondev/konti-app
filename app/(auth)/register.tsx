@@ -21,7 +21,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { useRegister } from '@/hooks/auth/use-register';
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator';
 
 export default function Register() {
   const { form, onSubmit, handleCancel, isLoading } = useRegister();
@@ -135,11 +137,10 @@ export default function Register() {
                       <FormItem>
                         <FormLabel>Contraseña</FormLabel>
                         <FormControl>
-                          <Input
+                          <PasswordInput
                             className="rounded-lg border border-neutral-border px-4 py-3 text-base"
                             placeholder="********"
                             {...field}
-                            secureTextEntry={true}
                             returnKeyLabel="done"
                             returnKeyType="done"
                             autoCapitalize="none"
@@ -151,6 +152,9 @@ export default function Register() {
                             onChangeText={field.onChange}
                           />
                         </FormControl>
+                        <PasswordStrengthIndicator
+                          password={field.value || ''}
+                        />
                         {form.formState.errors.password && (
                           <FormMessage>
                             {form.formState.errors.password.message}

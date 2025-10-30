@@ -17,7 +17,7 @@ function useReceipts(filters: Partial<FiltersType>) {
   const userId = session?.user.id || '';
   const queryClient = useQueryClient();
   const { data, ...rest } = useQueryBase<Tables<'receipts'>[]>({
-    queryKey: [...QUERY_KEYS.receipts.all, filters],
+    queryKey: [...QUERY_KEYS.receipts.all(userId), filters],
     queryFn: () => getReceipts(userId, filters),
   });
 
@@ -26,10 +26,10 @@ function useReceipts(filters: Partial<FiltersType>) {
     ...rest,
     refetch: async () => {
       queryClient.invalidateQueries({
-        queryKey: [...QUERY_KEYS.receipts.all, filters],
+        queryKey: [...QUERY_KEYS.receipts.all(userId), filters],
       });
       return await queryClient.fetchQuery({
-        queryKey: [...QUERY_KEYS.receipts.all, filters],
+        queryKey: [...QUERY_KEYS.receipts.all(userId), filters],
       });
     },
   };
@@ -50,7 +50,7 @@ function useCreateReceipt(imageUrl: string, userId: string) {
     mutationFn: (data: any) => createReceipt(data, imageUrl, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [...QUERY_KEYS.receipts.kpis, userId],
+        queryKey: QUERY_KEYS.receipts.kpis(userId),
       });
     },
   });
@@ -58,14 +58,16 @@ function useCreateReceipt(imageUrl: string, userId: string) {
 }
 
 function useDeleteReceipt() {
+  const { session } = useAuth();
+  const userId = session?.user.id || '';
   const queryClient = useQueryClient();
   const router = useRouter();
   const { mutateAsync, isPending, isError } = useMutation({
     mutationFn: (id: string) => deleteReceipt(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.receipts.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.receipts.all(userId) });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.receipts.kpis,
+        queryKey: QUERY_KEYS.receipts.kpis(userId),
       });
       router.back();
     },

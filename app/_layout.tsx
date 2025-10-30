@@ -71,13 +71,13 @@ function Layout() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-        <QueryProvider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+      <QueryProvider>
+        <AuthProvider>
           <Layout />
           <StatusBar style="dark" />
-        </QueryProvider>
-      </SafeAreaProvider>
-    </AuthProvider>
+        </AuthProvider>
+      </QueryProvider>
+    </SafeAreaProvider>
   );
 }

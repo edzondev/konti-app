@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 
 export default function Login() {
   const { form, onSubmit, handleCancel, isLoading } = useLogin();
@@ -103,11 +104,10 @@ export default function Login() {
                       <FormItem>
                         <FormLabel>Contraseña</FormLabel>
                         <FormControl>
-                          <Input
+                          <PasswordInput
                             className="rounded-lg border border-neutral-border px-4 py-3 text-base"
                             placeholder="********"
                             {...field}
-                            secureTextEntry={true}
                             returnKeyLabel="done"
                             returnKeyType="done"
                             autoCapitalize="none"

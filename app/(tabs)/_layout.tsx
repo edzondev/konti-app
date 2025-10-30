@@ -2,6 +2,7 @@ import { Home, ReceiptText, User } from 'lucide-react-native';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants/colors';
+import { TabBarIcon } from '@/components/shared/tab-bar-icon';
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
@@ -34,15 +35,29 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              focused={focused}
+              color={color}
+              size={28}
+              IconOutline={Home}
+              IconFilled={Home}
+            />
+          ),
           animation: 'fade',
         }}
       />
       <Tabs.Screen
         name="receipt/index"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <ReceiptText color={color} size={size} />
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              focused={focused}
+              color={color}
+              size={28}
+              IconOutline={ReceiptText}
+              IconFilled={ReceiptText}
+            />
           ),
           animation: 'fade',
         }}
@@ -57,7 +72,15 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              focused={focused}
+              color={color}
+              size={28}
+              IconOutline={User}
+              IconFilled={User}
+            />
+          ),
           animation: 'fade',
         }}
       />

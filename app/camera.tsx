@@ -17,6 +17,7 @@ export default function Camera() {
       try {
         const photo = await cameraRef.current.takePictureAsync({
           quality: 0.8,
+          shutterSound: false,
         });
         if (photo) {
           router.push({

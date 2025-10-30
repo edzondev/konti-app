@@ -68,9 +68,10 @@ export async function purchasePackage(
   return customerInfo;
 }
 
-export async function restorePurchases(): Promise<CustomerInfo> {
+export async function restorePurchases(): Promise<{ customerInfo: CustomerInfo; userId?: string }> {
   await checkPurchasesConfiguration();
-  return await Purchases.restorePurchases();
+  const customerInfo = await Purchases.restorePurchases();
+  return { customerInfo, userId: customerInfo.originalAppUserId };
 }
 
 export function hasActiveEntitlement(

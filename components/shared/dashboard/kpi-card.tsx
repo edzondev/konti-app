@@ -11,7 +11,7 @@ export default function KpiCard({ config, kpis, isLoading }: KpiCardProps) {
   const IconComponent = config.icon;
 
   return (
-    <View className={`flex-auto rounded-2xl ${config.bgColor} p-4`}>
+    <View className="flex-auto rounded-2xl border border-neutral-200/80 p-4">
       <View
         className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${config.iconBgColor}`}
       >

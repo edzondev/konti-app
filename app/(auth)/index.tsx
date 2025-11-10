@@ -31,12 +31,12 @@ export default function Welcome() {
           </View>
 
           <View className="items-center gap-y-3">
-            <Text className="text-center text-4xl font-bold leading-tight text-gray-900">
-              Controla tus boletas
+            <Text className="text-center text-3xl font-bold leading-tight text-gray-900">
+              Digitaliza tus Recibos con Konti
             </Text>
 
-            <Text className="text-center text-base leading-relaxed text-gray-600">
-              Guarda y organiza tus boletas electrónicas fácilmente con Konti.
+            <Text className="text-center text-xl leading-relaxed text-gray-600">
+              Escanea, extrae datos con IA y olvídate del papel.
             </Text>
           </View>
         </View>

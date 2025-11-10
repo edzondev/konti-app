@@ -49,7 +49,7 @@ export default function Index() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
       <View className="flex-1 px-4">
-        <DashboardHeader data={data ?? []} />
+        <DashboardHeader />
         {isLoading || isPending ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color={COLORS.primary} />
@@ -62,7 +62,7 @@ export default function Index() {
             ItemSeparatorComponent={() => <View className="h-4" />}
             ListEmptyComponent={() => <Empty />}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{ paddingBottom: 200 }}
             onRefresh={() => {
               return Promise.all([refetchKpis(), refetch()]);
             }}
@@ -88,8 +88,8 @@ export default function Index() {
         <SuccessModal
           visible={isNewUser}
           onClose={handleWelcomeModalClose}
-          title="¡Bienvenido!"
-          message="Tu cuenta ha sido creada exitosamente. Ya puedes comenzar a subir tus boletas y organizar tus comprobantes."
+          title="¡Bienvenido a Konti!"
+          message="Tu aliado para digitalizar recibos con IA ya está listo."
           buttonText="Empezar"
         />
       )}

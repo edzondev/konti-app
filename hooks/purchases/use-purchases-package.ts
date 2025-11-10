@@ -1,13 +1,11 @@
-import { QUERY_KEYS } from '@/constants/query-keys';
 import { formatPurchasesError, purchasePackage } from '@/services/purchases';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { PurchasesPackage } from 'react-native-purchases';
 
 export function usePurchasePackage() {
-  const queryClient = useQueryClient();
-
   const mutation = useMutation({
     mutationFn: (pkg: PurchasesPackage) => purchasePackage(pkg),
+    retry: false,
     onError: (error) => {
       const formattedError = formatPurchasesError(error);
       console.error('[Purchase] Failed:', formattedError);

@@ -1,5 +1,6 @@
 export const COLORS = {
   primary: '#0f74c5',
+  secondary: '#6b54a4',
   neutral: {
     foreground: '#222222', // verdadero foreground
     white: '#ffffff',

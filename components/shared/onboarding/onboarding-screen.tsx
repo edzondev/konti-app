@@ -50,7 +50,7 @@ export function OnboardingScreen() {
       {!isLastSlide && (
         <View className="absolute right-6 top-14 z-10">
           <TouchableOpacity onPress={skipOnboarding} activeOpacity={0.7}>
-            <Text className="text-base font-medium text-primary">Skip</Text>
+            <Text className="text-base font-medium text-primary">Omitir</Text>
           </TouchableOpacity>
         </View>
       )}

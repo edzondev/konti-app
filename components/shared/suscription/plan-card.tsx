@@ -1,142 +1,152 @@
-import { memo } from 'react';
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
-import { Check, Crown } from 'lucide-react-native';
-import { COLORS } from '@/constants/colors';
+import { memo, useEffect, useMemo, useCallback } from 'react';
+import { View, Text, Pressable } from 'react-native';
+import Animated, {
+  useSharedValue,
+  withTiming,
+  Easing,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
+import { Check } from 'lucide-react-native';
 import type { PurchasesPackage } from 'react-native-purchases';
 import { cn } from '@/lib/utils';
 
-type Props = {
+type PlanCardProps = {
   plan: PurchasesPackage;
-  features: string[];
-  isPopular: boolean;
-  onSelect: (plan: PurchasesPackage) => void;
-  isLoading: boolean;
-  currentUserPlan?: string;
+  isSelected: boolean;
+  onSelect: () => void;
+  emoji: string;
+  discount?: string;
 };
 
-export default memo(function PlanCard({
+const ANIMATION_CONFIG = {
+  selected: {
+    duration: 300,
+    easing: Easing.inOut(Easing.ease),
+  },
+  unselected: {
+    duration: 250,
+    easing: Easing.out(Easing.ease),
+  },
+} as const;
+
+const ANIMATION_VALUES = {
+  selected: { opacity: 1, translateX: 0, borderWidth: 2 },
+  unselected: { opacity: 0, translateX: -1, borderWidth: 1 },
+} as const;
+
+function PlanCard({
   plan,
-  features,
-  isPopular,
+  isSelected,
   onSelect,
-  isLoading,
-  currentUserPlan,
-}: Props) {
-  // Determine if this is the user's current plan
-  const isCurrentPlan = Boolean(
-    currentUserPlan && plan.identifier === currentUserPlan,
+  emoji,
+  discount,
+}: PlanCardProps) {
+  const checkOpacity = useSharedValue(
+    isSelected
+      ? ANIMATION_VALUES.selected.opacity
+      : ANIMATION_VALUES.unselected.opacity,
+  );
+  const textTranslateX = useSharedValue(
+    isSelected
+      ? ANIMATION_VALUES.selected.translateX
+      : ANIMATION_VALUES.unselected.translateX,
+  );
+  const borderWidth = useSharedValue(
+    isSelected
+      ? ANIMATION_VALUES.selected.borderWidth
+      : ANIMATION_VALUES.unselected.borderWidth,
+  );
+
+  const planName = useMemo(
+    () => plan.product.title.split('(')[0].trim(),
+    [plan.product.title],
+  );
+
+  const price = useMemo(
+    () => plan.product.priceString,
+    [plan.product.priceString],
+  );
+
+  useEffect(() => {
+    const config = isSelected
+      ? ANIMATION_CONFIG.selected
+      : ANIMATION_CONFIG.unselected;
+
+    const values = isSelected
+      ? ANIMATION_VALUES.selected
+      : ANIMATION_VALUES.unselected;
+
+    textTranslateX.value = withTiming(values.translateX, config);
+    checkOpacity.value = withTiming(values.opacity, config);
+    borderWidth.value = withTiming(values.borderWidth, config);
+  }, [isSelected, textTranslateX, checkOpacity, borderWidth]);
+
+  const checkAnimatedStyle = useAnimatedStyle(
+    () => ({
+      opacity: checkOpacity.value,
+    }),
+    [],
+  );
+
+  const textAnimatedStyle = useAnimatedStyle(
+    () => ({
+      transform: [{ translateX: textTranslateX.value }],
+    }),
+    [],
+  );
+
+  const cardAnimatedStyle = useAnimatedStyle(
+    () => ({
+      borderWidth: borderWidth.value,
+    }),
+    [],
   );
 
   return (
-    <Animated.View
-      entering={FadeIn.duration(300)}
-      className={cn(
-        'relative mb-4 overflow-hidden rounded-2xl bg-white',
-        isPopular
-          ? 'border-2 border-primary shadow-lg'
-          : 'border border-neutral-border/50 shadow-sm',
-      )}
-    >
-      {/* Badge superior */}
-      {isPopular && (
-        <View className="bg-primary px-4 py-2">
-          <Text className="text-center text-xs font-semibold uppercase tracking-wide text-white">
-            Mejor valorado
-          </Text>
-        </View>
-      )}
-
-      <View className="p-6">
-        {/* Header con título y precio */}
-        <View className="mb-6 flex-col gap-3">
-          <View className="flex-row items-center gap-3">
-            <View
-              className={cn(
-                'rounded-xl p-2.5',
-                isPopular ? 'bg-primary/10' : 'bg-neutral-100',
-              )}
-            >
-              <Crown
-                size={20}
-                color={isPopular ? COLORS.primary : COLORS.neutral.foreground}
-              />
-            </View>
-            <Text className="text-xl font-bold text-neutral-foreground">
-              {plan.product.title.split('(')[0]}
-            </Text>
-          </View>
-
-          <View className="flex-row items-end gap-1">
-            <Text className="text-4xl font-bold text-neutral-foreground">
-              {plan.product.priceString}
-            </Text>
-            <Text className="mb-1 text-sm text-muted-foreground">/mes</Text>
-          </View>
-
-          <Text
-            className="text-sm leading-5 text-muted-foreground"
-            numberOfLines={2}
-            ellipsizeMode="tail"
-          >
-            {plan.product.description}
-          </Text>
-        </View>
-
-        {/* Divider */}
-        <View className="mb-6 h-px bg-neutral-border" />
-
-        {/* Features */}
-        <View className="mb-6 gap-3">
-          {features.map((feature, featureIndex) => (
-            <View key={featureIndex} className="flex-row items-start gap-2.5">
-              <View className="mt-0.5 rounded-full bg-primary/10 p-1">
-                <Check size={10} color={COLORS.primary} strokeWidth={3} />
-              </View>
-              <Text className="flex-1 text-sm leading-5 text-neutral-foreground">
-                {feature}
-              </Text>
-            </View>
-          ))}
-        </View>
-
-        {/* CTA Button */}
-        <Pressable
-          onPress={() => onSelect(plan)}
-          disabled={isLoading || isCurrentPlan}
+    <View className="flex-1">
+      <Pressable onPress={onSelect}>
+        <Animated.View
+          style={cardAnimatedStyle}
           className={cn(
-            'h-12 flex-row items-center justify-center gap-2 rounded-xl',
-            isCurrentPlan
-              ? 'border border-neutral-border/50 bg-neutral-100'
-              : isPopular
-                ? 'bg-primary'
-                : 'border border-primary/20 bg-primary/5',
+            'relative rounded-3xl bg-white p-6',
+            isSelected
+              ? 'border-secondary shadow-lg'
+              : 'border-secondary/20 shadow-sm',
           )}
         >
-          <Text
-            className={cn(
-              'text-base font-semibold',
-              isCurrentPlan
-                ? 'text-muted-foreground'
-                : isPopular
-                  ? 'text-white'
-                  : 'text-primary',
-            )}
-          >
-            {isLoading
-              ? 'Procesando...'
-              : isCurrentPlan
-                ? 'Plan actual'
-                : 'Seleccionar plan'}
-          </Text>
-          {isLoading && !isCurrentPlan && (
-            <ActivityIndicator
-              size="small"
-              color={isPopular ? COLORS.neutral.white : COLORS.primary}
-            />
+          {discount && (
+            <View className="absolute right-3 top-3 rounded-full bg-green-100 px-3 py-1">
+              <Text className="text-xs font-bold text-green-700">
+                {discount}
+              </Text>
+            </View>
           )}
-        </Pressable>
-      </View>
-    </Animated.View>
+
+          <View className="mb-3 h-14 w-14 items-center justify-center rounded-2xl bg-neutral-100">
+            <Text className="text-3xl">{emoji}</Text>
+          </View>
+
+          <View className="mb-1 flex-row items-center gap-2">
+            {isSelected && (
+              <Animated.View
+                style={checkAnimatedStyle}
+                className="h-5 w-5 items-center justify-center rounded-full bg-green-500"
+              >
+                <Check size={14} color="white" strokeWidth={3} />
+              </Animated.View>
+            )}
+            <Animated.View style={textAnimatedStyle}>
+              <Text className="text-xl font-bold text-neutral-900">
+                {planName}
+              </Text>
+            </Animated.View>
+          </View>
+
+          <Text className="text-3xl font-bold text-neutral-900">{price}</Text>
+        </Animated.View>
+      </Pressable>
+    </View>
   );
-});
+}
+
+export default memo(PlanCard);

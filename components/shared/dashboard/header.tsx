@@ -2,7 +2,6 @@ import { COLORS } from '@/constants/colors';
 import { LIMIT_PLANS } from '@/constants/plans';
 import { useUserPlan } from '@/hooks/profile/use-user-plan';
 import { useReceiptKpis } from '@/hooks/receipts/use-receipt-kpis';
-import type { Tables } from '@/types/database.types';
 import { Link } from 'expo-router';
 import {
   Crown,
@@ -30,7 +29,7 @@ export const KPI_CARD_CONFIG = [
     icon: Receipt,
     color: COLORS.primary,
     bgColor: 'bg-primary/10',
-    iconBgColor: 'bg-primary/20',
+    iconBgColor: 'bg-primary/10',
     label: 'Boletas',
     getValue: (kpis: any) => kpis?.total_receipts ?? 0,
   },
@@ -39,7 +38,7 @@ export const KPI_CARD_CONFIG = [
     icon: Wallet,
     color: '#10b981',
     bgColor: 'bg-emerald-500/10',
-    iconBgColor: 'bg-emerald-500/20',
+    iconBgColor: 'bg-emerald-500/10',
     label: 'Total',
     getValue: (kpis: any) => `S/${kpis?.total_amount_sum.toFixed(2) ?? '0.00'}`,
   },
@@ -48,7 +47,7 @@ export const KPI_CARD_CONFIG = [
     icon: TrendingUp,
     color: '#8b5cf6',
     bgColor: 'bg-violet-500/10',
-    iconBgColor: 'bg-violet-500/20',
+    iconBgColor: 'bg-violet-500/10',
     label: 'Contables',
     getValue: (kpis: any) => kpis?.expense_receipts ?? 0,
   },
@@ -60,11 +59,7 @@ const PLAN_CONFIG = {
   premium: { icon: Crown, label: 'Premium' },
 } as const;
 
-type DashboardHeaderProps = {
-  data: Tables<'receipts'>[];
-};
-
-export default function DashboardHeader({ data }: DashboardHeaderProps) {
+export default function DashboardHeader() {
   const { currentPlan, hasProOrBetter } = useUserPlan();
   const { data: kpis, isLoading: kpisLoading } = useReceiptKpis();
   const progressWidth = useSharedValue(0);
@@ -91,7 +86,7 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
   }, [progressWidth, kpis?.total_receipts, planLimit]);
 
   return (
-    <View className="flex-col gap-8 py-4">
+    <View className="flex-col gap-6 py-4">
       <View className="flex-row items-center justify-between">
         <Image
           source={require('@/assets/konti-logo-hd.jpg')}
@@ -112,7 +107,7 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
                 className="text-sm font-semibold text-primary"
                 numberOfLines={1}
               >
-                Hazte Pro
+                Suscribirme
               </Text>
             </Pressable>
           </Link>
@@ -167,15 +162,13 @@ export default function DashboardHeader({ data }: DashboardHeaderProps) {
         <Text className="text-xl font-semibold text-muted-foreground">
           Archivos recientes
         </Text>
-        {data?.length > 2 && (
-          <Link href="/receipt" asChild>
-            <Pressable className="rounded-xl">
-              <Text className="text-sm font-semibold text-primary">
-                Ver todos
-              </Text>
-            </Pressable>
-          </Link>
-        )}
+        <Link href="/receipt" asChild>
+          <Pressable className="rounded-xl">
+            <Text className="text-sm font-semibold text-primary">
+              Ver todos
+            </Text>
+          </Pressable>
+        </Link>
       </View>
     </View>
   );

@@ -61,17 +61,17 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
       <View className="items-center">
         <Animated.View
           style={[iconAnimatedStyle]}
-          className="mb-4 h-16 w-16 items-center justify-center rounded-full bg-primary/10"
+          className="mb-3 h-20 w-20 items-center justify-center rounded-full bg-primary/10"
         >
-          <Check size={30} color={COLORS.primary} />
+          <Check size={40} color={COLORS.primary} />
         </Animated.View>
 
-        <Text className="mb-2 text-center text-xl font-semibold text-neutral-foreground">
+        <Text className="mb-2 text-center text-lg font-semibold text-neutral-foreground">
           {title}
         </Text>
 
         <ModalContent>
-          <Text className="text-center text-base leading-6 text-muted-foreground">
+          <Text className="text-center text-sm leading-5 text-muted-foreground">
             {message}
           </Text>
         </ModalContent>

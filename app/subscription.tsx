@@ -1,52 +1,145 @@
-import { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+  View,
+  ScrollView,
+  Pressable,
+  Keyboard,
+} from 'react-native';
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { X, Sparkles } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS } from '@/constants/colors';
-import PlanCard from '@/components/shared/suscription/plan-card';
-import { usePurchases } from '@/hooks/purchases/use-purchases';
-import { usePurchasePackage } from '@/hooks/purchases/use-purchases-package';
-import { useUserPlan } from '@/hooks/profile/use-user-plan';
-import type { PurchasesPackage } from 'react-native-purchases';
-import { FlashList } from '@shopify/flash-list';
-import { PaymentSuccessModal } from '@/components/shared/modals/payment-success-modal';
-import { QUERY_KEYS } from '@/constants/query-keys';
 import { useQueryClient } from '@tanstack/react-query';
 import { scheduleOnRN } from 'react-native-worklets';
 
-const featureMap = {
-  pro: [
-    'Sube hasta 20 boletas por mes',
-    'Procesamiento automático con IA',
-    'Exportación mensual en Excel',
-    'Soporte en horario laboral',
-  ],
-  premium: [
-    'Todo el plan Pro pero mejorado',
-    'Subidas ilimitadas de boletas',
-    'Reporte anual listo para SUNAT',
-    'Acceso anticipado a nuevas funciones',
-    'Soporte prioritario',
-  ],
+import { COLORS } from '@/constants/colors';
+import { QUERY_KEYS } from '@/constants/query-keys';
+import { PaymentSuccessModal } from '@/components/shared/modals/payment-success-modal';
+import { usePurchases } from '@/hooks/purchases/use-purchases';
+import { usePurchasePackage } from '@/hooks/purchases/use-purchases-package';
+import { cn } from '@/lib/utils';
+import PlanCard from '@/components/shared/suscription/plan-card';
+
+import {
+  Aperture,
+  Infinity,
+  FileText,
+  Zap,
+  Crown,
+  ShieldCheck,
+  X,
+} from 'lucide-react-native';
+import type { PurchasesPackage } from 'react-native-purchases';
+
+type Feature = {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  pro: boolean;
+  premium: boolean;
+  isAvailableInFuture?: boolean;
 };
+
+const BASE_FEATURES: Feature[] = [
+  {
+    icon: Zap,
+    title: 'Extracción de Datos con IA',
+    description:
+      'Procesamiento automático para obtener RUC, monto total y fecha en segundos.',
+    pro: true,
+    premium: true,
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Clasificación Contable Automática',
+    description:
+      'La IA identifica si tu boleta es contable (de gasto) para una mejor organización.',
+    pro: true,
+    premium: true,
+  },
+  {
+    icon: FileText,
+    title: 'Reportes y Exportación',
+    description: 'Genera reportes y exporta tus datos en Excel mensualmente.',
+    pro: true,
+    premium: true,
+    isAvailableInFuture: true,
+  },
+];
+
+const PRO_UPGRADE_FEATURES: Feature[] = [
+  {
+    icon: Aperture,
+    title: 'Límite de Carga Ampliado',
+    description: 'Sube hasta 20 boletas por mes.',
+    pro: true,
+    premium: true,
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Asistencia Estándar',
+    description: 'Soporte técnico disponible en horario laboral.',
+    pro: true,
+    premium: true,
+  },
+];
+
+const PREMIUM_EXCLUSIVE_FEATURES: Feature[] = [
+  {
+    icon: Infinity,
+    title: 'Subidas Ilimitadas',
+    description: 'Olvídate de los límites: carga boletas sin restricciones.',
+    pro: false,
+    premium: true,
+  },
+  {
+    icon: Crown,
+    title: 'Reporte Fiscal SUNAT',
+    description:
+      'Genera un reporte anual consolidado, listo para tus declaraciones.',
+    pro: false,
+    premium: true,
+    isAvailableInFuture: true,
+  },
+  {
+    icon: Zap,
+    title: 'Soporte VIP Prioritario',
+    description: 'Respuesta inmediata a tus consultas con prioridad absoluta.',
+    pro: false,
+    premium: true,
+  },
+  {
+    icon: Aperture,
+    title: 'Acceso Exclusivo',
+    description:
+      'Sé el primero en probar nuevas funciones antes de su lanzamiento oficial.',
+    pro: false,
+    premium: true,
+  },
+];
+
+const ALL_FEATURES = [
+  ...BASE_FEATURES,
+  ...PRO_UPGRADE_FEATURES,
+  ...PREMIUM_EXCLUSIVE_FEATURES,
+];
 
 export default function SubscriptionScreen() {
   const { fromPreview, imageUrl } = useLocalSearchParams<{
     fromPreview?: string;
     imageUrl?: string;
   }>();
-  const { availablePackages, isLoading, refetch, isRefetching } =
-    usePurchases();
+  const { availablePackages, isLoading } = usePurchases();
   const { purchasePackageAsync, isPending: isPurchasing } =
     usePurchasePackage();
-  const { currentPlan, hasProOrBetter } = useUserPlan();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const contentOpacity = useSharedValue(0);
   const queryClient = useQueryClient();
 
@@ -57,11 +150,39 @@ export default function SubscriptionScreen() {
     contentOpacity.value = withTiming(1, { duration: 300 });
   }, [contentOpacity]);
 
+  // Auto-select annual plan by default
+  useEffect(() => {
+    if (availablePackages.length > 0 && !selectedPlanId) {
+      const annualPlan = availablePackages.find(
+        (p) =>
+          p.product.title.toLowerCase().includes('pro') ||
+          p.product.title.toLowerCase().includes('pro'),
+      );
+      if (annualPlan) {
+        setSelectedPlanId(annualPlan.identifier);
+      }
+    }
+  }, [availablePackages, selectedPlanId]);
+
+  const isPremiumPlan = useMemo(() => {
+    if (!selectedPlanId) return false;
+    return availablePackages
+      .find((p) => p.identifier === selectedPlanId)
+      ?.identifier.toLowerCase()
+      .includes('premium');
+  }, [availablePackages, selectedPlanId]);
+
+  const visibleFeatures = useMemo(() => {
+    return ALL_FEATURES.filter((feature) =>
+      isPremiumPlan ? feature.premium : feature.pro,
+    );
+  }, [isPremiumPlan]);
+
   const contentAnimatedStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
   }));
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (fromPreview === 'true' && imageUrl) {
       router.replace({
         pathname: '/preview',
@@ -70,44 +191,51 @@ export default function SubscriptionScreen() {
     } else {
       router.back();
     }
-  };
+  }, [fromPreview, imageUrl]);
 
-  const animateClose = () => {
+  const animateClose = useCallback(() => {
     fadeOut.value = withTiming(0, { duration: 300 });
     slideDown.value = withTiming(50, { duration: 300 }, (finished) => {
       if (finished) {
         scheduleOnRN(handleClose);
       }
     });
-  };
+  }, [fadeOut, slideDown, handleClose]);
 
-  const handlePlanSelect = async (plan: PurchasesPackage) => {
-    const result = await purchasePackageAsync(plan);
-    setShowSuccessModal(true);
+  const handlePurchase = useCallback(
+    async (plan: PurchasesPackage) => {
+      console.log('[Purchase] Purchasing plan:', plan);
+      try {
+        const result = await purchasePackageAsync(plan);
+        setShowSuccessModal(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    if (result?.originalAppUserId) {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.profile.details(result.originalAppUserId),
-      });
-    }
+        if (result?.originalAppUserId) {
+          queryClient.invalidateQueries({
+            queryKey: QUERY_KEYS.profile.details(result.originalAppUserId),
+          });
+        }
 
-    queryClient.invalidateQueries({
-      queryKey: QUERY_KEYS.purchases.data,
-    });
-    setShowSuccessModal(false);
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.purchases.data,
+        });
+        setShowSuccessModal(false);
 
-    // Navigate back to preview if user came from there
-    if (fromPreview === 'true' && imageUrl) {
-      router.replace({
-        pathname: '/preview',
-        params: { imageUrl },
-      });
-    } else {
-      animateClose();
-    }
-  };
+        if (fromPreview === 'true' && imageUrl) {
+          router.replace({
+            pathname: '/preview',
+            params: { imageUrl },
+          });
+        } else {
+          animateClose();
+        }
+      } catch (error) {
+        console.log('[Purchase] Cancelled or failed:', error);
+      }
+    },
+    [fromPreview, imageUrl, purchasePackageAsync, queryClient, animateClose],
+  );
 
   if (isLoading) {
     return (
@@ -124,64 +252,92 @@ export default function SubscriptionScreen() {
     <>
       <PaymentSuccessModal visible={showSuccessModal} />
 
-      <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
-        <View className="flex-1 px-6">
-          <Animated.View style={[contentAnimatedStyle]} className="flex-1">
-            <FlashList
-              data={availablePackages}
-              keyExtractor={(item) => item.identifier}
-              renderItem={({ item }) => (
-                <PlanCard
-                  plan={item}
-                  features={
-                    featureMap[item.identifier as keyof typeof featureMap]
-                  }
-                  isPopular={item.product.title.includes('Pro')}
-                  onSelect={handlePlanSelect}
-                  isLoading={isPurchasing}
-                  currentUserPlan={currentPlan}
-                />
-              )}
-              onRefresh={() => refetch()}
-              refreshing={isRefetching}
-              ListHeaderComponent={() => (
-                <View className="pb-6 pt-8">
-                  <View className="flex-row items-center justify-between">
-                    <TouchableOpacity
-                      onPress={handleClose}
-                      className="rounded-full bg-neutral-border p-2"
-                    >
-                      <X size={20} color={COLORS.muted.foreground} />
-                    </TouchableOpacity>
-                    <Text className="text-2xl font-semibold text-neutral-foreground">
-                      Planes de suscripción
-                    </Text>
-                    <View className="w-6" />
-                  </View>
+      <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          keyboardShouldPersistTaps="handled"
+          onScrollBeginDrag={Keyboard.dismiss}
+        >
+          <Animated.View style={[contentAnimatedStyle]} className="px-6">
+            {/* Header */}
+            <View className="flex-row items-center justify-between pb-6 pt-4">
+              <TouchableOpacity
+                onPress={handleClose}
+                className="rounded-full bg-neutral-100 p-2"
+              >
+                <X size={20} color={COLORS.neutral.foreground} />
+              </TouchableOpacity>
+            </View>
 
-                  {/* Free Trial Notice */}
-                  {!hasProOrBetter && (
-                    <View className="mt-6 flex-row items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
-                      <View className="rounded-full bg-primary/10 p-2">
-                        <Sparkles size={16} color={COLORS.primary} />
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-sm font-semibold text-neutral-foreground">
-                          Obten tu prueba gratis por 3 días
-                        </Text>
-                        <Text className="text-xs text-muted-foreground">
-                          Después de la prueba, se te cobrará el plan
-                          seleccionado
-                        </Text>
-                      </View>
+            {/* Plans Section */}
+            <View className="mb-8 flex-row gap-4">
+              {availablePackages.map((plan) => (
+                <PlanCard
+                  key={plan.identifier}
+                  plan={plan}
+                  isSelected={selectedPlanId === plan.identifier}
+                  onSelect={() => setSelectedPlanId(plan.identifier)}
+                  emoji={plan.identifier === 'pro' ? '🤓' : '🚀'}
+                />
+              ))}
+            </View>
+
+            {/* Features Section */}
+            <View className="gap-4">
+              {visibleFeatures.map((feature, index) => {
+                const Icon = feature.icon;
+                return (
+                  <View
+                    key={index}
+                    className="flex-row items-start gap-4 rounded-2xl bg-neutral-50 p-4"
+                  >
+                    <View className="h-12 w-12 items-center justify-center rounded-xl bg-secondary/10">
+                      <Icon size={24} color={COLORS.secondary} />
                     </View>
-                  )}
-                </View>
-              )}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 20 }}
-            />
+                    <View className="flex-1">
+                      <Text className="mb-1 text-base font-bold text-neutral-900">
+                        {feature.title}
+                      </Text>
+                      {feature.isAvailableInFuture ? (
+                        <Text className="text-sm leading-5 text-muted-foreground">
+                          Proximamente
+                        </Text>
+                      ) : (
+                        <Text className="text-sm leading-5 text-neutral-600">
+                          {feature.description}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
           </Animated.View>
+        </ScrollView>
+        <View className="absolute bottom-0 left-0 right-0 bg-white px-6 pb-6 pt-4">
+          <Pressable
+            onPress={() =>
+              handlePurchase(
+                availablePackages.find(
+                  (p) => p.identifier === selectedPlanId,
+                ) ?? availablePackages[0],
+              )
+            }
+            disabled={isPurchasing || !selectedPlanId}
+            className={cn(
+              'h-14 items-center justify-center rounded-full',
+              isPurchasing || !selectedPlanId ? 'bg-neutral-300' : 'bg-primary',
+            )}
+          >
+            {isPurchasing ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Text className="text-base font-bold text-white">
+                Obtener tu prueba gratis
+              </Text>
+            )}
+          </Pressable>
         </View>
       </SafeAreaView>
     </>

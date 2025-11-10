@@ -1,7 +1,7 @@
 import { SupportedStorage } from '@supabase/supabase-js';
-import { MMKV } from 'react-native-mmkv';
+import { createMMKV } from 'react-native-mmkv';
 
-const storage = new MMKV({
+const storage = createMMKV({
   id: 'supabase-storage',
   encryptionKey: 'my-encryption-key',
 });
@@ -14,7 +14,7 @@ const supabaseStorage: SupportedStorage = {
     storage.set(key, value);
   },
   removeItem(key) {
-    storage.delete(key);
+    storage.remove(key);
   },
 };
 

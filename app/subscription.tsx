@@ -45,7 +45,7 @@ export default function SubscriptionScreen() {
     visibleFeatures,
     contentAnimatedStyle,
     handlePurchase,
-  } = useSubscriptionLogic({ fromPreview, imageUrl, onClose: handleClose });
+  } = useSubscriptionLogic({ onClose: handleClose });
 
   if (isLoading) {
     return (

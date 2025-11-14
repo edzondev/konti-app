@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useUploadImage } from '@/hooks/receipts/use-upload-image';
@@ -26,6 +27,7 @@ export function useGalleryPicker() {
       });
     } catch (error) {
       console.error('Error uploading image:', error);
+      Alert.alert('Error', 'No se pudo subir la imagen. Intenta nuevamente.');
     }
   }, [uploadImage, router]);
 

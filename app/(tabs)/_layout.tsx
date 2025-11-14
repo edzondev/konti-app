@@ -2,8 +2,9 @@ import { Home, ReceiptText, User } from 'lucide-react-native';
 import { Tabs } from 'expo-router';
 import { COLORS } from '@/constants/colors';
 import { TabBarIcon } from '@/components/shared/tab-bar-icon';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
   return (
     <Tabs
       screenOptions={{
@@ -16,7 +17,7 @@ export default function TabsLayout() {
           paddingBottom: 10,
           paddingTop: 10,
           marginHorizontal: 20,
-          marginBottom: 20,
+          marginBottom: Math.max(insets.bottom, 20),
           elevation: 3,
         },
         tabBarActiveTintColor: COLORS.primary,

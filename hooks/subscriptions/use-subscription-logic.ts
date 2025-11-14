@@ -9,14 +9,10 @@ import { usePurchases } from '@/hooks/purchases/use-purchases';
 import { usePurchasePackage } from '@/hooks/purchases/use-purchases-package';
 
 type UseSubscriptionLogicProps = {
-  fromPreview?: string;
-  imageUrl?: string;
   onClose: () => void;
 };
 
 export function useSubscriptionLogic({
-  fromPreview,
-  imageUrl,
   onClose,
 }: UseSubscriptionLogicProps) {
   const { availablePackages, isLoading } = usePurchases();
@@ -38,7 +34,7 @@ export function useSubscriptionLogic({
       const annualPlan = availablePackages.find(
         (p) =>
           p.product.title.toLowerCase().includes('pro') ||
-          p.product.title.toLowerCase().includes('pro'),
+          p.product.title.toLowerCase().includes('premium'),
       );
       if (annualPlan) {
         setSelectedPlanId(annualPlan.identifier);

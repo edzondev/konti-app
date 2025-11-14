@@ -18,7 +18,10 @@ export const KPI_CARD_CONFIG = [
     bgColor: 'bg-emerald-500/10',
     iconBgColor: 'bg-emerald-500/10',
     label: 'Total',
-    getValue: (kpis: any) => `S/${kpis?.total_amount_sum.toFixed(2) ?? '0.00'}`,
+    getValue: (kpis: any) => {
+      const amount = kpis?.total_amount_sum ?? 0;
+      return `S/${amount.toFixed(2)}`;
+    },
   },
   {
     key: 'expenses',

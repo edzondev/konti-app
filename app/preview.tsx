@@ -1,122 +1,59 @@
-import {
-  View,
-  Text,
-  Pressable,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
-import ImageComponent from '@/components/ui/image';
-
+import { View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
-import { COLORS } from '@/constants/colors';
+import { useLocalSearchParams } from 'expo-router';
 import ReceiptForm from '@/components/shared/forms/receipt-form';
-import { useUserPlan } from '@/hooks/profile/use-user-plan';
-import { useAiExtraction } from '@/hooks/receipts/use-ai-extraction';
-import { AiExtractedData } from '@/types/ai-extraction.types';
-import { useAiTrialStore } from '@/store/use-ai-trial-store';
+import ImageThumbnail from '@/components/shared/receipt/image-thumbnail';
+import { ImagePreviewModal } from '@/components/shared/modals/image-preview-modal';
+import { usePreviewLogic } from '@/hooks/receipts/use-preview-logic';
 
 export default function Preview() {
-  const { imageUrl } = useLocalSearchParams<{
-    imageUrl: string;
-  }>();
-  const router = useRouter();
-  const { hasProOrBetter } = useUserPlan();
-  const { hasUsedAiTrial, setHasUsedAiTrial } = useAiTrialStore();
-  const { mutateAsync: extractData, isPending: isExtractingData } =
-    useAiExtraction();
-  const [extractedData, setExtractedData] = useState<
-    AiExtractedData | undefined
-  >();
+  const { imageUrl } = useLocalSearchParams<{ imageUrl: string }>();
 
-  const canUseAi = hasProOrBetter || !hasUsedAiTrial;
-  const isTrialMode = !hasProOrBetter && !hasUsedAiTrial;
-
-  const handleButtonPress = async () => {
-    if (!canUseAi) {
-      router.push({
-        pathname: '/subscription',
-        params: { fromPreview: 'true', imageUrl },
-      });
-      return;
-    }
-
-    if (!imageUrl) return;
-
-    try {
-      const response = await extractData(imageUrl);
-      if (response.success && response.data) {
-        setExtractedData(response.data);
-
-        // Mark trial as used if not subscribed
-        if (isTrialMode) {
-          setHasUsedAiTrial(true);
-        }
-
-        Alert.alert(
-          'Éxito',
-          isTrialMode
-            ? 'Información extraída correctamente. El formulario se ha autocompletado.\n\n¡Esta fue tu prueba gratuita! Suscríbete para seguir usando esta función.'
-            : 'Información extraída correctamente. El formulario se ha autocompletado.',
-        );
-      } else {
-        Alert.alert('Error', 'No se pudieron extraer los datos de la imagen');
-      }
-    } catch (error) {
-      console.error('Error en extracción:', error);
-      Alert.alert('Error', 'No se pudo extraer la información de la imagen');
-    }
-  };
+  const {
+    extractedData,
+    isModalVisible,
+    isExtractingData,
+    handleButtonPress,
+    toggleModal,
+    canUseAi,
+  } = usePreviewLogic({ imageUrl });
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
-        }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View className="px-6 py-8">
-          {imageUrl && (
-            <View className="mb-8">
-              <ImageComponent
-                src={imageUrl}
-                contentFit="cover"
-                alt="Comprobante de pago"
-                style={{ width: '100%', height: 350 }}
-              />
-            </View>
-          )}
-
-          <View className="mb-8">
-            <Pressable
-              onPress={handleButtonPress}
-              disabled={isExtractingData}
-              className="w-full flex-row items-center justify-center gap-2 rounded-lg border border-primary py-3  disabled:opacity-50"
-            >
-              {isExtractingData ? (
-                <ActivityIndicator size="small" color={COLORS.primary} />
-              ) : (
-                <>
-                  <Text className="font-regular text-base text-primary">
-                    {canUseAi
-                      ? isTrialMode
-                        ? 'Procesa gratis esta vez'
-                        : 'Procesar comprobante con IA'
-                      : 'Hazte Pro para usar esta función'}
-                  </Text>
-                </>
-              )}
-            </Pressable>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="px-6 py-8">
+            {imageUrl && (
+              <View className="mb-8">
+                <ImageThumbnail
+                  imageUrl={imageUrl}
+                  onPress={toggleModal}
+                  onAiPress={handleButtonPress}
+                  showAiButton={canUseAi}
+                  isAiLoading={isExtractingData}
+                  size="md"
+                />
+              </View>
+            )}
+            <ReceiptForm imageUrl={imageUrl} extractedData={extractedData} />
           </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
-          {/* Formulario de Comprobante */}
-          <ReceiptForm imageUrl={imageUrl} extractedData={extractedData} />
-        </View>
-      </ScrollView>
+      {imageUrl && (
+        <ImagePreviewModal
+          visible={isModalVisible}
+          imageUrl={imageUrl}
+          onClose={toggleModal}
+        />
+      )}
     </SafeAreaView>
   );
 }

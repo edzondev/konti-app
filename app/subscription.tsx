@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback } from 'react';
 import {
   ActivityIndicator,
   Text,
@@ -8,179 +8,21 @@ import {
   Pressable,
   Keyboard,
 } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useQueryClient } from '@tanstack/react-query';
-import { scheduleOnRN } from 'react-native-worklets';
-
 import { COLORS } from '@/constants/colors';
-import { QUERY_KEYS } from '@/constants/query-keys';
 import { PaymentSuccessModal } from '@/components/shared/modals/payment-success-modal';
-import { usePurchases } from '@/hooks/purchases/use-purchases';
-import { usePurchasePackage } from '@/hooks/purchases/use-purchases-package';
 import { cn } from '@/lib/utils';
 import PlanCard from '@/components/shared/suscription/plan-card';
-
-import {
-  Aperture,
-  Infinity,
-  FileText,
-  Zap,
-  Crown,
-  ShieldCheck,
-  X,
-} from 'lucide-react-native';
-import type { PurchasesPackage } from 'react-native-purchases';
-
-type Feature = {
-  icon: React.ElementType;
-  title: string;
-  description: string;
-  pro: boolean;
-  premium: boolean;
-  isAvailableInFuture?: boolean;
-};
-
-const BASE_FEATURES: Feature[] = [
-  {
-    icon: Zap,
-    title: 'Extracción de Datos con IA',
-    description:
-      'Procesamiento automático para obtener RUC, monto total y fecha en segundos.',
-    pro: true,
-    premium: true,
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Clasificación Contable Automática',
-    description:
-      'La IA identifica si tu boleta es contable (de gasto) para una mejor organización.',
-    pro: true,
-    premium: true,
-  },
-  {
-    icon: FileText,
-    title: 'Reportes y Exportación',
-    description: 'Genera reportes y exporta tus datos en Excel mensualmente.',
-    pro: true,
-    premium: true,
-    isAvailableInFuture: true,
-  },
-];
-
-const PRO_UPGRADE_FEATURES: Feature[] = [
-  {
-    icon: Aperture,
-    title: 'Límite de Carga Ampliado',
-    description: 'Sube hasta 20 boletas por mes.',
-    pro: true,
-    premium: true,
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Asistencia Estándar',
-    description: 'Soporte técnico disponible en horario laboral.',
-    pro: true,
-    premium: true,
-  },
-];
-
-const PREMIUM_EXCLUSIVE_FEATURES: Feature[] = [
-  {
-    icon: Infinity,
-    title: 'Subidas Ilimitadas',
-    description: 'Olvídate de los límites: carga boletas sin restricciones.',
-    pro: false,
-    premium: true,
-  },
-  {
-    icon: Crown,
-    title: 'Reporte Fiscal SUNAT',
-    description:
-      'Genera un reporte anual consolidado, listo para tus declaraciones.',
-    pro: false,
-    premium: true,
-    isAvailableInFuture: true,
-  },
-  {
-    icon: Zap,
-    title: 'Soporte VIP Prioritario',
-    description: 'Respuesta inmediata a tus consultas con prioridad absoluta.',
-    pro: false,
-    premium: true,
-  },
-  {
-    icon: Aperture,
-    title: 'Acceso Exclusivo',
-    description:
-      'Sé el primero en probar nuevas funciones antes de su lanzamiento oficial.',
-    pro: false,
-    premium: true,
-  },
-];
-
-const ALL_FEATURES = [
-  ...BASE_FEATURES,
-  ...PRO_UPGRADE_FEATURES,
-  ...PREMIUM_EXCLUSIVE_FEATURES,
-];
+import { X } from 'lucide-react-native';
+import { useSubscriptionLogic } from '@/hooks/subscriptions/use-subscription-logic';
 
 export default function SubscriptionScreen() {
   const { fromPreview, imageUrl } = useLocalSearchParams<{
     fromPreview?: string;
     imageUrl?: string;
   }>();
-  const { availablePackages, isLoading } = usePurchases();
-  const { purchasePackageAsync, isPending: isPurchasing } =
-    usePurchasePackage();
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
-  const contentOpacity = useSharedValue(0);
-  const queryClient = useQueryClient();
-
-  const fadeOut = useSharedValue(1);
-  const slideDown = useSharedValue(0);
-
-  useEffect(() => {
-    contentOpacity.value = withTiming(1, { duration: 300 });
-  }, [contentOpacity]);
-
-  // Auto-select annual plan by default
-  useEffect(() => {
-    if (availablePackages.length > 0 && !selectedPlanId) {
-      const annualPlan = availablePackages.find(
-        (p) =>
-          p.product.title.toLowerCase().includes('pro') ||
-          p.product.title.toLowerCase().includes('pro'),
-      );
-      if (annualPlan) {
-        setSelectedPlanId(annualPlan.identifier);
-      }
-    }
-  }, [availablePackages, selectedPlanId]);
-
-  const isPremiumPlan = useMemo(() => {
-    if (!selectedPlanId) return false;
-    return availablePackages
-      .find((p) => p.identifier === selectedPlanId)
-      ?.identifier.toLowerCase()
-      .includes('premium');
-  }, [availablePackages, selectedPlanId]);
-
-  const visibleFeatures = useMemo(() => {
-    return ALL_FEATURES.filter((feature) =>
-      isPremiumPlan ? feature.premium : feature.pro,
-    );
-  }, [isPremiumPlan]);
-
-  const contentAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: contentOpacity.value,
-  }));
 
   const handleClose = useCallback(() => {
     if (fromPreview === 'true' && imageUrl) {
@@ -193,49 +35,17 @@ export default function SubscriptionScreen() {
     }
   }, [fromPreview, imageUrl]);
 
-  const animateClose = useCallback(() => {
-    fadeOut.value = withTiming(0, { duration: 300 });
-    slideDown.value = withTiming(50, { duration: 300 }, (finished) => {
-      if (finished) {
-        scheduleOnRN(handleClose);
-      }
-    });
-  }, [fadeOut, slideDown, handleClose]);
-
-  const handlePurchase = useCallback(
-    async (plan: PurchasesPackage) => {
-      console.log('[Purchase] Purchasing plan:', plan);
-      try {
-        const result = await purchasePackageAsync(plan);
-        setShowSuccessModal(true);
-
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        if (result?.originalAppUserId) {
-          queryClient.invalidateQueries({
-            queryKey: QUERY_KEYS.profile.details(result.originalAppUserId),
-          });
-        }
-
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.purchases.data,
-        });
-        setShowSuccessModal(false);
-
-        if (fromPreview === 'true' && imageUrl) {
-          router.replace({
-            pathname: '/preview',
-            params: { imageUrl },
-          });
-        } else {
-          animateClose();
-        }
-      } catch (error) {
-        console.log('[Purchase] Cancelled or failed:', error);
-      }
-    },
-    [fromPreview, imageUrl, purchasePackageAsync, queryClient, animateClose],
-  );
+  const {
+    availablePackages,
+    isLoading,
+    isPurchasing,
+    showSuccessModal,
+    selectedPlanId,
+    setSelectedPlanId,
+    visibleFeatures,
+    contentAnimatedStyle,
+    handlePurchase,
+  } = useSubscriptionLogic({ fromPreview, imageUrl, onClose: handleClose });
 
   if (isLoading) {
     return (

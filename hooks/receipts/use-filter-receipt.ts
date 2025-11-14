@@ -6,13 +6,15 @@ export default function useFilterReceipt() {
     sortBy: 'date_desc',
   });
 
-  const handleFilterChange = (filterType: 'all' | 'expense' | 'nonExpense') => {
+  const handleFilterChange = (filterType: 'all' | 'expense' | 'nonExpense' | 'boleta' | 'factura') => {
     if (filterType === 'all') {
-      setFilters((prev) => ({ ...prev, isExpense: undefined }));
+      setFilters((prev) => ({ ...prev, isExpense: undefined, receiptType: undefined }));
     } else if (filterType === 'expense') {
-      setFilters((prev) => ({ ...prev, isExpense: true }));
+      setFilters((prev) => ({ ...prev, isExpense: true, receiptType: undefined }));
     } else if (filterType === 'nonExpense') {
-      setFilters((prev) => ({ ...prev, isExpense: false }));
+      setFilters((prev) => ({ ...prev, isExpense: false, receiptType: undefined }));
+    } else if (filterType === 'boleta' || filterType === 'factura') {
+      setFilters((prev) => ({ ...prev, isExpense: undefined, receiptType: filterType }));
     }
   };
 
@@ -24,9 +26,11 @@ export default function useFilterReceipt() {
   };
 
   const getCurrentFilterType = () => {
-    if (filters.isExpense === undefined) return 'all';
+    if (filters.receiptType === 'boleta') return 'boleta';
+    if (filters.receiptType === 'factura') return 'factura';
     if (filters.isExpense === true) return 'expense';
-    return 'nonExpense';
+    if (filters.isExpense === false) return 'nonExpense';
+    return 'all';
   };
 
   const handleSearchChange = (search: string) => {

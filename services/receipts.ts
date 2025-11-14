@@ -9,12 +9,14 @@ export async function getReceipts(
 ) {
   let query = supabase.from('receipts').select('*').eq('user_id', userId);
 
-  // Filter by accounting type (is_expense)
   if (filters.isExpense !== undefined) {
     query = query.eq('is_expense', filters.isExpense);
   }
 
-  // Search by business name, RUC, or receipt number
+  if (filters.receiptType) {
+    query = query.eq('receipt_type', filters.receiptType);
+  }
+
   if (filters.search) {
     query = query.or(
       `business_name.ilike.%${filters.search}%,ruc.ilike.%${filters.search}%,receipt_number.ilike.%${filters.search}%`,
@@ -96,6 +98,7 @@ export async function createReceipt(
     const body = {
       total_amount:
         typeof data.amount === 'string' ? parseFloat(data.amount) : data.amount,
+      receipt_type: data.receiptType,
       is_expense: data.isExpense,
       ruc: data.ruc,
       business_name: data.businessName,

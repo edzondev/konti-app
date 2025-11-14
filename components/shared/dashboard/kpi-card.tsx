@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import { KPI_CARD_CONFIG } from './header';
+import { KPI_CARD_CONFIG } from '@/constants/dashboard';
 
 type KpiCardProps = {
   config: (typeof KPI_CARD_CONFIG)[number];

@@ -1,5 +1,6 @@
 import {
   ArrowUpDown,
+  FileText,
   Filter,
   ReceiptText,
   Search,
@@ -46,7 +47,7 @@ export default function Recipes() {
             className="text-3xl font-bold text-neutral-foreground"
             numberOfLines={1}
           >
-            Tus Boletas
+            Tus Boletas y Facturas
           </Text>
         </View>
 
@@ -71,7 +72,7 @@ export default function Recipes() {
           />
           {searchText && (
             <View
-              className="absolute right-4 top-1/2 z-10 flex-row items-center justify-center p-2"
+              className="absolute right-0 top-1/2 z-10 flex-row items-center justify-center px-4 py-2"
               style={{ transform: [{ translateY: -16 }] }}
             >
               <Pressable
@@ -172,6 +173,54 @@ export default function Recipes() {
               </Text>
             </Pressable>
             <Pressable
+              onPress={() => handleFilterChange('boleta')}
+              className={cn(
+                'flex-row items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-light',
+                getCurrentFilterType() === 'boleta'
+                  ? 'bg-blue-500'
+                  : 'bg-blue-500/10',
+              )}
+            >
+              <ReceiptText
+                size={16}
+                color={getCurrentFilterType() === 'boleta' ? '#fff' : '#2563eb'}
+              />
+              <Text
+                className={
+                  getCurrentFilterType() === 'boleta'
+                    ? 'text-white'
+                    : 'text-blue-700'
+                }
+              >
+                Boletas
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => handleFilterChange('factura')}
+              className={cn(
+                'flex-row items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-light',
+                getCurrentFilterType() === 'factura'
+                  ? 'bg-rose-500'
+                  : 'bg-rose-500/10',
+              )}
+            >
+              <FileText
+                size={16}
+                color={
+                  getCurrentFilterType() === 'factura' ? '#fff' : '#e11d48'
+                }
+              />
+              <Text
+                className={
+                  getCurrentFilterType() === 'factura'
+                    ? 'text-white'
+                    : 'text-rose-700'
+                }
+              >
+                Facturas
+              </Text>
+            </Pressable>
+            <Pressable
               onPress={toggleSortOrder}
               className="flex-row items-center gap-2 whitespace-nowrap rounded-full bg-violet-500/10 px-4 py-2 text-sm font-light transition-all hover:bg-violet-500/20"
             >
@@ -193,7 +242,7 @@ export default function Recipes() {
               numberOfLines={1}
             >
               {data.length}{' '}
-              {data.length === 1 ? 'boleta encontrada' : 'boletas encontradas'}
+              {data.length === 1 ? 'dato encontrado' : 'datos encontrados'}
             </Text>
           </View>
         )}

@@ -16,6 +16,7 @@ export default function Preview() {
     handleButtonPress,
     toggleModal,
     canUseAi,
+    aiButtonText,
   } = usePreviewLogic({ imageUrl });
 
   return (
@@ -38,6 +39,7 @@ export default function Preview() {
                   onAiPress={handleButtonPress}
                   showAiButton={canUseAi}
                   isAiLoading={isExtractingData}
+                  aiButtonText={aiButtonText}
                   size="md"
                 />
               </View>

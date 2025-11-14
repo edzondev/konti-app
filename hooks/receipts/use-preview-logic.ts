@@ -25,7 +25,7 @@ export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
   const isTrialMode = !hasProOrBetter && !hasUsedAiTrial;
 
   const handleButtonPress = useCallback(async () => {
-    if (!canUseAi) {
+    if (hasUsedAiTrial && !hasProOrBetter) {
       router.push({
         pathname: '/subscription',
         params: { fromPreview: 'true', imageUrl },
@@ -61,11 +61,15 @@ export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
       console.error('Error en extracción:', error);
       Alert.alert('Error', 'No se pudo extraer la información de la imagen');
     }
-  }, [canUseAi, imageUrl, extractData, isTrialMode, setHasUsedAiTrial, router]);
+  }, [hasUsedAiTrial, hasProOrBetter, imageUrl, extractData, isTrialMode, setHasUsedAiTrial, router]);
 
   const toggleModal = useCallback(() => {
     setIsModalVisible((prev) => !prev);
   }, []);
+
+  const aiButtonText = hasUsedAiTrial && !hasProOrBetter 
+    ? 'Suscríbete para usar IA' 
+    : 'Procesar con IA';
 
   return {
     extractedData,
@@ -75,6 +79,7 @@ export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
     isExtractingData,
     handleButtonPress,
     toggleModal,
-    canUseAi,
+    canUseAi: true,
+    aiButtonText,
   };
 }

@@ -11,6 +11,7 @@ type ImageThumbnailProps = {
   size?: 'sm' | 'md' | 'lg';
   showAiButton?: boolean;
   isAiLoading?: boolean;
+  aiButtonText?: string;
 };
 
 type SizeConfig = {
@@ -31,6 +32,7 @@ export default function ImageThumbnail({
   size = 'md',
   showAiButton = false,
   isAiLoading = false,
+  aiButtonText = 'Procesar con IA',
 }: ImageThumbnailProps) {
   const [isLoading, setIsLoading] = useState(true);
   const dimensions = SIZE_MAP[size];
@@ -81,7 +83,7 @@ export default function ImageThumbnail({
                   strokeWidth={2}
                 />
                 <Text className="text-base font-medium text-neutral-white">
-                  Procesar con IA
+                  {aiButtonText}
                 </Text>
               </>
             )}

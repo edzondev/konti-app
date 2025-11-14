@@ -1,31 +1,29 @@
 import { Home, ReceiptText, User } from 'lucide-react-native';
 import { Tabs } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants/colors';
 import { TabBarIcon } from '@/components/shared/tab-bar-icon';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
-
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
           backgroundColor: '#ffffff',
-          borderRadius: 12,
-          height: 60,
-          marginHorizontal: 20,
-          marginBottom: Math.max(insets.bottom, 50),
+          borderRadius: 22,
           position: 'absolute',
-          shadowRadius: 4,
-          elevation: 1,
+          height: 70,
+          paddingBottom: 10,
+          paddingTop: 10,
+          marginHorizontal: 20,
+          marginBottom: Math.max(insets.bottom, 20),
+          elevation: 3,
         },
         tabBarActiveTintColor: COLORS.primary,
         tabBarInactiveTintColor: '#9ca3af',
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
         tabBarItemStyle: {
-          paddingVertical: 12,
           marginHorizontal: 8,
           borderRadius: 16,
           backgroundColor: 'transparent',
@@ -35,14 +33,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          title: 'Inicio',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              focused={focused}
-              color={color}
-              size={28}
-              IconOutline={Home}
-              IconFilled={Home}
-            />
+            <TabBarIcon focused={focused} color={color} size={28} Icon={Home} />
           ),
           animation: 'fade',
         }}
@@ -50,13 +43,13 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="receipt/index"
         options={{
+          title: 'Boletas y Facturas',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               focused={focused}
               color={color}
               size={28}
-              IconOutline={ReceiptText}
-              IconFilled={ReceiptText}
+              Icon={ReceiptText}
             />
           ),
           animation: 'fade',
@@ -72,14 +65,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
+          title: 'Perfil',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              focused={focused}
-              color={color}
-              size={28}
-              IconOutline={User}
-              IconFilled={User}
-            />
+            <TabBarIcon focused={focused} color={color} size={28} Icon={User} />
           ),
           animation: 'fade',
         }}

@@ -1,3 +1,5 @@
+export type DocumentType = 'boleta' | 'factura';
+
 export interface AiExtractedData {
   es_contable: boolean;
   fecha: string;
@@ -6,7 +8,7 @@ export interface AiExtractedData {
   numero_comprobante: string;
   razon_social: string;
   ruc: string;
-  tipo_comprobante: string;
+  tipo_comprobante: DocumentType;
 }
 
 export interface AiExtractionResponse {

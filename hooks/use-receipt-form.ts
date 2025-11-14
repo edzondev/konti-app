@@ -15,6 +15,7 @@ import { useCallback } from 'react';
 
 const defaultValues: ReceiptSchema = {
   amount: '',
+  receiptType: 'boleta',
   isExpense: false,
   ruc: '',
   businessName: '',
@@ -45,6 +46,7 @@ export default function useReceiptForm(imageUrl: string) {
   const fillFormWithExtractedData = useCallback(
     (extractedData: AiExtractedData) => {
       form.setValue('amount', extractedData.monto_total);
+      form.setValue('receiptType', extractedData.tipo_comprobante);
       form.setValue('receiptNumber', extractedData.numero_comprobante);
       form.setValue('ruc', extractedData.ruc);
       form.setValue('businessName', extractedData.razon_social);

@@ -8,6 +8,7 @@ import {
   initialWindowMetrics,
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider, useAuth } from '@/components/providers/auth-provider';
 import { usePurchasesMonitor } from '@/hooks/subscriptions/use-purchases-monitor';
 import { usePurchasesInitialize } from '@/hooks/subscriptions/use-purchases-initialize';
@@ -71,13 +72,15 @@ function Layout() {
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <QueryProvider>
-        <AuthProvider>
-          <Layout />
-          <StatusBar style="dark" />
-        </AuthProvider>
-      </QueryProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <QueryProvider>
+          <AuthProvider>
+            <Layout />
+            <StatusBar style="dark" />
+          </AuthProvider>
+        </QueryProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

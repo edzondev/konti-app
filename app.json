@@ -47,6 +47,12 @@
         {
           "cameraPermission": "Permitir a $(PRODUCT_NAME) acceder a tu cámara para escanear boletas y tomar fotos"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permitir a $(PRODUCT_NAME) acceder a tus fotos para seleccionar imágenes."
+        }
       ]
     ],
     "extra": {

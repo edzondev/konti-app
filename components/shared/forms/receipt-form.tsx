@@ -14,6 +14,7 @@ import { COLORS } from '@/constants/colors';
 import { AnimatedSwitch } from '@/components/ui/animated-switch';
 import { AiExtractedData } from '@/types/ai-extraction.types';
 import { useEffect } from 'react';
+import DocumentTypeDisplay from '@/components/shared/receipt/document-type-display';
 
 type Props = {
   imageUrl: string;
@@ -33,6 +34,21 @@ export default function ReceiptForm({ imageUrl, extractedData }: Props) {
     <>
       <View className="mb-12 gap-y-6">
         <Form {...form}>
+          <FormField
+            control={form.control}
+            name="receiptType"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <DocumentTypeDisplay
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isPending}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="amount"

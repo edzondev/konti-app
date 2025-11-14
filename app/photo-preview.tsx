@@ -1,37 +1,17 @@
-import { View, Pressable, Text, Alert } from 'react-native';
+import { View, Pressable, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { X } from 'lucide-react-native';
 import ImageComponent from '@/components/ui/image';
 import { COLORS } from '@/constants/colors';
-import { useUploadImage } from '@/hooks/receipts/use-upload-image';
 import { UploadModal } from '@/components/shared/modals/upload-modal';
+import { usePhotoPreview } from '@/hooks/receipts/use-photo-preview';
 
 export default function PhotoPreview() {
-  const { imageUri } = useLocalSearchParams<{
-    imageUri: string;
-  }>();
-  const router = useRouter();
-  const { mutateAsync: uploadImage, isPending: isUploading } = useUploadImage();
-
-  const handleContinue = async () => {
-    if (!imageUri) return;
-
-    try {
-      const imageUrl = await uploadImage(imageUri);
-      router.replace({
-        pathname: '/preview',
-        params: { imageUrl },
-      });
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      Alert.alert('Error', 'No se pudo subir la imagen. Intenta nuevamente.');
-    }
-  };
-
-  const handleClose = () => {
-    router.back();
-  };
+  const { imageUri } = useLocalSearchParams<{ imageUri: string }>();
+  const { isUploading, handleContinue, handleClose } = usePhotoPreview({
+    imageUri,
+  });
 
   return (
     <SafeAreaView className="flex-1 bg-black" edges={['top', 'bottom']}>

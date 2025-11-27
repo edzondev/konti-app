@@ -1,0 +1,11 @@
+/.expo
+/android
+/ios
+/node_modules
+/web-build
+/dist
+/docs
+/tests
+/supabase
+/google-service-key.json
+/google-service-key.json

@@ -47,10 +47,10 @@ export default function ReceiptDetails() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white px-6" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-white px-6" edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 15 }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="bg-white pb-8 pt-6">

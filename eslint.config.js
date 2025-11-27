@@ -7,4 +7,15 @@ module.exports = defineConfig([
   {
     ignores: ['dist/*', 'expo/*', 'android/*', 'ios/*', 'node_modules/*'],
   },
+  {
+    overrides: [
+      {
+        files: ['__tests__/**/*'],
+        plugins: ['jest'],
+        env: {
+          'jest/globals': true,
+        },
+      },
+    ],
+  },
 ]);

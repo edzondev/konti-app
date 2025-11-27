@@ -19,11 +19,11 @@ export default function Welcome() {
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
       <View className="flex-1 justify-between px-8 py-12">
         <View className="flex-1 items-center justify-center">
-          <View className="mb-12 items-center">
-            <View className="relative h-72 w-72">
+          <View className="mb-12">
+            <View className="relative h-48 w-48 items-center justify-center">
               <Image
-                source={require('@/assets/adaptive-icon.png')}
-                className="h-full w-full"
+                source={require('@/assets/konti_logo.png')}
+                style={{ width: 192, height: 192 }}
                 resizeMode="contain"
                 alt="Konti"
               />
@@ -48,17 +48,6 @@ export default function Welcome() {
             activeOpacity={0.8}
           >
             <Text className="text-lg font-semibold text-white">Empezar</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => router.push('/(auth)/login')}
-            className="items-center justify-center py-3"
-            activeOpacity={0.6}
-          >
-            <Text className="text-base font-medium text-gray-700">
-              ¿Ya tienes cuenta?{' '}
-              <Text className="font-bold text-primary">Inicia sesión</Text>
-            </Text>
           </TouchableOpacity>
         </View>
       </View>

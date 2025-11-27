@@ -42,17 +42,14 @@ export default function Register() {
           }}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header */}
           <View className="mt-8 px-5">
             <Pressable onPress={handleCancel}>
               <ChevronLeft size={24} color={COLORS.neutral.foreground} />
             </Pressable>
           </View>
 
-          {/* Content */}
           <View className="flex-1 justify-center">
             <View className="px-6 pt-8">
-              {/* Title */}
               <Text
                 className="text-3xl font-bold text-neutral-foreground"
                 numberOfLines={1}
@@ -166,7 +163,6 @@ export default function Register() {
                 </Form>
               </View>
 
-              {/* Continue Button */}
               <TouchableOpacity
                 onPress={form.handleSubmit(onSubmit)}
                 className="mt-8 rounded-lg bg-primary py-4"
@@ -184,7 +180,6 @@ export default function Register() {
                 </Text>
               </TouchableOpacity>
 
-              {/* Login Link */}
               <View className="mb-8 mt-6 flex-row justify-center">
                 <Text className="text-base text-muted-foreground">
                   ¿Ya tienes una cuenta?{' '}

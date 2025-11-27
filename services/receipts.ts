@@ -23,12 +23,10 @@ export async function getReceipts(
     );
   }
 
-  // Sort by date
   if (filters.sortBy) {
     const ascending = filters.sortBy === 'date_asc';
     query = query.order('created_at', { ascending });
   } else {
-    // Default sort: newest first
     query = query.order('created_at', { ascending: false });
   }
 
@@ -59,7 +57,6 @@ export async function uploadImageToStorage(
     const fileName = imageUri.split('/').pop();
     const filePath = `${userId}/${Date.now()}-${fileName}`;
 
-    // En React Native, necesitamos usar FormData para subir archivos
     const formData = new FormData();
     formData.append('file', {
       uri: imageUri,
@@ -67,7 +64,6 @@ export async function uploadImageToStorage(
       name: fileName || 'image.jpg',
     } as any);
 
-    // Subir directamente a Supabase Storage usando FormData
     const { data, error } = await supabase.storage
       .from('receipts')
       .upload(filePath, formData, {
@@ -78,7 +74,6 @@ export async function uploadImageToStorage(
       throw new Error('Error al subir la imagen');
     }
 
-    // Obtener URL pública
     const { data: publicUrlData } = supabase.storage
       .from('receipts')
       .getPublicUrl(filePath);
@@ -175,8 +170,6 @@ export async function getReceiptKpis(userId: string): Promise<ReceiptKpis> {
 }
 
 export async function deleteReceipt(id: string) {
-  //TODO: Implement delete a file in the storage
-
   const { data, error } = await supabase.from('receipts').delete().eq('id', id);
 
   if (error) {

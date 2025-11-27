@@ -13,7 +13,7 @@ type ImageComponentProps = {
 export default function ImageComponent({
   src,
   contentFit = 'cover',
-  transition = 1000,
+  transition = 500,
   recyclingKey,
   placeholder,
   ...props

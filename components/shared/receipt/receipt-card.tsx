@@ -25,7 +25,7 @@ function ReceiptCard({
   isDeleting,
 }: Props) {
   return (
-    <View className="">
+    <View>
       {selectedReceipt.image_url && (
         <View className="mb-8 overflow-hidden rounded-lg border border-neutral-border">
           <ImageComponent
@@ -173,7 +173,7 @@ function ReceiptCard({
 
       <Pressable
         disabled={isDeleting}
-        className="mb-8 mt-6 h-14 flex-row items-center justify-center gap-2 rounded-lg bg-red-500 px-4"
+        className="mt-6 h-14 flex-row items-center justify-center gap-2 rounded-lg bg-red-500 px-4"
         onPress={handleDeleteReceipt}
       >
         {isDeleting ? (

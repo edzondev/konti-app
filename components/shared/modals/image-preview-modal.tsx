@@ -89,7 +89,6 @@ export function ImagePreviewModal({
       savedTranslateY.value = translateY.value;
     });
 
-  // Compose gestures: pinch and pan work simultaneously
   const composed = Gesture.Simultaneous(pinchGesture, panGesture);
 
   const animatedStyle = useAnimatedStyle(() => ({

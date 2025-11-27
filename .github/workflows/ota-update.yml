@@ -39,16 +39,16 @@ jobs:
         run: pnpm install
 
       - name: Login to EAS
-        run: pnpm dlx eas login --non-interactive
+        run: npx eas login --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Send update to production
         if: github.ref == 'refs/heads/main'
         run: |
-          pnpm dlx eas update --channel production --non-interactive --message "Auto-update from main branch (commit: ${{ github.sha }})"
+          npx eas update --channel production --non-interactive --message "Auto-update from main branch (commit: ${{ github.sha }})"
 
       - name: Send update to preview
         if: github.ref == 'refs/heads/develop'
         run: |
-          pnpm dlx eas update --channel preview --non-interactive --message "Auto-update from develop branch (commit: ${{ github.sha }})"
+          npx eas update --channel preview --non-interactive --message "Auto-update from develop branch (commit: ${{ github.sha }})"

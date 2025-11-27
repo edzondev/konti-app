@@ -1,11 +1,4 @@
 import {
-  Session,
-  supabase,
-  AuthResponse,
-  AuthTokenResponsePassword,
-} from '@/utils/supabase/supabase';
-
-import {
   createContext,
   type PropsWithChildren,
   useCallback,
@@ -16,6 +9,13 @@ import {
 } from 'react';
 import Purchases from 'react-native-purchases';
 import { useQueryClient } from '@tanstack/react-query';
+
+import {
+  Session,
+  supabase,
+  AuthResponse,
+  AuthTokenResponsePassword,
+} from '@/utils/supabase/supabase';
 
 type AuthState = {
   isAuthenticated: boolean;
@@ -118,7 +118,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       },
     });
 
-    // Mark as new user if signup was successful
     if (result.data.user && !result.error) {
       setIsNewUser(true);
     }

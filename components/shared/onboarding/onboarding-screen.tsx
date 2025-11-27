@@ -46,7 +46,6 @@ export function OnboardingScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
-      {/* Skip button */}
       {!isLastSlide && (
         <View className="absolute right-6 top-14 z-10">
           <TouchableOpacity onPress={skipOnboarding} activeOpacity={0.7}>
@@ -55,7 +54,6 @@ export function OnboardingScreen() {
         </View>
       )}
 
-      {/* Slides */}
       <AnimatedScrollView
         ref={scrollRef}
         horizontal
@@ -80,9 +78,7 @@ export function OnboardingScreen() {
         ))}
       </AnimatedScrollView>
 
-      {/* Bottom section with pagination and button */}
       <View className="px-8 pb-8">
-        {/* Pagination dots */}
         <View className="mb-8 items-center">
           <PaginationDots
             total={ONBOARDING_SLIDES.length}
@@ -91,7 +87,6 @@ export function OnboardingScreen() {
           />
         </View>
 
-        {/* Action button */}
         {isLastSlide ? (
           <TouchableOpacity
             onPress={completeOnboarding}

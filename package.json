@@ -1,6 +1,6 @@
 {
   "name": "app-boletas",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start -c",
@@ -9,7 +9,10 @@
     "web": "expo run:web",
     "prebuild": "expo prebuild --clean",
     "lint": "expo lint",
-    "lint:fix": "expo lint --fix"
+    "lint:fix": "expo lint --fix",
+    "test": "jest",
+    "test:ci": "jest --ci --coverage --coverageReporters=text --coverageReporters=lcov",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -42,12 +45,17 @@
     "react-native-url-polyfill": "^3.0.0",
     "react-native-worklets": "^0.6.0",
     "tailwind-merge": "2.6.0",
+    "zod": "^4.1.13",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.28.5",
+    "@testing-library/react-native": "^13.3.3",
     "@types/react": "~19.1.0",
     "eslint": "^9.37.0",
     "eslint-config-expo": "~10.0.0",
+    "eslint-plugin-testing-library": "^7.13.5",
+    "jest-expo": "^54.0.13",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "tailwindcss": "^3.4.18",

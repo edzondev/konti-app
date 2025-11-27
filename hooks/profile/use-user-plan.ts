@@ -1,19 +1,18 @@
 import { useGetProfile } from './use-profile';
 import { usePurchases } from '@/hooks/purchases/use-purchases';
+import type { PlanType } from '@/constants/plans';
 
 const TRIAL_PERIOD_DAYS = 3;
+const PAID_PLANS: PlanType[] = ['konti_pro', 'pro', 'premium'];
 
 export function useUserPlan() {
   const { data: profile } = useGetProfile();
   const { customerInfo } = usePurchases();
-  const currentPlan = profile?.current_plan ?? 'free';
+  const currentPlan = (profile?.current_plan ?? 'free') as PlanType;
 
-  // Calculate days remaining in free trial
-  // Trial period is 3 days from the purchase date (configured in Google Play)
   const getTrialDaysRemaining = (): number | null => {
     if (!customerInfo?.entitlements?.active) return null;
 
-    // Get the first active entitlement (should be the subscription)
     const activeEntitlements = Object.values(customerInfo.entitlements.active);
     if (activeEntitlements.length === 0) return null;
 
@@ -22,12 +21,10 @@ export function useUserPlan() {
 
     if (!purchaseDate) return null;
 
-    // Calculate trial end date (3 days from purchase date)
     const purchaseDateObj = new Date(purchaseDate);
     const trialEndDate = new Date(purchaseDateObj);
     trialEndDate.setDate(trialEndDate.getDate() + TRIAL_PERIOD_DAYS);
 
-    // Calculate days remaining
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     trialEndDate.setHours(0, 0, 0, 0);
@@ -35,15 +32,13 @@ export function useUserPlan() {
     const diffTime = trialEndDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    // Only return if trial is still active (days > 0)
     return diffDays > 0 ? diffDays : null;
   };
 
   const trialDaysRemaining = getTrialDaysRemaining();
-  // User has active trial if they have an active entitlement but are not on Pro/Premium plan yet
-  // and trial period hasn't ended
+  const isPaidPlan = PAID_PLANS.includes(currentPlan);
   const hasActiveTrial =
-    !['pro', 'premium'].includes(currentPlan) &&
+    !isPaidPlan &&
     customerInfo?.entitlements?.active &&
     Object.keys(customerInfo.entitlements.active).length > 0 &&
     trialDaysRemaining !== null &&
@@ -52,9 +47,12 @@ export function useUserPlan() {
   return {
     currentPlan,
     isFree: currentPlan === 'free',
+    isKontiPro: currentPlan === 'konti_pro',
+    isPaidPlan,
+    // Legacy helpers (for backwards compatibility)
     isPro: currentPlan === 'pro',
     isPremium: currentPlan === 'premium',
-    hasProOrBetter: ['pro', 'premium'].includes(currentPlan),
+    hasProOrBetter: isPaidPlan,
     trialDaysRemaining,
     hasActiveTrial,
   };

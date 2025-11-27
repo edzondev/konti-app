@@ -1,5 +1,7 @@
-import useReceiptForm from '@/hooks/use-receipt-form';
+import { useEffect } from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+
+import { AnimatedSwitch } from '@/components/ui/animated-switch';
 import {
   Form,
   FormControl,
@@ -9,12 +11,12 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-import { COLORS } from '@/constants/colors';
-import { AnimatedSwitch } from '@/components/ui/animated-switch';
-import { AiExtractedData } from '@/types/ai-extraction.types';
-import { useEffect } from 'react';
 import DocumentTypeDisplay from '@/components/shared/receipt/document-type-display';
+import { COLORS } from '@/constants/colors';
+import useReceiptForm from '@/hooks/use-receipt-form';
+import { cn } from '@/lib/utils';
+
+import type { AiExtractedData } from '@/types/ai-extraction.types';
 
 type Props = {
   imageUrl: string;
@@ -185,7 +187,7 @@ export default function ReceiptForm({ imageUrl, extractedData }: Props) {
           />
         </Form>
       </View>
-      {/* Botones de Acción */}
+
       <View className="flex-row gap-x-4">
         <Pressable
           disabled={isPending}

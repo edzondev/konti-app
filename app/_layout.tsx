@@ -13,6 +13,8 @@ import { AuthProvider, useAuth } from '@/components/providers/auth-provider';
 import { usePurchasesMonitor } from '@/hooks/subscriptions/use-purchases-monitor';
 import { usePurchasesInitialize } from '@/hooks/subscriptions/use-purchases-initialize';
 import { useAppStateRefresh } from '@/hooks/use-app-state-refresh';
+import { UpdateBanner } from '@/components/shared/update-banner';
+import { View } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -65,6 +67,13 @@ function Layout() {
             animationTypeForReplace: 'push',
           }}
         />
+        <Stack.Screen
+          name="reports"
+          options={{
+            title: 'Reportes',
+            animation: 'slide_from_right',
+          }}
+        />
       </Stack.Protected>
     </Stack>
   );
@@ -76,7 +85,10 @@ export default function RootLayout() {
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <QueryProvider>
           <AuthProvider>
-            <Layout />
+            <View style={{ flex: 1 }}>
+              <UpdateBanner />
+              <Layout />
+            </View>
             <StatusBar style="dark" />
           </AuthProvider>
         </QueryProvider>

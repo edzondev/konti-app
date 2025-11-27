@@ -1,13 +1,14 @@
-import { CheckCircle } from 'lucide-react-native';
-import { COLORS } from '@/constants/colors';
 import { useEffect } from 'react';
 import { Modal, Text, View } from 'react-native';
+import { CheckCircle } from 'lucide-react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
   Easing,
 } from 'react-native-reanimated';
+
+import { COLORS } from '@/constants/colors';
 
 type PaymentSuccessModalProps = {
   visible: boolean;

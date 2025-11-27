@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { useQueryClient } from '@tanstack/react-query';
 import { scheduleOnRN } from 'react-native-worklets';
 import type { PurchasesPackage } from 'react-native-purchases';
 import { QUERY_KEYS } from '@/constants/query-keys';
-import { ALL_FEATURES } from '@/constants/subscription-features';
+import { FEATURES } from '@/constants/subscription-features';
 import { usePurchases } from '@/hooks/purchases/use-purchases';
 import { usePurchasePackage } from '@/hooks/purchases/use-purchases-package';
 
@@ -12,11 +16,10 @@ type UseSubscriptionLogicProps = {
   onClose: () => void;
 };
 
-export function useSubscriptionLogic({
-  onClose,
-}: UseSubscriptionLogicProps) {
+export function useSubscriptionLogic({ onClose }: UseSubscriptionLogicProps) {
   const { availablePackages, isLoading } = usePurchases();
-  const { purchasePackageAsync, isPending: isPurchasing } = usePurchasePackage();
+  const { purchasePackageAsync, isPending: isPurchasing } =
+    usePurchasePackage();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -49,12 +52,6 @@ export function useSubscriptionLogic({
       ?.identifier.toLowerCase()
       .includes('premium');
   }, [availablePackages, selectedPlanId]);
-
-  const visibleFeatures = useMemo(() => {
-    return ALL_FEATURES.filter((feature) =>
-      isPremiumPlan ? feature.premium : feature.pro,
-    );
-  }, [isPremiumPlan]);
 
   const contentAnimatedStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
@@ -103,7 +100,7 @@ export function useSubscriptionLogic({
     selectedPlanId,
     setSelectedPlanId,
     isPremiumPlan,
-    visibleFeatures,
+    features: FEATURES,
     contentAnimatedStyle,
     handlePurchase,
   };

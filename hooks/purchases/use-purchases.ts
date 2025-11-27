@@ -7,7 +7,7 @@ export function usePurchases() {
     useQuery({
       queryKey: QUERY_KEYS.purchases.data,
       queryFn: getPurchasesData,
-      staleTime: 5 * 60 * 1000, // 1 minuto
+      staleTime: 5 * 60 * 1000,
       retry: 2,
     });
 

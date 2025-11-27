@@ -7,12 +7,6 @@ module.exports = {
   theme: {
     extend: {
       colors: { ...COLORS },
-      fontFamily: {
-        'geist-regular': ['Geist-Regular', 'sans-serif'],
-        'geist-medium': ['Geist-Medium', 'sans-serif'],
-        'geist-semibold': ['Geist-Semibold', 'sans-serif'],
-        'geist-bold': ['Geist-Bold', 'sans-serif'],
-      },
     },
   },
   plugins: [],

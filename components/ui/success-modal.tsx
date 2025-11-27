@@ -31,7 +31,6 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
 
   useEffect(() => {
     if (visible) {
-      // Smooth scale effect for the check icon
       iconScale.value = withDelay(
         300, // Wait a bit after modal appears
         withSequence(

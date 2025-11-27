@@ -1,101 +1,109 @@
 import {
-  Aperture,
-  Infinity,
-  FileText,
   Zap,
-  Crown,
-  ShieldCheck,
+  FileSearch,
+  CopyCheck,
+  History,
+  Percent,
+  CloudUpload,
+  Bell,
+  Table,
+  FileSpreadsheet,
+  Bot,
+  Lightbulb,
+  BellRing,
+  Headphones,
+  Rocket,
 } from 'lucide-react-native';
 
 export type Feature = {
   icon: React.ElementType;
   title: string;
   description: string;
-  pro: boolean;
-  premium: boolean;
   isAvailableInFuture?: boolean;
 };
 
-export const BASE_FEATURES: Feature[] = [
+export const FEATURES: Feature[] = [
   {
     icon: Zap,
     title: 'Extracción de Datos con IA',
     description:
-      'Procesamiento automático para obtener RUC, monto total y fecha en segundos.',
-    pro: true,
-    premium: true,
+      'Obtén RUC, monto total, fecha y más automáticamente desde tus comprobantes.',
   },
   {
-    icon: ShieldCheck,
-    title: 'Clasificación Contable Automática',
+    icon: FileSearch,
+    title: 'Identificación de Gastos Deducibles',
     description:
-      'La IA identifica si tu boleta es contable (de gasto) para una mejor organización.',
-    pro: true,
-    premium: true,
+      'Detecta si una boleta califica como gasto deducible según SUNAT.',
   },
   {
-    icon: FileText,
-    title: 'Reportes y Exportación',
-    description: 'Genera reportes y exporta tus datos en Excel mensualmente.',
-    pro: true,
-    premium: true,
-    isAvailableInFuture: true,
-  },
-];
-
-export const PRO_UPGRADE_FEATURES: Feature[] = [
-  {
-    icon: Aperture,
-    title: 'Límite de Carga Ampliado',
-    description: 'Sube hasta 20 boletas por mes.',
-    pro: true,
-    premium: true,
+    icon: Headphones,
+    title: 'Soporte Prioritario',
+    description:
+      'Recibe ayuda más rápida y con prioridad sobre otros usuarios.',
   },
   {
-    icon: ShieldCheck,
-    title: 'Asistencia Estándar',
-    description: 'Soporte técnico disponible en horario laboral.',
-    pro: true,
-    premium: true,
+    icon: Rocket,
+    title: 'Acceso Anticipado a Nuevas Funciones',
+    description: 'Prueba novedades antes de que lleguen al público general.',
   },
-];
-
-export const PREMIUM_EXCLUSIVE_FEATURES: Feature[] = [
   {
-    icon: Infinity,
+    icon: History,
+    title: 'Historial Anual Organizado',
+    description:
+      'Revisa tus boletas ordenadas por mes y tipo para tener control absoluto.',
+  },
+  {
+    icon: Percent,
+    title: 'Proyección de Ahorro Tributario',
+    description:
+      'Estimación mensual y anual del ahorro que generas con tus boletas.',
+  },
+  {
+    icon: CloudUpload,
     title: 'Subidas Ilimitadas',
-    description: 'Olvídate de los límites: carga boletas sin restricciones.',
-    pro: false,
-    premium: true,
+    description: 'Carga todas las boletas que necesites sin restricciones.',
   },
   {
-    icon: Crown,
-    title: 'Reporte Fiscal SUNAT',
+    icon: Bell,
+    title: 'Recordatorios de Registro',
+    description: 'Recibe notificaciones para mantener tus comprobantes al día.',
+  },
+  {
+    icon: Table,
+    title: 'Reportes Mensuales en Excel',
+    description: 'Exporta tus gastos mensualmente en Excel.',
+  },
+  {
+    icon: FileSpreadsheet,
+    title: 'Reporte Anual SUNAT',
     description:
-      'Genera un reporte anual consolidado, listo para tus declaraciones.',
-    pro: false,
-    premium: true,
+      'Recibe un reporte consolidado del año listo para la declaración.',
+  },
+  {
+    icon: Bot,
+    title: 'Asistente Tributario con IA',
+    description:
+      'Responde dudas sobre deducciones y te guía durante el año fiscal.',
+  },
+  {
+    icon: Lightbulb,
+    title: 'Recomendaciones Personalizadas',
+    description:
+      'La IA analiza tus datos y te sugiere cómo maximizar tus deducciones.',
     isAvailableInFuture: true,
   },
   {
-    icon: Zap,
-    title: 'Soporte VIP Prioritario',
-    description: 'Respuesta inmediata a tus consultas con prioridad absoluta.',
-    pro: false,
-    premium: true,
+    icon: BellRing,
+    title: 'Alertas de Boletas Faltantes',
+    description:
+      'Detecta meses o categorías donde podrías estar dejando dinero en la mesa.',
+    isAvailableInFuture: true,
   },
   {
-    icon: Aperture,
-    title: 'Acceso Exclusivo',
+    icon: CopyCheck,
+    title: 'Detección de Duplicados',
     description:
-      'Sé el primero en probar nuevas funciones antes de su lanzamiento oficial.',
-    pro: false,
-    premium: true,
+      'Evita errores con comprobantes repetidos o cargados anteriormente.',
+    isAvailableInFuture: true,
   },
-];
-
-export const ALL_FEATURES = [
-  ...BASE_FEATURES,
-  ...PRO_UPGRADE_FEATURES,
-  ...PREMIUM_EXCLUSIVE_FEATURES,
 ];

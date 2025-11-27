@@ -5,8 +5,8 @@ import useAppState from '@/hooks/use-app-state';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutos
-      gcTime: 1000 * 60 * 30, // 30 minutos
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 30,
       retry: 2,
       refetchOnReconnect: true,
       refetchOnMount: false,
@@ -19,13 +19,11 @@ const queryClient = new QueryClient({
   },
 });
 
-// Configuración específica para desarrollo
 if (__DEV__) {
   queryClient.setDefaultOptions({
     queries: {
       ...queryClient.getDefaultOptions().queries,
-      // En desarrollo, refrescar más frecuentemente para ver cambios
-      staleTime: 1000 * 30, // 30 segundos
+      staleTime: 1000 * 30,
     },
   });
 }

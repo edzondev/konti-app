@@ -35,7 +35,6 @@ export function usePurchasesMonitor(): void {
         },
       );
 
-      // Escuchar actualizaciones de RevenueCat
       Purchases.addCustomerInfoUpdateListener(refreshProfile);
     };
 

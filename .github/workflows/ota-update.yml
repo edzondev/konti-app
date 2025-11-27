@@ -1,0 +1,54 @@
+name: OTA Update
+
+on:
+  push:
+    branches:
+      - main # Producción
+      - develop # Preview/Staging
+    paths-ignore:
+      - '**.md'
+      - '__tests__/**'
+      - 'docs/**'
+      - 'app.json'
+      - 'eas.json'
+
+concurrency:
+  group: ota-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update:
+    name: Send OTA Update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Login to EAS
+        run: npx eas-cli login --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Send update to production
+        if: github.ref == 'refs/heads/main'
+        run: |
+          npx eas-cli update --channel production --non-interactive --message "Auto-update from main branch (commit: ${{ github.sha }})"
+
+      - name: Send update to preview
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          npx eas-cli update --channel preview --non-interactive --message "Auto-update from develop branch (commit: ${{ github.sha }})"

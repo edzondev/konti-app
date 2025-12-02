@@ -58,14 +58,14 @@ export function UploadModal({ visible }: UploadModalProps) {
         >
           <Animated.View
             style={spinnerStyle}
-            className="mb-6 h-20 w-20 items-center justify-center rounded-full border-4 border-gray-200 border-t-primary"
+            className="border-t-primary-default mb-6 h-20 w-20 items-center justify-center rounded-full border-4 border-gray-200"
           />
 
           <Text className="mb-3 text-center text-xl font-semibold text-neutral-foreground">
             Procesando documento...
           </Text>
 
-          <Text className="text-center text-base text-muted-foreground">
+          <Text className="text-neutral-muted text-center text-base">
             Por favor espera un momento
           </Text>
         </Animated.View>

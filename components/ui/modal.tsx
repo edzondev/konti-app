@@ -139,7 +139,7 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({ title, onClose }) => {
       </Text>
       {onClose && (
         <TouchableOpacity onPress={onClose}>
-          <Text className="text-lg text-muted-foreground">✕</Text>
+          <Text className="text-neutral-muted text-lg">✕</Text>
         </TouchableOpacity>
       )}
     </View>

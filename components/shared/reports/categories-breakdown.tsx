@@ -22,12 +22,12 @@ export function CategoriesBreakdown({ categories }: CategoriesBreakdownProps) {
   return (
     <View className="mb-4 rounded-2xl border border-neutral-border bg-white p-5">
       <View className="mb-4 flex-row items-center justify-between">
-        <Text className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <Text className="text-neutral-muted text-xs font-semibold uppercase tracking-wider">
           Desglose por Categoría
         </Text>
         <View className="flex-row items-center gap-1">
-          <TrendingUp size={14} color={COLORS.muted.foreground} strokeWidth={2} />
-          <Text className="text-xs text-muted-foreground">
+          <TrendingUp size={14} color={COLORS.neutral.muted} strokeWidth={2} />
+          <Text className="text-neutral-muted text-xs">
             {categories.length} categorías
           </Text>
         </View>
@@ -52,11 +52,11 @@ export function CategoriesBreakdown({ categories }: CategoriesBreakdownProps) {
                   </Text>
                 </View>
                 <View className="flex-row items-center gap-2">
-                  <Text className="text-sm font-semibold text-primary">
+                  <Text className="text-primary-default text-sm font-semibold">
                     {formatCurrency(cat.amount)}
                   </Text>
                   <View className="rounded-md bg-neutral-border px-1.5 py-0.5">
-                    <Text className="text-[10px] font-medium text-muted-foreground">
+                    <Text className="text-neutral-muted text-[10px] font-medium">
                       {cat.count}
                     </Text>
                   </View>
@@ -78,4 +78,3 @@ export function CategoriesBreakdown({ categories }: CategoriesBreakdownProps) {
     </View>
   );
 }
-

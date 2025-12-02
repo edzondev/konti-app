@@ -7,6 +7,7 @@ import type {
   DeductionLimitStatus,
   SuspectReceipt,
   DeductionByCategory,
+  ReceiptCategory,
 } from '@/types/ai-extraction.types';
 
 export async function classifyReceipt(
@@ -14,12 +15,15 @@ export async function classifyReceipt(
   forceAi = false,
 ): Promise<ClassifyReceiptResponse> {
   try {
-    const { data, error } = await supabase.functions.invoke('classify-receipt', {
-      body: {
-        receipt_id: receiptId,
-        force_ai: forceAi,
+    const { data, error } = await supabase.functions.invoke(
+      'classify-receipt',
+      {
+        body: {
+          receipt_id: receiptId,
+          force_ai: forceAi,
+        },
       },
-    });
+    );
 
     if (error) {
       throw new Error(error.message);
@@ -43,11 +47,14 @@ export async function classifyReceiptPreview(receiptData: {
   raw_text?: string;
 }): Promise<ClassifyReceiptResponse> {
   try {
-    const { data, error } = await supabase.functions.invoke('classify-receipt', {
-      body: {
-        receipt_data: receiptData,
+    const { data, error } = await supabase.functions.invoke(
+      'classify-receipt',
+      {
+        body: {
+          receipt_data: receiptData,
+        },
       },
-    });
+    );
 
     if (error) {
       throw new Error(error.message);
@@ -86,7 +93,8 @@ export async function askKonti(
     console.error('Error in Ask Konti:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Error al procesar pregunta',
+      error:
+        error instanceof Error ? error.message : 'Error al procesar pregunta',
     };
   }
 }
@@ -122,7 +130,8 @@ export async function generateAnnualReport(
     console.error('Error generating report:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Error al generar reporte',
+      error:
+        error instanceof Error ? error.message : 'Error al generar reporte',
     };
   }
 }
@@ -132,10 +141,13 @@ export async function getDeductionLimitStatus(
   year?: number,
 ): Promise<DeductionLimitStatus | null> {
   try {
-    const { data, error } = await supabase.rpc('get_user_deduction_limit_status', {
-      p_user_id: userId,
-      p_year: year || new Date().getFullYear(),
-    });
+    const { data, error } = await supabase.rpc(
+      'get_user_deduction_limit_status',
+      {
+        p_user_id: userId,
+        p_year: year || new Date().getFullYear(),
+      },
+    );
 
     if (error) {
       throw error;
@@ -162,7 +174,9 @@ export async function getDeductionLimitStatus(
   }
 }
 
-export async function getSuspectReceipts(userId: string): Promise<SuspectReceipt[]> {
+export async function getSuspectReceipts(
+  userId: string,
+): Promise<SuspectReceipt[]> {
   try {
     const { data, error } = await supabase
       .from('user_suspect_receipts')
@@ -176,15 +190,19 @@ export async function getSuspectReceipts(userId: string): Promise<SuspectReceipt
     }
 
     return (data || []).map((r) => ({
-      id: r.id,
-      business_name: r.business_name,
-      total_amount: r.total_amount,
-      receipt_type: r.receipt_type,
-      category: r.category,
-      confidence: r.confidence,
-      suspect_reason: r.suspect_reason,
-      image_url: r.image_url,
-    }));
+      id: r.id ?? '',
+      business_name: r.business_name ?? '',
+      total_amount: r.total_amount ?? 0,
+      receipt_type: r.receipt_type ?? '',
+      category: r.category ?? '',
+      confidence: r.confidence ?? 0,
+      suspect_reason:
+        (r.suspect_reason as
+          | 'low_confidence'
+          | 'potential_duplicate'
+          | 'unknown') ?? '',
+      image_url: r.image_url ?? null,
+    })) as SuspectReceipt[];
   } catch (error) {
     console.error('Error getting suspect receipts:', error);
     return [];
@@ -207,8 +225,8 @@ export async function getDeductionsByCategory(
     }
 
     return (data || []).map((c) => ({
-      category: c.category || 'otros',
-      year: c.year,
+      category: (c.category as ReceiptCategory) || 'otros',
+      year: c.year === null || c.year === undefined ? 0 : c.year,
       receipt_count: c.receipt_count || 0,
       total_amount: c.total_amount || 0,
       total_igv: c.total_igv || 0,
@@ -238,6 +256,3 @@ export async function getAnnualSummary(userId: string, year?: number) {
     return null;
   }
 }
-
-
-

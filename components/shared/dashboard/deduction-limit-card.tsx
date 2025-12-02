@@ -41,17 +41,17 @@ export function DeductionLimitCard({
     <View className="rounded-2xl bg-white p-4 shadow-sm">
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <View className="h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-            <Target size={16} color={COLORS.primary} strokeWidth={2} />
+          <View className="bg-primary-default/10 h-8 w-8 items-center justify-center rounded-full">
+            <Target size={16} color={COLORS.primary.default} strokeWidth={2} />
           </View>
-          <Text className="text-foreground text-base font-semibold">
+          <Text className="text-base font-semibold text-neutral-foreground">
             Límite Anual SUNAT
           </Text>
         </View>
         <View
           className={`rounded-full px-2 py-1 ${
             isOverLimit
-              ? 'bg-destructive/10'
+              ? 'bg-destructive-default/10'
               : isNearLimit
                 ? 'bg-amber-100'
                 : 'bg-green-100'
@@ -60,7 +60,7 @@ export function DeductionLimitCard({
           <Text
             className={`text-xs font-medium ${
               isOverLimit
-                ? 'text-destructive'
+                ? 'text-destructive-default'
                 : isNearLimit
                   ? 'text-amber-700'
                   : 'text-green-700'
@@ -76,10 +76,10 @@ export function DeductionLimitCard({
           <View
             className={`h-full rounded-full ${
               isOverLimit
-                ? 'bg-destructive'
+                ? 'bg-destructive-default'
                 : isNearLimit
                   ? 'bg-amber-500'
-                  : 'bg-primary'
+                  : 'bg-primary-default'
             }`}
             style={{ width: `${percentage}%` }}
           />
@@ -89,7 +89,7 @@ export function DeductionLimitCard({
       <View className="mt-4 flex-row justify-between">
         <View>
           <Text className="text-muted text-xs">Deducido</Text>
-          <Text className="text-foreground text-base font-semibold">
+          <Text className="text-base font-semibold text-neutral-foreground">
             {formatCurrency(data.total_deductible)}
           </Text>
         </View>
@@ -102,7 +102,7 @@ export function DeductionLimitCard({
       </View>
 
       <View className="mt-3 flex-row items-center gap-1">
-        <TrendingUp size={12} color={COLORS.muted.foreground} />
+        <TrendingUp size={12} color={COLORS.neutral.muted} />
         <Text className="text-muted text-xs">
           Límite: {formatCurrency(data.annual_limit)} (3 UIT)
         </Text>

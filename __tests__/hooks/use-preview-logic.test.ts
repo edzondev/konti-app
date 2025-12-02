@@ -18,7 +18,7 @@ jest.mock('expo-router', () => ({
 
 jest.mock('@/hooks/profile/use-user-plan', () => ({
   useUserPlan: () => ({
-    hasProOrBetter: mockHasProOrBetter,
+    hasPlus: mockHasProOrBetter,
   }),
 }));
 
@@ -67,7 +67,7 @@ describe('usePreviewLogic', () => {
         usePreviewLogic({ imageUrl: testImageUrl }),
       );
 
-      expect(result.current.aiButtonText).toBe('Procesar con IA');
+      expect(result.current.aiButtonText).toBe('Procesar imagen');
     });
 
     it('should show subscription button text when trial used and no pro', () => {
@@ -78,7 +78,9 @@ describe('usePreviewLogic', () => {
         usePreviewLogic({ imageUrl: testImageUrl }),
       );
 
-      expect(result.current.aiButtonText).toBe('Suscríbete para usar IA');
+      expect(result.current.aiButtonText).toBe(
+        'Suscribete para procesar imagen',
+      );
     });
 
     it('should show process button text for pro users', () => {
@@ -89,7 +91,7 @@ describe('usePreviewLogic', () => {
         usePreviewLogic({ imageUrl: testImageUrl }),
       );
 
-      expect(result.current.aiButtonText).toBe('Procesar con IA');
+      expect(result.current.aiButtonText).toBe('Procesar imagen');
     });
   });
 
@@ -106,10 +108,7 @@ describe('usePreviewLogic', () => {
         await result.current.handleButtonPress();
       });
 
-      expect(mockRouterPush).toHaveBeenCalledWith({
-        pathname: '/subscription',
-        params: { fromPreview: 'true', imageUrl: testImageUrl },
-      });
+      expect(mockRouterPush).toHaveBeenCalledWith('/subscription');
       expect(mockExtractData).not.toHaveBeenCalled();
     });
   });
@@ -388,9 +387,7 @@ describe('usePreviewLogic', () => {
       expect(result.current.canUseAi).toBe(true);
     });
 
-    // Note: The actual implementation always returns true for canUseAi
-    // This test reflects the current implementation
-    it('should reflect current implementation returning true always', () => {
+    it('should return false when trial used and no pro subscription', () => {
       mockHasProOrBetter = false;
       mockHasUsedAiTrial = true;
 
@@ -398,8 +395,7 @@ describe('usePreviewLogic', () => {
         usePreviewLogic({ imageUrl: testImageUrl }),
       );
 
-      // Current implementation returns true (hardcoded)
-      expect(result.current.canUseAi).toBe(true);
+      expect(result.current.canUseAi).toBe(false);
     });
   });
 });

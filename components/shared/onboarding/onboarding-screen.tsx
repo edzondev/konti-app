@@ -49,7 +49,9 @@ export function OnboardingScreen() {
       {!isLastSlide && (
         <View className="absolute right-6 top-14 z-10">
           <TouchableOpacity onPress={skipOnboarding} activeOpacity={0.7}>
-            <Text className="text-base font-medium text-primary">Omitir</Text>
+            <Text className="text-primary-default text-base font-medium">
+              Omitir
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -90,20 +92,22 @@ export function OnboardingScreen() {
         {isLastSlide ? (
           <TouchableOpacity
             onPress={completeOnboarding}
-            className="items-center justify-center rounded-2xl bg-primary py-5 shadow-lg"
+            className="bg-primary-default items-center justify-center rounded-2xl py-5 shadow-lg"
             activeOpacity={0.8}
           >
-            <Text className="text-lg font-semibold text-white">
+            <Text className="text-lg font-semibold text-neutral-white">
               Comenzar con Konti
             </Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
             onPress={handleNext}
-            className="items-center justify-center rounded-2xl bg-primary py-5 shadow-lg"
+            className="bg-primary-default items-center justify-center rounded-2xl py-5 shadow-lg"
             activeOpacity={0.8}
           >
-            <Text className="text-lg font-semibold text-white">Siguiente</Text>
+            <Text className="text-lg font-semibold text-neutral-white">
+              Siguiente
+            </Text>
           </TouchableOpacity>
         )}
       </View>

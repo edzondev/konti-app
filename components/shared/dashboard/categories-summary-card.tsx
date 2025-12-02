@@ -76,10 +76,14 @@ export function CategoriesSummaryCard({
     return (
       <View className="rounded-2xl bg-white p-4 shadow-sm">
         <View className="flex-row items-center gap-2">
-          <View className="h-8 w-8 items-center justify-center rounded-full bg-secondary/10">
-            <PieChart size={16} color={COLORS.primary} strokeWidth={2} />
+          <View className="bg-secondary-default/10 h-8 w-8 items-center justify-center rounded-full">
+            <PieChart
+              size={16}
+              color={COLORS.primary.default}
+              strokeWidth={2}
+            />
           </View>
-          <Text className="text-foreground text-base font-semibold">
+          <Text className="text-base font-semibold text-neutral-foreground">
             Por Categoría
           </Text>
         </View>
@@ -94,10 +98,14 @@ export function CategoriesSummaryCard({
     <View className="rounded-2xl bg-white p-4 shadow-sm">
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
-          <View className="h-8 w-8 items-center justify-center rounded-full bg-secondary/10">
-            <PieChart size={16} color={COLORS.secondary} strokeWidth={2} />
+          <View className="bg-secondary-default/10 h-8 w-8 items-center justify-center rounded-full">
+            <PieChart
+              size={16}
+              color={COLORS.secondary.default}
+              strokeWidth={2}
+            />
           </View>
-          <Text className="text-foreground text-base font-semibold">
+          <Text className="text-base font-semibold text-neutral-foreground">
             Por Categoría
           </Text>
         </View>
@@ -119,8 +127,8 @@ export function CategoriesSummaryCard({
           return (
             <View key={category.category}>
               <View className="mb-1 flex-row items-center justify-between">
-                <Text className="text-foreground text-sm">{label}</Text>
-                <Text className="text-foreground text-sm font-medium">
+                <Text className="text-sm text-neutral-foreground">{label}</Text>
+                <Text className="text-sm font-medium text-neutral-foreground">
                   {formatCurrency(category.total_amount)}
                 </Text>
               </View>

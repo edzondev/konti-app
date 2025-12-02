@@ -24,39 +24,41 @@ export default function Index() {
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
       <View className="flex-1 px-4">
         <DashboardHeader />
-        {isLoadingData ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color={COLORS.primary} />
-          </View>
-        ) : (
-          <FlashList
-            data={receiptsData?.slice(0, 4) ?? []}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <ReceiptListItem receipt={item} />}
-            ItemSeparatorComponent={() => <View className="h-4" />}
-            ListEmptyComponent={Empty}
-            showsVerticalScrollIndicator={false}
-            onRefresh={handleRefresh}
-            refreshing={isRefetching}
-          />
-        )}
-      </View>
+        <View className="flex-1">
+          {isLoadingData ? (
+            <View className="flex-1 items-center justify-center">
+              <ActivityIndicator size="large" color={COLORS.primary.default} />
+            </View>
+          ) : (
+            <FlashList
+              data={receiptsData?.slice(0, 5) ?? []}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => <ReceiptListItem receipt={item} />}
+              ItemSeparatorComponent={() => <View className="h-4" />}
+              ListEmptyComponent={Empty}
+              showsVerticalScrollIndicator={false}
+              onRefresh={handleRefresh}
+              refreshing={isRefetching}
+            />
+          )}
+        </View>
 
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 10,
-          right: 24,
-        }}
-      >
-        <Pressable
-          onPress={handleCameraPress}
-          disabled={isUploading}
-          className="h-16 w-16 flex-row items-center justify-center rounded-3xl bg-primary disabled:opacity-50"
-          aria-label="Tomar foto de nueva boleta"
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 5,
+            right: 24,
+          }}
         >
-          <Camera size={28} color="white" />
-        </Pressable>
+          <Pressable
+            onPress={handleCameraPress}
+            disabled={isUploading}
+            className="bg-primary-default h-16 w-16 flex-row items-center justify-center rounded-3xl disabled:opacity-50"
+            aria-label="Tomar foto de nueva boleta"
+          >
+            <Camera size={28} color="white" />
+          </Pressable>
+        </View>
       </View>
 
       <SuccessModal

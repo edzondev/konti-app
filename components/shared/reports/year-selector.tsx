@@ -27,8 +27,12 @@ export function YearSelector({
         className="flex-row items-center justify-between rounded-xl border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3.5"
       >
         <View className="flex-row items-center gap-3">
-          <View className="h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-            <Calendar size={18} color={COLORS.primary} strokeWidth={2} />
+          <View className="bg-primary-default/10 h-9 w-9 items-center justify-center rounded-lg">
+            <Calendar
+              size={18}
+              color={COLORS.primary.default}
+              strokeWidth={2}
+            />
           </View>
           <View>
             <Text className="text-lg font-semibold text-[#0f172a]">
@@ -56,13 +60,13 @@ export function YearSelector({
                 index !== AVAILABLE_YEARS.length - 1
                   ? 'border-b border-neutral-border'
                   : ''
-              } ${year === selectedYear ? 'bg-primary/5' : ''}`}
+              } ${year === selectedYear ? 'bg-primary-default/5' : ''}`}
             >
               <Text
                 className={`text-base ${
                   year === selectedYear
-                    ? 'font-semibold text-primary'
-                    : 'text-muted-foreground'
+                    ? 'text-primary-default font-semibold'
+                    : 'text-neutral-muted'
                 }`}
               >
                 {year}
@@ -70,7 +74,7 @@ export function YearSelector({
               {year === selectedYear && (
                 <CheckCircle2
                   size={18}
-                  color={COLORS.primary}
+                  color={COLORS.primary.default}
                   strokeWidth={2}
                 />
               )}
@@ -81,4 +85,3 @@ export function YearSelector({
     </>
   );
 }
-

@@ -42,14 +42,14 @@ export default function ReportsScreen() {
       >
         <View className="mb-6">
           <View className="mb-2 flex-row items-center gap-2">
-            <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary">
+            <View className="bg-primary-default h-10 w-10 items-center justify-center rounded-xl">
               <FileText size={20} color="#fff" strokeWidth={2} />
             </View>
             <View className="flex-1">
               <Text className="text-[22px] font-bold tracking-tight text-neutral-foreground">
                 Reporte Anual
               </Text>
-              <Text className="text-sm text-muted-foreground">
+              <Text className="text-neutral-muted text-sm">
                 Deducciones fiscales
               </Text>
             </View>
@@ -68,20 +68,22 @@ export default function ReportsScreen() {
             onPress={handleGenerateReport}
             disabled={isGenerating}
             className={`mt-5 flex-row items-center justify-center gap-2.5 rounded-xl py-4 ${
-              isGenerating ? 'bg-primary/60' : 'bg-primary active:bg-primary/90'
+              isGenerating
+                ? 'bg-primary-default/60'
+                : 'bg-primary-default active:bg-primary-default/90'
             }`}
           >
             {isGenerating ? (
               <>
                 <ActivityIndicator size="small" color="#fff" />
-                <Text className="text-base font-semibold text-white">
+                <Text className="text-base font-semibold text-neutral-white">
                   Generando reporte...
                 </Text>
               </>
             ) : (
               <>
                 <Sparkles size={18} color="#fff" strokeWidth={2} />
-                <Text className="text-base font-semibold text-white">
+                <Text className="text-base font-semibold text-neutral-white">
                   Generar Reporte {selectedYear}
                 </Text>
               </>
@@ -93,10 +95,10 @@ export default function ReportsScreen() {
           <View className="mb-4 flex-row items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
             <AlertTriangle
               size={20}
-              color={COLORS.destructive}
+              color={COLORS.destructive.default}
               strokeWidth={2}
             />
-            <Text className="flex-1 text-sm leading-5 text-destructive">
+            <Text className="text-destructive-default flex-1 text-sm leading-5">
               {error}
             </Text>
           </View>
@@ -144,7 +146,7 @@ export default function ReportsScreen() {
             <View className="mt-0.5 h-8 w-8 items-center justify-center rounded-lg bg-amber-100">
               <AlertTriangle
                 size={16}
-                color={COLORS.destructive}
+                color={COLORS.destructive.default}
                 strokeWidth={2}
               />
             </View>

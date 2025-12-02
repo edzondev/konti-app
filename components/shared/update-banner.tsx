@@ -15,7 +15,7 @@ export function UpdateBanner() {
     return (
       <View className="bg-blue-500 px-4 py-3">
         <View className="flex-row items-center justify-between">
-          <Text className="mr-4 flex-1 font-medium text-white">
+          <Text className="mr-4 flex-1 font-medium text-neutral-white">
             ✅ Actualización lista. Reinicia la app para aplicar los cambios.
           </Text>
           <TouchableOpacity
@@ -34,7 +34,7 @@ export function UpdateBanner() {
     return (
       <View className="bg-green-500 px-4 py-3">
         <View className="flex-row items-center justify-between">
-          <Text className="mr-4 flex-1 font-medium text-white">
+          <Text className="mr-4 flex-1 font-medium text-neutral-white">
             📦 Nueva actualización disponible
           </Text>
           <TouchableOpacity

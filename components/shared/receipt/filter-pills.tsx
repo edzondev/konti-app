@@ -22,56 +22,56 @@ const FILTER_CONFIG = [
     type: 'all' as FilterType,
     label: 'Todas',
     Icon: Filter,
-    activeClass: 'bg-primary',
-    inactiveClass: 'bg-neutral-border',
-    activeTextClass: 'text-white',
-    inactiveTextClass: 'text-neutral-foreground',
+    activeClass: 'bg-primary-default',
+    inactiveClass: 'bg-primary-default/10',
+    activeTextClass: 'text-neutral-white',
+    inactiveTextClass: 'text-primary-default',
     activeIconColor: COLORS.neutral.white,
-    inactiveIconColor: COLORS.neutral.foreground,
+    inactiveIconColor: COLORS.primary.default,
   },
   {
     type: 'expense' as FilterType,
     label: 'Contables',
     Icon: TrendingUp,
-    activeClass: 'bg-emerald-500',
-    inactiveClass: 'bg-emerald-500/10',
-    activeTextClass: 'text-white',
-    inactiveTextClass: 'text-emerald-700',
-    activeIconColor: '#fff',
-    inactiveIconColor: '#047857',
+    activeClass: 'bg-success-default',
+    inactiveClass: 'bg-success-default/10',
+    activeTextClass: 'text-neutral-white',
+    inactiveTextClass: 'text-success-default',
+    activeIconColor: COLORS.neutral.white,
+    inactiveIconColor: COLORS.success.default,
   },
   {
     type: 'nonExpense' as FilterType,
     label: 'No contables',
     Icon: ReceiptText,
-    activeClass: 'bg-indigo-500',
-    inactiveClass: 'bg-indigo-500/10',
-    activeTextClass: 'text-white',
-    inactiveTextClass: 'text-indigo-700',
-    activeIconColor: '#fff',
-    inactiveIconColor: '#6366f1',
+    activeClass: 'bg-secondary-default',
+    inactiveClass: 'bg-secondary-default/10',
+    activeTextClass: 'text-neutral-white',
+    inactiveTextClass: 'text-secondary-default',
+    activeIconColor: COLORS.neutral.white,
+    inactiveIconColor: COLORS.secondary.default,
   },
   {
     type: 'boleta' as FilterType,
     label: 'Boletas',
     Icon: ReceiptText,
-    activeClass: 'bg-blue-500',
-    inactiveClass: 'bg-blue-500/10',
-    activeTextClass: 'text-white',
-    inactiveTextClass: 'text-blue-700',
-    activeIconColor: '#fff',
-    inactiveIconColor: '#2563eb',
+    activeClass: 'bg-primary-default',
+    inactiveClass: 'bg-primary-default/10',
+    activeTextClass: 'text-neutral-white',
+    inactiveTextClass: 'text-primary-default',
+    activeIconColor: COLORS.neutral.white,
+    inactiveIconColor: COLORS.primary.default,
   },
   {
     type: 'factura' as FilterType,
     label: 'Facturas',
     Icon: FileText,
-    activeClass: 'bg-rose-500',
-    inactiveClass: 'bg-rose-500/10',
-    activeTextClass: 'text-white',
-    inactiveTextClass: 'text-rose-700',
-    activeIconColor: '#fff',
-    inactiveIconColor: '#e11d48',
+    activeClass: 'bg-destructive-default',
+    inactiveClass: 'bg-destructive-default/10',
+    activeTextClass: 'text-neutral-white',
+    inactiveTextClass: 'text-destructive-default',
+    activeIconColor: COLORS.neutral.white,
+    inactiveIconColor: COLORS.destructive.default,
   },
 ];
 
@@ -102,10 +102,14 @@ export function FilterPills({
             >
               <filter.Icon
                 size={16}
-                color={isActive ? filter.activeIconColor : filter.inactiveIconColor}
+                color={
+                  isActive ? filter.activeIconColor : filter.inactiveIconColor
+                }
               />
               <Text
-                className={isActive ? filter.activeTextClass : filter.inactiveTextClass}
+                className={
+                  isActive ? filter.activeTextClass : filter.inactiveTextClass
+                }
               >
                 {filter.label}
               </Text>
@@ -125,4 +129,3 @@ export function FilterPills({
     </View>
   );
 }
-

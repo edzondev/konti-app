@@ -19,7 +19,7 @@ type ProfileMenuItemProps = {
 
 export function ProfileMenuItem({
   icon: Icon,
-  iconColor = COLORS.muted.foreground,
+  iconColor = COLORS.neutral.muted,
   label,
   subtitle,
   badge,
@@ -44,7 +44,7 @@ export function ProfileMenuItem({
             {label}
           </Text>
           {subtitle && (
-            <Text className="text-xs text-muted-foreground" numberOfLines={1}>
+            <Text className="text-neutral-muted text-xs" numberOfLines={1}>
               {subtitle}
             </Text>
           )}
@@ -55,7 +55,7 @@ export function ProfileMenuItem({
           )}
         </View>
       </View>
-      <ChevronRight size={20} color={COLORS.muted.foreground} />
+      <ChevronRight size={20} color={COLORS.neutral.muted} />
     </Pressable>
   );
 }

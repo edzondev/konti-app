@@ -13,7 +13,7 @@ import { useAuth } from '@/components/providers/auth-provider';
 import { AiExtractedData } from '@/types/ai-extraction.types';
 import { useCallback } from 'react';
 
-const defaultValues: ReceiptSchema = {
+const defaultValues: Partial<ReceiptSchema> = {
   amount: '',
   receiptType: 'boleta',
   isExpense: false,
@@ -30,7 +30,17 @@ export default function useReceiptForm(imageUrl: string) {
   const queryClient = useQueryClient();
   const form = useForm<ReceiptSchema>({
     resolver: zodResolver(receiptSchema),
-    defaultValues,
+    defaultValues: defaultValues
+      ? defaultValues
+      : {
+          amount: '',
+          receiptType: 'boleta',
+          isExpense: false,
+          ruc: '',
+          businessName: '',
+          receiptNumber: '',
+          description: '',
+        },
   });
   const {
     mutateAsync: createReceiptFn,
@@ -45,13 +55,19 @@ export default function useReceiptForm(imageUrl: string) {
 
   const fillFormWithExtractedData = useCallback(
     (extractedData: AiExtractedData) => {
-      form.setValue('amount', extractedData.monto_total);
+      // Convert monto_total to string (API may return it as number)
+      const amount =
+        extractedData.monto_total != null
+          ? String(extractedData.monto_total)
+          : '';
+
+      form.setValue('amount', amount);
       form.setValue('receiptType', extractedData.tipo_comprobante);
-      form.setValue('receiptNumber', extractedData.numero_comprobante);
-      form.setValue('ruc', extractedData.ruc);
-      form.setValue('businessName', extractedData.razon_social);
-      form.setValue('description', extractedData.justificacion_contable);
-      form.setValue('isExpense', extractedData.es_contable);
+      form.setValue('receiptNumber', extractedData.numero_comprobante ?? '');
+      form.setValue('ruc', extractedData.ruc ?? '');
+      form.setValue('businessName', extractedData.razon_social ?? '');
+      form.setValue('description', extractedData.justificacion_contable ?? '');
+      form.setValue('isExpense', extractedData.es_contable ?? false);
     },
     [form],
   );

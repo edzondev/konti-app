@@ -57,7 +57,7 @@ export default function Register() {
                 Registrarse
               </Text>
               <Text
-                className="mt-2 text-base font-normal text-muted-foreground"
+                className="text-neutral-muted mt-2 text-base font-normal"
                 numberOfLines={2}
               >
                 Ingresa tu email, nombre y contraseña para registrarte.
@@ -165,10 +165,10 @@ export default function Register() {
 
               <TouchableOpacity
                 onPress={form.handleSubmit(onSubmit)}
-                className="mt-8 rounded-lg bg-primary py-4"
+                className="bg-primary-default mt-8 rounded-lg py-4"
                 disabled={isLoading}
               >
-                <Text className="text-center text-base font-semibold text-white">
+                <Text className="text-center text-base font-semibold text-neutral-white">
                   {isLoading ? (
                     <ActivityIndicator
                       size="small"
@@ -181,12 +181,12 @@ export default function Register() {
               </TouchableOpacity>
 
               <View className="mb-8 mt-6 flex-row justify-center">
-                <Text className="text-base text-muted-foreground">
+                <Text className="text-neutral-muted text-base">
                   ¿Ya tienes una cuenta?{' '}
                 </Text>
                 <Link href="/login" asChild>
                   <Pressable>
-                    <Text className="text-base font-medium text-primary">
+                    <Text className="text-primary-default text-base font-medium">
                       Inicia sesión.
                     </Text>
                   </Pressable>

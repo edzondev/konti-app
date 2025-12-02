@@ -60,9 +60,9 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
       <View className="items-center">
         <Animated.View
           style={[iconAnimatedStyle]}
-          className="mb-3 h-20 w-20 items-center justify-center rounded-full bg-primary/10"
+          className="bg-primary-default/10 mb-3 h-20 w-20 items-center justify-center rounded-full"
         >
-          <Check size={40} color={COLORS.primary} />
+          <Check size={40} color={COLORS.primary.default} />
         </Animated.View>
 
         <Text className="mb-2 text-center text-lg font-semibold text-neutral-foreground">
@@ -70,16 +70,16 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
         </Text>
 
         <ModalContent>
-          <Text className="text-center text-sm leading-5 text-muted-foreground">
+          <Text className="text-neutral-muted text-center text-sm leading-5">
             {message}
           </Text>
         </ModalContent>
 
         <TouchableOpacity
           onPress={onClose}
-          className="w-full rounded-lg bg-primary px-8 py-3"
+          className="bg-primary-default w-full rounded-lg px-8 py-3"
         >
-          <Text className="text-center text-base font-semibold text-white">
+          <Text className="text-center text-base font-semibold text-neutral-white">
             {buttonText}
           </Text>
         </TouchableOpacity>

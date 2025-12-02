@@ -15,7 +15,7 @@ export default function TabsLayout() {
           paddingTop: 10,
           backgroundColor: COLORS.neutral.white,
         },
-        tabBarActiveTintColor: COLORS.primary,
+        tabBarActiveTintColor: COLORS.primary.default,
         tabBarInactiveTintColor: '#9ca3af',
         tabBarShowLabel: true,
       }}

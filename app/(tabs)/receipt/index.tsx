@@ -32,7 +32,7 @@ export default function Recipes() {
             className="text-3xl font-bold text-neutral-foreground"
             numberOfLines={1}
           >
-            Tus Boletas y Facturas
+            Boletas y Facturas
           </Text>
         </View>
 
@@ -52,11 +52,11 @@ export default function Recipes() {
         {!isLoading && data && data.length > 0 && (
           <View className="my-4">
             <Text
-              className="text-sm font-normal text-muted-foreground"
+              className="text-neutral-muted text-sm font-normal"
               numberOfLines={1}
             >
               {data.length}{' '}
-              {data.length === 1 ? 'dato encontrado' : 'datos encontrados'}
+              {data.length === 1 ? 'valor encontrado' : 'valores encontrados'}
             </Text>
           </View>
         )}
@@ -64,10 +64,10 @@ export default function Recipes() {
         <View className="flex-1">
           {isLoading ? (
             <View className="flex-1 items-center justify-center">
-              <ActivityIndicator size="large" color={COLORS.primary} />
+              <ActivityIndicator size="large" color={COLORS.primary.default} />
             </View>
           ) : !data || data.length === 0 ? (
-            <View className="flex-row items-center justify-center">
+            <View className="flex-1 items-center justify-center">
               <Empty />
             </View>
           ) : (

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useUserPlan } from '@/hooks/profile/use-user-plan';
@@ -10,9 +10,23 @@ type UsePreviewLogicProps = {
   imageUrl?: string;
 };
 
+// Pure helper functions for permission logic
+function shouldRedirectToSubscription(
+  hasUsedAiTrial: boolean,
+  hasPlus: boolean,
+): boolean {
+  return hasUsedAiTrial && !hasPlus;
+}
+
+function getAiButtonText(hasUsedAiTrial: boolean, hasPlus: boolean): string {
+  return shouldRedirectToSubscription(hasUsedAiTrial, hasPlus)
+    ? 'Suscribete para procesar imagen'
+    : 'Procesar imagen';
+}
+
 export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
   const router = useRouter();
-  const { hasProOrBetter } = useUserPlan();
+  const { hasPlus } = useUserPlan();
   const { hasUsedAiTrial, setHasUsedAiTrial } = useAiTrialStore();
   const { mutateAsync: extractData, isPending: isExtractingData } =
     useAiExtraction();
@@ -21,18 +35,27 @@ export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [documentType, setDocumentType] = useState<DocumentType>('boleta');
 
-  const canUseAi = hasProOrBetter || !hasUsedAiTrial;
-  const isTrialMode = !hasProOrBetter && !hasUsedAiTrial;
+  // Memoized derived values
+  const canUseAi = useMemo(
+    () => hasPlus || !hasUsedAiTrial,
+    [hasPlus, hasUsedAiTrial],
+  );
 
-  const handleButtonPress = useCallback(async () => {
-    if (hasUsedAiTrial && !hasProOrBetter) {
-      router.push({
-        pathname: '/subscription',
-        params: { fromPreview: 'true', imageUrl },
-      });
-      return;
-    }
+  const isTrialMode = useMemo(
+    () => !hasPlus && !hasUsedAiTrial,
+    [hasPlus, hasUsedAiTrial],
+  );
 
+  const aiButtonText = useMemo(
+    () => getAiButtonText(hasUsedAiTrial, hasPlus),
+    [hasUsedAiTrial, hasPlus],
+  );
+
+  const handleSubscriptionRedirect = useCallback(() => {
+    router.push('/subscription');
+  }, [router]);
+
+  const handleAiExtraction = useCallback(async () => {
     if (!imageUrl) return;
 
     try {
@@ -50,26 +73,29 @@ export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
         setHasUsedAiTrial(true);
       }
 
-      const baseMessage =
-        'Información extraída correctamente. El formulario se ha autocompletado.';
-      const successMessage = isTrialMode
-        ? `${baseMessage}\n\n¡Esta fue tu prueba gratuita! Suscríbete para seguir usando esta función.`
-        : baseMessage;
+      const message = isTrialMode
+        ? 'Información extraída correctamente. El formulario se ha autocompletado.\n\n¡Esta fue tu prueba gratuita! Suscríbete para seguir usando esta función.'
+        : 'Información extraída correctamente. El formulario se ha autocompletado.';
 
-      Alert.alert('Éxito', successMessage);
+      Alert.alert('Éxito', message);
     } catch (error) {
       console.error('Error en extracción:', error);
       Alert.alert('Error', 'No se pudo extraer la información de la imagen');
     }
-  }, [hasUsedAiTrial, hasProOrBetter, imageUrl, extractData, isTrialMode, setHasUsedAiTrial, router]);
+  }, [imageUrl, extractData, isTrialMode, setHasUsedAiTrial]);
+
+  const handleButtonPress = useCallback(async () => {
+    if (shouldRedirectToSubscription(hasUsedAiTrial, hasPlus)) {
+      handleSubscriptionRedirect();
+      return;
+    }
+
+    await handleAiExtraction();
+  }, [hasUsedAiTrial, hasPlus, handleSubscriptionRedirect, handleAiExtraction]);
 
   const toggleModal = useCallback(() => {
     setIsModalVisible((prev) => !prev);
   }, []);
-
-  const aiButtonText = hasUsedAiTrial && !hasProOrBetter 
-    ? 'Suscríbete para usar IA' 
-    : 'Procesar con IA';
 
   return {
     extractedData,
@@ -79,7 +105,7 @@ export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
     isExtractingData,
     handleButtonPress,
     toggleModal,
-    canUseAi: true,
+    canUseAi,
     aiButtonText,
   };
 }

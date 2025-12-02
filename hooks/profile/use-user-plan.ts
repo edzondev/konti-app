@@ -1,14 +1,18 @@
-import { useGetProfile } from './use-profile';
 import { usePurchases } from '@/hooks/purchases/use-purchases';
+import { hasActiveEntitlement } from '@/services/purchases';
 import type { PlanType } from '@/constants/plans';
 
-const TRIAL_PERIOD_DAYS = 3;
-const PAID_PLANS: PlanType[] = ['konti_pro', 'pro', 'premium'];
+const TRIAL_PERIOD_DAYS = 7;
+const KONTI_PLUS_ENTITLEMENT = 'konti_plus';
 
 export function useUserPlan() {
-  const { data: profile } = useGetProfile();
   const { customerInfo } = usePurchases();
-  const currentPlan = (profile?.current_plan ?? 'free') as PlanType;
+
+  // Check if user has active subscription based on RevenueCat entitlements
+  const hasPlus = hasActiveEntitlement(customerInfo, KONTI_PLUS_ENTITLEMENT);
+
+  // Derive currentPlan from entitlements (source of truth is RevenueCat)
+  const currentPlan: PlanType = hasPlus ? 'plus' : 'free';
 
   const getTrialDaysRemaining = (): number | null => {
     if (!customerInfo?.entitlements?.active) return null;
@@ -36,9 +40,8 @@ export function useUserPlan() {
   };
 
   const trialDaysRemaining = getTrialDaysRemaining();
-  const isPaidPlan = PAID_PLANS.includes(currentPlan);
   const hasActiveTrial =
-    !isPaidPlan &&
+    !hasPlus &&
     customerInfo?.entitlements?.active &&
     Object.keys(customerInfo.entitlements.active).length > 0 &&
     trialDaysRemaining !== null &&
@@ -46,13 +49,7 @@ export function useUserPlan() {
 
   return {
     currentPlan,
-    isFree: currentPlan === 'free',
-    isKontiPro: currentPlan === 'konti_pro',
-    isPaidPlan,
-    // Legacy helpers (for backwards compatibility)
-    isPro: currentPlan === 'pro',
-    isPremium: currentPlan === 'premium',
-    hasProOrBetter: isPaidPlan,
+    hasPlus,
     trialDaysRemaining,
     hasActiveTrial,
   };

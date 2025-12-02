@@ -39,7 +39,7 @@ function ReceiptCard({
 
       <View className="gap-y-6">
         <View className="flex-col">
-          <Text className="mb-1 text-sm font-normal text-muted-foreground">
+          <Text className="text-neutral-muted mb-1 text-sm font-normal">
             Monto
           </Text>
           <Text
@@ -53,13 +53,9 @@ function ReceiptCard({
         </View>
 
         <View className="flex-row items-start gap-4">
-          <Calendar
-            className="mt-0.5"
-            color={COLORS.muted.foreground}
-            size={20}
-          />
+          <Calendar className="mt-0.5" color={COLORS.neutral.muted} size={20} />
           <View className="flex-1">
-            <Text className="mb-1 text-sm font-normal text-muted-foreground">
+            <Text className="text-neutral-muted mb-1 text-sm font-normal">
               Fecha
             </Text>
             <Text
@@ -75,11 +71,11 @@ function ReceiptCard({
           <View className="flex-row items-start gap-4">
             <FileText
               className="mt-0.5"
-              color={COLORS.muted.foreground}
+              color={COLORS.neutral.muted}
               size={20}
             />
             <View className="flex-1">
-              <Text className="mb-1 text-sm font-normal text-muted-foreground">
+              <Text className="text-neutral-muted mb-1 text-sm font-normal">
                 N° Comprobante
               </Text>
               <Text
@@ -96,11 +92,11 @@ function ReceiptCard({
           <View className="flex-row items-start gap-4">
             <CreditCard
               className="mt-0.5"
-              color={COLORS.muted.foreground}
+              color={COLORS.neutral.muted}
               size={20}
             />
             <View className="flex-1">
-              <Text className="mb-1 text-sm font-normal text-muted-foreground">
+              <Text className="text-neutral-muted mb-1 text-sm font-normal">
                 RUC
               </Text>
               <Text
@@ -117,11 +113,11 @@ function ReceiptCard({
           <View className="flex-row items-start gap-4">
             <Building2
               className="mt-0.5"
-              color={COLORS.muted.foreground}
+              color={COLORS.neutral.muted}
               size={20}
             />
             <View className="flex-1">
-              <Text className="mb-1 text-sm font-normal text-muted-foreground">
+              <Text className="text-neutral-muted mb-1 text-sm font-normal">
                 Razón social
               </Text>
               <Text
@@ -136,7 +132,7 @@ function ReceiptCard({
 
         {selectedReceipt.description && (
           <View className="flex-col">
-            <Text className="mb-2 text-sm font-normal text-muted-foreground">
+            <Text className="text-neutral-muted mb-2 text-sm font-normal">
               Descripción
             </Text>
             <Text className="text-base font-normal leading-relaxed text-neutral-foreground">
@@ -147,7 +143,7 @@ function ReceiptCard({
 
         <View className="flex-row items-center justify-between rounded-lg bg-neutral-100 px-4 py-4">
           <Text
-            className="text-base font-normal text-muted-foreground"
+            className="text-neutral-muted text-base font-normal"
             numberOfLines={1}
           >
             Gasto contable
@@ -157,8 +153,8 @@ function ReceiptCard({
               className={cn(
                 'h-2 w-2 rounded-full',
                 selectedReceipt.is_expense
-                  ? 'bg-primary'
-                  : 'border border-muted-foreground/30',
+                  ? 'bg-primary-default'
+                  : 'border border-neutral-foreground/30',
               )}
             />
             <Text
@@ -173,7 +169,7 @@ function ReceiptCard({
 
       <Pressable
         disabled={isDeleting}
-        className="mt-6 h-14 flex-row items-center justify-center gap-2 rounded-lg bg-red-500 px-4"
+        className="bg-destructive-default mt-6 h-14 flex-row items-center justify-center gap-2 rounded-lg px-4"
         onPress={handleDeleteReceipt}
       >
         {isDeleting ? (
@@ -184,6 +180,7 @@ function ReceiptCard({
             <Text
               className="text-base font-semibold text-neutral-white"
               numberOfLines={1}
+              adjustsFontSizeToFit
             >
               Eliminar boleta
             </Text>

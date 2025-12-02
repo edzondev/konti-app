@@ -13,13 +13,13 @@ export function DeductibleAmountCard({
   percentageOfLimit,
 }: DeductibleAmountCardProps) {
   return (
-    <View className="mb-4 rounded-2xl border border-neutral-border bg-primary p-5">
+    <View className="bg-primary-default mb-4 rounded-2xl border border-neutral-border p-5">
       <View className="flex-row items-start justify-between">
         <View>
-          <Text className="mb-1 text-sm font-medium text-white">
+          <Text className="mb-1 text-sm font-medium text-neutral-white">
             Monto Total Deducible
           </Text>
-          <Text className="text-3xl font-bold text-white">
+          <Text className="text-3xl font-bold text-neutral-white">
             {formatCurrency(deductibleAmount)}
           </Text>
         </View>
@@ -30,8 +30,10 @@ export function DeductibleAmountCard({
 
       <View className="mt-5">
         <View className="mb-2 flex-row items-center justify-between">
-          <Text className="text-xs text-white">Límite SUNAT utilizado</Text>
-          <Text className="text-sm font-semibold text-white">
+          <Text className="text-xs text-neutral-white">
+            Límite SUNAT utilizado
+          </Text>
+          <Text className="text-sm font-semibold text-neutral-white">
             {percentageOfLimit}%
           </Text>
         </View>
@@ -47,4 +49,3 @@ export function DeductibleAmountCard({
     </View>
   );
 }
-

@@ -9,7 +9,7 @@ type ProfileSectionProps = {
 export function ProfileSection({ title, children }: ProfileSectionProps) {
   return (
     <View className="mb-8">
-      <Text className="mb-3 px-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      <Text className="text-neutral-muted mb-3 px-1 text-xs font-medium uppercase tracking-wider">
         {title}
       </Text>
       <View className="overflow-hidden rounded-lg border border-neutral-border bg-white">
@@ -18,4 +18,3 @@ export function ProfileSection({ title, children }: ProfileSectionProps) {
     </View>
   );
 }
-

@@ -8,7 +8,9 @@ import { ChatHeader } from '@/components/shared/chat/chat-header';
 import { ChatFooter } from '@/components/shared/chat/chat-footer';
 import { ContextSummary } from '@/components/shared/chat/context-summary';
 import EmptyChat from '@/components/shared/chat/empty-chat';
+import { MessageLimitReached } from '@/components/shared/chat/message-limit-reached';
 import { useAskKonti } from '@/hooks/chat/use-ask-konti';
+import { useFreeMessages } from '@/hooks/chat/use-free-messages';
 import { QUICK_PROMPT_FEATURES } from '@/constants/chat';
 
 export default function AskKontiScreen() {
@@ -21,6 +23,15 @@ export default function AskKontiScreen() {
     sendQuickPrompt,
     clearChat,
   } = useAskKonti();
+
+  const { messagesRemaining, hasReachedLimit, currentPlan } = useFreeMessages();
+
+  const showLimitReached = hasReachedLimit && currentPlan === 'free';
+  const showCounter =
+    !showLimitReached &&
+    currentPlan === 'free' &&
+    messagesRemaining < 5 &&
+    messagesRemaining !== Number.POSITIVE_INFINITY;
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
@@ -49,6 +60,7 @@ export default function AskKontiScreen() {
                 features={QUICK_PROMPT_FEATURES}
                 sendQuickPrompt={sendQuickPrompt}
                 isLoading={isLoading}
+                disabled={showLimitReached}
               />
             }
             ListFooterComponent={
@@ -67,16 +79,28 @@ export default function AskKontiScreen() {
             />
           )}
 
-          <ChatInput
-            onSend={sendMessage}
-            isLoading={isLoading}
-            placeholder="Escribe tu pregunta a Konti..."
-          />
+          {showCounter && (
+            <Text className="text-neutral-muted mb-3 text-center text-xs">
+              {messagesRemaining} mensaje{messagesRemaining !== 1 ? 's' : ''}{' '}
+              restante{messagesRemaining !== 1 ? 's' : ''}
+            </Text>
+          )}
 
-          <Text className="text-center text-xs leading-tight text-muted-foreground/70">
-            Konti es una herramienta de organización. Para decisiones
-            tributarias importantes, consulta con un contador profesional.
-          </Text>
+          {showLimitReached ? (
+            <MessageLimitReached />
+          ) : (
+            <>
+              <ChatInput
+                onSend={sendMessage}
+                isLoading={isLoading}
+                placeholder="Escribe tu pregunta a Konti..."
+              />
+              <Text className="text-neutral-muted/70 text-center text-xs leading-tight">
+                Konti es una herramienta de organización. Para decisiones
+                tributarias importantes, consulta con un contador profesional.
+              </Text>
+            </>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

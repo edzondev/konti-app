@@ -1,17 +1,18 @@
-import { View, Text, Pressable, Image } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Link } from 'expo-router';
-import { Infinity, Sparkles } from 'lucide-react-native';
+import { ChevronRight, Crown, Infinity, Sparkle } from 'lucide-react-native';
 
 import { KPI_CARD_CONFIG } from '@/constants/dashboard';
 import { useDashboardHeader } from '@/hooks/dashboard/use-dashboard-header';
 import KpiCard from './kpi-card';
 import { cn } from '@/lib/utils';
+import { COLORS } from '@/constants/colors';
 
 export default function DashboardHeader() {
   const {
     kpis,
     kpisLoading,
-    isPaidPlan,
+    hasPlus,
     planConfig,
     isUnlimited,
     usedCount,
@@ -20,37 +21,42 @@ export default function DashboardHeader() {
   } = useDashboardHeader();
 
   return (
-    <View className="flex-col gap-6 py-4">
+    <View className="my-8 flex-col gap-6">
       <View className="flex-row items-center justify-between">
-        <View className="h-12 w-12">
-          <Image
-            source={require('@/assets/konti_logo.png')}
-            style={{ width: '100%', height: '100%' }}
-            resizeMode="contain"
-            alt="Konti"
-          />
-        </View>
-
+        <Text
+          className="text-3xl font-bold text-neutral-foreground"
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+        >
+          Inicio
+        </Text>
         <Link href="/subscription" asChild>
           <Pressable
             className={cn(
               'flex-row items-center gap-1.5 rounded-full px-4 py-2',
-              isPaidPlan &&
-                'border border-secondary bg-violet-100 text-violet-600',
-              !isPaidPlan && 'border border-primary/20 bg-primary/5',
+              hasPlus && 'bg-secondary-default/10 text-secondary-default',
+              !hasPlus && 'bg-secondary-default/5',
             )}
           >
-            {isPaidPlan ? (
+            {hasPlus ? (
               <>
-                <Sparkles size={14} color="#8b5cf6" />
-                <Text className="text-xs font-semibold text-violet-600">
+                <Crown size={14} color={COLORS.secondary.default} />
+                <Text className="text-secondary-default text-xs font-semibold">
                   {planConfig.label}
                 </Text>
               </>
             ) : (
-              <Text className="text-sm font-medium text-primary">
-                Obtener Pro
-              </Text>
+              <>
+                <Sparkle
+                  size={14}
+                  color={COLORS.secondary.default}
+                  fill={COLORS.secondary.default}
+                />
+                <Text className="text-secondary-default text-sm font-medium">
+                  Obtener Plus
+                </Text>
+              </>
             )}
           </Pressable>
         </Link>
@@ -68,26 +74,21 @@ export default function DashboardHeader() {
       </View>
 
       <View className="flex-row items-center justify-between rounded-2xl bg-neutral-50 px-4 py-3">
-        <Text className="text-sm text-muted-foreground">
-          Boletas subidas (Texto prueba)
+        <Text className="text-neutral-muted text-sm">
+          {hasPlus ? 'Plan Plus activo' : 'Plan Básico activo'}
         </Text>
         {isUnlimited ? (
-          <View className="flex-row items-center gap-1.5">
-            <Text className="text-sm font-semibold text-violet-600">
-              {usedCount}
+          <View className="bg-secondary-default/10 flex-row items-center gap-1 rounded-full px-2 py-0.5">
+            <Infinity size={12} color={COLORS.secondary.default} />
+            <Text className="text-secondary-default text-xs font-medium">
+              Ilimitado
             </Text>
-            <View className="flex-row items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5">
-              <Infinity size={12} color="#8b5cf6" />
-              <Text className="text-xs font-medium text-violet-600">
-                Ilimitado
-              </Text>
-            </View>
           </View>
         ) : (
           <View className="flex-row items-center gap-2">
             <Text className="text-sm font-semibold text-neutral-foreground">
               {usedCount}
-              <Text className="font-normal text-muted-foreground">
+              <Text className="text-neutral-muted font-normal">
                 {' '}
                 / {planLimit}
               </Text>
@@ -106,14 +107,15 @@ export default function DashboardHeader() {
       </View>
 
       <View className="flex-row items-center justify-between">
-        <Text className="text-xl font-semibold text-muted-foreground">
+        <Text className="text-primary-default text-xl font-semibold">
           Archivos recientes
         </Text>
         <Link href="/receipt" asChild>
-          <Pressable className="rounded-xl">
-            <Text className="text-sm font-semibold text-primary">
+          <Pressable className="flex-row items-center gap-1.5">
+            <Text className="text-primary-default text-sm font-semibold">
               Ver todos
             </Text>
+            <ChevronRight size={16} color={COLORS.primary.default} />
           </Pressable>
         </Link>
       </View>

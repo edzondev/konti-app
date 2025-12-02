@@ -55,7 +55,7 @@ export default function Login() {
                 Iniciar sesión
               </Text>
               <Text
-                className="mt-2 text-base font-normal text-muted-foreground"
+                className="text-neutral-muted mt-2 text-base font-normal"
                 numberOfLines={2}
               >
                 Ingresa tu email y contraseña para iniciar sesión.
@@ -129,9 +129,9 @@ export default function Login() {
 
               <TouchableOpacity
                 onPress={form.handleSubmit(onSubmit)}
-                className="mt-8 rounded-lg bg-primary py-4"
+                className="bg-primary-default mt-8 rounded-lg py-4"
               >
-                <Text className="text-center text-base font-semibold text-white">
+                <Text className="text-center text-base font-semibold text-neutral-white">
                   {isLoading ? (
                     <ActivityIndicator
                       size="small"
@@ -144,12 +144,12 @@ export default function Login() {
               </TouchableOpacity>
 
               <View className="mb-8 mt-6 flex-row justify-center">
-                <Text className="text-base text-muted-foreground">
+                <Text className="text-neutral-muted text-base">
                   ¿No tienes una cuenta?{' '}
                 </Text>
                 <Link href="/register" asChild>
                   <Pressable>
-                    <Text className="text-base font-medium text-primary">
+                    <Text className="text-primary-default text-base font-medium">
                       Registrarse.
                     </Text>
                   </Pressable>

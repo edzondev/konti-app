@@ -9,13 +9,12 @@ function useGetProfile() {
   const { session } = useAuth();
   const userId = session?.user.id ?? '';
 
-  const { data, isPending, isError, isLoading, error, refetch, isRefetching } =
-    useQueryBase<Tables<'profiles'>>({
-      queryKey: QUERY_KEYS.profile.details(userId),
-      queryFn: () => getProfile(userId),
-      enabled: !!userId,
-    });
-  return { data, isPending, isError, isLoading, error, refetch, isRefetching };
+  const { data, ...rest } = useQueryBase<Tables<'profiles'>>({
+    queryKey: QUERY_KEYS.profile.details(userId),
+    queryFn: () => getProfile(userId),
+    enabled: !!userId,
+  });
+  return { data, ...rest };
 }
 
 export { useGetProfile };

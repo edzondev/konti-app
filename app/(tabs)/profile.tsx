@@ -12,10 +12,10 @@ import { FileText, HelpCircle, LogOut, Shield } from 'lucide-react-native';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useGetProfile } from '@/hooks/profile/use-profile';
 import useProfileComponent from '@/hooks/profile/use-profile-component';
-import type { Tables } from '@/types/database.types';
 import { ProfileHeader } from '@/components/shared/profile/profile-header';
 import { ProfileSection } from '@/components/shared/profile/profile-section';
 import { ProfileMenuItem } from '@/components/shared/profile/profile-menu-item';
+import { useUserPlan } from '@/hooks/profile/use-user-plan';
 
 export default function Profile() {
   const router = useRouter();
@@ -23,15 +23,19 @@ export default function Profile() {
   const { data: profile, isLoading } = useGetProfile();
   const { planConfig, handleLogout, handlePrivacyPolicy, handleHelp } =
     useProfileComponent({
-      profile: profile as Tables<'profiles'>,
+      profile,
       signOut: async () => await signOut(),
     });
+  const { hasPlus } = useUserPlan();
 
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text className="text-lg font-semibold text-primary" numberOfLines={1}>
+        <ActivityIndicator size="large" color={COLORS.primary.default} />
+        <Text
+          className="text-primary-default text-lg font-semibold"
+          numberOfLines={1}
+        >
           Cargando información...
         </Text>
       </SafeAreaView>
@@ -69,21 +73,22 @@ export default function Profile() {
             <ProfileMenuItem
               icon={planConfig.icon.Component}
               iconColor={planConfig.icon.color}
-              label="Mi plan"
+              label="Mi suscripción"
               badge={planConfig.badge}
               onPress={() => router.push('/subscription')}
             />
           </ProfileSection>
 
-          <ProfileSection title="Reportes">
-            <ProfileMenuItem
-              icon={FileText}
-              iconColor={COLORS.primary}
-              label="Reportes anuales"
-              onPress={() => router.push('/reports')}
-            />
-          </ProfileSection>
-
+          {hasPlus && (
+            <ProfileSection title="Reportes">
+              <ProfileMenuItem
+                icon={FileText}
+                iconColor={COLORS.primary.default}
+                label="Reportes anuales"
+                onPress={() => router.push('/reports')}
+              />
+            </ProfileSection>
+          )}
           <ProfileSection title="Soporte">
             <ProfileMenuItem
               icon={HelpCircle}
@@ -101,10 +106,13 @@ export default function Profile() {
 
           <Pressable
             onPress={handleLogout}
-            className="w-full flex-row items-center justify-center gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-4"
+            className="border-destructive-default/20 bg-destructive-default/5 w-full flex-row items-center justify-center gap-3 rounded-lg border p-4"
           >
-            <LogOut size={20} color={COLORS.destructive} />
-            <Text className="text-lg text-destructive" numberOfLines={1}>
+            <LogOut size={20} color={COLORS.destructive.default} />
+            <Text
+              className="text-destructive-default text-lg"
+              numberOfLines={1}
+            >
               Cerrar sesión
             </Text>
           </Pressable>

@@ -21,7 +21,7 @@ export function SearchBar({
         className="absolute left-4 top-1/2 z-10"
         style={{ transform: [{ translateY: -10 }] }}
       >
-        <Search color={COLORS.muted.foreground} size={20} />
+        <Search color={COLORS.neutral.muted} size={20} />
       </View>
       <TextInput
         keyboardType="default"
@@ -29,7 +29,7 @@ export function SearchBar({
         onChangeText={onChangeText}
         placeholder={placeholder}
         className="bg-muted/30 h-14 w-full rounded-xl border border-neutral-border py-3 pl-12 pr-4 text-sm font-light outline-none"
-        placeholderTextColor={COLORS.muted.foreground}
+        placeholderTextColor={COLORS.neutral.muted}
       />
       {value && (
         <View
@@ -37,7 +37,7 @@ export function SearchBar({
           style={{ transform: [{ translateY: -16 }] }}
         >
           <Pressable onPress={onClear}>
-            <XCircle size={20} color={COLORS.muted.foreground} />
+            <XCircle size={20} color={COLORS.neutral.muted} />
           </Pressable>
         </View>
       )}

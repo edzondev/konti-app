@@ -13,7 +13,7 @@ const PasswordInput = ({ className, ...props }: PasswordInputProps) => {
     <View className="relative">
       <TextInput
         className={cn(
-          'border-b border-neutral-border py-2 pr-10 text-base font-light outline-none placeholder:text-muted-foreground/80',
+          'placeholder:text-neutral-muted/80 border-b border-neutral-border py-2 pr-10 text-base font-light outline-none',
           className,
         )}
         style={{
@@ -27,9 +27,9 @@ const PasswordInput = ({ className, ...props }: PasswordInputProps) => {
         className="absolute right-0 top-0 h-full justify-center px-3"
       >
         {showPassword ? (
-          <EyeOff size={20} color={COLORS.muted.foreground} />
+          <EyeOff size={20} color={COLORS.neutral.muted} />
         ) : (
-          <Eye size={20} color={COLORS.muted.foreground} />
+          <Eye size={20} color={COLORS.neutral.muted} />
         )}
       </Pressable>
     </View>

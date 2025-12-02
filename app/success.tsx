@@ -39,22 +39,22 @@ export default function Success() {
         <View className="mb-8 flex-row items-center justify-center">
           <Animated.View
             style={animatedStyle}
-            className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10"
+            className="bg-primary-default/10 flex h-20 w-20 items-center justify-center rounded-full"
           >
-            <Check size={40} color={COLORS.primary} />
+            <Check size={40} color={COLORS.primary.default} />
           </Animated.View>
         </View>
 
         <Text className="font-regular mb-3 text-center text-2xl font-light text-neutral-foreground">
           Boleta guardada
         </Text>
-        <Text className="font-regular mb-12 text-center text-base font-light text-muted-foreground">
+        <Text className="font-regular text-neutral-muted mb-12 text-center text-base font-light">
           Tu comprobante ha sido registrado exitosamente
         </Text>
 
         <Link href="/(tabs)" asChild dismissTo>
-          <Pressable className="flex-row items-center justify-center rounded-lg bg-primary py-3 text-white">
-            <Text className="font-regular text-white">Continuar</Text>
+          <Pressable className="bg-primary-default flex-row items-center justify-center rounded-lg py-3 text-neutral-white">
+            <Text className="font-regular text-neutral-white">Continuar</Text>
           </Pressable>
         </Link>
       </View>

@@ -23,7 +23,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
       <View
         className={cn(
           'h-9 w-9 items-center justify-center rounded-full',
-          isUser ? 'bg-primary' : 'bg-secondary',
+          isUser ? 'bg-secondary-default' : 'bg-secondary-default',
         )}
       >
         {isUser ? (
@@ -37,14 +37,14 @@ export function ChatMessage({ message }: ChatMessageProps) {
         className={cn(
           'max-w-[78%] rounded-2xl px-4 py-2',
           isUser
-            ? 'rounded-tr-md bg-primary'
+            ? 'bg-secondary-default rounded-tr-md'
             : 'rounded-tl-md border border-neutral-border/30 bg-gray-50',
         )}
       >
         <Text
           className={cn(
             'text-base leading-relaxed',
-            isUser ? 'text-white' : 'text-neutral-foreground',
+            isUser ? 'text-neutral-white' : 'text-neutral-foreground',
           )}
         >
           {message.content}
@@ -54,7 +54,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
           <Text
             className={cn(
               'text-sm',
-              isUser ? 'text-right text-white/60' : 'text-muted-foreground/60',
+              isUser
+                ? 'text-right text-neutral-white/60'
+                : 'text-neutral-muted/60',
             )}
           >
             {new Date(message.timestamp).toLocaleTimeString('es-PE', {

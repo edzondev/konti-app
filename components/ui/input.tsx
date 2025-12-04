@@ -9,7 +9,7 @@ const Input = ({ className, ...props }: InputProps) => {
   return (
     <TextInput
       className={cn(
-        'border-b border-neutral-border py-2 text-base font-light outline-none placeholder:text-muted-foreground/80',
+        'placeholder:text-neutral-muted/80 border-b border-neutral-border py-2 text-base font-light outline-none',
         className,
       )}
       style={{

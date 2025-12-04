@@ -19,7 +19,6 @@ export const useLogin = () => {
     try {
       await signIn(data);
       form.reset();
-      // User will be automatically redirected to tabs by the layout
     } catch (error) {
       console.error(error);
     }

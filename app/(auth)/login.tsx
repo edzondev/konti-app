@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
 import { Link } from 'expo-router';
 import { COLORS } from '@/constants/colors';
@@ -23,11 +22,12 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function Login() {
   const { form, onSubmit, handleCancel, isLoading } = useLogin();
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <MainLayout>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -40,17 +40,14 @@ export default function Login() {
           }}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header */}
           <View className="mt-8 px-5">
             <Pressable onPress={handleCancel}>
               <ChevronLeft size={24} color={COLORS.neutral.foreground} />
             </Pressable>
           </View>
 
-          {/* Content */}
           <View className="flex-1 justify-center">
             <View className="px-6 pt-8">
-              {/* Title */}
               <Text
                 className="text-3xl font-bold text-neutral-foreground"
                 numberOfLines={1}
@@ -58,7 +55,7 @@ export default function Login() {
                 Iniciar sesión
               </Text>
               <Text
-                className="mt-2 text-base font-normal text-muted-foreground"
+                className="mt-2 text-base font-normal text-neutral-muted"
                 numberOfLines={2}
               >
                 Ingresa tu email y contraseña para iniciar sesión.
@@ -130,12 +127,11 @@ export default function Login() {
                 </Form>
               </View>
 
-              {/* Continue Button */}
               <TouchableOpacity
                 onPress={form.handleSubmit(onSubmit)}
-                className="mt-8 rounded-lg bg-primary py-4"
+                className="mt-8 rounded-lg bg-primary-default py-4"
               >
-                <Text className="text-center text-base font-semibold text-white">
+                <Text className="text-center text-base font-semibold text-neutral-white">
                   {isLoading ? (
                     <ActivityIndicator
                       size="small"
@@ -147,14 +143,13 @@ export default function Login() {
                 </Text>
               </TouchableOpacity>
 
-              {/* Register Link */}
               <View className="mb-8 mt-6 flex-row justify-center">
-                <Text className="text-base text-muted-foreground">
+                <Text className="text-base text-neutral-muted">
                   ¿No tienes una cuenta?{' '}
                 </Text>
                 <Link href="/register" asChild>
                   <Pressable>
-                    <Text className="text-base font-medium text-primary">
+                    <Text className="text-base font-medium text-primary-default">
                       Registrarse.
                     </Text>
                   </Pressable>
@@ -164,6 +159,6 @@ export default function Login() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

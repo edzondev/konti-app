@@ -55,7 +55,7 @@ export function DocumentTypeCorrectionModal({
                     <Text
                       className={`text-base ${
                         isSelected
-                          ? 'font-semibold text-primary'
+                          ? 'text-primary-default font-semibold'
                           : 'font-normal text-neutral-foreground'
                       }`}
                     >
@@ -63,7 +63,7 @@ export function DocumentTypeCorrectionModal({
                     </Text>
                     {isSelected && (
                       <Animated.View entering={FadeIn.duration(200)}>
-                        <Check size={20} color={COLORS.primary} />
+                        <Check size={20} color={COLORS.primary.default} />
                       </Animated.View>
                     )}
                   </Pressable>

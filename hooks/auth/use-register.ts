@@ -23,7 +23,6 @@ export const useRegister = () => {
     try {
       await signUp(data);
       form.reset();
-      // User will be automatically redirected to tabs by the layout
     } catch (error) {
       console.error(error);
     }

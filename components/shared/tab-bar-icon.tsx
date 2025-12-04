@@ -1,17 +1,13 @@
-import { View } from 'react-native';
-import type { LucideIcon } from 'lucide-react-native';
+import type { ComponentType } from 'react';
+import type { SvgProps } from 'react-native-svg';
 
 interface TabBarIconProps {
   focused: boolean;
   color: string;
   size: number;
-  Icon: LucideIcon;
+  Icon: ComponentType<SvgProps & { color?: string }>;
 }
 
 export function TabBarIcon({ focused, color, size, Icon }: TabBarIconProps) {
-  return (
-    <View className="items-center justify-center">
-      <Icon color={color} size={size} strokeWidth={1.5} />
-    </View>
-  );
+  return <Icon width={size} height={size} stroke={color} fill="none" />;
 }

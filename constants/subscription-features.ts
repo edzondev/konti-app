@@ -1,101 +1,75 @@
-import {
-  Aperture,
-  Infinity,
-  FileText,
-  Zap,
-  Crown,
-  ShieldCheck,
-} from 'lucide-react-native';
-
 export type Feature = {
-  icon: React.ElementType;
   title: string;
   description: string;
-  pro: boolean;
-  premium: boolean;
   isAvailableInFuture?: boolean;
 };
 
-export const BASE_FEATURES: Feature[] = [
+export const FEATURES: Feature[] = [
   {
-    icon: Zap,
     title: 'Extracción de Datos con IA',
     description:
-      'Procesamiento automático para obtener RUC, monto total y fecha en segundos.',
-    pro: true,
-    premium: true,
+      'Obtén RUC, monto total, fecha y más automáticamente desde tus comprobantes.',
   },
   {
-    icon: ShieldCheck,
-    title: 'Clasificación Contable Automática',
+    title: 'Identificación de Gastos Deducibles',
     description:
-      'La IA identifica si tu boleta es contable (de gasto) para una mejor organización.',
-    pro: true,
-    premium: true,
+      'Detecta si una boleta califica como gasto deducible según SUNAT.',
   },
   {
-    icon: FileText,
-    title: 'Reportes y Exportación',
-    description: 'Genera reportes y exporta tus datos en Excel mensualmente.',
-    pro: true,
-    premium: true,
-    isAvailableInFuture: true,
-  },
-];
-
-export const PRO_UPGRADE_FEATURES: Feature[] = [
-  {
-    icon: Aperture,
-    title: 'Límite de Carga Ampliado',
-    description: 'Sube hasta 20 boletas por mes.',
-    pro: true,
-    premium: true,
+    title: 'Soporte Prioritario',
+    description:
+      'Recibe ayuda más rápida y con prioridad sobre otros usuarios.',
   },
   {
-    icon: ShieldCheck,
-    title: 'Asistencia Estándar',
-    description: 'Soporte técnico disponible en horario laboral.',
-    pro: true,
-    premium: true,
+    title: 'Acceso Anticipado a Nuevas Funciones',
+    description: 'Prueba novedades antes de que lleguen al público general.',
   },
-];
-
-export const PREMIUM_EXCLUSIVE_FEATURES: Feature[] = [
   {
-    icon: Infinity,
+    title: 'Historial Anual Organizado',
+    description:
+      'Revisa tus boletas ordenadas por mes y tipo para tener control absoluto.',
+  },
+  {
     title: 'Subidas Ilimitadas',
-    description: 'Olvídate de los límites: carga boletas sin restricciones.',
-    pro: false,
-    premium: true,
+    description: 'Carga todas las boletas que necesites sin restricciones.',
   },
   {
-    icon: Crown,
-    title: 'Reporte Fiscal SUNAT',
+    title: 'Reporte Anual SUNAT',
     description:
-      'Genera un reporte anual consolidado, listo para tus declaraciones.',
-    pro: false,
-    premium: true,
+      'Recibe un reporte consolidado del año listo para la declaración.',
+  },
+  {
+    title: 'Asistente Tributario - Konti',
+    description:
+      'Responde dudas sobre deducciones y te guía durante el año fiscal.',
+  },
+  {
+    title: 'Proyección de Ahorro Tributario',
+    description:
+      'Estimación mensual y anual del ahorro que generas con tus boletas.',
     isAvailableInFuture: true,
   },
   {
-    icon: Zap,
-    title: 'Soporte VIP Prioritario',
-    description: 'Respuesta inmediata a tus consultas con prioridad absoluta.',
-    pro: false,
-    premium: true,
+    title: 'Recordatorios de Registro',
+    description: 'Recibe notificaciones para mantener tus comprobantes al día.',
+    isAvailableInFuture: true,
   },
   {
-    icon: Aperture,
-    title: 'Acceso Exclusivo',
+    title: 'Recomendaciones Personalizadas',
     description:
-      'Sé el primero en probar nuevas funciones antes de su lanzamiento oficial.',
-    pro: false,
-    premium: true,
+      'La IA analiza tus datos y te sugiere cómo maximizar tus deducciones.',
+    isAvailableInFuture: true,
   },
-];
-
-export const ALL_FEATURES = [
-  ...BASE_FEATURES,
-  ...PRO_UPGRADE_FEATURES,
-  ...PREMIUM_EXCLUSIVE_FEATURES,
+  {
+    title: 'Alertas de Boletas Faltantes',
+    description:
+      'Detecta meses o categorías donde podrías estar dejando dinero en la mesa.',
+    isAvailableInFuture: true,
+  },
+  {
+    title: 'Detección de Duplicados',
+    description:
+      'Evita errores con comprobantes repetidos o cargados anteriormente.',
+    isAvailableInFuture: true,
+  },
 ];

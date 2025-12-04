@@ -16,6 +16,7 @@ export function useCameraControls() {
           shutterSound: false,
         });
         if (photo) {
+          setFlash('off');
           router.push({
             pathname: '/photo-preview',
             params: { imageUri: photo.uri },
@@ -40,5 +41,6 @@ export function useCameraControls() {
     flash,
     takePicture,
     toggleFlash,
+    turnOffFlash: () => setFlash('off'),
   };
 }

@@ -5,9 +5,9 @@ import {
   ActivityIndicator,
   ScrollView,
   Alert,
+  Share,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, Share2 } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import ReceiptCard from '@/components/shared/receipt/receipt-card';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -16,6 +16,7 @@ import {
   useReceiptDetails,
 } from '@/hooks/receipts/use-receipts';
 import type { Tables } from '@/types/database.types';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function ReceiptDetails() {
   const router = useRouter();
@@ -42,36 +43,48 @@ export default function ReceiptDetails() {
     );
   };
 
+  const handleShareReceipt = async () => {
+    await Share.share({
+      message: `${data?.image_url}`,
+    });
+  };
+
   if (isError) {
     return <Text>Error: {isError}</Text>;
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white px-6" edges={['top', 'bottom']}>
+    <MainLayout edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="bg-white pb-8 pt-6">
           <View className="flex-row items-center justify-between">
             <Pressable
-              className="h-10 w-10 flex-row items-center justify-center rounded-full bg-gray-100"
+              className="h-12 w-12 flex-row items-center justify-center rounded-full bg-gray-100"
               aria-label="Volver"
-              onPress={() => router.push('/(tabs)/receipt/')}
+              onPress={() => router.back()}
             >
               <ChevronLeft size={24} color={COLORS.neutral.foreground} />
             </Pressable>
             <Text className="text-2xl font-medium text-neutral-foreground">
               Detalle de boleta
             </Text>
-            <View className="w-8" />
+            <Pressable
+              className="h-12 w-12 flex-row items-center justify-center rounded-full bg-gray-100"
+              aria-label="Compartir"
+              onPress={() => handleShareReceipt()}
+            >
+              <Share2 size={24} color={COLORS.neutral.foreground} />
+            </Pressable>
           </View>
         </View>
 
         {isLoading || isPending ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color={COLORS.primary} />
+            <ActivityIndicator size="large" color={COLORS.primary.default} />
           </View>
         ) : (
           <ReceiptCard
@@ -81,6 +94,6 @@ export default function ReceiptDetails() {
           />
         )}
       </ScrollView>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

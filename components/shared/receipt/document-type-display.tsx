@@ -1,8 +1,9 @@
 import { View, Text, Pressable } from 'react-native';
+import { FileText, ChevronRight } from 'lucide-react-native';
 import { DocumentType } from '@/types/ai-extraction.types';
 import { useState } from 'react';
 import { DocumentTypeCorrectionModal } from './document-type-correction-modal';
-import { FormLabel } from '@/components/ui/form';
+import { COLORS } from '@/constants/colors';
 
 type DocumentTypeDisplayProps = {
   value: DocumentType;
@@ -32,26 +33,34 @@ export default function DocumentTypeDisplay({
 
   return (
     <>
-      <View className="flex-row items-center">
-        <FormLabel className="text-base text-muted-foreground">
-          Tipo de comprobante:{' '}
-          <Text className="font-normal text-neutral-foreground">
-            {typeLabel}
-          </Text>
-        </FormLabel>
+      <Pressable
+        onPress={handleEdit}
+        disabled={disabled}
+        className="flex-row items-center justify-between rounded-2xl bg-neutral-50 p-4 active:bg-neutral-100 disabled:opacity-60"
+      >
+        <View className="flex-row items-center gap-3">
+          <View className="h-10 w-10 items-center justify-center rounded-xl bg-primary-default/10">
+            <FileText size={20} color={COLORS.primary.default} />
+          </View>
+          <View>
+            <Text className="text-xs font-medium text-neutral-400">
+              Tipo de comprobante
+            </Text>
+            <Text className="text-base font-semibold text-neutral-900">
+              {typeLabel}
+            </Text>
+          </View>
+        </View>
+
         {!disabled && (
-          <Pressable onPress={handleEdit} className="ml-2">
-            {({ pressed }) => (
-              <Text
-                className="text-base font-medium text-primary"
-                style={{ opacity: pressed ? 0.6 : 1 }}
-              >
-                Editar
-              </Text>
-            )}
-          </Pressable>
+          <View className="flex-row items-center gap-1">
+            <Text className="text-sm font-medium text-primary-default">
+              Cambiar
+            </Text>
+            <ChevronRight size={16} color={COLORS.primary.default} />
+          </View>
         )}
-      </View>
+      </Pressable>
 
       <DocumentTypeCorrectionModal
         visible={isModalVisible}

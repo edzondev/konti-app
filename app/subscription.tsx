@@ -1,155 +1,134 @@
-import { useCallback } from 'react';
 import {
   ActivityIndicator,
   Text,
-  TouchableOpacity,
   View,
-  ScrollView,
   Pressable,
-  Keyboard,
+  ScrollView,
 } from 'react-native';
-import Animated from 'react-native-reanimated';
-import { router, useLocalSearchParams } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Linking from 'expo-linking';
+import { router } from 'expo-router';
+import { X, Shield } from 'lucide-react-native';
+
 import { COLORS } from '@/constants/colors';
 import { PaymentSuccessModal } from '@/components/shared/modals/payment-success-modal';
-import { cn } from '@/lib/utils';
-import PlanCard from '@/components/shared/suscription/plan-card';
-import { X } from 'lucide-react-native';
+import { SinglePlanCard } from '@/components/shared/suscription/single-plan-card';
+import { FeatureGrid } from '@/components/shared/suscription/feature-grid';
 import { useSubscriptionLogic } from '@/hooks/subscriptions/use-subscription-logic';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function SubscriptionScreen() {
-  const { fromPreview, imageUrl } = useLocalSearchParams<{
-    fromPreview?: string;
-    imageUrl?: string;
-  }>();
-
-  const handleClose = useCallback(() => {
-    if (fromPreview === 'true' && imageUrl) {
-      router.replace({
-        pathname: '/preview',
-        params: { imageUrl },
-      });
-    } else {
-      router.back();
-    }
-  }, [fromPreview, imageUrl]);
+  const handleClose = () => router.back();
 
   const {
     availablePackages,
     isLoading,
     isPurchasing,
     showSuccessModal,
-    selectedPlanId,
-    setSelectedPlanId,
-    visibleFeatures,
-    contentAnimatedStyle,
+    features,
     handlePurchase,
+    havePlan,
   } = useSubscriptionLogic({ onClose: handleClose });
+
+  const handleCancelSubscription = async () => {
+    await Linking.openURL(
+      'https://play.google.com/store/account/subscriptions?id=com.edzon2121.KontiApp',
+    );
+  };
+
+  const handleTermsAndConditions = async () => {
+    await Linking.openURL(
+      'https://renedz21.github.io/konti-app.github.io/terms-and-conditions.html',
+    );
+  };
+
+  const mainPlan = availablePackages[0];
 
   if (isLoading) {
     return (
-      <SafeAreaView
-        className="flex-1 items-center justify-center bg-white"
-        edges={['top']}
-      >
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      </SafeAreaView>
+      <MainLayout className="items-center justify-center" edges={['top']}>
+        <ActivityIndicator size="large" color={COLORS.primary.default} />
+      </MainLayout>
     );
   }
 
   return (
-    <>
+    <MainLayout edges={['top', 'bottom']}>
       <PaymentSuccessModal visible={showSuccessModal} />
-
-      <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 100 }}
-          keyboardShouldPersistTaps="handled"
-          onScrollBeginDrag={Keyboard.dismiss}
-        >
-          <Animated.View style={[contentAnimatedStyle]} className="px-6">
-            {/* Header */}
-            <View className="flex-row items-center justify-between pb-6 pt-4">
-              <TouchableOpacity
-                onPress={handleClose}
-                className="rounded-full bg-neutral-100 p-2"
-              >
-                <X size={20} color={COLORS.neutral.foreground} />
-              </TouchableOpacity>
-            </View>
-
-            {/* Plans Section */}
-            <View className="mb-8 flex-row gap-4">
-              {availablePackages.map((plan) => (
-                <PlanCard
-                  key={plan.identifier}
-                  plan={plan}
-                  isSelected={selectedPlanId === plan.identifier}
-                  onSelect={() => setSelectedPlanId(plan.identifier)}
-                  emoji={plan.identifier === 'pro' ? '🤓' : '🚀'}
-                />
-              ))}
-            </View>
-
-            {/* Features Section */}
-            <View className="gap-4">
-              {visibleFeatures.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <View
-                    key={index}
-                    className="flex-row items-start gap-4 rounded-2xl bg-neutral-50 p-4"
-                  >
-                    <View className="h-12 w-12 items-center justify-center rounded-xl bg-secondary/10">
-                      <Icon size={24} color={COLORS.secondary} />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="mb-1 text-base font-bold text-neutral-900">
-                        {feature.title}
-                      </Text>
-                      {feature.isAvailableInFuture ? (
-                        <Text className="text-sm leading-5 text-muted-foreground">
-                          Proximamente
-                        </Text>
-                      ) : (
-                        <Text className="text-sm leading-5 text-neutral-600">
-                          {feature.description}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-          </Animated.View>
-        </ScrollView>
-        <View className="absolute bottom-0 left-0 right-0 bg-white px-6 pb-6 pt-4">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingBottom: 24 }}
+      >
+        <View className="flex-row items-center justify-between p-4">
           <Pressable
-            onPress={() =>
-              handlePurchase(
-                availablePackages.find(
-                  (p) => p.identifier === selectedPlanId,
-                ) ?? availablePackages[0],
-              )
-            }
-            disabled={isPurchasing || !selectedPlanId}
-            className={cn(
-              'h-14 items-center justify-center rounded-full',
-              isPurchasing || !selectedPlanId ? 'bg-neutral-300' : 'bg-primary',
-            )}
+            onPress={handleClose}
+            className="rounded-full bg-neutral-100 p-2.5"
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            {isPurchasing ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <Text className="text-base font-bold text-white">
-                Obtener tu prueba gratis
-              </Text>
-            )}
+            <X size={20} color={COLORS.neutral.foreground} />
           </Pressable>
+          <View className="flex-1" />
         </View>
-      </SafeAreaView>
-    </>
+
+        <View className="mb-6 px-6 text-center">
+          <Text className="mb-2 text-center text-3xl font-bold text-neutral-900">
+            Suscribete a{' '}
+            <Text className="text-secondary-default">Konti Plus</Text>
+          </Text>
+          <Text className="text-center text-base text-neutral-500">
+            Maximiza tus deducciones y ahorra tiempo con nuestra IA
+          </Text>
+        </View>
+
+        {mainPlan && (
+          <View className="mb-8 px-6">
+            <SinglePlanCard plan={mainPlan} havePlan={havePlan} />
+          </View>
+        )}
+
+        <FeatureGrid features={features} />
+
+        <View className="mt-8 px-6">
+          <View className="flex-row items-center justify-center gap-2 rounded-xl bg-neutral-50 py-3">
+            <Shield size={16} color={COLORS.neutral.muted} />
+            <Text className="text-xs text-neutral-500">Pago seguro •</Text>
+            <Pressable onPress={handleCancelSubscription}>
+              <Text className="text-xs text-neutral-500">
+                Cancela cuando quieras
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </ScrollView>
+
+      <View className="border-t border-neutral-100 bg-white px-6 pb-6 pt-4">
+        <Pressable
+          onPress={() => mainPlan && handlePurchase(mainPlan)}
+          disabled={isPurchasing || !mainPlan || havePlan}
+          className="h-14 items-center justify-center rounded-full bg-secondary-default disabled:opacity-50"
+        >
+          {isPurchasing ? (
+            <ActivityIndicator size="small" color={COLORS.neutral.white} />
+          ) : (
+            <Text className="text-base font-bold text-neutral-white">
+              {havePlan ? 'Tienes un plan activo' : 'Comenzar prueba gratis'}
+            </Text>
+          )}
+        </Pressable>
+        {!havePlan && (
+          <>
+            <Text className="mt-3 text-center text-xs text-neutral-400">
+              Al suscribirte, aceptas nuestros{' '}
+              <Text
+                className="text-secondary-default"
+                onPress={handleTermsAndConditions}
+              >
+                términos y condiciones
+              </Text>
+            </Text>
+          </>
+        )}
+      </View>
+    </MainLayout>
   );
 }

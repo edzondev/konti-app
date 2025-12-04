@@ -1,5 +1,4 @@
-import { useCallback, useState } from 'react';
-import { Alert } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useUserPlan } from '@/hooks/profile/use-user-plan';
 import { useAiExtraction } from '@/hooks/receipts/use-ai-extraction';
@@ -10,36 +9,77 @@ type UsePreviewLogicProps = {
   imageUrl?: string;
 };
 
+// Pure helper functions for permission logic
+function shouldRedirectToSubscription(
+  hasUsedAiTrial: boolean,
+  hasPlus: boolean,
+): boolean {
+  return hasUsedAiTrial && !hasPlus;
+}
+
+function getAiButtonText(hasUsedAiTrial: boolean, hasPlus: boolean): string {
+  return shouldRedirectToSubscription(hasUsedAiTrial, hasPlus)
+    ? 'Suscribirte'
+    : 'Procesar imagen';
+}
+
 export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
   const router = useRouter();
-  const { hasProOrBetter } = useUserPlan();
+  const { hasPlus } = useUserPlan();
   const { hasUsedAiTrial, setHasUsedAiTrial } = useAiTrialStore();
   const { mutateAsync: extractData, isPending: isExtractingData } =
     useAiExtraction();
 
   const [extractedData, setExtractedData] = useState<AiExtractedData>();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isLoadingModalVisible, setIsLoadingModalVisible] = useState(false);
+  const [isResultModalVisible, setIsResultModalVisible] = useState(false);
+  const [resultModalType, setResultModalType] = useState<'success' | 'error'>(
+    'success',
+  );
+  const [resultModalTitle, setResultModalTitle] = useState('');
+  const [resultModalMessage, setResultModalMessage] = useState('');
   const [documentType, setDocumentType] = useState<DocumentType>('boleta');
 
-  const canUseAi = hasProOrBetter || !hasUsedAiTrial;
-  const isTrialMode = !hasProOrBetter && !hasUsedAiTrial;
+  // Memoized derived values
+  const canUseAi = useMemo(
+    () => hasPlus || !hasUsedAiTrial,
+    [hasPlus, hasUsedAiTrial],
+  );
 
-  const handleButtonPress = useCallback(async () => {
-    if (hasUsedAiTrial && !hasProOrBetter) {
-      router.push({
-        pathname: '/subscription',
-        params: { fromPreview: 'true', imageUrl },
-      });
-      return;
-    }
+  const isTrialMode = useMemo(
+    () => !hasPlus && !hasUsedAiTrial,
+    [hasPlus, hasUsedAiTrial],
+  );
 
+  const aiButtonText = useMemo(
+    () => getAiButtonText(hasUsedAiTrial, hasPlus),
+    [hasUsedAiTrial, hasPlus],
+  );
+
+  const handleSubscriptionRedirect = useCallback(() => {
+    router.push('/subscription');
+  }, [router]);
+
+  const handleAiExtraction = useCallback(async () => {
     if (!imageUrl) return;
+
+    // Show loading modal
+    setIsLoadingModalVisible(true);
 
     try {
       const response = await extractData(imageUrl);
 
+      // Hide loading modal
+      setIsLoadingModalVisible(false);
+
       if (!response.success || !response.data) {
-        Alert.alert('Error', 'No se pudieron extraer los datos de la imagen');
+        setResultModalType('error');
+        setResultModalTitle('Error');
+        setResultModalMessage(
+          'No se pudieron extraer los datos de la imagen. Por favor, intenta nuevamente.',
+        );
+        setIsResultModalVisible(true);
         return;
       }
 
@@ -50,36 +90,58 @@ export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
         setHasUsedAiTrial(true);
       }
 
-      const baseMessage =
-        'Información extraída correctamente. El formulario se ha autocompletado.';
-      const successMessage = isTrialMode
-        ? `${baseMessage}\n\n¡Esta fue tu prueba gratuita! Suscríbete para seguir usando esta función.`
-        : baseMessage;
+      const message = isTrialMode
+        ? 'Información extraída correctamente. El formulario se ha autocompletado.\n\n¡Esta fue tu prueba gratuita! Suscríbete para seguir usando esta función.'
+        : 'Información extraída correctamente. El formulario se ha autocompletado.';
 
-      Alert.alert('Éxito', successMessage);
+      setResultModalType('success');
+      setResultModalTitle('Éxito');
+      setResultModalMessage(message);
+      setIsResultModalVisible(true);
     } catch (error) {
       console.error('Error en extracción:', error);
-      Alert.alert('Error', 'No se pudo extraer la información de la imagen');
+      setIsLoadingModalVisible(false);
+      setResultModalType('error');
+      setResultModalTitle('Error');
+      setResultModalMessage(
+        'No se pudo extraer la información de la imagen. Por favor, verifica la imagen e intenta nuevamente.',
+      );
+      setIsResultModalVisible(true);
     }
-  }, [hasUsedAiTrial, hasProOrBetter, imageUrl, extractData, isTrialMode, setHasUsedAiTrial, router]);
+  }, [imageUrl, extractData, isTrialMode, setHasUsedAiTrial]);
+
+  const handleButtonPress = useCallback(async () => {
+    if (shouldRedirectToSubscription(hasUsedAiTrial, hasPlus)) {
+      handleSubscriptionRedirect();
+      return;
+    }
+
+    await handleAiExtraction();
+  }, [hasUsedAiTrial, hasPlus, handleSubscriptionRedirect, handleAiExtraction]);
 
   const toggleModal = useCallback(() => {
     setIsModalVisible((prev) => !prev);
   }, []);
 
-  const aiButtonText = hasUsedAiTrial && !hasProOrBetter 
-    ? 'Suscríbete para usar IA' 
-    : 'Procesar con IA';
+  const handleCloseResultModal = useCallback(() => {
+    setIsResultModalVisible(false);
+  }, []);
 
   return {
     extractedData,
     isModalVisible,
+    isLoadingModalVisible,
+    isResultModalVisible,
+    resultModalType,
+    resultModalTitle,
+    resultModalMessage,
     documentType,
     setDocumentType,
     isExtractingData,
     handleButtonPress,
     toggleModal,
-    canUseAi: true,
+    handleCloseResultModal,
+    canUseAi,
     aiButtonText,
   };
 }

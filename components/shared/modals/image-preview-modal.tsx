@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Modal, Pressable, View } from 'react-native';
 import { X } from 'lucide-react-native';
 import Animated, {
@@ -11,7 +12,6 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
-import { useEffect } from 'react';
 import ImageComponent from '@/components/ui/image';
 import { COLORS } from '@/constants/colors';
 
@@ -89,7 +89,6 @@ export function ImagePreviewModal({
       savedTranslateY.value = translateY.value;
     });
 
-  // Compose gestures: pinch and pan work simultaneously
   const composed = Gesture.Simultaneous(pinchGesture, panGesture);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -113,21 +112,23 @@ export function ImagePreviewModal({
       onRequestClose={onClose}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <Animated.View style={backdropStyle} className="flex-1 bg-black/95">
+        <Animated.View
+          style={backdropStyle}
+          className="relative flex-1 bg-black/95"
+        >
           <Pressable
             onPress={onClose}
-            className="absolute left-6 top-14 z-20 h-12 w-12 items-center justify-center rounded-full bg-white/20 active:bg-white/30"
-            aria-label="Cerrar vista previa"
+            className="absolute bottom-10 left-1/2 z-20 h-20 w-20 -translate-x-1/2 items-center justify-center rounded-full bg-white/20 active:bg-white/30"
           >
-            <X size={24} color={COLORS.neutral.white} />
+            <X size={32} color={COLORS.neutral.white} />
           </Pressable>
 
           <GestureDetector gesture={composed}>
             <Animated.View
-              style={[animatedStyle, { flex: 1 }]}
+              style={[animatedStyle, { flexGrow: 1 }]}
               collapsable={false}
             >
-              <View style={{ flex: 1 }} pointerEvents="none">
+              <View pointerEvents="none">
                 <ImageComponent
                   src={imageUrl}
                   contentFit="contain"

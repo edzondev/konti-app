@@ -13,7 +13,7 @@ export default memo(function ReceiptListItem({ receipt }: Props) {
     <>
       <Link href={`/receipt/${receipt.id}`} asChild>
         <Pressable className="flex-row items-center justify-between gap-x-4">
-          {({ pressed }) => (
+          {() => (
             <>
               <View className="flex-row items-center gap-4 rounded-2xl border border-neutral-border bg-white p-4">
                 <View className="min-w-0 flex-1">
@@ -22,12 +22,10 @@ export default memo(function ReceiptListItem({ receipt }: Props) {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    {receipt.business_name ||
-                      receipt.receipt_number ||
-                      'Comprobante'}
+                    {receipt.business_name || 'Comprobante'}
                   </Text>
                   <Text
-                    className="text-xs font-normal text-muted-foreground"
+                    className="text-xs font-normal text-neutral-muted"
                     numberOfLines={1}
                   >
                     {dateFormat(receipt.created_at ?? '')}
@@ -42,7 +40,7 @@ export default memo(function ReceiptListItem({ receipt }: Props) {
                   </Text>
                   {receipt.is_expense && (
                     <Text
-                      className="rounded bg-primary/10 px-2 py-0.5 text-xs font-normal text-primary"
+                      className="rounded-full bg-primary-default/10 px-2 py-0.5 text-xs font-normal text-primary-default"
                       numberOfLines={1}
                     >
                       Contable

@@ -50,36 +50,60 @@ export type Database = {
       receipts: {
         Row: {
           business_name: string | null;
+          category: string | null;
+          classification_source: string | null;
+          confidence: number | null;
           created_at: string | null;
           description: string | null;
           id: string;
+          igv: number | null;
           image_url: string;
           is_expense: boolean | null;
+          issue_date: string | null;
+          justificacion_contable: string | null;
+          raw_text: string | null;
           receipt_number: string | null;
+          receipt_type: string | null;
           ruc: string | null;
           total_amount: number | null;
           user_id: string | null;
         };
         Insert: {
           business_name?: string | null;
+          category?: string | null;
+          classification_source?: string | null;
+          confidence?: number | null;
           created_at?: string | null;
           description?: string | null;
           id?: string;
+          igv?: number | null;
           image_url: string;
           is_expense?: boolean | null;
+          issue_date?: string | null;
+          justificacion_contable?: string | null;
+          raw_text?: string | null;
           receipt_number?: string | null;
+          receipt_type?: string | null;
           ruc?: string | null;
           total_amount?: number | null;
           user_id?: string | null;
         };
         Update: {
           business_name?: string | null;
+          category?: string | null;
+          classification_source?: string | null;
+          confidence?: number | null;
           created_at?: string | null;
           description?: string | null;
           id?: string;
+          igv?: number | null;
           image_url?: string;
           is_expense?: boolean | null;
+          issue_date?: string | null;
+          justificacion_contable?: string | null;
+          raw_text?: string | null;
           receipt_number?: string | null;
+          receipt_type?: string | null;
           ruc?: string | null;
           total_amount?: number | null;
           user_id?: string | null;
@@ -139,9 +163,119 @@ export type Database = {
           },
         ];
       };
+      user_annual_summary: {
+        Row: {
+          avg_confidence: number | null;
+          boleta_count: number | null;
+          deductible_amount: number | null;
+          deductible_igv: number | null;
+          deductible_receipts: number | null;
+          factura_count: number | null;
+          non_deductible_receipts: number | null;
+          total_amount: number | null;
+          total_receipts: number | null;
+          user_id: string | null;
+          year: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'receipts_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      user_deductions_by_category: {
+        Row: {
+          category: string | null;
+          receipt_count: number | null;
+          total_amount: number | null;
+          total_igv: number | null;
+          user_id: string | null;
+          year: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'receipts_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      user_monthly_deductions: {
+        Row: {
+          deductible_amount: number | null;
+          month: number | null;
+          non_deductible_amount: number | null;
+          receipt_count: number | null;
+          user_id: string | null;
+          year: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'receipts_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      user_suspect_receipts: {
+        Row: {
+          business_name: string | null;
+          category: string | null;
+          classification_source: string | null;
+          confidence: number | null;
+          created_at: string | null;
+          id: string | null;
+          image_url: string | null;
+          issue_date: string | null;
+          justificacion_contable: string | null;
+          receipt_type: string | null;
+          suspect_reason: string | null;
+          total_amount: number | null;
+          user_id: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'receipts_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Functions: {
-      [_ in never]: never;
+      classify_receipt_by_rules: {
+        Args: {
+          p_business_name: string;
+          p_receipt_type: string;
+          p_ruc: string;
+          p_total_amount: number;
+        };
+        Returns: {
+          category: string;
+          confidence: number;
+          is_deductible: boolean;
+          justification: string;
+        }[];
+      };
+      get_user_deduction_limit_status: {
+        Args: { p_user_id: string; p_year?: number };
+        Returns: {
+          annual_limit: number;
+          percentage_used: number;
+          remaining: number;
+          total_deductible: number;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;
@@ -154,10 +288,7 @@ export type Database = {
 
 type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>;
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<
-  keyof Database,
-  'public'
->];
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>];
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends

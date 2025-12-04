@@ -1,11 +1,11 @@
 import { View, Pressable, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { X } from 'lucide-react-native';
 import ImageComponent from '@/components/ui/image';
 import { COLORS } from '@/constants/colors';
 import { UploadModal } from '@/components/shared/modals/upload-modal';
 import { usePhotoPreview } from '@/hooks/receipts/use-photo-preview';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function PhotoPreview() {
   const { imageUri } = useLocalSearchParams<{ imageUri: string }>();
@@ -14,9 +14,8 @@ export default function PhotoPreview() {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-black" edges={['top', 'bottom']}>
+    <MainLayout className="bg-black" edges={['top', 'bottom']}>
       <View className="relative flex-1">
-        {/* Full screen image */}
         {imageUri && (
           <ImageComponent
             src={imageUri}
@@ -26,7 +25,6 @@ export default function PhotoPreview() {
           />
         )}
 
-        {/* Close button */}
         <Pressable
           onPress={handleClose}
           className="absolute left-6 top-6 flex h-12 w-12 items-center justify-center rounded-full bg-black/70"
@@ -35,7 +33,6 @@ export default function PhotoPreview() {
           <X size={24} color={COLORS.neutral.white} />
         </Pressable>
 
-        {/* Continue button */}
         <View className="absolute bottom-0 left-0 right-0 pb-12">
           <View className="items-center px-6">
             <Pressable
@@ -53,6 +50,6 @@ export default function PhotoPreview() {
       </View>
 
       <UploadModal visible={isUploading} />
-    </SafeAreaView>
+    </MainLayout>
   );
 }

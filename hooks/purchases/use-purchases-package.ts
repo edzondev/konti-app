@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { PurchasesPackage } from 'react-native-purchases';
 
 export function usePurchasePackage() {
-  const mutation = useMutation({
+  const { mutateAsync, ...rest } = useMutation({
     mutationFn: (pkg: PurchasesPackage) => purchasePackage(pkg),
     retry: false,
     onError: (error) => {
@@ -13,10 +13,7 @@ export function usePurchasePackage() {
   });
 
   return {
-    purchasePackage: mutation.mutate,
-    purchasePackageAsync: mutation.mutateAsync,
-    isPending: mutation.isPending,
-    isError: mutation.isError,
-    error: mutation.error,
+    purchasePackageAsync: mutateAsync,
+    ...rest,
   };
 }

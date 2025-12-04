@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
 import {
   Modal as RNModal,
   View,
   Text,
   TouchableOpacity,
   Pressable,
+  ViewProps,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -139,19 +140,24 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({ title, onClose }) => {
       </Text>
       {onClose && (
         <TouchableOpacity onPress={onClose}>
-          <Text className="text-lg text-muted-foreground">✕</Text>
+          <Text className="text-lg text-neutral-muted">✕</Text>
         </TouchableOpacity>
       )}
     </View>
   );
 };
 
-interface ModalContentProps {
-  children: React.ReactNode;
-}
+type ModalContentProps = ViewProps & PropsWithChildren;
 
-export const ModalContent: React.FC<ModalContentProps> = ({ children }) => {
-  return <View className="mb-6">{children}</View>;
+export const ModalContent: React.FC<ModalContentProps> = ({
+  children,
+  ...props
+}) => {
+  return (
+    <View className="mb-6" {...props}>
+      {children}
+    </View>
+  );
 };
 
 interface ModalFooterProps {

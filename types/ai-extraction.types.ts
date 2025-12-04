@@ -17,14 +17,14 @@ export type ReceiptCategory =
 
 export interface AiExtractedData {
   es_contable: boolean;
-  fecha: string;
-  justificacion_contable: string;
-  monto_total: string;
-  numero_comprobante: string;
-  razon_social: string;
-  ruc: string;
+  fecha: string | null;
+  justificacion_contable: string | null;
+  monto_total: string | number | null;
+  numero_comprobante: string | null;
+  razon_social: string | null;
+  ruc: string | null;
   tipo_comprobante: DocumentType;
-  igv?: string;
+  igv?: string | number | null;
   category?: ReceiptCategory;
   confidence?: number;
   classification_source?: ClassificationSource;

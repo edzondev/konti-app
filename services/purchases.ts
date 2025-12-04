@@ -11,6 +11,11 @@ export interface PurchasesHookError {
   code?: string;
 }
 
+export interface PurchasesData {
+  packages: readonly PurchasesPackage[];
+  customerInfo: CustomerInfo;
+}
+
 export const NOT_INITIALIZED_ERROR: PurchasesHookError = {
   message: 'Purchases SDK is not initialized.',
   code: 'NOT_INITIALIZED',
@@ -41,11 +46,6 @@ export async function checkPurchasesConfiguration(): Promise<boolean> {
   return true;
 }
 
-export interface PurchasesData {
-  packages: readonly PurchasesPackage[];
-  customerInfo: CustomerInfo;
-}
-
 export async function getPurchasesData(): Promise<PurchasesData> {
   await checkPurchasesConfiguration();
 
@@ -68,7 +68,10 @@ export async function purchasePackage(
   return customerInfo;
 }
 
-export async function restorePurchases(): Promise<{ customerInfo: CustomerInfo; userId?: string }> {
+export async function restorePurchases(): Promise<{
+  customerInfo: CustomerInfo;
+  userId?: string;
+}> {
   await checkPurchasesConfiguration();
   const customerInfo = await Purchases.restorePurchases();
   return { customerInfo, userId: customerInfo.originalAppUserId };

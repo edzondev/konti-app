@@ -11,12 +11,16 @@ export function ChatError({ message }: ChatErrorProps) {
   return (
     <Animated.View
       entering={FadeIn.duration(300)}
-      className="mx-4 mt-3 flex-row items-center gap-3 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3"
+      className="border-destructive-default/20 bg-destructive-default/5 mx-4 mt-3 flex-row items-center gap-3 rounded-xl border px-4 py-3"
     >
-      <View className="h-8 w-8 items-center justify-center rounded-full bg-destructive/10">
-        <AlertTriangle size={18} color={COLORS.destructive} strokeWidth={2} />
+      <View className="bg-destructive-default/10 h-8 w-8 items-center justify-center rounded-full">
+        <AlertTriangle
+          size={18}
+          color={COLORS.destructive.default}
+          strokeWidth={2}
+        />
       </View>
-      <Text className="font-regular flex-1 text-sm text-destructive">
+      <Text className="font-regular text-destructive-default flex-1 text-sm">
         {message}
       </Text>
     </Animated.View>

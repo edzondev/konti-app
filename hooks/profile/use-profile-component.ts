@@ -7,33 +7,25 @@ import type { Tables } from '@/types/database.types';
 
 const PLAN_CONFIG = {
   free: {
-    icon: { Component: Zap, color: COLORS.muted.foreground },
+    icon: { Component: Zap, color: COLORS.neutral.muted },
     badge: {
-      label: 'Free',
+      label: 'Básico',
       className:
-        'bg-neutral-100 rounded px-2 py-0.5 text-xs font-light text-neutral-foreground',
+        'bg-neutral-100 rounded px-2 py-0.5 text-xs font-medium text-neutral-foreground',
     },
   },
-  pro: {
-    icon: { Component: Zap, color: COLORS.primary },
+  plus: {
+    icon: { Component: Crown, color: COLORS.secondary.default },
     badge: {
-      label: 'Pro',
+      label: 'Plus',
       className:
-        'rounded bg-primary/10 px-2 py-0.5 text-xs font-light text-primary',
-    },
-  },
-  premium: {
-    icon: { Component: Crown, color: '#d97706' },
-    badge: {
-      label: 'Premium',
-      className:
-        'rounded bg-amber-500/10 px-2 py-0.5 text-xs font-light text-amber-600',
+        'rounded bg-secondary-default/10 px-2 py-0.5 text-xs font-medium text-secondary-default',
     },
   },
 } as const;
 
 type UseProfileComponentProps = {
-  profile: Tables<'profiles'>;
+  profile: Tables<'profiles'> | undefined;
   signOut: () => Promise<void>;
 };
 
@@ -42,11 +34,14 @@ export default function useProfileComponent({
   signOut,
 }: UseProfileComponentProps) {
   const planConfig = useMemo(() => {
+    if (!profile?.current_plan) {
+      return PLAN_CONFIG.free;
+    }
     return (
       PLAN_CONFIG[profile.current_plan as keyof typeof PLAN_CONFIG] ??
       PLAN_CONFIG.free
     );
-  }, [profile.current_plan]);
+  }, [profile?.current_plan]);
 
   const handleLogout = async () => {
     Alert.alert(

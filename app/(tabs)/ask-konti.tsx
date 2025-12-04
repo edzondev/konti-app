@@ -1,5 +1,4 @@
 import { View, Text, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 
 import { ChatInput } from '@/components/shared/chat/chat-input';
@@ -8,8 +7,11 @@ import { ChatHeader } from '@/components/shared/chat/chat-header';
 import { ChatFooter } from '@/components/shared/chat/chat-footer';
 import { ContextSummary } from '@/components/shared/chat/context-summary';
 import EmptyChat from '@/components/shared/chat/empty-chat';
+import { MessageLimitReached } from '@/components/shared/chat/message-limit-reached';
 import { useAskKonti } from '@/hooks/chat/use-ask-konti';
+import { useFreeMessages } from '@/hooks/chat/use-free-messages';
 import { QUICK_PROMPT_FEATURES } from '@/constants/chat';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function AskKontiScreen() {
   const {
@@ -22,14 +24,25 @@ export default function AskKontiScreen() {
     clearChat,
   } = useAskKonti();
 
+  const { messagesRemaining, hasReachedLimit, currentPlan } = useFreeMessages();
+
+  const showLimitReached = hasReachedLimit && currentPlan === 'free';
+  const showCounter =
+    !showLimitReached &&
+    currentPlan === 'free' &&
+    messagesRemaining < 5 &&
+    messagesRemaining !== Number.POSITIVE_INFINITY;
+
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+    <MainLayout edges={['top']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View className="flex-1">
-          {messages.length > 0 && <ChatHeader resetMessages={clearChat} />}
+          {messages.length > 0 && (
+            <ChatHeader resetMessages={clearChat} currentPlan={currentPlan} />
+          )}
 
           <FlashList
             data={messages}
@@ -49,6 +62,7 @@ export default function AskKontiScreen() {
                 features={QUICK_PROMPT_FEATURES}
                 sendQuickPrompt={sendQuickPrompt}
                 isLoading={isLoading}
+                disabled={showLimitReached}
               />
             }
             ListFooterComponent={
@@ -60,6 +74,14 @@ export default function AskKontiScreen() {
         </View>
 
         <View className="flex-col border-t border-neutral-border/30 p-4">
+          {showCounter && (
+            <>
+              <MessageLimitReached
+                message={`Tienes ${messagesRemaining} mensaje${messagesRemaining !== 1 ? 's' : ''} restante${messagesRemaining !== 1 ? 's' : ''}`}
+                description="Suscribete para desbloquear más mensajes."
+              />
+            </>
+          )}
           {contextSummary && messages.length > 0 && (
             <ContextSummary
               totalReceipts={contextSummary.total_receipts}
@@ -67,18 +89,23 @@ export default function AskKontiScreen() {
             />
           )}
 
-          <ChatInput
-            onSend={sendMessage}
-            isLoading={isLoading}
-            placeholder="Escribe tu pregunta a Konti..."
-          />
-
-          <Text className="text-center text-xs leading-tight text-muted-foreground/70">
-            Konti es una herramienta de organización. Para decisiones
-            tributarias importantes, consulta con un contador profesional.
-          </Text>
+          {showLimitReached ? (
+            <MessageLimitReached message="Has alcanzado tu límite de mensajes." />
+          ) : (
+            <>
+              <ChatInput
+                onSend={sendMessage}
+                isLoading={isLoading}
+                placeholder="Escribe tu pregunta a Konti..."
+              />
+              <Text className="text-center text-xs leading-tight text-neutral-muted/70">
+                Konti es una herramienta de organización. Para decisiones
+                tributarias importantes, consulta con un contador profesional.
+              </Text>
+            </>
+          )}
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

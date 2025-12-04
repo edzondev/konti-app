@@ -42,7 +42,7 @@ export default function DocumentTypeSelector({
       <View className="relative flex-row overflow-hidden rounded-lg border border-neutral-border bg-white">
         <Animated.View
           style={[indicatorStyle, { width: `${INDICATOR_WIDTH_PERCENT}%` }]}
-          className="absolute left-0 top-0 h-full rounded-lg bg-primary"
+          className="bg-primary-default absolute left-0 top-0 h-full rounded-lg"
         />
 
         <Pressable
@@ -54,7 +54,7 @@ export default function DocumentTypeSelector({
           <Text
             className={cn(
               'text-base font-medium',
-              value === 'boleta' ? 'text-white' : 'text-muted-foreground',
+              value === 'boleta' ? 'text-neutral-white' : 'text-neutral-muted',
             )}
           >
             Boleta
@@ -70,7 +70,7 @@ export default function DocumentTypeSelector({
           <Text
             className={cn(
               'text-base font-medium',
-              value === 'factura' ? 'text-white' : 'text-muted-foreground',
+              value === 'factura' ? 'text-neutral-white' : 'text-neutral-muted',
             )}
           >
             Factura

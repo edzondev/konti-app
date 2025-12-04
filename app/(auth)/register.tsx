@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
 import { Link } from 'expo-router';
 import { COLORS } from '@/constants/colors';
@@ -24,12 +23,13 @@ import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useRegister } from '@/hooks/auth/use-register';
 import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function Register() {
   const { form, onSubmit, handleCancel, isLoading } = useRegister();
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <MainLayout>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -57,7 +57,7 @@ export default function Register() {
                 Registrarse
               </Text>
               <Text
-                className="mt-2 text-base font-normal text-muted-foreground"
+                className="mt-2 text-base font-normal text-neutral-muted"
                 numberOfLines={2}
               >
                 Ingresa tu email, nombre y contraseña para registrarte.
@@ -165,10 +165,10 @@ export default function Register() {
 
               <TouchableOpacity
                 onPress={form.handleSubmit(onSubmit)}
-                className="mt-8 rounded-lg bg-primary py-4"
+                className="mt-8 rounded-lg bg-primary-default py-4"
                 disabled={isLoading}
               >
-                <Text className="text-center text-base font-semibold text-white">
+                <Text className="text-center text-base font-semibold text-neutral-white">
                   {isLoading ? (
                     <ActivityIndicator
                       size="small"
@@ -181,12 +181,12 @@ export default function Register() {
               </TouchableOpacity>
 
               <View className="mb-8 mt-6 flex-row justify-center">
-                <Text className="text-base text-muted-foreground">
+                <Text className="text-base text-neutral-muted">
                   ¿Ya tienes una cuenta?{' '}
                 </Text>
                 <Link href="/login" asChild>
                   <Pressable>
-                    <Text className="text-base font-medium text-primary">
+                    <Text className="text-base font-medium text-primary-default">
                       Inicia sesión.
                     </Text>
                   </Pressable>
@@ -196,6 +196,6 @@ export default function Register() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

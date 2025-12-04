@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/components/providers/auth-provider';
 import { askKonti, askKontiQuickPrompt } from '@/services/classification';
+import { useFreeMessages } from '@/hooks/chat/use-free-messages';
+import { useUserPlan } from '@/hooks/profile/use-user-plan';
 import type { ChatMessage, QuickPrompt } from '@/types/ai-extraction.types';
 
 export const QUICK_PROMPTS: QuickPrompt[] = [
@@ -43,6 +45,8 @@ interface UseAskKontiReturn {
 
 export function useAskKonti(): UseAskKontiReturn {
   const { session } = useAuth();
+  const { canSendMessage, registerMessage } = useFreeMessages();
+  const { hasPlus } = useUserPlan();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [contextSummary, setContextSummary] = useState<{
@@ -64,10 +68,21 @@ export function useAskKonti(): UseAskKontiReturn {
       }
 
       if (isQuickPrompt) {
-        return askKontiQuickPrompt(session.user.id, question);
+        return askKontiQuickPrompt(
+          session.user.id,
+          question,
+          hasPlus,
+          canSendMessage,
+        );
       }
 
-      return askKonti(session.user.id, question, messages);
+      return askKonti(
+        session.user.id,
+        question,
+        messages,
+        hasPlus,
+        canSendMessage,
+      );
     },
     onSuccess: (data, variables) => {
       if (data.success && data.data) {
@@ -80,6 +95,7 @@ export function useAskKonti(): UseAskKontiReturn {
         setMessages((prev) => [...prev, assistantMessage]);
         setContextSummary(data.data.context_summary);
         setError(null);
+        registerMessage();
       } else {
         setError(data.error || 'Error al procesar la respuesta');
       }
@@ -92,6 +108,7 @@ export function useAskKonti(): UseAskKontiReturn {
   const sendMessage = useCallback(
     async (message: string) => {
       if (!message.trim()) return;
+      if (!canSendMessage) return;
 
       const userMessage: ChatMessage = {
         role: 'user',
@@ -106,13 +123,14 @@ export function useAskKonti(): UseAskKontiReturn {
         isQuickPrompt: false,
       });
     },
-    [messageMutation],
+    [messageMutation, canSendMessage],
   );
 
   const sendQuickPrompt = useCallback(
     async (promptId: string) => {
       const prompt = QUICK_PROMPTS.find((p) => p.id === promptId);
       if (!prompt) return;
+      if (!canSendMessage) return;
 
       const userMessage: ChatMessage = {
         role: 'user',
@@ -127,7 +145,7 @@ export function useAskKonti(): UseAskKontiReturn {
         isQuickPrompt: true,
       });
     },
-    [messageMutation],
+    [messageMutation, canSendMessage],
   );
 
   const clearChat = useCallback(() => {

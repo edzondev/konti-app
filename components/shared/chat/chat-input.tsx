@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { View, Pressable, ActivityIndicator } from 'react-native';
 import { ArrowUp } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
-import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 
 interface ChatInputProps {
@@ -44,8 +43,8 @@ export function ChatInput({
 
         <Pressable
           onPress={handleSend}
-          disabled={!canSend}
-          className="h-10 w-10 items-center justify-center rounded-full bg-secondary"
+          disabled={!canSend || isLoading}
+          className="bg-secondary-default h-10 w-10 items-center justify-center rounded-full disabled:opacity-50"
         >
           {isLoading ? (
             <ActivityIndicator size="small" color={COLORS.neutral.white} />

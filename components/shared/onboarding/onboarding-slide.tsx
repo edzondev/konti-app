@@ -23,7 +23,7 @@ export function OnboardingSlide({
           {title}
         </Text>
 
-        <Text className="text-center text-base leading-relaxed text-muted-foreground">
+        <Text className="text-neutral-muted text-center text-base leading-relaxed">
           {description}
         </Text>
       </View>

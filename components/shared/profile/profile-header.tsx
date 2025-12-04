@@ -19,8 +19,10 @@ export function ProfileHeader({ name, email }: ProfileHeaderProps) {
   return (
     <View className="mb-8 flex-row items-center gap-4">
       <View className="overflow-hidden rounded-full">
-        <View className="h-20 w-20 items-center justify-center rounded-full bg-secondary">
-          <Text className="text-2xl font-bold text-white">{initials}</Text>
+        <View className="h-20 w-20 items-center justify-center rounded-full bg-secondary-default">
+          <Text className="text-4xl font-bold text-neutral-white">
+            {initials}
+          </Text>
         </View>
       </View>
       <View>
@@ -34,7 +36,7 @@ export function ProfileHeader({ name, email }: ProfileHeaderProps) {
 
         <View className="mt-1 rounded-full bg-neutral-100 px-4 py-1.5">
           <Text
-            className="text-center text-sm text-muted-foreground"
+            className="text-center text-sm text-neutral-muted"
             numberOfLines={1}
           >
             {email}

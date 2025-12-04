@@ -1,5 +1,4 @@
 import { Pressable, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView } from 'expo-camera';
 import {
   Image as ImageIcon,
@@ -11,12 +10,20 @@ import { router } from 'expo-router';
 import { COLORS } from '@/constants/colors';
 import { useCameraControls } from '@/hooks/camera/use-camera-controls';
 import { useGalleryPicker } from '@/hooks/gallery/use-gallery-picker';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function Camera() {
-  const { cameraRef, flash, takePicture, toggleFlash } = useCameraControls();
+  const { cameraRef, flash, takePicture, toggleFlash, turnOffFlash } =
+    useCameraControls();
   const { handleGalleryPress, isUploading } = useGalleryPicker();
+
+  const handleClose = () => {
+    turnOffFlash();
+    router.back();
+  };
+
   return (
-    <SafeAreaView className="flex-1 bg-black" edges={['top', 'bottom']}>
+    <MainLayout className="bg-black" edges={['top', 'bottom']}>
       <View className="relative flex-1">
         <CameraView
           ref={cameraRef}
@@ -28,7 +35,7 @@ export default function Camera() {
 
         <View className="absolute left-0 right-0 top-0 px-6 pt-4">
           <Pressable
-            onPress={() => router.back()}
+            onPress={handleClose}
             className="h-12 w-12 items-center justify-center rounded-full bg-black/50 active:bg-black/70"
             aria-label="Cerrar cámara"
           >
@@ -85,6 +92,6 @@ export default function Camera() {
           </View>
         </View>
       </View>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

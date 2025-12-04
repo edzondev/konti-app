@@ -59,7 +59,7 @@ function Dot({ index, scrollX, width }: DotProps) {
   return (
     <Animated.View
       style={animatedStyle}
-      className="h-2 rounded-full bg-primary"
+      className="bg-primary-default h-2 rounded-full"
     />
   );
 }

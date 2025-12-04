@@ -1,14 +1,10 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import {
-  ArrowUpDown,
-  FileText,
-  Filter,
-  ReceiptText,
-  TrendingUp,
-} from 'lucide-react-native';
+import { ArrowUpDown } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { COLORS } from '@/constants/colors';
 import type { FilterType } from '@/hooks/receipts/use-filter-receipt';
+import IconCheck from '@/assets/icons/icon-check.svg';
+import CustomIcon from '../icon/custom-icon';
 
 type FilterPillsProps = {
   currentFilter: FilterType;
@@ -21,57 +17,22 @@ const FILTER_CONFIG = [
   {
     type: 'all' as FilterType,
     label: 'Todas',
-    Icon: Filter,
-    activeClass: 'bg-primary',
-    inactiveClass: 'bg-neutral-border',
-    activeTextClass: 'text-white',
-    inactiveTextClass: 'text-neutral-foreground',
-    activeIconColor: COLORS.neutral.white,
-    inactiveIconColor: COLORS.neutral.foreground,
   },
   {
     type: 'expense' as FilterType,
     label: 'Contables',
-    Icon: TrendingUp,
-    activeClass: 'bg-emerald-500',
-    inactiveClass: 'bg-emerald-500/10',
-    activeTextClass: 'text-white',
-    inactiveTextClass: 'text-emerald-700',
-    activeIconColor: '#fff',
-    inactiveIconColor: '#047857',
   },
   {
     type: 'nonExpense' as FilterType,
     label: 'No contables',
-    Icon: ReceiptText,
-    activeClass: 'bg-indigo-500',
-    inactiveClass: 'bg-indigo-500/10',
-    activeTextClass: 'text-white',
-    inactiveTextClass: 'text-indigo-700',
-    activeIconColor: '#fff',
-    inactiveIconColor: '#6366f1',
   },
   {
     type: 'boleta' as FilterType,
     label: 'Boletas',
-    Icon: ReceiptText,
-    activeClass: 'bg-blue-500',
-    inactiveClass: 'bg-blue-500/10',
-    activeTextClass: 'text-white',
-    inactiveTextClass: 'text-blue-700',
-    activeIconColor: '#fff',
-    inactiveIconColor: '#2563eb',
   },
   {
     type: 'factura' as FilterType,
     label: 'Facturas',
-    Icon: FileText,
-    activeClass: 'bg-rose-500',
-    inactiveClass: 'bg-rose-500/10',
-    activeTextClass: 'text-white',
-    inactiveTextClass: 'text-rose-700',
-    activeIconColor: '#fff',
-    inactiveIconColor: '#e11d48',
   },
 ];
 
@@ -96,16 +57,21 @@ export function FilterPills({
               key={filter.type}
               onPress={() => onFilterChange(filter.type)}
               className={cn(
-                'flex-row items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-light',
-                isActive ? filter.activeClass : filter.inactiveClass,
+                'flex-row items-center gap-x-2 whitespace-nowrap rounded-full border border-neutral-border px-4 py-2 text-sm font-light transition-all duration-300 ease-in-out',
+                isActive ? 'border-primary-default' : 'border-neutral-border',
               )}
             >
-              <filter.Icon
-                size={16}
-                color={isActive ? filter.activeIconColor : filter.inactiveIconColor}
-              />
+              {isActive && (
+                <CustomIcon
+                  icon={IconCheck}
+                  color={COLORS.primary.default}
+                  size={18}
+                />
+              )}
               <Text
-                className={isActive ? filter.activeTextClass : filter.inactiveTextClass}
+                className={cn(
+                  isActive ? 'text-primary-default' : 'text-neutral-muted',
+                )}
               >
                 {filter.label}
               </Text>
@@ -114,10 +80,10 @@ export function FilterPills({
         })}
         <Pressable
           onPress={onToggleSortOrder}
-          className="flex-row items-center gap-2 whitespace-nowrap rounded-full bg-violet-500/10 px-4 py-2 text-sm font-light transition-all hover:bg-violet-500/20"
+          className="flex-row items-center gap-2 whitespace-nowrap rounded-full border border-neutral-border bg-white px-4 py-2 text-sm font-light"
         >
-          <ArrowUpDown size={16} color="#9333EA" />
-          <Text className="text-violet-700">
+          <ArrowUpDown size={16} color={COLORS.neutral.muted} />
+          <Text className="text-neutral-foreground">
             {sortBy === 'date_desc' ? 'Más recientes' : 'Más antiguos'}
           </Text>
         </Pressable>
@@ -125,4 +91,3 @@ export function FilterPills({
     </View>
   );
 }
-

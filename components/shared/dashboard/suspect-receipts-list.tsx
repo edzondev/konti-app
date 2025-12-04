@@ -74,7 +74,7 @@ export function SuspectReceiptsList({
           <View className="h-8 w-8 items-center justify-center rounded-full bg-green-100">
             <AlertCircle size={16} color="#16A34A" strokeWidth={2} />
           </View>
-          <Text className="text-foreground text-base font-semibold">
+          <Text className="text-base font-semibold text-neutral-foreground">
             Pendientes de Revisión
           </Text>
         </View>
@@ -94,7 +94,7 @@ export function SuspectReceiptsList({
           <View className="h-8 w-8 items-center justify-center rounded-full bg-amber-100">
             <AlertCircle size={16} color="#D97706" strokeWidth={2} />
           </View>
-          <Text className="text-foreground text-base font-semibold">
+          <Text className="text-base font-semibold text-neutral-foreground">
             Pendientes de Revisión
           </Text>
         </View>
@@ -119,7 +119,7 @@ export function SuspectReceiptsList({
             >
               <View className="flex-1">
                 <Text
-                  className="text-foreground text-sm font-medium"
+                  className="text-sm font-medium text-neutral-foreground"
                   numberOfLines={1}
                 >
                   {receipt.business_name || 'Sin identificar'}
@@ -129,7 +129,7 @@ export function SuspectReceiptsList({
                     {formatCurrency(receipt.total_amount)}
                   </Text>
                   <View className="flex-row items-center gap-1">
-                    <ReasonIcon size={12} color={COLORS.muted.foreground} />
+                    <ReasonIcon size={12} color={COLORS.neutral.muted} />
                     <Text className={`text-xs ${reasonInfo.color}`}>
                       {reasonInfo.label}
                     </Text>
@@ -141,7 +141,7 @@ export function SuspectReceiptsList({
                   </Text>
                 )}
               </View>
-              <ChevronRight size={20} color={COLORS.muted.foreground} />
+              <ChevronRight size={20} color={COLORS.neutral.muted} />
             </Pressable>
           );
         })}
@@ -152,7 +152,7 @@ export function SuspectReceiptsList({
           onPress={() => router.push('/receipt')}
           className="mt-3 items-center py-2"
         >
-          <Text className="text-sm font-medium text-primary">
+          <Text className="text-primary-default text-sm font-medium">
             Ver todos ({data.length})
           </Text>
         </Pressable>

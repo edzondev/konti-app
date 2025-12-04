@@ -14,18 +14,26 @@ export function ContextSummary({
   return (
     <View className="flex-row items-center justify-between rounded-xl bg-gray-50/80 px-4 py-2.5">
       <View className="flex-row items-center gap-2">
-        <View className="h-6 w-6 items-center justify-center rounded-md bg-primary/10">
-          <MessageCircle size={12} color={COLORS.primary} strokeWidth={2} />
+        <View className="bg-primary-default/10 h-6 w-6 items-center justify-center rounded-md">
+          <MessageCircle
+            size={12}
+            color={COLORS.primary.default}
+            strokeWidth={2}
+          />
         </View>
-        <Text className="text-xs font-medium text-muted-foreground">
+        <Text className="text-neutral-muted text-xs font-medium">
           {totalReceipts} comprobantes
         </Text>
       </View>
       <View className="flex-row items-center gap-2">
-        <View className="h-6 w-6 items-center justify-center rounded-md bg-secondary/10">
-          <TrendingUp size={12} color={COLORS.secondary} strokeWidth={2} />
+        <View className="bg-secondary-default/10 h-6 w-6 items-center justify-center rounded-md">
+          <TrendingUp
+            size={12}
+            color={COLORS.secondary.default}
+            strokeWidth={2}
+          />
         </View>
-        <Text className="text-xs font-medium text-muted-foreground">
+        <Text className="text-neutral-muted text-xs font-medium">
           Límite: {percentageUsed.toFixed(1)}%
         </Text>
       </View>

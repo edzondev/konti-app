@@ -5,17 +5,17 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants/colors';
 import { useRouter } from 'expo-router';
 import { FileText, HelpCircle, LogOut, Shield } from 'lucide-react-native';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useGetProfile } from '@/hooks/profile/use-profile';
 import useProfileComponent from '@/hooks/profile/use-profile-component';
-import type { Tables } from '@/types/database.types';
 import { ProfileHeader } from '@/components/shared/profile/profile-header';
 import { ProfileSection } from '@/components/shared/profile/profile-section';
 import { ProfileMenuItem } from '@/components/shared/profile/profile-menu-item';
+import { useUserPlan } from '@/hooks/profile/use-user-plan';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function Profile() {
   const router = useRouter();
@@ -23,23 +23,21 @@ export default function Profile() {
   const { data: profile, isLoading } = useGetProfile();
   const { planConfig, handleLogout, handlePrivacyPolicy, handleHelp } =
     useProfileComponent({
-      profile: profile as Tables<'profiles'>,
+      profile,
       signOut: async () => await signOut(),
     });
+  const { hasPlus } = useUserPlan();
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text className="text-lg font-semibold text-primary" numberOfLines={1}>
-          Cargando información...
-        </Text>
-      </SafeAreaView>
+      <MainLayout className="items-center justify-center">
+        <ActivityIndicator size="large" color={COLORS.neutral.muted} />
+      </MainLayout>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+    <MainLayout edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -65,25 +63,39 @@ export default function Profile() {
         />
 
         <View className="">
-          <ProfileSection title="General">
+          <ProfileSection title="Mi suscripción">
             <ProfileMenuItem
               icon={planConfig.icon.Component}
               iconColor={planConfig.icon.color}
-              label="Mi plan"
+              label={`Plan ${planConfig.badge.label} activo`}
               badge={planConfig.badge}
               onPress={() => router.push('/subscription')}
             />
           </ProfileSection>
 
-          <ProfileSection title="Reportes">
+          {/* TODO: Add theme section */}
+          {/*<ProfileSection title="General">
             <ProfileMenuItem
-              icon={FileText}
-              iconColor={COLORS.primary}
-              label="Reportes anuales"
-              onPress={() => router.push('/reports')}
+              icon={Contrast}
+              iconColor={COLORS.neutral.muted}
+              label="Tema"
+              isAction={true}
+              value={mode === 'dark'}
+              onValueChange={(value) => setMode(value ? 'dark' : 'light')}
+              onPress={handleModeToggle}
             />
-          </ProfileSection>
+          </ProfileSection>*/}
 
+          {hasPlus && (
+            <ProfileSection title="Reportes">
+              <ProfileMenuItem
+                icon={FileText}
+                iconColor={COLORS.primary.default}
+                label="Reportes anuales"
+                onPress={() => router.push('/reports')}
+              />
+            </ProfileSection>
+          )}
           <ProfileSection title="Soporte">
             <ProfileMenuItem
               icon={HelpCircle}
@@ -101,15 +113,18 @@ export default function Profile() {
 
           <Pressable
             onPress={handleLogout}
-            className="w-full flex-row items-center justify-center gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-4"
+            className="w-full flex-row items-center justify-center gap-3 rounded-lg border border-destructive-default/20 bg-destructive-default/5 p-4"
           >
-            <LogOut size={20} color={COLORS.destructive} />
-            <Text className="text-lg text-destructive" numberOfLines={1}>
+            <LogOut size={20} color={COLORS.destructive.default} />
+            <Text
+              className="text-lg text-destructive-default"
+              numberOfLines={1}
+            >
               Cerrar sesión
             </Text>
           </Pressable>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

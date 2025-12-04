@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Modal, Text, View } from 'react-native';
-import { CheckCircle } from 'lucide-react-native';
+import { Check } from 'lucide-react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -48,15 +48,15 @@ export function PaymentSuccessModal({ visible }: PaymentSuccessModalProps) {
           style={animatedStyle}
           className="w-full max-w-sm items-center rounded-3xl bg-white p-8"
         >
-          <View className="bg-success-50 mb-6 h-20 w-20 items-center justify-center rounded-full">
-            <CheckCircle size={48} color={COLORS.primary} />
+          <View className="bg-success-light/20 mb-6 h-20 w-20 items-center justify-center rounded-full">
+            <Check size={48} color={COLORS.success.default} />
           </View>
 
-          <Text className="text-text-primary mb-3 text-center text-2xl font-bold">
+          <Text className="text-success-default mb-3 text-center text-2xl font-bold">
             ¡Pago exitoso!
           </Text>
 
-          <Text className="text-text-tertiary text-center leading-relaxed">
+          <Text className="text-success-muted text-center leading-relaxed">
             Tu suscripción ha sido activada correctamente
           </Text>
         </Animated.View>

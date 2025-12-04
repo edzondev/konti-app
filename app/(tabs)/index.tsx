@@ -1,71 +1,58 @@
-import { View, Pressable, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Camera } from 'lucide-react-native';
-import { FlashList } from '@shopify/flash-list';
-import ReceiptListItem from '@/components/shared/receipt/receipt-list-item';
-import { COLORS } from '@/constants/colors';
+import { ScrollView } from 'react-native';
 import { useAuth } from '@/components/providers/auth-provider';
 import { SuccessModal } from '@/components/ui/success-modal';
-import Empty from '@/components/shared/empty/empty';
 import DashboardHeader from '@/components/shared/dashboard/header';
-import { useCameraPermission } from '@/hooks/camera/use-camera-permission';
-import { useGalleryPicker } from '@/hooks/gallery/use-gallery-picker';
-import { useHomeLogic } from '@/hooks/dashboard/use-home-logic';
+import StatsCards from '@/components/shared/dashboard/stats-cards';
+import PlanCard from '@/components/shared/dashboard/plan-card';
+import QuickActions from '@/components/shared/dashboard/quick-actions';
+import { useDashboardHeader } from '@/hooks/dashboard/use-dashboard-header';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function Index() {
   const { isNewUser, clearNewUserFlag } = useAuth();
-
-  const { handleCameraPress } = useCameraPermission();
-  const { isUploading } = useGalleryPicker();
-  const { receiptsData, isLoadingData, isRefetching, handleRefresh } =
-    useHomeLogic();
+  const {
+    kpis,
+    kpisLoading,
+    hasPlus,
+    isUnlimited,
+    usedCount,
+    planLimit,
+    remainingCount,
+  } = useDashboardHeader();
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
-      <View className="flex-1 px-4">
-        <DashboardHeader />
-        {isLoadingData ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color={COLORS.primary} />
-          </View>
-        ) : (
-          <FlashList
-            data={receiptsData?.slice(0, 4) ?? []}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <ReceiptListItem receipt={item} />}
-            ItemSeparatorComponent={() => <View className="h-4" />}
-            ListEmptyComponent={Empty}
-            showsVerticalScrollIndicator={false}
-            onRefresh={handleRefresh}
-            refreshing={isRefetching}
-          />
-        )}
-      </View>
-
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 10,
-          right: 24,
-        }}
+    <MainLayout edges={['top', 'bottom']}>
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="px-4 pb-6"
+        showsVerticalScrollIndicator={false}
       >
-        <Pressable
-          onPress={handleCameraPress}
-          disabled={isUploading}
-          className="h-16 w-16 flex-row items-center justify-center rounded-3xl bg-primary disabled:opacity-50"
-          aria-label="Tomar foto de nueva boleta"
-        >
-          <Camera size={28} color="white" />
-        </Pressable>
-      </View>
+        <DashboardHeader />
+        <StatsCards
+          totalAmount={kpis?.total_amount_sum ?? null}
+          totalReceipts={kpis?.total_receipts ?? null}
+          expenseReceipts={kpis?.expense_receipts ?? null}
+          isLoading={kpisLoading}
+        />
+        <PlanCard
+          hasPlus={hasPlus}
+          isUnlimited={isUnlimited}
+          usedCount={usedCount}
+          planLimit={planLimit}
+          remainingCount={remainingCount}
+        />
+        <QuickActions />
+      </ScrollView>
 
-      <SuccessModal
-        visible={isNewUser}
-        onClose={clearNewUserFlag}
-        title="¡Bienvenido a Konti!"
-        message="Tu aliado para digitalizar recibos con IA ya está listo."
-        buttonText="Empezar"
-      />
-    </SafeAreaView>
+      {isNewUser && (
+        <SuccessModal
+          visible={isNewUser}
+          onClose={clearNewUserFlag}
+          title="¡Bienvenido!"
+          message="Ahora estas listo para usar KONTI!"
+          buttonText="Empezar"
+        />
+      )}
+    </MainLayout>
   );
 }

@@ -13,7 +13,7 @@ export function DeductibleAmountCard({
   percentageOfLimit,
 }: DeductibleAmountCardProps) {
   return (
-    <View className="bg-primary-default mb-4 rounded-2xl border border-neutral-border p-5">
+    <View className="rounded-2xl bg-primary-default p-5">
       <View className="flex-row items-start justify-between">
         <View>
           <Text className="mb-1 text-sm font-medium text-neutral-white">

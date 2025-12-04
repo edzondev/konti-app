@@ -1,5 +1,4 @@
 import { View, Text, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -10,6 +9,7 @@ import { useEffect } from 'react';
 import { Check } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import { Link } from 'expo-router';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function Success() {
   const scale = useSharedValue(0);
@@ -34,12 +34,12 @@ export default function Success() {
   });
 
   return (
-    <SafeAreaView className="flex-1 items-center justify-center bg-white">
+    <MainLayout className="items-center justify-center">
       <View className="mx-auto px-6">
         <View className="mb-8 flex-row items-center justify-center">
           <Animated.View
             style={animatedStyle}
-            className="bg-primary-default/10 flex h-20 w-20 items-center justify-center rounded-full"
+            className="flex h-20 w-20 items-center justify-center rounded-full bg-primary-default/10"
           >
             <Check size={40} color={COLORS.primary.default} />
           </Animated.View>
@@ -48,16 +48,16 @@ export default function Success() {
         <Text className="font-regular mb-3 text-center text-2xl font-light text-neutral-foreground">
           Boleta guardada
         </Text>
-        <Text className="font-regular text-neutral-muted mb-12 text-center text-base font-light">
+        <Text className="font-regular mb-12 text-center text-base font-light text-neutral-muted">
           Tu comprobante ha sido registrado exitosamente
         </Text>
 
         <Link href="/(tabs)" asChild dismissTo>
-          <Pressable className="bg-primary-default flex-row items-center justify-center rounded-lg py-3 text-neutral-white">
+          <Pressable className="flex-row items-center justify-center rounded-lg bg-primary-default py-3 text-neutral-white">
             <Text className="font-regular text-neutral-white">Continuar</Text>
           </Pressable>
         </Link>
       </View>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

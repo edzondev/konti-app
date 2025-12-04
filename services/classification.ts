@@ -74,6 +74,8 @@ export async function askKonti(
   userId: string,
   question: string,
   conversationHistory: ChatMessage[] = [],
+  hasPlus = false,
+  canSendMessage = false,
 ): Promise<AskKontiResponse> {
   try {
     const { data, error } = await supabase.functions.invoke('ask-konti', {
@@ -81,6 +83,8 @@ export async function askKonti(
         user_id: userId,
         question,
         conversation_history: conversationHistory,
+        has_plus: hasPlus,
+        can_send_message: canSendMessage,
       },
     });
 
@@ -102,8 +106,16 @@ export async function askKonti(
 export async function askKontiQuickPrompt(
   userId: string,
   promptId: string,
+  hasPlus = false,
+  canSendMessage = false,
 ): Promise<AskKontiResponse> {
-  return askKonti(userId, `__quick_prompt:${promptId}`);
+  return askKonti(
+    userId,
+    `__quick_prompt:${promptId}`,
+    [],
+    hasPlus,
+    canSendMessage,
+  );
 }
 
 export async function generateAnnualReport(

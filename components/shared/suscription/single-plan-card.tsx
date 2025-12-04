@@ -22,7 +22,7 @@ function SinglePlanCardComponent({ plan, havePlan }: SinglePlanCardProps) {
 
   return (
     <View className="overflow-hidden rounded-3xl bg-gradient-to-br">
-      <View className="bg-secondary-default absolute inset-0" />
+      <View className="absolute inset-0 bg-secondary-default" />
       <View className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-white/10" />
       <View className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/5" />
 
@@ -46,7 +46,6 @@ function SinglePlanCardComponent({ plan, havePlan }: SinglePlanCardProps) {
         {!havePlan && (
           <View className="rounded-2xl bg-white/15 p-4">
             <View className="flex-row items-center gap-2">
-              <View className="bg-success-light h-2 w-2 rounded-full" />
               <Text className="text-sm font-semibold text-white">
                 7 días de prueba gratis
               </Text>

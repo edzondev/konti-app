@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants/colors';
 import { useRouter } from 'expo-router';
 import { FileText, HelpCircle, LogOut, Shield } from 'lucide-react-native';
@@ -16,6 +15,7 @@ import { ProfileHeader } from '@/components/shared/profile/profile-header';
 import { ProfileSection } from '@/components/shared/profile/profile-section';
 import { ProfileMenuItem } from '@/components/shared/profile/profile-menu-item';
 import { useUserPlan } from '@/hooks/profile/use-user-plan';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function Profile() {
   const router = useRouter();
@@ -30,20 +30,14 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color={COLORS.primary.default} />
-        <Text
-          className="text-primary-default text-lg font-semibold"
-          numberOfLines={1}
-        >
-          Cargando información...
-        </Text>
-      </SafeAreaView>
+      <MainLayout className="items-center justify-center">
+        <ActivityIndicator size="large" color={COLORS.neutral.muted} />
+      </MainLayout>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+    <MainLayout edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -69,15 +63,28 @@ export default function Profile() {
         />
 
         <View className="">
-          <ProfileSection title="General">
+          <ProfileSection title="Mi suscripción">
             <ProfileMenuItem
               icon={planConfig.icon.Component}
               iconColor={planConfig.icon.color}
-              label="Mi suscripción"
+              label={`Plan ${planConfig.badge.label} activo`}
               badge={planConfig.badge}
               onPress={() => router.push('/subscription')}
             />
           </ProfileSection>
+
+          {/* TODO: Add theme section */}
+          {/*<ProfileSection title="General">
+            <ProfileMenuItem
+              icon={Contrast}
+              iconColor={COLORS.neutral.muted}
+              label="Tema"
+              isAction={true}
+              value={mode === 'dark'}
+              onValueChange={(value) => setMode(value ? 'dark' : 'light')}
+              onPress={handleModeToggle}
+            />
+          </ProfileSection>*/}
 
           {hasPlus && (
             <ProfileSection title="Reportes">
@@ -106,11 +113,11 @@ export default function Profile() {
 
           <Pressable
             onPress={handleLogout}
-            className="border-destructive-default/20 bg-destructive-default/5 w-full flex-row items-center justify-center gap-3 rounded-lg border p-4"
+            className="w-full flex-row items-center justify-center gap-3 rounded-lg border border-destructive-default/20 bg-destructive-default/5 p-4"
           >
             <LogOut size={20} color={COLORS.destructive.default} />
             <Text
-              className="text-destructive-default text-lg"
+              className="text-lg text-destructive-default"
               numberOfLines={1}
             >
               Cerrar sesión
@@ -118,6 +125,6 @@ export default function Profile() {
           </Pressable>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

@@ -22,9 +22,7 @@ export default memo(function ReceiptListItem({ receipt }: Props) {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    {receipt.business_name ||
-                      receipt.receipt_number ||
-                      'Comprobante'}
+                    {receipt.business_name || 'Comprobante'}
                   </Text>
                   <Text
                     className="text-xs font-normal text-neutral-muted"
@@ -42,7 +40,7 @@ export default memo(function ReceiptListItem({ receipt }: Props) {
                   </Text>
                   {receipt.is_expense && (
                     <Text
-                      className="rounded bg-primary-default/10 px-2 py-0.5 text-xs font-normal text-primary-default"
+                      className="rounded-full bg-primary-default/10 px-2 py-0.5 text-xs font-normal text-primary-default"
                       numberOfLines={1}
                     >
                       Contable

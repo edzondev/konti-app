@@ -1,5 +1,4 @@
 import { View, Text, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 import { COLORS } from '@/constants/colors';
 import { useReceipts } from '@/hooks/receipts/use-receipts';
@@ -9,6 +8,7 @@ import Empty from '@/components/shared/empty/empty';
 import ReceiptListItem from '@/components/shared/receipt/receipt-list-item';
 import { SearchBar } from '@/components/shared/receipt/search-bar';
 import { FilterPills } from '@/components/shared/receipt/filter-pills';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function Recipes() {
   const {
@@ -25,7 +25,7 @@ export default function Recipes() {
   const { data, isLoading, refetch } = useReceipts(debouncedFilters);
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <MainLayout edges={['top', 'bottom']}>
       <View className="flex-1 px-4">
         <View className="mb-6 mt-8">
           <Text
@@ -52,7 +52,7 @@ export default function Recipes() {
         {!isLoading && data && data.length > 0 && (
           <View className="my-4">
             <Text
-              className="text-neutral-muted text-sm font-normal"
+              className="text-sm font-normal text-neutral-muted"
               numberOfLines={1}
             >
               {data.length}{' '}
@@ -84,6 +84,6 @@ export default function Recipes() {
           )}
         </View>
       </View>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

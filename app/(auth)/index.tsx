@@ -1,11 +1,11 @@
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ArrowRight, Check } from 'lucide-react-native';
 import { useOnboardingStore } from '@/store/use-onboarding-store';
 import { COLORS } from '@/constants/colors';
+import MainLayout from '@/components/layouts/main-layout';
 
 const FEATURES = [
   'Detección automática de deducciones',
@@ -22,7 +22,7 @@ export default function Welcome() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <MainLayout edges={['top', 'bottom']}>
       <ScrollView
         contentContainerClassName="px-6 py-8"
         contentContainerStyle={{
@@ -108,6 +108,6 @@ export default function Welcome() {
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

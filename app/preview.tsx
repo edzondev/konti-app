@@ -1,10 +1,12 @@
 import { View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import ReceiptForm from '@/components/shared/forms/receipt-form';
 import ImageThumbnail from '@/components/shared/receipt/image-thumbnail';
 import { ImagePreviewModal } from '@/components/shared/modals/image-preview-modal';
+import { AiExtractionLoadingModal } from '@/components/shared/modals/ai-extraction-loading-modal';
+import { AiExtractionResultModal } from '@/components/shared/modals/ai-extraction-result-modal';
 import { usePreviewLogic } from '@/hooks/receipts/use-preview-logic';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function Preview() {
   const { imageUrl } = useLocalSearchParams<{ imageUrl: string }>();
@@ -12,14 +14,20 @@ export default function Preview() {
   const {
     extractedData,
     isModalVisible,
+    isLoadingModalVisible,
+    isResultModalVisible,
+    resultModalType,
+    resultModalTitle,
+    resultModalMessage,
     isExtractingData,
     handleButtonPress,
     toggleModal,
+    handleCloseResultModal,
     aiButtonText,
   } = usePreviewLogic({ imageUrl });
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['bottom', 'top']}>
+    <MainLayout edges={['bottom', 'top']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -58,6 +66,18 @@ export default function Preview() {
           onClose={toggleModal}
         />
       )}
-    </SafeAreaView>
+
+      {/* AI Extraction Loading Modal */}
+      <AiExtractionLoadingModal visible={isLoadingModalVisible} />
+
+      {/* AI Extraction Result Modal */}
+      <AiExtractionResultModal
+        visible={isResultModalVisible}
+        onClose={handleCloseResultModal}
+        type={resultModalType}
+        title={resultModalTitle}
+        message={resultModalMessage}
+      />
+    </MainLayout>
   );
 }

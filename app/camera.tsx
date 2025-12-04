@@ -1,5 +1,4 @@
 import { Pressable, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView } from 'expo-camera';
 import {
   Image as ImageIcon,
@@ -11,6 +10,7 @@ import { router } from 'expo-router';
 import { COLORS } from '@/constants/colors';
 import { useCameraControls } from '@/hooks/camera/use-camera-controls';
 import { useGalleryPicker } from '@/hooks/gallery/use-gallery-picker';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function Camera() {
   const { cameraRef, flash, takePicture, toggleFlash, turnOffFlash } =
@@ -23,7 +23,7 @@ export default function Camera() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-black" edges={['top', 'bottom']}>
+    <MainLayout className="bg-black" edges={['top', 'bottom']}>
       <View className="relative flex-1">
         <CameraView
           ref={cameraRef}
@@ -92,6 +92,6 @@ export default function Camera() {
           </View>
         </View>
       </View>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/components/providers/auth-provider';
 import { askKonti, askKontiQuickPrompt } from '@/services/classification';
 import { useFreeMessages } from '@/hooks/chat/use-free-messages';
+import { useUserPlan } from '@/hooks/profile/use-user-plan';
 import type { ChatMessage, QuickPrompt } from '@/types/ai-extraction.types';
 
 export const QUICK_PROMPTS: QuickPrompt[] = [
@@ -45,6 +46,7 @@ interface UseAskKontiReturn {
 export function useAskKonti(): UseAskKontiReturn {
   const { session } = useAuth();
   const { canSendMessage, registerMessage } = useFreeMessages();
+  const { hasPlus } = useUserPlan();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [contextSummary, setContextSummary] = useState<{
@@ -66,10 +68,21 @@ export function useAskKonti(): UseAskKontiReturn {
       }
 
       if (isQuickPrompt) {
-        return askKontiQuickPrompt(session.user.id, question);
+        return askKontiQuickPrompt(
+          session.user.id,
+          question,
+          hasPlus,
+          canSendMessage,
+        );
       }
 
-      return askKonti(session.user.id, question, messages);
+      return askKonti(
+        session.user.id,
+        question,
+        messages,
+        hasPlus,
+        canSendMessage,
+      );
     },
     onSuccess: (data, variables) => {
       if (data.success && data.data) {

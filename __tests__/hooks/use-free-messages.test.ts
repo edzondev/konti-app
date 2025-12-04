@@ -25,9 +25,7 @@ describe('useFreeMessages', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     const store = useFreeMessagesStore.getState();
-    Object.keys(store.messagesUsed).forEach((userId) => {
-      store.resetMessages(userId);
-    });
+    store.resetMessages();
 
     mockUseAuth.mockReturnValue({
       session: { user: { id: 'test-user-id' } },
@@ -52,8 +50,8 @@ describe('useFreeMessages', () => {
     const store = useFreeMessagesStore.getState();
 
     act(() => {
-      store.incrementMessage('test-user-id');
-      store.incrementMessage('test-user-id');
+      store.incrementMessage();
+      store.incrementMessage();
     });
 
     const { result } = renderHook(() => useFreeMessages());
@@ -67,7 +65,7 @@ describe('useFreeMessages', () => {
 
     act(() => {
       for (let i = 0; i < 5; i++) {
-        store.incrementMessage('test-user-id');
+        store.incrementMessage();
       }
     });
 
@@ -118,12 +116,12 @@ describe('useFreeMessages', () => {
     expect(result.current.messagesUsed).toBe(0);
   });
 
-  it('should reset messages when upgrading to PLUS', () => {
+  it('should not reset messages when subscription expires', () => {
     const store = useFreeMessagesStore.getState();
 
     act(() => {
-      store.incrementMessage('test-user-id');
-      store.incrementMessage('test-user-id');
+      store.incrementMessage();
+      store.incrementMessage();
     });
 
     mockUseUserPlan.mockReturnValue({
@@ -131,17 +129,9 @@ describe('useFreeMessages', () => {
       hasPlus: false,
     });
 
-    const { result, rerender } = renderHook(() => useFreeMessages());
+    const { result } = renderHook(() => useFreeMessages());
 
     expect(result.current.messagesUsed).toBe(2);
-
-    mockUseUserPlan.mockReturnValue({
-      currentPlan: 'plus' as const,
-      hasPlus: true,
-    });
-
-    rerender(null);
-
-    expect(result.current.messagesUsed).toBe(0);
+    expect(result.current.messagesRemaining).toBe(3);
   });
 });

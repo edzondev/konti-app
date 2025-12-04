@@ -7,7 +7,6 @@ import {
   Alert,
   Share,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Share2 } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import ReceiptCard from '@/components/shared/receipt/receipt-card';
@@ -17,6 +16,7 @@ import {
   useReceiptDetails,
 } from '@/hooks/receipts/use-receipts';
 import type { Tables } from '@/types/database.types';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function ReceiptDetails() {
   const router = useRouter();
@@ -54,7 +54,7 @@ export default function ReceiptDetails() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white px-6" edges={['top']}>
+    <MainLayout edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
@@ -94,6 +94,6 @@ export default function ReceiptDetails() {
           />
         )}
       </ScrollView>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

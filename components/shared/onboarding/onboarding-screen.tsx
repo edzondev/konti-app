@@ -6,7 +6,6 @@ import {
   useWindowDimensions,
   ScrollView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
@@ -15,6 +14,7 @@ import { OnboardingSlide } from './onboarding-slide';
 import { PaginationDots } from './pagination-dots';
 import { ONBOARDING_SLIDES } from '@/constants/onboarding';
 import { useOnboarding } from '@/hooks/onboarding/use-onboarding';
+import MainLayout from '@/components/layouts/main-layout';
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
@@ -45,11 +45,11 @@ export function OnboardingScreen() {
   const isLastSlide = currentIndex === ONBOARDING_SLIDES.length - 1;
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <MainLayout edges={['top', 'bottom']}>
       {!isLastSlide && (
         <View className="absolute right-6 top-14 z-10">
           <TouchableOpacity onPress={skipOnboarding} activeOpacity={0.7}>
-            <Text className="text-primary-default text-base font-medium">
+            <Text className="text-base font-medium text-primary-default">
               Omitir
             </Text>
           </TouchableOpacity>
@@ -92,7 +92,7 @@ export function OnboardingScreen() {
         {isLastSlide ? (
           <TouchableOpacity
             onPress={completeOnboarding}
-            className="bg-primary-default items-center justify-center rounded-2xl py-5 shadow-lg"
+            className="items-center justify-center rounded-2xl bg-primary-default py-5 shadow-lg"
             activeOpacity={0.8}
           >
             <Text className="text-lg font-semibold text-neutral-white">
@@ -102,7 +102,7 @@ export function OnboardingScreen() {
         ) : (
           <TouchableOpacity
             onPress={handleNext}
-            className="bg-primary-default items-center justify-center rounded-2xl py-5 shadow-lg"
+            className="items-center justify-center rounded-2xl bg-primary-default py-5 shadow-lg"
             activeOpacity={0.8}
           >
             <Text className="text-lg font-semibold text-neutral-white">
@@ -111,6 +111,6 @@ export function OnboardingScreen() {
           </TouchableOpacity>
         )}
       </View>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

@@ -84,7 +84,7 @@ export default function ImageThumbnail({
         <Pressable
           onPress={onAiPress}
           disabled={isAiLoading}
-          className="bg-secondary-default flex-row items-center justify-center gap-2 rounded-2xl py-4 active:scale-[0.98] active:opacity-90 disabled:opacity-60"
+          className="flex-row items-center justify-center gap-2 rounded-2xl bg-secondary-default py-4 active:scale-[0.98] active:opacity-90 disabled:opacity-60"
         >
           {isAiLoading ? (
             <>
@@ -94,16 +94,9 @@ export default function ImageThumbnail({
               </Text>
             </>
           ) : (
-            <>
-              <Sparkles
-                size={16}
-                color={COLORS.neutral.white}
-                strokeWidth={2}
-              />
-              <Text className="text-base font-semibold text-white">
-                {aiButtonText}
-              </Text>
-            </>
+            <Text className="text-base font-semibold text-white">
+              {aiButtonText}
+            </Text>
           )}
         </Pressable>
       </View>

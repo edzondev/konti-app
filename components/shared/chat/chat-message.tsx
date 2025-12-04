@@ -37,7 +37,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
         className={cn(
           'max-w-[78%] rounded-2xl px-4 py-2',
           isUser
-            ? 'bg-secondary-default rounded-tr-md'
+            ? 'rounded-tr-md bg-secondary-default'
             : 'rounded-tl-md border border-neutral-border/30 bg-gray-50',
         )}
       >

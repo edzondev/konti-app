@@ -1,7 +1,15 @@
 import { View, Text, Pressable } from 'react-native';
 import { router } from 'expo-router';
 
-export function MessageLimitReached() {
+type MessageLimitReachedProps = {
+  message: string;
+  description?: string;
+};
+
+export function MessageLimitReached({
+  message,
+  description,
+}: MessageLimitReachedProps) {
   const handleSubscribe = () => {
     router.push('/subscription');
   };
@@ -9,17 +17,19 @@ export function MessageLimitReached() {
   return (
     <View className="rounded-xl bg-neutral-border/20 px-4 py-3">
       <View className="flex-row items-center justify-between">
-        <View className="mr-3 flex-1">
-          <Text className="text-sm text-neutral-foreground">
-            Has alcanzado tu límite de mensajes.{' '}
-            <Text className="text-neutral-muted">
-              Actualiza a Konti Plus o intenta más tarde.
-            </Text>
+        <View className="flex-1 flex-col gap-y-2">
+          <Text className="text-sm font-medium text-neutral-foreground">
+            {message}
           </Text>
+          {description && (
+            <Text className="text-sm leading-tight text-neutral-muted">
+              {description}
+            </Text>
+          )}
         </View>
         <Pressable
           onPress={handleSubscribe}
-          className="bg-secondary-default rounded-lg px-4 py-2 active:opacity-90"
+          className="rounded-lg bg-secondary-default px-4 py-2 active:opacity-90"
         >
           <Text className="text-sm font-semibold text-white">Obtener Plus</Text>
         </Pressable>

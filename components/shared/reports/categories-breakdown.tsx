@@ -3,6 +3,7 @@ import { TrendingUp } from 'lucide-react-native';
 import { COLORS } from '@/constants/colors';
 import { CATEGORY_COLORS } from '@/constants/reports';
 import { formatCurrency } from '@/lib/format';
+import { useMemo } from 'react';
 
 type Category = {
   category: string;
@@ -15,19 +16,20 @@ type CategoriesBreakdownProps = {
 };
 
 export function CategoriesBreakdown({ categories }: CategoriesBreakdownProps) {
+  const maxAmount = useMemo(() => {
+    return Math.max(...categories.map((c) => c.amount));
+  }, [categories]);
+
   if (categories.length === 0) return null;
-
-  const maxAmount = Math.max(...categories.map((c) => c.amount));
-
   return (
-    <View className="mb-4 rounded-2xl border border-neutral-border bg-white p-5">
+    <View className="rounded-2xl border border-neutral-border bg-white p-4">
       <View className="mb-4 flex-row items-center justify-between">
-        <Text className="text-neutral-muted text-xs font-semibold uppercase tracking-wider">
+        <Text className="text-xs font-semibold uppercase tracking-wider text-neutral-muted">
           Desglose por Categoría
         </Text>
         <View className="flex-row items-center gap-1">
           <TrendingUp size={14} color={COLORS.neutral.muted} strokeWidth={2} />
-          <Text className="text-neutral-muted text-xs">
+          <Text className="text-xs text-neutral-muted">
             {categories.length} categorías
           </Text>
         </View>
@@ -52,11 +54,11 @@ export function CategoriesBreakdown({ categories }: CategoriesBreakdownProps) {
                   </Text>
                 </View>
                 <View className="flex-row items-center gap-2">
-                  <Text className="text-primary-default text-sm font-semibold">
+                  <Text className="text-sm font-semibold text-primary-default">
                     {formatCurrency(cat.amount)}
                   </Text>
                   <View className="rounded-md bg-neutral-border px-1.5 py-0.5">
-                    <Text className="text-neutral-muted text-[10px] font-medium">
+                    <Text className="text-[10px] font-medium text-neutral-muted">
                       {cat.count}
                     </Text>
                   </View>

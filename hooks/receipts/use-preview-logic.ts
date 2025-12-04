@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useUserPlan } from '@/hooks/profile/use-user-plan';
 import { useAiExtraction } from '@/hooks/receipts/use-ai-extraction';
@@ -20,7 +19,7 @@ function shouldRedirectToSubscription(
 
 function getAiButtonText(hasUsedAiTrial: boolean, hasPlus: boolean): string {
   return shouldRedirectToSubscription(hasUsedAiTrial, hasPlus)
-    ? 'Suscribete para procesar imagen'
+    ? 'Suscribirte'
     : 'Procesar imagen';
 }
 
@@ -33,6 +32,13 @@ export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
 
   const [extractedData, setExtractedData] = useState<AiExtractedData>();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isLoadingModalVisible, setIsLoadingModalVisible] = useState(false);
+  const [isResultModalVisible, setIsResultModalVisible] = useState(false);
+  const [resultModalType, setResultModalType] = useState<'success' | 'error'>(
+    'success',
+  );
+  const [resultModalTitle, setResultModalTitle] = useState('');
+  const [resultModalMessage, setResultModalMessage] = useState('');
   const [documentType, setDocumentType] = useState<DocumentType>('boleta');
 
   // Memoized derived values
@@ -58,11 +64,22 @@ export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
   const handleAiExtraction = useCallback(async () => {
     if (!imageUrl) return;
 
+    // Show loading modal
+    setIsLoadingModalVisible(true);
+
     try {
       const response = await extractData(imageUrl);
 
+      // Hide loading modal
+      setIsLoadingModalVisible(false);
+
       if (!response.success || !response.data) {
-        Alert.alert('Error', 'No se pudieron extraer los datos de la imagen');
+        setResultModalType('error');
+        setResultModalTitle('Error');
+        setResultModalMessage(
+          'No se pudieron extraer los datos de la imagen. Por favor, intenta nuevamente.',
+        );
+        setIsResultModalVisible(true);
         return;
       }
 
@@ -77,10 +94,19 @@ export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
         ? 'Información extraída correctamente. El formulario se ha autocompletado.\n\n¡Esta fue tu prueba gratuita! Suscríbete para seguir usando esta función.'
         : 'Información extraída correctamente. El formulario se ha autocompletado.';
 
-      Alert.alert('Éxito', message);
+      setResultModalType('success');
+      setResultModalTitle('Éxito');
+      setResultModalMessage(message);
+      setIsResultModalVisible(true);
     } catch (error) {
       console.error('Error en extracción:', error);
-      Alert.alert('Error', 'No se pudo extraer la información de la imagen');
+      setIsLoadingModalVisible(false);
+      setResultModalType('error');
+      setResultModalTitle('Error');
+      setResultModalMessage(
+        'No se pudo extraer la información de la imagen. Por favor, verifica la imagen e intenta nuevamente.',
+      );
+      setIsResultModalVisible(true);
     }
   }, [imageUrl, extractData, isTrialMode, setHasUsedAiTrial]);
 
@@ -97,14 +123,24 @@ export function usePreviewLogic({ imageUrl }: UsePreviewLogicProps) {
     setIsModalVisible((prev) => !prev);
   }, []);
 
+  const handleCloseResultModal = useCallback(() => {
+    setIsResultModalVisible(false);
+  }, []);
+
   return {
     extractedData,
     isModalVisible,
+    isLoadingModalVisible,
+    isResultModalVisible,
+    resultModalType,
+    resultModalTitle,
+    resultModalMessage,
     documentType,
     setDocumentType,
     isExtractingData,
     handleButtonPress,
     toggleModal,
+    handleCloseResultModal,
     canUseAi,
     aiButtonText,
   };

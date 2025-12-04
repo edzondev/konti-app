@@ -36,7 +36,7 @@ export const KPI_CARD_CONFIG = [
 
 export const PLAN_CONFIG = {
   free: { icon: Zap, label: 'Free', color: '#6b7280' },
-  plus: { icon: Crown, label: 'Konti Pro', color: '#8b5cf6' },
+  plus: { icon: Crown, label: 'Konti Plus', color: '#8b5cf6' },
   // Legacy plans (for backwards compatibility)
   pro: { icon: Zap, label: 'Pro', color: '#6b7280' },
   premium: { icon: Crown, label: 'Premium', color: '#8b5cf6' },

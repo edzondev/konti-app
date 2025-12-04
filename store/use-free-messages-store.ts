@@ -5,36 +5,30 @@ import { createMMKVStorage } from '@/utils/storage/mmkv-storage';
 const FREE_MESSAGES_LIMIT = 5;
 
 interface FreeMessagesStore {
-  messagesUsed: Record<string, number>;
-  getMessagesUsed: (userId: string) => number;
-  incrementMessage: (userId: string) => void;
-  resetMessages: (userId: string) => void;
-  hasReachedLimit: (userId: string) => boolean;
+  messagesUsed: number;
+  getMessagesUsed: () => number;
+  incrementMessage: () => void;
+  resetMessages: () => void;
+  hasReachedLimit: () => boolean;
 }
 
 export const useFreeMessagesStore = create<FreeMessagesStore>()(
   persist(
     (set, get) => ({
-      messagesUsed: {},
-      getMessagesUsed: (userId: string) => {
-        return get().messagesUsed[userId] ?? 0;
+      messagesUsed: 0,
+      getMessagesUsed: () => {
+        return get().messagesUsed;
       },
-      incrementMessage: (userId: string) => {
+      incrementMessage: () => {
         set((state) => ({
-          messagesUsed: {
-            ...state.messagesUsed,
-            [userId]: (state.messagesUsed[userId] ?? 0) + 1,
-          },
+          messagesUsed: state.messagesUsed + 1,
         }));
       },
-      resetMessages: (userId: string) => {
-        set((state) => {
-          const { [userId]: _, ...rest } = state.messagesUsed;
-          return { messagesUsed: rest };
-        });
+      resetMessages: () => {
+        set({ messagesUsed: 0 });
       },
-      hasReachedLimit: (userId: string) => {
-        const used = get().getMessagesUsed(userId);
+      hasReachedLimit: () => {
+        const used = get().getMessagesUsed();
         return used >= FREE_MESSAGES_LIMIT;
       },
     }),

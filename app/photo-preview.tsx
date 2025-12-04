@@ -1,11 +1,11 @@
 import { View, Pressable, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { X } from 'lucide-react-native';
 import ImageComponent from '@/components/ui/image';
 import { COLORS } from '@/constants/colors';
 import { UploadModal } from '@/components/shared/modals/upload-modal';
 import { usePhotoPreview } from '@/hooks/receipts/use-photo-preview';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function PhotoPreview() {
   const { imageUri } = useLocalSearchParams<{ imageUri: string }>();
@@ -14,7 +14,7 @@ export default function PhotoPreview() {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-black" edges={['top', 'bottom']}>
+    <MainLayout className="bg-black" edges={['top', 'bottom']}>
       <View className="relative flex-1">
         {imageUri && (
           <ImageComponent
@@ -50,6 +50,6 @@ export default function PhotoPreview() {
       </View>
 
       <UploadModal visible={isUploading} />
-    </SafeAreaView>
+    </MainLayout>
   );
 }

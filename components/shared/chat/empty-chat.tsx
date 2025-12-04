@@ -1,3 +1,4 @@
+import { COLORS } from '@/constants/colors';
 import { View, Text, Pressable } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
@@ -6,8 +7,6 @@ type Feature = {
   title: string;
   description: string;
   icon: React.ElementType;
-  iconColor: string;
-  iconBgColor: string;
 };
 
 type EmptyChatProps = {
@@ -29,10 +28,10 @@ export default function EmptyChat({
         entering={FadeIn.duration(600)}
         className="mb-10 items-center"
       >
-        <Text className="text-secondary-default mb-2 text-center text-2xl font-bold">
+        <Text className="mb-2 text-center text-2xl font-bold text-secondary-default">
           ¡Hola! Soy Konti
         </Text>
-        <Text className="text-neutral-muted text-center text-lg">
+        <Text className="text-center text-lg text-neutral-muted">
           ¿En qué puedo ayudarte hoy?
         </Text>
       </Animated.View>
@@ -54,13 +53,10 @@ export default function EmptyChat({
               <Animated.View
                 entering={FadeInDown.delay(300 + index * 100).duration(400)}
               >
-                <View
-                  className="mb-3 h-11 w-11 items-center justify-center rounded-full"
-                  style={{ backgroundColor: feature.iconBgColor }}
-                >
+                <View className="mb-3 h-11 w-11 items-center justify-center rounded-full bg-secondary-default/10">
                   <IconComponent
                     size={18}
-                    color={feature.iconColor}
+                    color={COLORS.secondary.default}
                     strokeWidth={2}
                   />
                 </View>
@@ -69,7 +65,7 @@ export default function EmptyChat({
                   {feature.title}
                 </Text>
 
-                <Text className="text-neutral-muted text-sm leading-tight">
+                <Text className="text-sm leading-tight text-neutral-muted">
                   {feature.description}
                 </Text>
               </Animated.View>

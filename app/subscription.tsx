@@ -6,7 +6,6 @@ import {
   ScrollView,
 } from 'react-native';
 import * as Linking from 'expo-linking';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { X, Shield } from 'lucide-react-native';
 
@@ -15,6 +14,7 @@ import { PaymentSuccessModal } from '@/components/shared/modals/payment-success-
 import { SinglePlanCard } from '@/components/shared/suscription/single-plan-card';
 import { FeatureGrid } from '@/components/shared/suscription/feature-grid';
 import { useSubscriptionLogic } from '@/hooks/subscriptions/use-subscription-logic';
+import MainLayout from '@/components/layouts/main-layout';
 
 export default function SubscriptionScreen() {
   const handleClose = () => router.back();
@@ -35,21 +35,24 @@ export default function SubscriptionScreen() {
     );
   };
 
+  const handleTermsAndConditions = async () => {
+    await Linking.openURL(
+      'https://renedz21.github.io/konti-app.github.io/terms-and-conditions.html',
+    );
+  };
+
   const mainPlan = availablePackages[0];
 
   if (isLoading) {
     return (
-      <SafeAreaView
-        className="flex-1 items-center justify-center bg-white"
-        edges={['top']}
-      >
+      <MainLayout className="items-center justify-center" edges={['top']}>
         <ActivityIndicator size="large" color={COLORS.primary.default} />
-      </SafeAreaView>
+      </MainLayout>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <MainLayout edges={['top', 'bottom']}>
       <PaymentSuccessModal visible={showSuccessModal} />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -67,11 +70,12 @@ export default function SubscriptionScreen() {
           <View className="flex-1" />
         </View>
 
-        <View className="mb-6 px-6">
-          <Text className="mb-2 text-3xl font-bold text-neutral-900">
-            Desbloquea todo el{'\n'}potencial de Konti
+        <View className="mb-6 px-6 text-center">
+          <Text className="mb-2 text-center text-3xl font-bold text-neutral-900">
+            Suscribete a{' '}
+            <Text className="text-secondary-default">Konti Plus</Text>
           </Text>
-          <Text className="text-base text-neutral-500">
+          <Text className="text-center text-base text-neutral-500">
             Maximiza tus deducciones y ahorra tiempo con nuestra IA
           </Text>
         </View>
@@ -101,7 +105,7 @@ export default function SubscriptionScreen() {
         <Pressable
           onPress={() => mainPlan && handlePurchase(mainPlan)}
           disabled={isPurchasing || !mainPlan || havePlan}
-          className="bg-secondary-default h-14 items-center justify-center rounded-full disabled:opacity-50"
+          className="h-14 items-center justify-center rounded-full bg-secondary-default disabled:opacity-50"
         >
           {isPurchasing ? (
             <ActivityIndicator size="small" color={COLORS.neutral.white} />
@@ -112,11 +116,19 @@ export default function SubscriptionScreen() {
           )}
         </Pressable>
         {!havePlan && (
-          <Text className="mt-3 text-center text-xs text-neutral-400">
-            7 días gratis, luego {mainPlan?.product.priceString}/mes
-          </Text>
+          <>
+            <Text className="mt-3 text-center text-xs text-neutral-400">
+              Al suscribirte, aceptas nuestros{' '}
+              <Text
+                className="text-secondary-default"
+                onPress={handleTermsAndConditions}
+              >
+                términos y condiciones
+              </Text>
+            </Text>
+          </>
         )}
       </View>
-    </SafeAreaView>
+    </MainLayout>
   );
 }

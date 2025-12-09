@@ -26,13 +26,16 @@ export function ProfileHeader({ name, email }: ProfileHeaderProps) {
         </View>
       </View>
       <View>
-        <Text
-          className="mb-1 text-center text-2xl font-bold tracking-tight text-neutral-foreground"
-          numberOfLines={1}
-          adjustsFontSizeToFit
-        >
-          {name || 'Usuario'}
-        </Text>
+        <View className="mb-1 w-[200px]">
+          <Text
+            className="text-left text-2xl font-bold tracking-tight text-neutral-foreground"
+            numberOfLines={2}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            {name}
+          </Text>
+        </View>
 
         <View className="mt-1 rounded-full bg-neutral-100 px-4 py-1.5">
           <Text

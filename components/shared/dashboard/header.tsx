@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { Link } from 'expo-router';
-import { Crown, Sparkle } from 'lucide-react-native';
+import { Sparkle } from 'lucide-react-native';
 
 import { useDashboardHeader } from '@/hooks/dashboard/use-dashboard-header';
 import { cn } from '@/lib/utils';
@@ -20,32 +20,26 @@ export default function DashboardHeader() {
         >
           Inicio
         </Text>
-        <View className="flex-row items-center gap-3">
-          <Link href="/subscription" asChild>
-            <Pressable
-              className={cn(
-                'flex-row items-center gap-1.5 rounded-full px-4 py-2',
-                hasPlus && 'bg-secondary-default/10 p-3',
-                !hasPlus && 'bg-secondary-default/5',
-              )}
-            >
-              {hasPlus ? (
-                <Crown size={16} color={COLORS.secondary.default} />
-              ) : (
-                <>
-                  <Sparkle
-                    size={14}
-                    color={COLORS.secondary.default}
-                    fill={COLORS.secondary.default}
-                  />
-                  <Text className="text-sm font-medium text-secondary-default">
-                    Obtener Plus
-                  </Text>
-                </>
-              )}
-            </Pressable>
-          </Link>
-        </View>
+        {!hasPlus && (
+          <View className="flex-row items-center gap-3">
+            <Link href="/subscription" asChild>
+              <Pressable
+                className={cn(
+                  'flex-row items-center gap-1.5 rounded-full px-4 py-2',
+                )}
+              >
+                <Sparkle
+                  size={14}
+                  color={COLORS.secondary.default}
+                  fill={COLORS.secondary.default}
+                />
+                <Text className="text-sm font-medium text-secondary-default">
+                  Obtener Plus
+                </Text>
+              </Pressable>
+            </Link>
+          </View>
+        )}
       </View>
     </View>
   );

@@ -4,22 +4,15 @@ import { COLORS } from '@/constants/colors';
 import type { LucideIcon } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { Link, useRouter } from 'expo-router';
-import { AnimatedSwitch } from '@/components/ui/animated-switch';
 
 type ProfileMenuItemProps = {
   icon: LucideIcon;
   iconColor?: string;
   label: string;
   subtitle?: string;
-  badge?: {
-    label: string;
-    className: string;
-  };
   onPress: () => void;
   showBorder?: boolean;
-  isAction?: boolean;
-  value?: boolean;
-  onValueChange?: (value: boolean) => void;
+  isSubscription?: boolean;
 };
 
 export function ProfileMenuItem({
@@ -27,12 +20,9 @@ export function ProfileMenuItem({
   iconColor = COLORS.neutral.muted,
   label,
   subtitle,
-  badge,
   onPress,
   showBorder = false,
-  isAction = false,
-  value = false,
-  onValueChange = () => {},
+  isSubscription = false,
 }: ProfileMenuItemProps) {
   const router = useRouter();
 
@@ -40,7 +30,7 @@ export function ProfileMenuItem({
     <Pressable
       onPress={onPress}
       className={cn(
-        'w-full flex-row items-center justify-between px-4 py-6',
+        'w-full flex-1 flex-row items-center justify-between px-4 py-6',
         showBorder && 'border-b border-neutral-border',
       )}
     >
@@ -50,8 +40,7 @@ export function ProfileMenuItem({
           className={cn(
             'flex-row items-center gap-2',
             subtitle && 'flex-col',
-            badge && 'flex-1 justify-between',
-            isAction && 'flex-1 justify-between',
+            isSubscription && 'flex-1 justify-between',
           )}
         >
           <Text
@@ -65,7 +54,7 @@ export function ProfileMenuItem({
               {subtitle}
             </Text>
           )}
-          {badge && (
+          {isSubscription && (
             <Link href="/subscription">
               <Pressable
                 onPress={() => router.push('/subscription')}
@@ -77,12 +66,9 @@ export function ProfileMenuItem({
               </Pressable>
             </Link>
           )}
-          {isAction && (
-            <AnimatedSwitch value={value} onValueChange={onValueChange} />
-          )}
         </View>
       </View>
-      {!badge && !isAction && (
+      {!isSubscription && (
         <ChevronRight size={20} color={COLORS.neutral.muted} />
       )}
     </Pressable>

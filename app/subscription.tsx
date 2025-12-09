@@ -11,7 +11,6 @@ import { X, Shield } from 'lucide-react-native';
 
 import { COLORS } from '@/constants/colors';
 import { PaymentSuccessModal } from '@/components/shared/modals/payment-success-modal';
-import { SinglePlanCard } from '@/components/shared/suscription/single-plan-card';
 import { FeatureGrid } from '@/components/shared/suscription/feature-grid';
 import { useSubscriptionLogic } from '@/hooks/subscriptions/use-subscription-logic';
 import MainLayout from '@/components/layouts/main-layout';
@@ -36,9 +35,7 @@ export default function SubscriptionScreen() {
   };
 
   const handleTermsAndConditions = async () => {
-    await Linking.openURL(
-      'https://renedz21.github.io/konti-app.github.io/terms-and-conditions.html',
-    );
+    await Linking.openURL(`${process.env.EXPO_PUBLIC_URL}/terms`);
   };
 
   const mainPlan = availablePackages[0];
@@ -57,9 +54,9 @@ export default function SubscriptionScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingBottom: 24 }}
+        contentContainerStyle={{ paddingBottom: 24, paddingHorizontal: 16 }}
       >
-        <View className="flex-row items-center justify-between p-4">
+        <View className="flex-row items-center justify-between py-4">
           <Pressable
             onPress={handleClose}
             className="rounded-full bg-neutral-100 p-2.5"
@@ -70,25 +67,33 @@ export default function SubscriptionScreen() {
           <View className="flex-1" />
         </View>
 
-        <View className="mb-6 px-6 text-center">
-          <Text className="mb-2 text-center text-3xl font-bold text-neutral-900">
+        <View className="mb-6 flex-col items-start gap-2 py-4">
+          <Text className="text-3xl font-bold text-neutral-900">
             Suscribete a{' '}
-            <Text className="text-secondary-default">Konti Plus</Text>
+            <Text className="text-secondary-default">Konti Plus+</Text>
           </Text>
-          <Text className="text-center text-base text-neutral-500">
-            Maximiza tus deducciones y ahorra tiempo con nuestra IA
+          <Text className="text-base text-neutral-500">
+            Maximiza tus deducciones y ahorra tiempo con nuestro agente de IA.
           </Text>
         </View>
 
-        {mainPlan && (
-          <View className="mb-8 px-6">
-            <SinglePlanCard plan={mainPlan} havePlan={havePlan} />
+        <View className="flex-col gap-4 rounded-2xl border border-neutral-border bg-neutral-50 p-6">
+          <View className="flex-col items-center justify-center gap-2">
+            <View className="flex-row items-end gap-1 rounded-2xl ">
+              <Text className="text-5xl font-bold text-secondary-default">
+                {mainPlan.product.priceString}
+              </Text>
+              <Text className="text-base text-secondary-default">/mes</Text>
+            </View>
+            <Text className="text-sm text-neutral-500">
+              Disfruta de acceso ilimitado a todas las funciones premium de
+              Konti Plus+.
+            </Text>
           </View>
-        )}
+          <FeatureGrid features={features} />
+        </View>
 
-        <FeatureGrid features={features} />
-
-        <View className="mt-8 px-6">
+        <View className="mt-6">
           <View className="flex-row items-center justify-center gap-2 rounded-xl bg-neutral-50 py-3">
             <Shield size={16} color={COLORS.neutral.muted} />
             <Text className="text-xs text-neutral-500">Pago seguro •</Text>

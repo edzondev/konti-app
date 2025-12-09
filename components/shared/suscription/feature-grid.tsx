@@ -11,7 +11,7 @@ type FeatureGridProps = {
 function FeatureGridItem({ feature }: { feature: Feature }) {
   return (
     <View className="mb-3 flex-row items-center gap-3">
-      <View className="bg-secondary-default/10 h-6 w-6 items-center justify-center rounded-full">
+      <View className="h-6 w-6 items-center justify-center rounded-full bg-secondary-default/10">
         <Check size={12} color={COLORS.secondary.default} strokeWidth={2.5} />
       </View>
       <View className="flex-1">
@@ -19,8 +19,8 @@ function FeatureGridItem({ feature }: { feature: Feature }) {
           {feature.title}
         </Text>
         {feature.isAvailableInFuture && (
-          <View className="bg-warning-light/20 mt-1 self-start rounded-full px-2 py-0.5">
-            <Text className="text-warning-dark text-xs font-medium">
+          <View className="mt-1 self-start rounded-full bg-warning-light/20 px-2 py-0.5">
+            <Text className="text-xs font-medium text-warning-dark">
               Próximamente
             </Text>
           </View>
@@ -36,19 +36,16 @@ function FeatureGridComponent({ features }: FeatureGridProps) {
   const futureFeatures = features.filter((f) => f.isAvailableInFuture);
 
   return (
-    <View className="px-6">
+    <View>
       {/* Section Header */}
       <View className="mb-5">
         <Text className="text-lg font-bold text-neutral-900">
           Todo lo que incluye
         </Text>
-        <Text className="mt-1 text-sm text-neutral-500">
-          Accede a todas las funcionalidades premium
-        </Text>
       </View>
 
       {/* Current Features Grid */}
-      <View className="mb-6 rounded-2xl bg-neutral-50 p-4">
+      <View className="mb-6 rounded-2xl bg-neutral-50">
         {currentFeatures.map((feature, index) => (
           <FeatureGridItem key={feature.title} feature={feature} />
         ))}

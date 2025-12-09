@@ -64,8 +64,7 @@ export default function useProfileComponent({
   };
 
   const handlePrivacyPolicy = async () => {
-    const url =
-      'https://renedz21.github.io/konti-app.github.io/delete-account.html';
+    const url = `${process.env.EXPO_PUBLIC_URL!}/terms`;
     const supported = await Linking.canOpenURL(url);
 
     if (supported) {
@@ -79,8 +78,7 @@ export default function useProfileComponent({
   };
 
   const handleHelp = async () => {
-    const url =
-      'https://renedz21.github.io/konti-app.github.io/delete-account.html';
+    const url = process.env.EXPO_PUBLIC_URL! as string;
     const supported = await Linking.canOpenURL(url);
 
     if (supported) {

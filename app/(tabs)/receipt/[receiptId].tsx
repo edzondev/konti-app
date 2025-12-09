@@ -57,7 +57,11 @@ export default function ReceiptDetails() {
     <MainLayout edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: 16,
+          paddingHorizontal: 16,
+        }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="bg-white pb-8 pt-6">
@@ -69,9 +73,6 @@ export default function ReceiptDetails() {
             >
               <ChevronLeft size={24} color={COLORS.neutral.foreground} />
             </Pressable>
-            <Text className="text-2xl font-medium text-neutral-foreground">
-              Detalle de boleta
-            </Text>
             <Pressable
               className="h-12 w-12 flex-row items-center justify-center rounded-full bg-gray-100"
               aria-label="Compartir"

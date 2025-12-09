@@ -62,13 +62,13 @@ export default function Profile() {
           email={profile?.email ?? ''}
         />
 
-        <View className="">
+        <>
           <ProfileSection title="Mi suscripción">
             <ProfileMenuItem
               icon={planConfig.icon.Component}
               iconColor={planConfig.icon.color}
-              label={`Plan ${planConfig.badge.label} activo`}
-              badge={planConfig.badge}
+              label={hasPlus ? 'Suscripción activa' : 'Suscribete'}
+              isSubscription={!hasPlus}
               onPress={() => router.push('/subscription')}
             />
           </ProfileSection>
@@ -123,7 +123,7 @@ export default function Profile() {
               Cerrar sesión
             </Text>
           </Pressable>
-        </View>
+        </>
       </ScrollView>
     </MainLayout>
   );

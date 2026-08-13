@@ -7,10 +7,22 @@ import { useEffect, useState } from "react";
 import { Button, Text, View } from "react-native";
 import { authClient } from "@/lib/auth-client";
 
+function getAuthCookies() {
+	const cookies = authClient.getCookie();
+
+	if (!cookies) {
+		throw new Error("No existe una sesión local");
+	}
+
+	return cookies;
+}
+
 export default function SessionTestScreen() {
 	const { data: session, isPending, error } = authClient.useSession();
 	const [protectedResult, setProtectedResult] = useState<string | null>(null);
+	const [taxProfileResult, setTaxProfileResult] = useState<string | null>(null);
 	const [isSigningIn, setIsSigningIn] = useState(false);
+	const [isTaxBusy, setIsTaxBusy] = useState(false);
 	const [signInMessage, setSignInMessage] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -20,41 +32,57 @@ export default function SessionTestScreen() {
 
 		let cancelled = false;
 
-		async function testProtectedEndpoint() {
+		async function testProtectedEndpoints() {
 			try {
-				const cookies = authClient.getCookie();
+				const cookies = getAuthCookies();
 
-				if (!cookies) {
-					throw new Error("No existe una sesión local");
-				}
-
-				const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/v1/me`, {
+				const meResponse = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/v1/me`, {
 					headers: {
 						Cookie: cookies,
 					},
 					credentials: "omit",
 				});
 
-				if (!response.ok) {
-					throw new Error(`Error HTTP ${response.status}`);
+				if (!meResponse.ok) {
+					throw new Error(`Error HTTP ${meResponse.status} en /v1/me`);
 				}
 
-				const user = await response.json();
+				const user = await meResponse.json();
 				console.log(user);
+
+				const taxResponse = await fetch(
+					`${process.env.EXPO_PUBLIC_API_URL}/v1/tax-profile/current`,
+					{
+						headers: {
+							Cookie: cookies,
+						},
+						credentials: "omit",
+					},
+				);
+
+				if (!taxResponse.ok) {
+					throw new Error(`Error HTTP ${taxResponse.status} en /v1/tax-profile/current`);
+				}
+
+				const taxProfile = await taxResponse.json();
+				console.log(taxProfile);
 
 				if (!cancelled) {
 					setProtectedResult(JSON.stringify(user));
+					setTaxProfileResult(JSON.stringify(taxProfile));
 				}
 			} catch (err) {
 				console.error(err);
 
 				if (!cancelled) {
-					setProtectedResult(err instanceof Error ? err.message : "Error desconocido");
+					const message = err instanceof Error ? err.message : "Error desconocido";
+					setProtectedResult(message);
+					setTaxProfileResult(message);
 				}
 			}
 		}
 
-		void testProtectedEndpoint();
+		void testProtectedEndpoints();
 
 		return () => {
 			cancelled = true;
@@ -112,8 +140,77 @@ export default function SessionTestScreen() {
 		}
 	}
 
+	async function handleGetTaxProfile() {
+		if (isTaxBusy) {
+			return;
+		}
+
+		setIsTaxBusy(true);
+
+		try {
+			const cookies = getAuthCookies();
+			const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/v1/tax-profile/current`, {
+				headers: {
+					Cookie: cookies,
+				},
+				credentials: "omit",
+			});
+
+			const body = await response.json();
+			console.log(body);
+
+			if (!response.ok) {
+				throw new Error(`Error HTTP ${response.status}`);
+			}
+
+			setTaxProfileResult(JSON.stringify(body));
+		} catch (err) {
+			console.error(err);
+			setTaxProfileResult(err instanceof Error ? err.message : "Error desconocido");
+		} finally {
+			setIsTaxBusy(false);
+		}
+	}
+
+	async function handleCreateTaxProfile() {
+		if (isTaxBusy) {
+			return;
+		}
+
+		setIsTaxBusy(true);
+
+		try {
+			const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/v1/tax-profile/current`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+					Cookie: getAuthCookies(),
+				},
+				credentials: "omit",
+				body: JSON.stringify({
+					incomeMode: "employment",
+				}),
+			});
+
+			const body = await response.json();
+			console.log(body);
+
+			if (!response.ok) {
+				throw new Error(`Error HTTP ${response.status}`);
+			}
+
+			setTaxProfileResult(JSON.stringify(body));
+		} catch (err) {
+			console.error(err);
+			setTaxProfileResult(err instanceof Error ? err.message : "Error desconocido");
+		} finally {
+			setIsTaxBusy(false);
+		}
+	}
+
 	async function handleSignOut() {
 		await authClient.signOut();
+		setTaxProfileResult(null);
 
 		try {
 			const cookies = authClient.getCookie();
@@ -178,6 +275,11 @@ export default function SessionTestScreen() {
 			<Text>{session.user.name}</Text>
 			<Text>{session.user.email}</Text>
 			<Text>{protectedResult ?? "Probando /v1/me..."}</Text>
+
+			<Text>Tax profile</Text>
+			<Text>{taxProfileResult ?? "Probando /v1/tax-profile/current..."}</Text>
+			<Button disabled={isTaxBusy} title="GET tax-profile/current" onPress={handleGetTaxProfile} />
+			<Button disabled={isTaxBusy} title="PUT crear employment" onPress={handleCreateTaxProfile} />
 
 			<Button title="Cerrar sesión" onPress={handleSignOut} />
 		</View>

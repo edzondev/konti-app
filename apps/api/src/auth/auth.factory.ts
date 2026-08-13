@@ -1,7 +1,7 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { expo } from "@better-auth/expo";
 import type { ConfigService } from "@nestjs/config";
-import { betterAuth } from "better-auth";
-
+import { type BetterAuthPlugin, betterAuth } from "better-auth";
 import type { Database } from "../database/database.types";
 import * as schema from "../database/schema";
 
@@ -11,9 +11,16 @@ export function createAuth(db: Database, configService: ConfigService) {
 			provider: "pg",
 			schema,
 		}),
-
 		secret: configService.getOrThrow<string>("BETTER_AUTH_SECRET"),
 		baseURL: configService.getOrThrow<string>("BETTER_AUTH_URL"),
+		plugins: [expo() as BetterAuthPlugin],
+		trustedOrigins: ["com.konti.app://", "com.konti.app://*"],
+		socialProviders: {
+			google: {
+				clientId: configService.getOrThrow<string>("GOOGLE_WEB_CLIENT_ID"),
+				clientSecret: configService.getOrThrow<string>("GOOGLE_CLIENT_SECRET"),
+			},
+		},
 	});
 }
 

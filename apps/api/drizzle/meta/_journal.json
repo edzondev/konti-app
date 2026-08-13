@@ -8,6 +8,13 @@
       "when": 1786496692219,
       "tag": "0000_init-auth",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786598471356,
+      "tag": "0001_init-konti-core",
+      "breakpoints": true
     }
   ]
 }

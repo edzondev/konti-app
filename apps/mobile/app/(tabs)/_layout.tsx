@@ -1,4 +1,5 @@
 import { Tabs } from "expo-router";
+
 export default function TabLayout() {
 	return (
 		<Tabs screenOptions={{}}>
@@ -6,6 +7,12 @@ export default function TabLayout() {
 				name="index"
 				options={{
 					title: "Tab One",
+				}}
+			/>
+			<Tabs.Screen
+				name="session-test"
+				options={{
+					title: "Auth test",
 				}}
 			/>
 		</Tabs>

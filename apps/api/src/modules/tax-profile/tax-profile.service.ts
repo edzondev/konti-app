@@ -1,8 +1,8 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { and, eq } from "drizzle-orm";
-import { DATABASE } from "src/database/database.constants";
-import type { Database } from "src/database/database.types";
-import { taxProfiles } from "src/database/schema";
+import { DATABASE } from "../../database/database.constants";
+import type { Database } from "../../database/database.types";
+import { taxProfiles } from "../../database/schema";
 import type { UpdateTaxProfileInput } from "./tax-profile.validation";
 
 const PERU_TIMEZONE = "America/Lima";

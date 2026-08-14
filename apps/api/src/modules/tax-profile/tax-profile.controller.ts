@@ -10,17 +10,16 @@ import {
 } from "@nestjs/common";
 import { fromNodeHeaders } from "better-auth/node";
 import type { Request } from "express";
-import { AUTH } from "src/auth/auth.constants";
-import type { Auth } from "../auth/auth.factory";
-
+import { AUTH } from "../../auth/auth.constants";
+import type { Auth } from "../../auth/auth.factory";
 import { TaxProfileService } from "./tax-profile.service";
 import { updateTaxProfileSchema } from "./tax-profile.validation";
 
 @Controller("v1/tax-profile")
 export class TaxProfileController {
 	constructor(
+		@Inject(TaxProfileService)
 		private readonly taxProfileService: TaxProfileService,
-
 		@Inject(AUTH)
 		private readonly auth: Auth,
 	) {}

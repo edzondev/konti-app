@@ -5,7 +5,7 @@ import {
 } from "@react-native-google-signin/google-signin";
 import { useEffect, useState } from "react";
 import { Button, Text, View } from "react-native";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/core/auth-client";
 
 function getAuthCookies() {
 	const cookies = authClient.getCookie();

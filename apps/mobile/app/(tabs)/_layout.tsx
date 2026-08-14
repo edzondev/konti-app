@@ -1,18 +1,38 @@
 import { Tabs } from "expo-router";
 
+import { KontiTabBar } from "@/features/home/components/konti-tab-bar";
+
 export default function TabLayout() {
 	return (
-		<Tabs screenOptions={{}}>
+		<Tabs
+			tabBar={(props) => <KontiTabBar {...props} />}
+			screenOptions={{
+				headerShown: false,
+				sceneStyle: { backgroundColor: "transparent" },
+			}}
+		>
 			<Tabs.Screen
 				name="index"
 				options={{
-					title: "Tab One",
+					title: "Inicio",
+				}}
+			/>
+			<Tabs.Screen
+				name="guardar"
+				options={{
+					title: "Guardar",
+				}}
+			/>
+			<Tabs.Screen
+				name="comprobantes"
+				options={{
+					title: "Comprobantes",
 				}}
 			/>
 			<Tabs.Screen
 				name="session-test"
 				options={{
-					title: "Auth test",
+					href: null,
 				}}
 			/>
 		</Tabs>

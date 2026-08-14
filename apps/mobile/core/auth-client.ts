@@ -1,5 +1,4 @@
 import { expoClient } from "@better-auth/expo/client";
-import type { BetterAuthClientPlugin } from "better-auth";
 import { createAuthClient } from "better-auth/react";
 import * as SecureStore from "expo-secure-store";
 
@@ -9,13 +8,20 @@ if (!baseURL) {
 	throw new Error("EXPO_PUBLIC_API_URL is not defined");
 }
 
-export const authClient = createAuthClient({
+const client = createAuthClient({
 	baseURL,
 	plugins: [
+		// Types of @better-auth/expo lag the BetterAuthClientPlugin interface.
 		expoClient({
 			scheme: "com.konti.app",
 			storagePrefix: "konti",
 			storage: SecureStore,
-		}) as BetterAuthClientPlugin,
+		}) as any,
 	],
 });
+
+export const authClient = client as typeof client & {
+	getCookie: () => string;
+};
+
+export type Session = NonNullable<ReturnType<typeof authClient.useSession>["data"]>;

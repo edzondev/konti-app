@@ -1,2 +1,60 @@
-@import 'tailwindcss';
-@import 'uniwind';
+@import "tailwindcss";
+@import "uniwind";
+
+@theme {
+	--color-konti-bg: #f7f5f1;
+	--color-konti-ink: #171816;
+	--color-konti-surface: #ffffff;
+	--color-konti-muted: #777872;
+	--color-konti-line: #e7e4de;
+	--color-konti-indigo: #4f46e5;
+	--color-konti-indigo-soft: #efeeff;
+	--color-konti-green: #2f6f5d;
+	--color-konti-green-soft: #eaf3ef;
+	--color-konti-amber: #a46724;
+	--color-konti-amber-soft: #f4ebdd;
+	--color-konti-terracotta: #a55442;
+	--color-konti-nav: rgb(255 255 255 / 0.91);
+	--radius-konti-nav: 37px;
+	--radius-konti-avatar: 19px;
+	--radius-konti-bubble: 37px;
+	--radius-konti-card: 16px;
+	--radius-konti-button: 25px;
+	--radius-konti-pill: 999px;
+}
+
+@layer theme {
+	:root {
+		@variant light {
+			--color-konti-bg: #f7f5f1;
+			--color-konti-ink: #171816;
+			--color-konti-surface: #ffffff;
+			--color-konti-muted: #777872;
+			--color-konti-line: #e7e4de;
+			--color-konti-indigo: #4f46e5;
+			--color-konti-indigo-soft: #efeeff;
+			--color-konti-green: #2f6f5d;
+			--color-konti-green-soft: #eaf3ef;
+			--color-konti-amber: #a46724;
+			--color-konti-amber-soft: #f4ebdd;
+			--color-konti-terracotta: #a55442;
+			--color-konti-nav: rgb(255 255 255 / 0.91);
+		}
+
+		@variant dark {
+			--color-konti-bg: #0d0e0d;
+			--color-konti-ink: #f3f2ee;
+			--color-konti-surface: #181918;
+			--color-konti-muted: #a4a59e;
+			--color-konti-line: #2c2d2a;
+			--color-konti-indigo: #8b84f8;
+			--color-konti-indigo-soft: #24213f;
+			--color-konti-green: #78a999;
+			--color-konti-green-soft: #1b302a;
+			--color-konti-amber: #e1a95f;
+			--color-konti-amber-soft: #3a2b18;
+			--color-konti-terracotta: #d18470;
+			--color-konti-nav: rgb(24 25 24 / 0.92);
+		}
+	}
+}

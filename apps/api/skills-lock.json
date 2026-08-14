@@ -1,0 +1,45 @@
+{
+	"version": 1,
+	"skills": {
+		"best-practices": {
+			"source": "better-auth/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "0d59bc23f61ba03b850aa3b81392044c5c7fa3662a5f61b98490b20b0f14a56a"
+		},
+		"drizzle": {
+			"source": "bobmatnyc/claude-mpm-skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "ee38c0b7737febd7409d84e613099a0f276e215e0bbda418b2593786ea8a4754"
+		},
+		"emailAndPassword": {
+			"source": "better-auth/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "1cbc9527756aa933c0f2f5ad7f18fe493f78ef0f4b6f073b624fbf6ccbd463c9"
+		},
+		"nestjs-best-practices": {
+			"source": "kadajett/agent-nestjs-skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "7f14f088a79090183152c2aa556f708b2f5b7d0dacfb0ad339df2d498ba52aa3"
+		},
+		"organization": {
+			"source": "better-auth/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "74bd4e58dd4b66466f79cf0d00a5e75d5ca81b98c0461ee8cd7faba7d8dc16fa"
+		},
+		"twoFactor": {
+			"source": "better-auth/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "85230144b20eed676d0cbe8d28997cb9ccc0b293517204215adad0d74fae9a9d"
+		},
+		"typescript-advanced-types": {
+			"source": "wshobson/agents",
+			"sourceType": "autoskills-registry",
+			"computedHash": "5ca0e177c6aaaba1889255691224daafdb7d71f317cc70bede1590d3907ded42"
+		},
+		"zod": {
+			"source": "pproenca/dot-skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "aa8a97195b07763d37494b511f48be90979fd6826c031956c831cfc58f6a24b8"
+		}
+	}
+}

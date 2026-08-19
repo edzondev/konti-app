@@ -9,14 +9,9 @@ export default function SilenceScreen() {
 	return (
 		<OnboardingShell
 			title={
-				<Text className="text-[40px] font-light leading-[46px] text-konti-canvas-text">
+				<Text className="text-[40px] font-light leading-[46px] text-konti-ivory">
 					Te escribimos{" "}
-					<Text
-						className="text-konti-accent"
-						style={{ fontFamily: "InstrumentSerif_400Regular_Italic" }}
-					>
-						solo
-					</Text>{" "}
+					<Text className="italic text-konti-primary">solo</Text>{" "}
 					si hace falta.
 				</Text>
 			}

@@ -1,6 +1,6 @@
 import type { Tabs } from "expo-router";
 import type { ComponentProps } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Add, Home, Receipt } from "@/shared/ui/reicon";
@@ -13,7 +13,7 @@ const TAB_META = {
 		Icon: Home,
 	},
 	guardar: {
-		label: "Guardar",
+		label: "Añadir",
 		Icon: Add,
 	},
 	comprobantes: {
@@ -38,7 +38,7 @@ export function KontiTabBar({ state, navigation }: TabBarProps) {
 			className="absolute inset-x-0 bottom-0 px-4"
 			style={{ paddingBottom: bottomPad }}
 		>
-			<View className="h-[74px] flex-row items-center overflow-hidden rounded-konti-nav bg-konti-nav px-2 py-[7px]">
+			<View className="h-[74px] flex-row items-center overflow-hidden rounded-[37px] bg-konti-surface px-2 py-[7px]">
 				{state.routes.map((route, index) => {
 					if (!isTabRouteName(route.name)) {
 						return null;
@@ -65,32 +65,19 @@ export function KontiTabBar({ state, navigation }: TabBarProps) {
 									navigation.navigate(route.name, route.params);
 								}
 							}}
-							className={`h-full flex-1 items-center justify-center gap-[3px] rounded-[28px] ${
-								focused && !isGuardar ? "bg-konti-indigo-soft" : ""
-							}`}
+							className="h-full flex-1 items-center justify-center rounded-[28px]"
 						>
 							{isGuardar ? (
-								<View className="size-11 items-center justify-center rounded-full bg-konti-ink">
+								<View className="size-11 items-center justify-center rounded-full bg-konti-ivory-secondary">
 									<Add size={24} colorClassName="accent-konti-surface" />
 								</View>
 							) : (
 								<Icon
 									size={21}
 									weight={focused ? "Filled" : "Outline"}
-									colorClassName={focused ? "accent-konti-indigo" : "accent-konti-muted"}
+									colorClassName={focused ? "accent-konti-primary" : "accent-konti-ivory"}
 								/>
 							)}
-							<Text
-								className={
-									isGuardar
-										? "text-[9px] font-semibold text-konti-ink"
-										: focused
-											? "text-[10px] font-semibold text-konti-indigo"
-											: "text-[10px] font-medium text-konti-muted"
-								}
-							>
-								{label}
-							</Text>
 						</Pressable>
 					);
 				})}

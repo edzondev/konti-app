@@ -9,14 +9,9 @@ export default function OnboardingScreen() {
 	return (
 		<OnboardingShell
 			title={
-				<Text className="text-[40px] font-light leading-[46px] text-konti-canvas-text">
+				<Text className="text-[40px] font-light leading-[46px] text-konti-ivory">
 					Nosotros nos{" "}
-					<Text
-						className="text-konti-accent"
-						style={{ fontFamily: "InstrumentSerif_400Regular_Italic" }}
-					>
-						encargamos
-					</Text>
+					<Text className="italic text-konti-primary">encargamos</Text>
 					.
 				</Text>
 			}

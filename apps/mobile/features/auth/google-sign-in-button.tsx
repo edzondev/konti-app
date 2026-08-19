@@ -5,12 +5,14 @@ import {
 } from "@react-native-google-signin/google-signin";
 import { useState } from "react";
 import { Text, View } from "react-native";
+import { useUniwind } from "uniwind";
 
 import { authClient } from "@/core/auth-client";
 
 const DEFAULT_ERROR_MESSAGE = "No se pudo entrar. Inténtalo de nuevo.";
 
 export function GoogleSignInButton() {
+	const { theme } = useUniwind();
 	const [isSigningIn, setIsSigningIn] = useState(false);
 	const [message, setMessage] = useState<string | null>(null);
 
@@ -69,17 +71,17 @@ export function GoogleSignInButton() {
 	}
 
 	return (
-		<View className="gap-3">
+		<View className="w-full gap-3">
 			<GoogleLogoButton
 				disabled={isSigningIn}
 				label={isSigningIn ? "Iniciando sesión..." : "Continuar con Google"}
 				onPress={handlePress}
-				shape="rectangular"
-				theme="neutral"
-				variant="standard"
+				shape="circular"
+				style={{ height: 58, width: "100%" }}
+				theme={theme === "dark" ? "light" : "dark"}
 			/>
 
-			{message ? <Text className="text-konti-canvas-muted">{message}</Text> : null}
+			{message ? <Text className="text-konti-ivory/50">{message}</Text> : null}
 		</View>
 	);
 }

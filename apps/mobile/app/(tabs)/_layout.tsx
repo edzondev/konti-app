@@ -20,19 +20,13 @@ export default function TabLayout() {
 			<Tabs.Screen
 				name="guardar"
 				options={{
-					title: "Guardar",
+					title: "Añadir",
 				}}
 			/>
 			<Tabs.Screen
 				name="comprobantes"
 				options={{
 					title: "Comprobantes",
-				}}
-			/>
-			<Tabs.Screen
-				name="session-test"
-				options={{
-					href: null,
 				}}
 			/>
 		</Tabs>

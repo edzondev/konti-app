@@ -25,7 +25,7 @@ export default function DeductiblesScreen() {
 	return (
 		<OnboardingShell
 			title={
-				<Text className="text-[40px] font-light leading-[46px] text-konti-canvas-text">
+				<Text className="text-[40px] font-light leading-[46px] text-konti-ivory">
 					¿Seguimos tus gastos deducibles?
 				</Text>
 			}
@@ -42,14 +42,14 @@ export default function DeductiblesScreen() {
 							key={option.title}
 							accessibilityRole="radio"
 							accessibilityState={{ checked: selected }}
-							className={`rounded-[18px] border bg-[#191715] p-5 ${
-								selected ? "border-[#E2A654]" : "border-[#3A3732]"
+							className={`rounded-[18px] border bg-konti-surface p-5 ${
+								selected ? "border-konti-primary" : "border-konti-ivory/15"
 							}`}
 							onPress={() => setTrackDeductibles(option.value)}
 						>
 							<View className="gap-1">
-								<Text className="text-lg font-medium text-konti-canvas-text">{option.title}</Text>
-								<Text className="text-sm leading-5 text-konti-canvas-muted">{option.support}</Text>
+								<Text className="text-lg font-medium text-konti-ivory">{option.title}</Text>
+								<Text className="text-sm leading-5 text-konti-ivory/50">{option.support}</Text>
 							</View>
 						</Pressable>
 					);

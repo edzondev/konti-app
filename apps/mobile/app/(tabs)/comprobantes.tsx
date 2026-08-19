@@ -1,8 +1,6 @@
 import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Receipt } from "@/shared/ui/reicon";
-
 const TAB_BAR_HEIGHT = 74;
 
 export default function ComprobantesTabScreen() {
@@ -17,19 +15,13 @@ export default function ComprobantesTabScreen() {
 				paddingBottom: bottomSpace,
 			}}
 		>
-			<Text className="mb-6 text-[28px] font-semibold tracking-tight text-konti-ink">
+			<Text className="text-[28px] font-semibold tracking-tight text-konti-ivory">
 				Comprobantes
 			</Text>
 
-			<View className="flex-1 items-center justify-center gap-3 px-3">
-				<View className="mb-2 size-[74px] items-center justify-center rounded-konti-bubble bg-konti-surface">
-					<Receipt size={28} colorClassName="accent-konti-muted" />
-				</View>
-				<Text className="text-center text-[22px] font-semibold text-konti-ink">
-					Lista lista para diseñar
-				</Text>
-				<Text className="text-center text-[15px] leading-[21px] text-konti-muted">
-					Tab lista. El set completo de pantallas de comprobantes se puede bajar después.
+			<View className="flex-1 items-center justify-center px-3">
+				<Text className="text-center text-[15px] leading-[21px] text-konti-ivory/50">
+					Aún no hay comprobantes.
 				</Text>
 			</View>
 		</View>

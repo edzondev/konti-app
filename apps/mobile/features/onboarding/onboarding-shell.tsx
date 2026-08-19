@@ -23,11 +23,11 @@ export function OnboardingShell({
 	primaryDisabled = false,
 }: OnboardingShellProps) {
 	return (
-		<UniSafeAreaView className="flex-1 justify-end bg-konti-canvas px-[34px] pb-10">
+		<UniSafeAreaView className="flex-1 justify-end bg-konti-bg px-[34px] pb-10">
 			<View className="gap-8">
 				<View className="gap-4">
 					{eyebrow ? (
-						<Text className="font-mono text-[11px] uppercase tracking-[2px] text-konti-accent">
+						<Text className="font-mono text-[11px] uppercase tracking-[2px] text-konti-primary">
 							{eyebrow}
 						</Text>
 					) : null}
@@ -35,7 +35,7 @@ export function OnboardingShell({
 					{title}
 
 					{body ? (
-						<Text className="text-base font-normal leading-6 text-konti-canvas-muted">{body}</Text>
+						<Text className="text-base font-normal leading-6 text-konti-ivory/50">{body}</Text>
 					) : null}
 				</View>
 
@@ -44,13 +44,13 @@ export function OnboardingShell({
 				<Pressable
 					accessibilityRole="button"
 					accessibilityState={{ disabled: primaryDisabled }}
-					className={`h-[58px] items-center justify-center rounded-[18px] bg-konti-button ${
+					className={`h-[58px] items-center justify-center rounded-[18px] bg-konti-ivory-secondary ${
 						primaryDisabled ? "opacity-40" : "opacity-100"
 					}`}
 					disabled={primaryDisabled}
 					onPress={onPrimaryPress}
 				>
-					<Text className="text-base font-medium text-konti-button-ink">{primaryLabel}</Text>
+					<Text className="text-base font-medium text-konti-surface">{primaryLabel}</Text>
 				</Pressable>
 			</View>
 		</UniSafeAreaView>

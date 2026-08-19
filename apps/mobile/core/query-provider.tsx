@@ -1,7 +1,25 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import type { PropsWithChildren } from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { authClient } from "@/core/auth-client";
 import { ApiError } from "./api-error";
+
+function QuerySessionLifecycle() {
+	const queryClient = useQueryClient();
+	const { data: session } = authClient.useSession();
+	const previousUserId = useRef<string | undefined>(undefined);
+	const userId = session?.user.id;
+
+	useEffect(() => {
+		if (previousUserId.current && !userId) {
+			queryClient.clear();
+		}
+
+		previousUserId.current = userId;
+	}, [queryClient, userId]);
+
+	return null;
+}
 
 export function QueryProvider({ children }: PropsWithChildren) {
 	const [queryClient] = useState(
@@ -27,5 +45,10 @@ export function QueryProvider({ children }: PropsWithChildren) {
 			}),
 	);
 
-	return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+	return (
+		<QueryClientProvider client={queryClient}>
+			<QuerySessionLifecycle />
+			{children}
+		</QueryClientProvider>
+	);
 }

@@ -39,18 +39,13 @@ export default function ReadyScreen() {
 		<OnboardingShell
 			title={
 				<View className="gap-4">
-					<View className="self-start rounded-full bg-[#2B251D] px-4 py-2">
-						<Text className="text-xs font-medium text-konti-accent">Todo listo</Text>
+					<View className="self-start rounded-full bg-konti-surface px-4 py-2">
+						<Text className="text-xs font-medium text-konti-primary">Todo listo</Text>
 					</View>
 
-					<Text className="text-[40px] font-light leading-[46px] text-konti-canvas-text">
+					<Text className="text-[40px] font-light leading-[46px] text-konti-ivory">
 						Konti ya sabe{" "}
-						<Text
-							className="text-konti-accent"
-							style={{ fontFamily: "InstrumentSerif_400Regular_Italic" }}
-						>
-							cómo trabajas
-						</Text>
+						<Text className="italic text-konti-primary">cómo trabajas</Text>
 						.
 					</Text>
 				</View>
@@ -60,9 +55,9 @@ export default function ReadyScreen() {
 			primaryDisabled={isSaving || !incomeMode || trackDeductibles === null}
 			onPrimaryPress={handleComplete}
 		>
-			<View className="gap-3 rounded-[18px] bg-[#191715] p-5">
-				<Text className="text-base leading-6 text-konti-canvas-text">• {incomeSummary}</Text>
-				<Text className="text-base leading-6 text-konti-canvas-text">
+			<View className="gap-3 rounded-[18px] bg-konti-surface p-5">
+				<Text className="text-base leading-6 text-konti-ivory">• {incomeSummary}</Text>
+				<Text className="text-base leading-6 text-konti-ivory">
 					• Deducibles:{" "}
 					{trackDeductibles
 						? "los seguimos"
@@ -71,7 +66,7 @@ export default function ReadyScreen() {
 			</View>
 
 			{saveFailed ? (
-				<Text selectable className="text-sm leading-5 text-konti-accent">
+				<Text selectable className="text-sm leading-5 text-konti-primary">
 					No se pudo guardar tu información. Inténtalo nuevamente.
 				</Text>
 			) : null}

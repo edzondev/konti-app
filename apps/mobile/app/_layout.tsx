@@ -7,6 +7,7 @@ import "react-native-reanimated";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Pressable, Text, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { authClient } from "@/core/auth-client";
 import { QueryProvider } from "@/core/query-provider";
 import { currentTaxProfileQuery } from "@/features/tax-profile/tax-profile.queries";
@@ -29,9 +30,11 @@ GoogleOneTapSignIn.configure({
 
 export default function RootLayout() {
 	return (
-		<QueryProvider>
-			<Layout />
-		</QueryProvider>
+		<GestureHandlerRootView style={{ flex: 1 }}>
+			<QueryProvider>
+				<Layout />
+			</QueryProvider>
+		</GestureHandlerRootView>
 	);
 }
 
@@ -96,6 +99,7 @@ function Layout() {
 
 			<Stack.Protected guard={Boolean(session) && !requiresOnboarding}>
 				<Stack.Screen name="(tabs)" />
+				<Stack.Screen name="document/[id]" />
 			</Stack.Protected>
 		</Stack>
 	);

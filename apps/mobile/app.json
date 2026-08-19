@@ -8,7 +8,10 @@
 		"scheme": "appkonti",
 		"userInterfaceStyle": "automatic",
 		"ios": {
-			"supportsTablet": true
+			"supportsTablet": true,
+			"infoPlist": {
+				"NSCameraUsageDescription": "Konti usa la cámara para guardar tus comprobantes."
+			}
 		},
 		"android": {
 			"adaptiveIcon": {
@@ -19,6 +22,7 @@
 			},
 			"predictiveBackGestureEnabled": false,
 			"package": "com.konti.app",
+			"permissions": ["android.permission.CAMERA"],
 			"googleServicesFile": "./google-services.json"
 		},
 		"web": {
@@ -37,7 +41,14 @@
 					"backgroundColor": "#ffffff"
 				}
 			],
-			"expo-secure-store"
+			"expo-secure-store",
+			[
+				"expo-image-picker",
+				{
+					"photosPermission": "Konti necesita acceso a tus fotos para guardar tus comprobantes."
+				}
+			],
+			"expo-image"
 		],
 		"experiments": {
 			"typedRoutes": true,

@@ -27,6 +27,7 @@ export type DocumentSource =
 	| "manual";
 
 export type DocumentStatus =
+	| "pending_upload"
 	| "uploaded"
 	| "queued"
 	| "processing"

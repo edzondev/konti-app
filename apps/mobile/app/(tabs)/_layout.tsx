@@ -7,6 +7,7 @@ export default function TabLayout() {
 		<Tabs
 			tabBar={(props) => <KontiTabBar {...props} />}
 			screenOptions={{
+				animation: "none",
 				headerShown: false,
 				sceneStyle: { backgroundColor: "transparent" },
 			}}

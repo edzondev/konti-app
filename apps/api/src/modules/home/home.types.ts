@@ -1,9 +1,9 @@
 export type HomeStatus = "up_to_date";
 
-export type HomePrimaryAction = null;
+export type HomePrimaryAction = "open_capture" | null;
 
 export interface HomePrimary {
-	code: "NOTHING_TO_REVIEW";
+	code: "ADD_FIRST_DOCUMENT" | "NOTHING_TO_REVIEW";
 	title: string;
 	description: string;
 	action: HomePrimaryAction;

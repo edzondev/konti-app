@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "documents_profile_sha256_visible_uidx" ON "documents" USING btree ("tax_profile_id","sha256") WHERE "documents"."deleted_at" IS NULL;

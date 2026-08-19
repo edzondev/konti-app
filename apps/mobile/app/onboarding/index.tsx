@@ -57,6 +57,7 @@ export default function OnboardingScreen() {
 							onPress={() => {
 								updateTaxProfile.mutate({
 									incomeMode: option.value,
+									trackDeductibles: false,
 								});
 							}}
 						/>

@@ -8,18 +8,16 @@ export function useTaxProfileOnboarding() {
 
 	const mutation = useUpdateCurrentTaxProfile(session?.user.id ?? "");
 
-	async function saveIncomeMode(incomeMode: IncomeMode) {
+	async function completeProfile(input: { incomeMode: IncomeMode; trackDeductibles: boolean }) {
 		if (!session) {
 			throw new Error("No existe una sesión activa");
 		}
 
-		return mutation.mutateAsync({
-			incomeMode,
-		});
+		return mutation.mutateAsync(input);
 	}
 
 	return {
-		saveIncomeMode,
+		completeProfile,
 		isSaving: mutation.isPending,
 		error: mutation.error,
 	};

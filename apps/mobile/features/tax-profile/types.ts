@@ -6,6 +6,7 @@ export interface TaxProfile {
 	id: string;
 	taxYear: number;
 	incomeMode: IncomeMode | null;
+	trackDeductibles: boolean;
 	status: TaxProfileStatus;
 	jurisdictionCode: string;
 	currencyCode: string;
@@ -21,4 +22,5 @@ export interface CurrentTaxProfileResponse {
 
 export interface UpdateTaxProfileInput {
 	incomeMode: IncomeMode;
+	trackDeductibles: boolean;
 }

@@ -1,6 +1,7 @@
 import { HttpStatus } from "@nestjs/common";
 import type { ObjectStorage } from "../../core/storage/storage.types";
 import type { TaxProfileService } from "../tax-profile/tax-profile.service";
+import { encodeDocumentCursor } from "./documents.cursor";
 import { DocumentsService } from "./documents.service";
 import type { CreateUploadInput } from "./documents.validation";
 
@@ -29,7 +30,26 @@ type StoredDocument = {
 	originalFileName: string;
 	pageCount: number;
 	deletedAt: Date | null;
+	createdAt: Date;
 };
+
+function visibleDocument(id: string, createdAt: string): StoredDocument {
+	return {
+		id,
+		taxProfileId: profileId,
+		status: "uploaded",
+		idempotencyKey: `${id}-idempotency-key`,
+		objectKey: `users/user-1/tax/2026/documents/${id}/original.jpg`,
+		sha256: `${id}`.padEnd(64, "0"),
+		sizeBytes: 42,
+		mimeType: "image/jpeg",
+		source: "camera",
+		originalFileName: `${id}.jpg`,
+		pageCount: 1,
+		deletedAt: null,
+		createdAt: new Date(createdAt),
+	};
+}
 
 function createHarness(options: { requiresOnboarding?: boolean } = {}) {
 	const rows = new Map<string, StoredDocument>();
@@ -65,6 +85,29 @@ function createHarness(options: { requiresOnboarding?: boolean } = {}) {
 			const row = rows.get(documentId);
 			return row?.taxProfileId === taxProfileId ? row : undefined;
 		}),
+		listVisible: jest.fn(
+			async (
+				taxProfileId: string,
+				query: { cursor?: { createdAt: Date; id: string }; limit: number },
+			) =>
+				[...rows.values()]
+					.filter(
+						(row) =>
+							row.taxProfileId === taxProfileId &&
+							row.status === "uploaded" &&
+							row.deletedAt === null &&
+							(!query.cursor ||
+								row.createdAt < query.cursor.createdAt ||
+								(row.createdAt.getTime() === query.cursor.createdAt.getTime() &&
+									row.id < query.cursor.id)),
+					)
+					.sort(
+						(left, right) =>
+							right.createdAt.getTime() - left.createdAt.getTime() ||
+							right.id.localeCompare(left.id),
+					)
+					.slice(0, query.limit + 1),
+		),
 	};
 	const storage = {
 		createUploadUrl: jest.fn().mockResolvedValue({
@@ -158,6 +201,7 @@ describe("DocumentsService", () => {
 			originalFileName: validInput.originalFileName,
 			pageCount: validInput.pageCount,
 			deletedAt: null,
+			createdAt: new Date("2026-08-19T12:00:00.000Z"),
 		};
 		repository.findByIdempotencyKey
 			.mockResolvedValueOnce(undefined)
@@ -212,6 +256,7 @@ describe("DocumentsService", () => {
 			originalFileName: validInput.originalFileName,
 			pageCount: validInput.pageCount,
 			deletedAt: null,
+			createdAt: new Date("2026-08-19T12:00:00.000Z"),
 		};
 		repository.findVisibleBySha256
 			.mockResolvedValueOnce(undefined)
@@ -300,10 +345,115 @@ describe("DocumentsService", () => {
 			originalFileName: "other.jpg",
 			pageCount: 1,
 			deletedAt: null,
+			createdAt: new Date("2026-08-19T12:00:00.000Z"),
 		});
 
 		await expect(service.completeUpload("user-1", "other-document")).rejects.toMatchObject({
 			status: HttpStatus.NOT_FOUND,
 		});
+	});
+
+	it("lists visible uploaded documents with signed previews and a next cursor", async () => {
+		const { service, rows, storage } = createHarness();
+		rows.set("newer", visibleDocument("newer", "2026-08-19T12:00:00.000Z"));
+		rows.set("older", visibleDocument("older", "2026-08-18T12:00:00.000Z"));
+		rows.set("pending", { ...visibleDocument("pending", "2026-08-17T12:00:00.000Z"), status: "pending_upload" });
+		rows.set("deleted", {
+			...visibleDocument("deleted", "2026-08-16T12:00:00.000Z"),
+			deletedAt: new Date(),
+		});
+		storage.createDownloadUrl.mockResolvedValue({
+			url: "https://storage.example/preview",
+			expiresAt: "2026-08-19T12:05:00.000Z",
+		});
+
+		const result = await service.list("user-1", { limit: 1 });
+
+		expect(result).toEqual({
+			items: [
+				{
+					id: "newer",
+					status: "uploaded",
+					source: "camera",
+					createdAt: "2026-08-19T12:00:00.000Z",
+					originalFileName: "newer.jpg",
+					mimeType: "image/jpeg",
+					previewUrl: "https://storage.example/preview",
+					previewExpiresAt: "2026-08-19T12:05:00.000Z",
+				},
+			],
+			nextCursor: encodeDocumentCursor({
+				createdAt: "2026-08-19T12:00:00.000Z",
+				id: "newer",
+			}),
+		});
+		expect(storage.createDownloadUrl).toHaveBeenCalledWith({
+			objectKey: "users/user-1/tax/2026/documents/newer/original.jpg",
+			expiresInSeconds: 300,
+		});
+		expect(JSON.stringify(result)).not.toContain("objectKey");
+	});
+
+	it("uses a decoded cursor and caps the list limit at 50", async () => {
+		const { service, repository } = createHarness();
+		const cursor = encodeDocumentCursor({
+			createdAt: "2026-08-18T12:00:00.000Z",
+			id: "older",
+		});
+
+		await service.list("user-1", { cursor, limit: 100 });
+
+		expect(repository.listVisible).toHaveBeenCalledWith(profileId, {
+			cursor: { createdAt: new Date("2026-08-18T12:00:00.000Z"), id: "older" },
+			limit: 50,
+		});
+	});
+
+	it("returns not found for pending and deleted documents", async () => {
+		const { service, rows } = createHarness();
+		rows.set("pending", { ...visibleDocument("pending", "2026-08-19T12:00:00.000Z"), status: "pending_upload" });
+		rows.set("deleted", {
+			...visibleDocument("deleted", "2026-08-19T12:00:00.000Z"),
+			deletedAt: new Date(),
+		});
+
+		for (const id of ["pending", "deleted"]) {
+			await expect(service.getOne("user-1", id)).rejects.toMatchObject({
+				status: HttpStatus.NOT_FOUND,
+			});
+			await expect(service.createFileUrl("user-1", id)).rejects.toMatchObject({
+				status: HttpStatus.NOT_FOUND,
+			});
+		}
+	});
+
+	it("returns a visible document detail and signed file URL without objectKey", async () => {
+		const { service, rows, storage } = createHarness();
+		rows.set("visible", visibleDocument("visible", "2026-08-19T12:00:00.000Z"));
+		storage.createDownloadUrl.mockResolvedValue({
+			url: "https://storage.example/original",
+			expiresAt: "2026-08-19T12:05:00.000Z",
+		});
+
+		const detail = await service.getOne("user-1", "visible");
+		const file = await service.createFileUrl("user-1", "visible");
+
+		expect(detail).toEqual({
+			document: {
+				id: "visible",
+				status: "uploaded",
+				source: "camera",
+				createdAt: "2026-08-19T12:00:00.000Z",
+				originalFileName: "visible.jpg",
+				mimeType: "image/jpeg",
+			},
+			processing: null,
+			attention: null,
+		});
+		expect(file).toEqual({
+			url: "https://storage.example/original",
+			expiresAt: "2026-08-19T12:05:00.000Z",
+		});
+		expect(JSON.stringify({ detail, file })).not.toContain("objectKey");
 	});
 });

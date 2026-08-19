@@ -13,6 +13,24 @@ export type DocumentRecord = {
 	pageCount: number;
 	source: "camera" | "gallery";
 	deletedAt: Date | null;
+	createdAt: Date;
+};
+
+export type DocumentListItem = {
+	id: string;
+	status: "uploaded";
+	source: "camera" | "gallery";
+	createdAt: string;
+	originalFileName: string | null;
+	mimeType: string;
+	previewUrl: string;
+	previewExpiresAt: string;
+};
+
+export type DocumentDetail = {
+	document: Omit<DocumentListItem, "previewUrl" | "previewExpiresAt">;
+	processing: null;
+	attention: null;
 };
 
 export interface DocumentsRepositoryPort {
@@ -25,6 +43,10 @@ export interface DocumentsRepositoryPort {
 		toStatus: DocumentUploadStatus,
 	): Promise<boolean>;
 	getOwned(taxProfileId: string, documentId: string): Promise<DocumentRecord | undefined>;
+	listVisible(
+		taxProfileId: string,
+		query: { cursor?: { createdAt: Date; id: string }; limit: number },
+	): Promise<DocumentRecord[]>;
 }
 
 export type CreateUploadResult =

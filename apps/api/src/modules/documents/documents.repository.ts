@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull, lt, or } from "drizzle-orm";
 import { DATABASE } from "../../database/database.constants";
 import { documents } from "../../database/schema";
 import type { Database } from "../../database/database.types";
@@ -73,5 +73,32 @@ export class DocumentsRepository implements DocumentsRepositoryPort {
 			.limit(1);
 
 		return document as DocumentRecord | undefined;
+	}
+
+	async listVisible(
+		taxProfileId: string,
+		query: { cursor?: { createdAt: Date; id: string }; limit: number },
+	): Promise<DocumentRecord[]> {
+		const cursorCondition = query.cursor
+			? or(
+					lt(documents.createdAt, query.cursor.createdAt),
+					and(eq(documents.createdAt, query.cursor.createdAt), lt(documents.id, query.cursor.id)),
+				)
+			: undefined;
+		const rows = await this.db
+			.select()
+			.from(documents)
+			.where(
+				and(
+					eq(documents.taxProfileId, taxProfileId),
+					eq(documents.status, "uploaded"),
+					isNull(documents.deletedAt),
+					cursorCondition,
+				),
+			)
+			.orderBy(desc(documents.createdAt), desc(documents.id))
+			.limit(query.limit + 1);
+
+		return rows as DocumentRecord[];
 	}
 }

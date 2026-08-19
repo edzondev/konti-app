@@ -4,15 +4,21 @@ import { buildDocumentObjectKey } from "../../core/storage/object-key";
 import { OBJECT_STORAGE } from "../../core/storage/storage.constants";
 import type { ObjectStorage } from "../../core/storage/storage.types";
 import { TaxProfileService } from "../tax-profile/tax-profile.service";
+import { decodeDocumentCursor, encodeDocumentCursor } from "./documents.cursor";
 import { DocumentsRepository } from "./documents.repository";
 import type {
 	CreateUploadResult,
+	DocumentDetail,
+	DocumentListItem,
 	DocumentRecord,
 	DocumentsRepositoryPort,
 } from "./documents.types";
 import type { CreateUploadInput } from "./documents.validation";
 
 const UPLOAD_URL_TTL_SECONDS = 300;
+const DOWNLOAD_URL_TTL_SECONDS = 300;
+const DEFAULT_LIST_LIMIT = 30;
+const MAX_LIST_LIMIT = 50;
 const IDEMPOTENCY_KEY_UNIQUE_INDEX = "documents_profile_idempotency_uidx";
 const VISIBLE_SHA256_UNIQUE_INDEX = "documents_profile_sha256_visible_uidx";
 
@@ -72,6 +78,7 @@ export class DocumentsService {
 			pageCount: input.pageCount,
 			source: input.source,
 			deletedAt: null,
+			createdAt: new Date(),
 		};
 
 		try {
@@ -146,6 +153,56 @@ export class DocumentsService {
 		return { id: document.id, status: "uploaded" };
 	}
 
+	async list(
+		userId: string,
+		query: { cursor?: string; limit?: number },
+	): Promise<{ items: DocumentListItem[]; nextCursor: string | null }> {
+		const current = await this.getCompleteProfile(userId);
+		const limit = Math.min(Math.max(query.limit ?? DEFAULT_LIST_LIMIT, 1), MAX_LIST_LIMIT);
+		const decodedCursor = query.cursor ? decodeDocumentCursor(query.cursor) : undefined;
+		const documents = await this.repository.listVisible(current.profile.id, {
+			cursor: decodedCursor && { createdAt: new Date(decodedCursor.createdAt), id: decodedCursor.id },
+			limit,
+		});
+		const hasMore = documents.length > limit;
+		const page = documents.slice(0, limit);
+		const items = await Promise.all(page.map((document) => this.toListItem(document)));
+		const last = page.at(-1);
+
+		return {
+			items,
+			nextCursor:
+				hasMore && last
+					? encodeDocumentCursor({ createdAt: last.createdAt.toISOString(), id: last.id })
+					: null,
+		};
+	}
+
+	async getOne(userId: string, documentId: string): Promise<DocumentDetail> {
+		const document = await this.getVisibleOwnedDocument(userId, documentId);
+
+		return {
+			document: {
+				id: document.id,
+				status: "uploaded",
+				source: document.source,
+				createdAt: document.createdAt.toISOString(),
+				originalFileName: document.originalFileName,
+				mimeType: document.mimeType,
+			},
+			processing: null,
+			attention: null,
+		};
+	}
+
+	async createFileUrl(userId: string, documentId: string): Promise<{ url: string; expiresAt: string }> {
+		const document = await this.getVisibleOwnedDocument(userId, documentId);
+		return this.storage.createDownloadUrl({
+			objectKey: document.objectKey,
+			expiresInSeconds: DOWNLOAD_URL_TTL_SECONDS,
+		});
+	}
+
 	private async createUploadResponse(document: DocumentRecord): Promise<CreateUploadResult> {
 		const upload = await this.storage.createUploadUrl({
 			objectKey: document.objectKey,
@@ -199,6 +256,34 @@ export class DocumentsService {
 		}
 
 		return current as typeof current & { profile: NonNullable<typeof current.profile> };
+	}
+
+	private async getVisibleOwnedDocument(userId: string, documentId: string): Promise<DocumentRecord> {
+		const current = await this.getCompleteProfile(userId);
+		const document = await this.repository.getOwned(current.profile.id, documentId);
+		if (!document || document.status !== "uploaded" || document.deletedAt !== null) {
+			throw this.notFound();
+		}
+
+		return document;
+	}
+
+	private async toListItem(document: DocumentRecord): Promise<DocumentListItem> {
+		const preview = await this.storage.createDownloadUrl({
+			objectKey: document.objectKey,
+			expiresInSeconds: DOWNLOAD_URL_TTL_SECONDS,
+		});
+
+		return {
+			id: document.id,
+			status: "uploaded",
+			source: document.source,
+			createdAt: document.createdAt.toISOString(),
+			originalFileName: document.originalFileName,
+			mimeType: document.mimeType,
+			previewUrl: preview.url,
+			previewExpiresAt: preview.expiresAt,
+		};
 	}
 
 	private uploadIncomplete() {

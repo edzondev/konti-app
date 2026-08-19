@@ -1,32 +1,22 @@
-export type HomeUiState = "new-user" | "all-clear" | "needs-decision" | "upcoming";
+export type HomeStatus = "up_to_date";
 
-export type HomeMockProfile = {
-	firstName: string;
-	initials: string;
-	incomeLabel: string;
-	fiscalYear: string;
-	profileStatus: string;
-	currency: string;
-	maskedRuc: string;
-};
+export interface HomePrimary {
+	code: "NOTHING_TO_REVIEW";
+	title: string;
+	description: string;
+	action: null;
+}
 
-export type HomeDecisionReceipt = {
-	merchant: string;
-	detail: string;
-	amount: string;
-	confirmLabel: string;
-	reviewLabel: string;
-};
-
-export type HomeAllClearContent = {
-	heading: string;
-	explanation: string;
-	highlight: string;
-	linkLabel: string;
-};
-
-export type HomeUpcomingContent = {
-	heading: string;
-	explanation: string;
-	suggestion: string;
-};
+export interface HomeResponse {
+	status: HomeStatus;
+	taxYear: number;
+	primary: HomePrimary;
+	attention: { count: number; nextItem: null };
+	summary: {
+		processedDocuments: number;
+		processingDocuments: number;
+		potentiallyRelevantAmount: null;
+	};
+	nextRelevantEvent: null;
+	updatedAt: string;
+}

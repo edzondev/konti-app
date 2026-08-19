@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
+import { ApiError } from "./api-error";
 
 export function QueryProvider({ children }: PropsWithChildren) {
 	const [queryClient] = useState(
@@ -9,7 +10,13 @@ export function QueryProvider({ children }: PropsWithChildren) {
 				defaultOptions: {
 					queries: {
 						staleTime: 30_000,
-						retry: 2,
+						retry: (failureCount, error) => {
+							if (error instanceof ApiError && error.status >= 400 && error.status < 500) {
+								return false;
+							}
+
+							return failureCount < 2;
+						},
 						refetchOnMount: true,
 						refetchOnReconnect: true,
 					},

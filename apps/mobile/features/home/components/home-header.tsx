@@ -1,24 +1,28 @@
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 type HomeHeaderProps = {
+	firstName: string | undefined;
 	initials: string;
-	onPressAccount?: () => void;
 };
 
-export function HomeHeader({ initials, onPressAccount }: HomeHeaderProps) {
+export function HomeHeader({ firstName, initials }: HomeHeaderProps) {
 	return (
-		<View className="min-h-[42px] flex-row items-center justify-between px-5 pt-2">
-			<Text className="text-[19px] font-semibold tracking-tight text-konti-ink">konti</Text>
+		<View className="min-h-[64px] flex-row items-center justify-between px-6 pt-3">
+			<View className="gap-1">
+				<Text className="text-[20px] font-semibold tracking-tight text-konti-canvas-text">
+					kont<Text className="text-konti-accent">i</Text>
+				</Text>
+				<Text className="text-sm text-konti-canvas-muted">
+					{firstName ? `Hola, ${firstName}` : "Hola"}
+				</Text>
+			</View>
 
-			<Pressable
-				accessibilityRole="button"
+			<View
 				accessibilityLabel="Cuenta"
-				hitSlop={8}
-				onPress={onPressAccount}
-				className="size-[38px] items-center justify-center rounded-konti-avatar bg-konti-surface"
+				className="size-10 items-center justify-center rounded-full bg-konti-surface"
 			>
-				<Text className="text-xs font-semibold lowercase text-konti-ink">{initials}</Text>
-			</Pressable>
+				<Text className="text-xs font-semibold text-konti-canvas-text">{initials}</Text>
+			</View>
 		</View>
 	);
 }

@@ -4,7 +4,7 @@ import { randomUUID } from "expo-crypto";
 import { useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated from "react-native-reanimated";
-import { Camera, usePhotoOutput, type Photo } from "react-native-vision-camera";
+import { Camera, useCameraDevice, usePhotoOutput, type Photo } from "react-native-vision-camera";
 
 import { authClient } from "@/core/auth-client";
 import type { LocalImageFile } from "@/features/documents/document-file";
@@ -24,13 +24,14 @@ type PendingCapture = {
 export function CaptureCamera() {
 	const { data: session } = authClient.useSession();
 	const documentIntake = useDocumentIntake();
+	const device = useCameraDevice("back");
 	const photoOutput = usePhotoOutput({ containerFormat: "jpeg", qualityPrioritization: "quality" });
 	const [status, setStatus] = useState<CaptureStatus>("idle");
 	const [pendingCapture, setPendingCapture] = useState<PendingCapture | null>(null);
 	const [busy, setBusy] = useState(false);
 	const busyRef = useRef(false);
 
-	const controlsDisabled = busy || status === "saving" || status === "success";
+	const controlsDisabled = busy || status === "saving" || status === "success" || !device;
 
 	function beginCapture(): boolean {
 		if (busyRef.current || status === "saving" || status === "success") {
@@ -143,7 +144,15 @@ export function CaptureCamera() {
 
 	return (
 		<View className="flex-1 bg-konti-bg">
-			<Camera style={StyleSheet.absoluteFill} device="back" isActive outputs={[photoOutput]} resizeMode="cover" />
+			{device ? (
+				<Camera style={StyleSheet.absoluteFill} device={device} isActive outputs={[photoOutput]} resizeMode="cover" />
+			) : (
+				<View style={StyleSheet.absoluteFill} className="items-center justify-center px-7">
+					<Text className="text-center text-[15px] text-konti-ivory/60">
+						No hay cámara disponible en este dispositivo.
+					</Text>
+				</View>
+			)}
 
 			<View className="flex-1 justify-end px-6 pb-32">
 				<View className="items-center gap-5">

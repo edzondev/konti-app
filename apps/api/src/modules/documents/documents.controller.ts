@@ -14,6 +14,7 @@ import { fromNodeHeaders } from "better-auth/node";
 import type { Request } from "express";
 import { AUTH } from "../../auth/auth.constants";
 import type { Auth } from "../../auth/auth.factory";
+import { decodeDocumentCursor } from "./documents.cursor";
 import { DocumentsService } from "./documents.service";
 import { createUploadSchema } from "./documents.validation";
 
@@ -54,10 +55,8 @@ export class DocumentsController {
 		@Query("limit") limit?: string,
 	) {
 		const userId = await this.getAuthenticatedUserId(request);
-		return this.documentsService.list(userId, {
-			cursor,
-			limit: limit === undefined ? undefined : Number(limit),
-		});
+		const parsedQuery = this.parseListQuery(cursor, limit);
+		return this.documentsService.list(userId, parsedQuery);
 	}
 
 	@Get(":id")
@@ -70,6 +69,36 @@ export class DocumentsController {
 	async createFileUrl(@Req() request: Request, @Param("id") id: string) {
 		const userId = await this.getAuthenticatedUserId(request);
 		return this.documentsService.createFileUrl(userId, id);
+	}
+
+	private parseListQuery(cursor?: string, limit?: string) {
+		if (cursor !== undefined) {
+			try {
+				decodeDocumentCursor(cursor);
+			} catch {
+				throw new BadRequestException({
+					message: "El cursor de paginación no es válido.",
+				});
+			}
+		}
+
+		if (limit === undefined) {
+			return { cursor, limit: undefined };
+		}
+
+		const parsedLimit = Number(limit);
+		if (
+			!Number.isFinite(parsedLimit) ||
+			!Number.isInteger(parsedLimit) ||
+			parsedLimit < 1 ||
+			parsedLimit > 50
+		) {
+			throw new BadRequestException({
+				message: "El límite de paginación no es válido.",
+			});
+		}
+
+		return { cursor, limit: parsedLimit };
 	}
 
 	private async getAuthenticatedUserId(request: Request) {

@@ -38,7 +38,7 @@ export function KontiTabBar({ state, navigation }: TabBarProps) {
 			className="absolute inset-x-0 bottom-0 px-4"
 			style={{ paddingBottom: bottomPad }}
 		>
-			<View className="h-[74px] flex-row items-center overflow-hidden rounded-[37px] bg-konti-surface px-2 py-[7px]">
+			<View className="h-18.5 flex-row items-center overflow-hidden rounded-[37px] bg-konti-surface px-2 py-1.75">
 				{state.routes.map((route, index) => {
 					if (!isTabRouteName(route.name)) {
 						return null;
@@ -72,11 +72,7 @@ export function KontiTabBar({ state, navigation }: TabBarProps) {
 									<Add size={24} colorClassName="accent-konti-surface" />
 								</View>
 							) : (
-								<Icon
-									size={21}
-									weight={focused ? "Filled" : "Outline"}
-									colorClassName={focused ? "accent-konti-primary" : "accent-konti-ivory"}
-								/>
+								<Icon size={21} weight={focused ? "Filled" : "Outline"} />
 							)}
 						</Pressable>
 					);

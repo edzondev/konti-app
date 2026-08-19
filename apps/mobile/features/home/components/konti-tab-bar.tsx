@@ -69,10 +69,14 @@ export function KontiTabBar({ state, navigation }: TabBarProps) {
 						>
 							{isGuardar ? (
 								<View className="size-11 items-center justify-center rounded-full bg-konti-ivory-secondary">
-									<Add size={24} colorClassName="accent-konti-surface" />
+									<Add size={32} colorClassName="accent-konti-surface" />
 								</View>
 							) : (
-								<Icon size={21} weight={focused ? "Filled" : "Outline"} />
+								<Icon
+									size={28}
+									weight={focused ? "Filled" : "Outline"}
+									colorClassName={focused ? "accent-konti-primary" : "accent-konti-ivory-secondary"}
+								/>
 							)}
 						</Pressable>
 					);

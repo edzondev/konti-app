@@ -84,8 +84,6 @@ function Layout() {
 
 	const requiresOnboarding = taxProfileQuery.data?.requiresOnboarding ?? true;
 
-	console.log(requiresOnboarding);
-
 	return (
 		<Stack screenOptions={{ headerShown: false }}>
 			<Stack.Protected guard={!session}>

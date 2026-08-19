@@ -17,6 +17,12 @@ export function getDocument(documentId: string) {
 	return apiClient<DocumentDetail>(`/v1/documents/${documentId}`);
 }
 
+export function createDocumentFileUrl(documentId: string) {
+	return apiClient<{ url: string; expiresAt: string }>(`/v1/documents/${documentId}/file-url`, {
+		method: "POST",
+	});
+}
+
 export function createDocumentUpload(input: CreateDocumentUploadInput) {
 	return apiClient<CreateDocumentUploadResult>("/v1/documents/uploads", {
 		method: "POST",

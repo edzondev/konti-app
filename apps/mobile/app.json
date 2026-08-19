@@ -47,7 +47,8 @@
 				{
 					"photosPermission": "Konti necesita acceso a tus fotos para guardar tus comprobantes."
 				}
-			]
+			],
+			"expo-image"
 		],
 		"experiments": {
 			"typedRoutes": true,

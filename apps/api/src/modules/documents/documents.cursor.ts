@@ -9,7 +9,16 @@ export function encodeDocumentCursor(cursor: DocumentCursor): string {
 
 export function decodeDocumentCursor(cursor: string): DocumentCursor {
 	try {
-		const decoded: unknown = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8"));
+		if (!/^[A-Za-z0-9_-]+$/.test(cursor)) {
+			throw new Error("Invalid document cursor");
+		}
+
+		const payload = Buffer.from(cursor, "base64url");
+		if (payload.toString("base64url") !== cursor) {
+			throw new Error("Invalid document cursor");
+		}
+
+		const decoded: unknown = JSON.parse(payload.toString("utf8"));
 		if (
 			typeof decoded !== "object" ||
 			decoded === null ||

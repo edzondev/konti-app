@@ -160,8 +160,14 @@ export class DocumentsService {
 		const current = await this.getCompleteProfile(userId);
 		const limit = Math.min(Math.max(query.limit ?? DEFAULT_LIST_LIMIT, 1), MAX_LIST_LIMIT);
 		const decodedCursor = query.cursor ? decodeDocumentCursor(query.cursor) : undefined;
+		const cursorDocument = decodedCursor
+			? await this.repository.getOwned(current.profile.id, decodedCursor.id)
+			: undefined;
+		if (decodedCursor && !cursorDocument) {
+			throw new Error("Invalid document cursor");
+		}
 		const documents = await this.repository.listVisible(current.profile.id, {
-			cursor: decodedCursor && { createdAt: new Date(decodedCursor.createdAt), id: decodedCursor.id },
+			cursor: cursorDocument && { createdAt: cursorDocument.createdAt, id: cursorDocument.id },
 			limit,
 		});
 		const hasMore = documents.length > limit;

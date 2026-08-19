@@ -394,19 +394,36 @@ describe("DocumentsService", () => {
 		expect(JSON.stringify(result)).not.toContain("objectKey");
 	});
 
-	it("uses a decoded cursor and caps the list limit at 50", async () => {
-		const { service, repository } = createHarness();
+	it("seeks the next page from the stored cursor row timestamp and caps the list limit at 50", async () => {
+		const { service, repository, rows, storage } = createHarness();
+		rows.set("cursor-row", visibleDocument("cursor-row", "2026-08-18T12:00:00.001Z"));
+		rows.set("older", visibleDocument("older", "2026-08-18T12:00:00.000Z"));
+		storage.createDownloadUrl.mockResolvedValue({
+			url: "https://storage.example/preview",
+			expiresAt: "2026-08-19T12:05:00.000Z",
+		});
 		const cursor = encodeDocumentCursor({
 			createdAt: "2026-08-18T12:00:00.000Z",
-			id: "older",
+			id: "cursor-row",
 		});
 
-		await service.list("user-1", { cursor, limit: 100 });
+		const result = await service.list("user-1", { cursor, limit: 100 });
 
 		expect(repository.listVisible).toHaveBeenCalledWith(profileId, {
-			cursor: { createdAt: new Date("2026-08-18T12:00:00.000Z"), id: "older" },
+			cursor: { createdAt: new Date("2026-08-18T12:00:00.001Z"), id: "cursor-row" },
 			limit: 50,
 		});
+		expect(result.items.map((item) => item.id)).toEqual(["older"]);
+	});
+
+	it("rejects a cursor whose document is missing or not owned", async () => {
+		const { service } = createHarness();
+		const cursor = encodeDocumentCursor({
+			createdAt: "2026-08-18T12:00:00.000Z",
+			id: "missing",
+		});
+
+		await expect(service.list("user-1", { cursor })).rejects.toThrow("Invalid document cursor");
 	});
 
 	it("returns not found for pending and deleted documents", async () => {

@@ -8,6 +8,8 @@ import { Text, View } from "react-native";
 
 import { authClient } from "@/core/auth-client";
 
+const DEFAULT_ERROR_MESSAGE = "No se pudo entrar. Inténtalo de nuevo.";
+
 export function GoogleSignInButton() {
 	const [isSigningIn, setIsSigningIn] = useState(false);
 	const [message, setMessage] = useState<string | null>(null);
@@ -38,7 +40,7 @@ export function GoogleSignInButton() {
 						break;
 
 					default:
-						setMessage("No se pudo iniciar sesión con Google.");
+						setMessage(DEFAULT_ERROR_MESSAGE);
 				}
 
 				return;
@@ -60,14 +62,14 @@ export function GoogleSignInButton() {
 				setMessage(signInError.message ?? "No se pudo crear la sesión de Konti.");
 			}
 		} catch {
-			setMessage("Ocurrió un error inesperado.");
+			setMessage(DEFAULT_ERROR_MESSAGE);
 		} finally {
 			setIsSigningIn(false);
 		}
 	}
 
 	return (
-		<View style={{ gap: 12 }}>
+		<View className="gap-3">
 			<GoogleLogoButton
 				disabled={isSigningIn}
 				label={isSigningIn ? "Iniciando sesión..." : "Continuar con Google"}
@@ -77,7 +79,7 @@ export function GoogleSignInButton() {
 				variant="standard"
 			/>
 
-			{message ? <Text>{message}</Text> : null}
+			{message ? <Text className="text-konti-canvas-muted">{message}</Text> : null}
 		</View>
 	);
 }

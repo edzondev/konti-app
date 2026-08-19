@@ -108,6 +108,14 @@ function createHarness(options: { requiresOnboarding?: boolean } = {}) {
 					)
 					.slice(0, query.limit + 1),
 		),
+		countUploaded: jest.fn(async (taxProfileId: string) =>
+			[...rows.values()].filter(
+				(row) =>
+					row.taxProfileId === taxProfileId &&
+					row.status === "uploaded" &&
+					row.deletedAt === null,
+			).length,
+		),
 	};
 	const storage = {
 		createUploadUrl: jest.fn().mockResolvedValue({
@@ -139,6 +147,17 @@ function createHarness(options: { requiresOnboarding?: boolean } = {}) {
 }
 
 describe("DocumentsService", () => {
+	it("counts uploaded documents and ignores pending uploads", async () => {
+		const { service, rows } = createHarness();
+		rows.set("uploaded", visibleDocument("uploaded", "2026-08-19T12:00:00.000Z"));
+		rows.set("pending", {
+			...visibleDocument("pending", "2026-08-19T12:00:00.000Z"),
+			status: "pending_upload",
+		});
+
+		await expect(service.countUploaded("user-1")).resolves.toBe(1);
+	});
+
 	it("rejects uploads when the tax profile is incomplete", async () => {
 		const { service } = createHarness({ requiresOnboarding: true });
 

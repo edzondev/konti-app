@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { and, desc, eq, isNull, lt, or } from "drizzle-orm";
+import { and, count, desc, eq, isNull, lt, or } from "drizzle-orm";
 import { DATABASE } from "../../database/database.constants";
 import { documents } from "../../database/schema";
 import type { Database } from "../../database/database.types";
@@ -100,5 +100,20 @@ export class DocumentsRepository implements DocumentsRepositoryPort {
 			.limit(query.limit + 1);
 
 		return rows as DocumentRecord[];
+	}
+
+	async countUploaded(taxProfileId: string): Promise<number> {
+		const [result] = await this.db
+			.select({ value: count() })
+			.from(documents)
+			.where(
+				and(
+					eq(documents.taxProfileId, taxProfileId),
+					eq(documents.status, "uploaded"),
+					isNull(documents.deletedAt),
+				),
+			);
+
+		return result?.value ?? 0;
 	}
 }

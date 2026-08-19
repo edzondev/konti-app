@@ -47,6 +47,7 @@ export interface DocumentsRepositoryPort {
 		taxProfileId: string,
 		query: { cursor?: { createdAt: Date; id: string }; limit: number },
 	): Promise<DocumentRecord[]>;
+	countUploaded(taxProfileId: string): Promise<number>;
 }
 
 export type CreateUploadResult =

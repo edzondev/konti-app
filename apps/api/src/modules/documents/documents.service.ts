@@ -153,6 +153,11 @@ export class DocumentsService {
 		return { id: document.id, status: "uploaded" };
 	}
 
+	async countUploaded(userId: string): Promise<number> {
+		const current = await this.getCompleteProfile(userId);
+		return this.repository.countUploaded(current.profile.id);
+	}
+
 	async list(
 		userId: string,
 		query: { cursor?: string; limit?: number },

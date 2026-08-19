@@ -49,6 +49,7 @@ export class TaxProfileService {
 				userId,
 				taxYear,
 				incomeMode: input.incomeMode,
+				trackDeductibles: input.trackDeductibles,
 				status: "complete",
 				completedAt: now,
 			})
@@ -56,6 +57,7 @@ export class TaxProfileService {
 				target: [taxProfiles.userId, taxProfiles.taxYear],
 				set: {
 					incomeMode: input.incomeMode,
+					trackDeductibles: input.trackDeductibles,
 					status: "complete",
 					completedAt: now,
 					updatedAt: now,
@@ -79,6 +81,7 @@ export class TaxProfileService {
 			id: profile.id,
 			taxYear: profile.taxYear,
 			incomeMode: profile.incomeMode,
+			trackDeductibles: profile.trackDeductibles,
 			status: profile.status,
 			jurisdictionCode: profile.jurisdictionCode,
 			currencyCode: profile.currencyCode,

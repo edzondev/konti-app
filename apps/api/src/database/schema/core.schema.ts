@@ -62,6 +62,8 @@ export const taxProfiles = pgTable(
 
 		incomeMode: text("income_mode").$type<IncomeMode>(),
 
+		trackDeductibles: boolean("track_deductibles").default(false).notNull(),
+
 		currencyCode: char("currency_code", { length: 3 }).default("PEN").notNull(),
 
 		timezone: text("timezone").default("America/Lima").notNull(),

@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { randomUUID } from "expo-crypto";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { Camera, usePhotoOutput, type Photo } from "react-native-vision-camera";
@@ -27,6 +27,25 @@ export function CaptureCamera() {
 	const photoOutput = usePhotoOutput({ containerFormat: "jpeg", qualityPrioritization: "quality" });
 	const [status, setStatus] = useState<CaptureStatus>("idle");
 	const [pendingCapture, setPendingCapture] = useState<PendingCapture | null>(null);
+	const [busy, setBusy] = useState(false);
+	const busyRef = useRef(false);
+
+	const controlsDisabled = busy || status === "saving" || status === "success";
+
+	function beginCapture(): boolean {
+		if (busyRef.current || status === "saving" || status === "success") {
+			return false;
+		}
+
+		busyRef.current = true;
+		setBusy(true);
+		return true;
+	}
+
+	function endCapture() {
+		busyRef.current = false;
+		setBusy(false);
+	}
 
 	async function saveCapture(capture: PendingCapture) {
 		if (!session?.user.id) {
@@ -50,7 +69,7 @@ export function CaptureCamera() {
 	}
 
 	async function handleCameraCapture() {
-		if (status === "saving") {
+		if (!beginCapture()) {
 			return;
 		}
 
@@ -75,39 +94,51 @@ export function CaptureCamera() {
 			setStatus("error");
 		} finally {
 			photo?.dispose();
+			endCapture();
 		}
 	}
 
 	async function handleGallerySelection() {
-		if (status === "saving") {
+		if (!beginCapture()) {
 			return;
 		}
 
-		const result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ["images"],
-			quality: 1,
-		});
+		try {
+			const result = await ImagePicker.launchImageLibraryAsync({
+				mediaTypes: ["images"],
+				quality: 1,
+			});
 
-		if (result.canceled) {
-			return;
+			if (result.canceled) {
+				return;
+			}
+
+			const asset = result.assets[0];
+			if (!asset) {
+				return;
+			}
+
+			if (!isSupportedGalleryMime(asset.mimeType)) {
+				setStatus("error");
+				return;
+			}
+
+			const capture: PendingCapture = {
+				file: {
+					uri: asset.uri,
+					fileName: asset.fileName,
+					mimeType: asset.mimeType,
+				},
+				idempotencyKey: randomUUID(),
+				source: "gallery",
+			};
+			setPendingCapture(capture);
+			await saveCapture(capture);
+		} catch {
+			setStatus("error");
+		} finally {
+			endCapture();
 		}
-
-		const asset = result.assets[0];
-		if (!asset) {
-			return;
-		}
-
-		const capture: PendingCapture = {
-			file: {
-				uri: asset.uri,
-				fileName: asset.fileName,
-				mimeType: imageMimeType(asset.uri, asset.mimeType),
-			},
-			idempotencyKey: randomUUID(),
-			source: "gallery",
-		};
-		setPendingCapture(capture);
-		await saveCapture(capture);
 	}
 
 	return (
@@ -119,7 +150,7 @@ export function CaptureCamera() {
 					<Pressable
 						accessibilityRole="button"
 						accessibilityLabel="Elegir de la galería"
-						disabled={status === "saving"}
+						disabled={controlsDisabled}
 						onPress={() => {
 							void handleGallerySelection();
 						}}
@@ -127,7 +158,7 @@ export function CaptureCamera() {
 						<Text className="text-sm font-medium text-konti-ivory">Elegir de la galería</Text>
 					</Pressable>
 
-					<ShutterButton disabled={status === "saving"} onPress={handleCameraCapture} />
+					<ShutterButton disabled={controlsDisabled} onPress={handleCameraCapture} />
 				</View>
 			</View>
 
@@ -183,10 +214,6 @@ function ShutterButton({ disabled, onPress }: { disabled: boolean; onPress: () =
 	);
 }
 
-function imageMimeType(uri: string, mimeType: string | undefined): "image/jpeg" | "image/png" | undefined {
-	if (mimeType === "image/jpeg" || mimeType === "image/png") {
-		return mimeType;
-	}
-
-	return uri.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg";
+function isSupportedGalleryMime(mimeType: string | undefined): mimeType is "image/jpeg" | "image/png" {
+	return mimeType === "image/jpeg" || mimeType === "image/png";
 }

@@ -29,6 +29,13 @@
       "when": 1787159697351,
       "tag": "0003_late_quentin_quire",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1787162502273,
+      "tag": "0004_rich_kid_colt",
+      "breakpoints": true
     }
   ]
 }

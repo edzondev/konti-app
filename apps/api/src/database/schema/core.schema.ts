@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
 	type AnyPgColumn,
 	boolean,
@@ -161,6 +162,9 @@ export const documents = pgTable(
 		index("documents_profile_status_idx").on(table.taxProfileId, table.status),
 		index("documents_profile_issue_date_idx").on(table.taxProfileId, table.issueDate),
 		index("documents_sha256_idx").on(table.sha256),
+		uniqueIndex("documents_profile_sha256_visible_uidx")
+			.on(table.taxProfileId, table.sha256)
+			.where(sql`${table.deletedAt} IS NULL`),
 		uniqueIndex("documents_profile_idempotency_uidx").on(
 			table.taxProfileId,
 			table.idempotencyKey,

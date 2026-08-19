@@ -1,8 +1,8 @@
 import { HttpStatus } from "@nestjs/common";
 import type { ObjectStorage } from "../../core/storage/storage.types";
 import type { TaxProfileService } from "../tax-profile/tax-profile.service";
-import type { CreateUploadInput } from "./documents.validation";
 import { DocumentsService } from "./documents.service";
+import type { CreateUploadInput } from "./documents.validation";
 
 const profileId = "11111111-1111-4111-8111-111111111111";
 
@@ -143,6 +143,43 @@ describe("DocumentsService", () => {
 		});
 	});
 
+	it("returns the winning request when a concurrent idempotency-key insert conflicts", async () => {
+		const { service, repository, storage, rows } = createHarness();
+		const winningDocument: StoredDocument = {
+			id: "winning-document",
+			taxProfileId: profileId,
+			status: "pending_upload",
+			idempotencyKey: validInput.idempotencyKey,
+			objectKey: "users/user-1/tax/2026/documents/winning-document/original.jpg",
+			sha256: validInput.sha256,
+			sizeBytes: validInput.sizeBytes,
+			mimeType: validInput.mimeType,
+			source: validInput.source,
+			originalFileName: validInput.originalFileName,
+			pageCount: validInput.pageCount,
+			deletedAt: null,
+		};
+		repository.findByIdempotencyKey
+			.mockResolvedValueOnce(undefined)
+			.mockImplementation(async () => winningDocument);
+		repository.insertPending.mockImplementationOnce(async () => {
+			rows.set(winningDocument.id, winningDocument);
+			throw { code: "23505", constraint: "documents_profile_idempotency_uidx" };
+		});
+
+		const result = await service.createUpload("user-1", validInput);
+
+		expect(result).toMatchObject({
+			duplicate: false,
+			document: { id: winningDocument.id, status: "pending_upload" },
+		});
+		expect(repository.findByIdempotencyKey).toHaveBeenCalledTimes(2);
+		expect(storage.createUploadUrl).toHaveBeenCalledWith(
+			expect.objectContaining({ objectKey: winningDocument.objectKey }),
+		);
+		expect(JSON.stringify(result)).not.toContain("objectKey");
+	});
+
 	it("returns a duplicate without signing an upload for a matching visible file", async () => {
 		const { service, storage } = createHarness();
 		await service.createUpload("user-1", validInput);
@@ -157,6 +194,41 @@ describe("DocumentsService", () => {
 			document: { status: "pending_upload" },
 		});
 		expect(storage.createUploadUrl).toHaveBeenCalledTimes(1);
+		expect(JSON.stringify(result)).not.toContain("objectKey");
+	});
+
+	it("returns the winning visible document when a concurrent SHA-256 insert conflicts", async () => {
+		const { service, repository, storage, rows } = createHarness();
+		const winningDocument: StoredDocument = {
+			id: "winning-document",
+			taxProfileId: profileId,
+			status: "pending_upload",
+			idempotencyKey: "33333333-3333-4333-8333-333333333333",
+			objectKey: "users/user-1/tax/2026/documents/winning-document/original.jpg",
+			sha256: validInput.sha256,
+			sizeBytes: validInput.sizeBytes,
+			mimeType: validInput.mimeType,
+			source: validInput.source,
+			originalFileName: validInput.originalFileName,
+			pageCount: validInput.pageCount,
+			deletedAt: null,
+		};
+		repository.findVisibleBySha256
+			.mockResolvedValueOnce(undefined)
+			.mockImplementation(async () => winningDocument);
+		repository.insertPending.mockImplementationOnce(async () => {
+			rows.set(winningDocument.id, winningDocument);
+			throw { code: "23505", constraint: "documents_profile_sha256_visible_uidx" };
+		});
+
+		const result = await service.createUpload("user-1", validInput);
+
+		expect(result).toEqual({
+			duplicate: true,
+			document: { id: winningDocument.id, status: "pending_upload" },
+		});
+		expect(repository.findVisibleBySha256).toHaveBeenCalledTimes(2);
+		expect(storage.createUploadUrl).not.toHaveBeenCalled();
 		expect(JSON.stringify(result)).not.toContain("objectKey");
 	});
 

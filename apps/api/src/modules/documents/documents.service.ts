@@ -1,18 +1,20 @@
 import { randomUUID } from "node:crypto";
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
-import { OBJECT_STORAGE } from "../../core/storage/storage.constants";
 import { buildDocumentObjectKey } from "../../core/storage/object-key";
+import { OBJECT_STORAGE } from "../../core/storage/storage.constants";
 import type { ObjectStorage } from "../../core/storage/storage.types";
 import { TaxProfileService } from "../tax-profile/tax-profile.service";
-import type { CreateUploadInput } from "./documents.validation";
 import { DocumentsRepository } from "./documents.repository";
 import type {
 	CreateUploadResult,
 	DocumentRecord,
 	DocumentsRepositoryPort,
 } from "./documents.types";
+import type { CreateUploadInput } from "./documents.validation";
 
 const UPLOAD_URL_TTL_SECONDS = 300;
+const IDEMPOTENCY_KEY_UNIQUE_INDEX = "documents_profile_idempotency_uidx";
+const VISIBLE_SHA256_UNIQUE_INDEX = "documents_profile_sha256_visible_uidx";
 
 @Injectable()
 export class DocumentsService {
@@ -72,11 +74,38 @@ export class DocumentsService {
 			deletedAt: null,
 		};
 
-		await this.repository.insertPending(document);
-		return this.createUploadResponse(document);
+		try {
+			await this.repository.insertPending(document);
+			return this.createUploadResponse(document);
+		} catch (error) {
+			if (this.isUniqueViolation(error, IDEMPOTENCY_KEY_UNIQUE_INDEX)) {
+				const winningRequest = await this.repository.findByIdempotencyKey(
+					current.profile.id,
+					input.idempotencyKey,
+				);
+				if (winningRequest) {
+					return this.createExistingRequestResponse(winningRequest);
+				}
+			}
+
+			if (this.isUniqueViolation(error, VISIBLE_SHA256_UNIQUE_INDEX)) {
+				const winningDocument = await this.repository.findVisibleBySha256(
+					current.profile.id,
+					input.sha256,
+				);
+				if (winningDocument) {
+					return this.duplicateResponse(winningDocument);
+				}
+			}
+
+			throw error;
+		}
 	}
 
-	async completeUpload(userId: string, documentId: string): Promise<{ id: string; status: "uploaded" }> {
+	async completeUpload(
+		userId: string,
+		documentId: string,
+	): Promise<{ id: string; status: "uploaded" }> {
 		const current = await this.getCompleteProfile(userId);
 		const document = await this.repository.getOwned(current.profile.id, documentId);
 		if (!document) {
@@ -129,6 +158,32 @@ export class DocumentsService {
 			document: { id: document.id, status: "pending_upload" },
 			upload: { ...upload, method: "PUT" },
 		};
+	}
+
+	private createExistingRequestResponse(document: DocumentRecord): Promise<CreateUploadResult> {
+		if (document.status === "pending_upload") {
+			return this.createUploadResponse(document);
+		}
+
+		return Promise.resolve(this.duplicateResponse(document));
+	}
+
+	private duplicateResponse(document: DocumentRecord): CreateUploadResult {
+		return {
+			duplicate: true,
+			document: { id: document.id, status: document.status },
+		};
+	}
+
+	private isUniqueViolation(error: unknown, constraint: string): boolean {
+		return (
+			typeof error === "object" &&
+			error !== null &&
+			"code" in error &&
+			"constraint" in error &&
+			error.code === "23505" &&
+			error.constraint === constraint
+		);
 	}
 
 	private async getCompleteProfile(userId: string) {

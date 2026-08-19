@@ -8,5 +8,5 @@ export default function InicioTabScreen() {
 		return null;
 	}
 
-	return <HomeScreen />;
+	return <HomeScreen userId={session.user.id} firstName={session.user.name?.split(" ")[0]} />;
 }

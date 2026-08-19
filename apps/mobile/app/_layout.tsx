@@ -1,10 +1,11 @@
 import { GoogleOneTapSignIn } from "@react-native-google-signin/google-signin";
 import { Stack } from "expo-router";
-//import * as SplashScreen from "expo-splash-screen";
+import * as SplashScreen from "expo-splash-screen";
 import "../global.css";
 
 import "react-native-reanimated";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Pressable, Text, View } from "react-native";
 import { authClient } from "@/core/auth-client";
 import { QueryProvider } from "@/core/query-provider";
@@ -20,8 +21,7 @@ export const unstable_settings = {
 	initialRouteName: "(tabs)",
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-//SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync();
 
 GoogleOneTapSignIn.configure({
 	webClientId: "autoDetect",
@@ -49,37 +49,34 @@ function Layout() {
 		enabled: Boolean(userId),
 	});
 
+	useEffect(() => {
+		if (!isSessionPending && (!session || !taxProfileQuery.isPending)) {
+			void SplashScreen.hideAsync();
+		}
+	}, [isSessionPending, session, taxProfileQuery.isPending]);
+
 	if (isSessionPending) {
-		return <LoadingState message="Validando sesión..." />;
+		return <View className="flex-1 bg-konti-bg" />;
 	}
 
-	if (!session && sessionError) {
-		return <LoadingState message="No se pudo validar la sesión." />;
-	}
-
-	if (session && taxProfileQuery.isPending) {
-		return <LoadingState message="Preparando Konti..." />;
+	if ((!session && sessionError) || (session && taxProfileQuery.isPending)) {
+		return <View className="flex-1 bg-konti-bg" />;
 	}
 
 	if (session && taxProfileQuery.isError) {
 		return (
-			<View
-				style={{
-					flex: 1,
-					alignItems: "center",
-					justifyContent: "center",
-					gap: 16,
-					padding: 24,
-				}}
-			>
-				<Text>No se pudo cargar tu perfil tributario.</Text>
+			<View className="flex-1 items-center justify-center gap-4 bg-konti-bg p-6">
+				<Text className="text-center text-base text-konti-ivory">
+					No se pudo cargar tu perfil tributario.
+				</Text>
 
 				<Pressable
+					className="min-h-12 items-center justify-center rounded-full bg-konti-ivory px-6"
 					onPress={() => {
 						void taxProfileQuery.refetch();
 					}}
 				>
-					<Text>Reintentar</Text>
+					<Text className="font-medium text-konti-bg">Reintentar</Text>
 				</Pressable>
 			</View>
 		);
@@ -101,20 +98,5 @@ function Layout() {
 				<Stack.Screen name="(tabs)" />
 			</Stack.Protected>
 		</Stack>
-	);
-}
-
-function LoadingState({ message }: { message: string }) {
-	return (
-		<View
-			style={{
-				flex: 1,
-				alignItems: "center",
-				justifyContent: "center",
-				padding: 24,
-			}}
-		>
-			<Text>{message}</Text>
-		</View>
 	);
 }

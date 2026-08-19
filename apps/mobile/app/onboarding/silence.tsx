@@ -3,21 +3,21 @@ import { Text } from "react-native";
 
 import { OnboardingShell } from "@/features/onboarding/onboarding-shell";
 
-export default function OnboardingScreen() {
+export default function SilenceScreen() {
 	const router = useRouter();
 
 	return (
 		<OnboardingShell
 			title={
 				<Text className="text-[40px] font-light leading-[46px] text-konti-ivory">
-					Nosotros nos{" "}
-					<Text className="italic text-konti-primary">encargamos</Text>
-					.
+					Te escribimos{" "}
+					<Text className="italic text-konti-primary">solo</Text>{" "}
+					si hace falta.
 				</Text>
 			}
-			body="Tú solo guarda tus comprobantes."
+			body="El resto del tiempo, silencio."
 			primaryLabel="Continuar"
-			onPrimaryPress={() => router.push("/onboarding/silence")}
+			onPrimaryPress={() => router.push("/onboarding/income")}
 		/>
 	);
 }

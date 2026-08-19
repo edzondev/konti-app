@@ -2,59 +2,29 @@
 @import "uniwind";
 
 @theme {
-	--color-konti-bg: #f7f5f1;
-	--color-konti-ink: #171816;
-	--color-konti-surface: #ffffff;
-	--color-konti-muted: #777872;
-	--color-konti-line: #e7e4de;
-	--color-konti-indigo: #4f46e5;
-	--color-konti-indigo-soft: #efeeff;
-	--color-konti-green: #2f6f5d;
-	--color-konti-green-soft: #eaf3ef;
-	--color-konti-amber: #a46724;
-	--color-konti-amber-soft: #f4ebdd;
-	--color-konti-terracotta: #a55442;
-	--color-konti-nav: rgb(255 255 255 / 0.91);
-	--radius-konti-nav: 37px;
-	--radius-konti-avatar: 19px;
-	--radius-konti-bubble: 37px;
-	--radius-konti-card: 16px;
-	--radius-konti-button: 25px;
-	--radius-konti-pill: 999px;
+	--color-konti-bg: oklch(16.9% 0.004 84.6);
+	--color-konti-surface: oklch(20.6% 0.005 67.5);
+	--color-konti-primary: oklch(76.6% 0.121 72.7);
+	--color-konti-ivory: oklch(92.6% 0.017 84.6);
+	--color-konti-ivory-secondary: oklch(95.9% 0.01 81.8);
 }
 
 @layer theme {
 	:root {
 		@variant light {
-			--color-konti-bg: #f7f5f1;
-			--color-konti-ink: #171816;
-			--color-konti-surface: #ffffff;
-			--color-konti-muted: #777872;
-			--color-konti-line: #e7e4de;
-			--color-konti-indigo: #4f46e5;
-			--color-konti-indigo-soft: #efeeff;
-			--color-konti-green: #2f6f5d;
-			--color-konti-green-soft: #eaf3ef;
-			--color-konti-amber: #a46724;
-			--color-konti-amber-soft: #f4ebdd;
-			--color-konti-terracotta: #a55442;
-			--color-konti-nav: rgb(255 255 255 / 0.91);
+			--color-konti-bg: oklch(95.9% 0.01 81.8);
+			--color-konti-surface: oklch(20.6% 0.005 67.5);
+			--color-konti-primary: oklch(76.6% 0.121 72.7);
+			--color-konti-ivory: oklch(19.6% 0.012 91.8);
+			--color-konti-ivory-secondary: oklch(95.9% 0.01 81.8);
 		}
 
 		@variant dark {
-			--color-konti-bg: #0d0e0d;
-			--color-konti-ink: #f3f2ee;
-			--color-konti-surface: #181918;
-			--color-konti-muted: #a4a59e;
-			--color-konti-line: #2c2d2a;
-			--color-konti-indigo: #8b84f8;
-			--color-konti-indigo-soft: #24213f;
-			--color-konti-green: #78a999;
-			--color-konti-green-soft: #1b302a;
-			--color-konti-amber: #e1a95f;
-			--color-konti-amber-soft: #3a2b18;
-			--color-konti-terracotta: #d18470;
-			--color-konti-nav: rgb(24 25 24 / 0.92);
+			--color-konti-bg: oklch(16.9% 0.004 84.6);
+			--color-konti-surface: oklch(20.6% 0.005 67.5);
+			--color-konti-primary: oklch(76.6% 0.121 72.7);
+			--color-konti-ivory: oklch(92.6% 0.017 84.6);
+			--color-konti-ivory-secondary: oklch(95.9% 0.01 81.8);
 		}
 	}
 }

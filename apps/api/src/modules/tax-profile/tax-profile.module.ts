@@ -8,5 +8,6 @@ import { TaxProfileService } from "./tax-profile.service";
 	imports: [AuthModule, DatabaseModule],
 	controllers: [TaxProfileController],
 	providers: [TaxProfileService],
+	exports: [TaxProfileService],
 })
 export class TaxProfileModule {}

@@ -15,6 +15,7 @@ import type { Request } from "express";
 import { AUTH } from "../../auth/auth.constants";
 import type { Auth } from "../../auth/auth.factory";
 import { createDevLogger } from "../../core/dev-logger";
+import { DocumentProcessingService } from "../document-processing/document-processing.service";
 import { decodeDocumentCursor } from "./documents.cursor";
 import { DocumentsService } from "./documents.service";
 import { createUploadSchema } from "./documents.validation";
@@ -26,6 +27,8 @@ export class DocumentsController {
 	constructor(
 		@Inject(DocumentsService)
 		private readonly documentsService: DocumentsService,
+		@Inject(DocumentProcessingService)
+		private readonly documentProcessingService: DocumentProcessingService,
 		@Inject(AUTH)
 		private readonly auth: Auth,
 	) {}
@@ -53,6 +56,13 @@ export class DocumentsController {
 	async completeUpload(@Req() request: Request, @Param("id") id: string) {
 		const userId = await this.getAuthenticatedUserId(request);
 		return this.documentsService.completeUpload(userId, id);
+	}
+
+	@Post(":id/process")
+	async process(@Req() request: Request, @Param("id") id: string) {
+		const userId = await this.getAuthenticatedUserId(request);
+		await this.documentProcessingService.process(userId, id);
+		return this.documentsService.getOne(userId, id);
 	}
 
 	@Get()

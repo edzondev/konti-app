@@ -25,7 +25,7 @@ export class HomeService {
 			);
 		}
 
-		const processedDocuments = await this.documentsService.countUploaded(userId);
+		const processedDocuments = await this.documentsService.countVisible(userId);
 		const hasUploadedDocuments = processedDocuments > 0;
 
 		return {

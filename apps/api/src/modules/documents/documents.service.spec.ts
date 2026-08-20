@@ -3,6 +3,7 @@ import type { ObjectStorage } from "../../core/storage/storage.types";
 import type { TaxProfileService } from "../tax-profile/tax-profile.service";
 import { encodeDocumentCursor } from "./documents.cursor";
 import { DocumentsService } from "./documents.service";
+import type { DocumentRecord } from "./documents.types";
 import type { CreateUploadInput } from "./documents.validation";
 
 const profileId = "11111111-1111-4111-8111-111111111111";
@@ -17,21 +18,7 @@ const validInput: CreateUploadInput = {
 	idempotencyKey: "22222222-2222-4222-8222-222222222222",
 };
 
-type StoredDocument = {
-	id: string;
-	taxProfileId: string;
-	status: "pending_upload" | "uploaded";
-	idempotencyKey: string;
-	objectKey: string;
-	sha256: string;
-	sizeBytes: number;
-	mimeType: "image/jpeg" | "image/png";
-	source: "camera" | "gallery";
-	originalFileName: string;
-	pageCount: number;
-	deletedAt: Date | null;
-	createdAt: Date;
-};
+type StoredDocument = DocumentRecord;
 
 function visibleDocument(id: string, createdAt: string): StoredDocument {
 	return {
@@ -46,8 +33,39 @@ function visibleDocument(id: string, createdAt: string): StoredDocument {
 		source: "camera",
 		originalFileName: `${id}.jpg`,
 		pageCount: 1,
+		documentType: "unknown",
+		issuerName: null,
+		issuerTaxId: null,
+		documentNumber: null,
+		totalAmount: null,
+		subtotalAmount: null,
+		taxAmount: null,
+		currencyCode: null,
+		issueDate: null,
+		metadata: {},
 		deletedAt: null,
 		createdAt: new Date(createdAt),
+	};
+}
+
+function publicDocumentFields(id: string, createdAt: string) {
+	return {
+		id,
+		status: "uploaded" as const,
+		source: "camera" as const,
+		createdAt,
+		originalFileName: `${id}.jpg`,
+		mimeType: "image/jpeg",
+		issuerName: null,
+		issuerTaxId: null,
+		documentNumber: null,
+		totalAmount: null,
+		subtotalAmount: null,
+		taxAmount: null,
+		currencyCode: null,
+		documentType: "unknown",
+		issueDate: null,
+		doubtfulFields: [] as const,
 	};
 }
 
@@ -94,7 +112,7 @@ function createHarness(options: { requiresOnboarding?: boolean } = {}) {
 					.filter(
 						(row) =>
 							row.taxProfileId === taxProfileId &&
-							row.status === "uploaded" &&
+							row.status !== "pending_upload" &&
 							row.deletedAt === null &&
 							(!query.cursor ||
 								row.createdAt < query.cursor.createdAt ||
@@ -108,12 +126,12 @@ function createHarness(options: { requiresOnboarding?: boolean } = {}) {
 					)
 					.slice(0, query.limit + 1),
 		),
-		countUploaded: jest.fn(
+		countVisible: jest.fn(
 			async (taxProfileId: string) =>
 				[...rows.values()].filter(
 					(row) =>
 						row.taxProfileId === taxProfileId &&
-						row.status === "uploaded" &&
+						row.status !== "pending_upload" &&
 						row.deletedAt === null,
 				).length,
 		),
@@ -126,6 +144,7 @@ function createHarness(options: { requiresOnboarding?: boolean } = {}) {
 		}),
 		createDownloadUrl: jest.fn(),
 		headObject: jest.fn().mockResolvedValue({ exists: true, sizeBytes: validInput.sizeBytes }),
+		putObject: jest.fn().mockResolvedValue(undefined),
 	};
 	const taxProfileService = {
 		getCurrentUser: jest.fn().mockResolvedValue({
@@ -148,15 +167,18 @@ function createHarness(options: { requiresOnboarding?: boolean } = {}) {
 }
 
 describe("DocumentsService", () => {
-	it("counts uploaded documents and ignores pending uploads", async () => {
+	it("counts visible documents including ready and ignores pending uploads", async () => {
 		const { service, rows } = createHarness();
-		rows.set("uploaded", visibleDocument("uploaded", "2026-08-19T12:00:00.000Z"));
+		rows.set("ready", {
+			...visibleDocument("ready", "2026-08-19T12:00:00.000Z"),
+			status: "ready",
+		});
 		rows.set("pending", {
 			...visibleDocument("pending", "2026-08-19T12:00:00.000Z"),
 			status: "pending_upload",
 		});
 
-		await expect(service.countUploaded("user-1")).resolves.toBe(1);
+		await expect(service.countVisible("user-1")).resolves.toBe(1);
 	});
 
 	it("rejects uploads when the tax profile is incomplete", async () => {
@@ -209,19 +231,13 @@ describe("DocumentsService", () => {
 	it("returns the winning request when a concurrent idempotency-key insert conflicts", async () => {
 		const { service, repository, storage, rows } = createHarness();
 		const winningDocument: StoredDocument = {
-			id: "winning-document",
-			taxProfileId: profileId,
+			...visibleDocument("winning-document", "2026-08-19T12:00:00.000Z"),
 			status: "pending_upload",
 			idempotencyKey: validInput.idempotencyKey,
 			objectKey: "users/user-1/tax/2026/documents/winning-document/original.jpg",
 			sha256: validInput.sha256,
 			sizeBytes: validInput.sizeBytes,
-			mimeType: validInput.mimeType,
-			source: validInput.source,
 			originalFileName: validInput.originalFileName,
-			pageCount: validInput.pageCount,
-			deletedAt: null,
-			createdAt: new Date("2026-08-19T12:00:00.000Z"),
 		};
 		repository.findByIdempotencyKey
 			.mockResolvedValueOnce(undefined)
@@ -264,19 +280,13 @@ describe("DocumentsService", () => {
 	it("returns the winning visible document when a concurrent SHA-256 insert conflicts", async () => {
 		const { service, repository, storage, rows } = createHarness();
 		const winningDocument: StoredDocument = {
-			id: "winning-document",
-			taxProfileId: profileId,
+			...visibleDocument("winning-document", "2026-08-19T12:00:00.000Z"),
 			status: "pending_upload",
 			idempotencyKey: "33333333-3333-4333-8333-333333333333",
 			objectKey: "users/user-1/tax/2026/documents/winning-document/original.jpg",
 			sha256: validInput.sha256,
 			sizeBytes: validInput.sizeBytes,
-			mimeType: validInput.mimeType,
-			source: validInput.source,
 			originalFileName: validInput.originalFileName,
-			pageCount: validInput.pageCount,
-			deletedAt: null,
-			createdAt: new Date("2026-08-19T12:00:00.000Z"),
 		};
 		repository.findVisibleBySha256
 			.mockResolvedValueOnce(undefined)
@@ -353,19 +363,13 @@ describe("DocumentsService", () => {
 	it("returns not found for a document owned by another profile", async () => {
 		const { service, rows } = createHarness();
 		rows.set("other-document", {
-			id: "other-document",
+			...visibleDocument("other-document", "2026-08-19T12:00:00.000Z"),
 			taxProfileId: "99999999-9999-4999-8999-999999999999",
 			status: "pending_upload",
 			idempotencyKey: "44444444-4444-4444-8444-444444444444",
 			objectKey: "users/other/tax/2026/documents/other-document/original.jpg",
 			sha256: "b".repeat(64),
-			sizeBytes: validInput.sizeBytes,
-			mimeType: "image/jpeg",
-			source: "camera",
 			originalFileName: "other.jpg",
-			pageCount: 1,
-			deletedAt: null,
-			createdAt: new Date("2026-08-19T12:00:00.000Z"),
 		});
 
 		await expect(service.completeUpload("user-1", "other-document")).rejects.toMatchObject({
@@ -395,12 +399,7 @@ describe("DocumentsService", () => {
 		expect(result).toEqual({
 			items: [
 				{
-					id: "newer",
-					status: "uploaded",
-					source: "camera",
-					createdAt: "2026-08-19T12:00:00.000Z",
-					originalFileName: "newer.jpg",
-					mimeType: "image/jpeg",
+					...publicDocumentFields("newer", "2026-08-19T12:00:00.000Z"),
 					previewUrl: "https://storage.example/preview",
 					previewExpiresAt: "2026-08-19T12:05:00.000Z",
 				},
@@ -482,14 +481,7 @@ describe("DocumentsService", () => {
 		const file = await service.createFileUrl("user-1", "visible");
 
 		expect(detail).toEqual({
-			document: {
-				id: "visible",
-				status: "uploaded",
-				source: "camera",
-				createdAt: "2026-08-19T12:00:00.000Z",
-				originalFileName: "visible.jpg",
-				mimeType: "image/jpeg",
-			},
+			document: publicDocumentFields("visible", "2026-08-19T12:00:00.000Z"),
 			processing: null,
 			attention: null,
 		});
@@ -498,5 +490,37 @@ describe("DocumentsService", () => {
 			expiresAt: "2026-08-19T12:05:00.000Z",
 		});
 		expect(JSON.stringify({ detail, file })).not.toContain("objectKey");
+	});
+
+	it("exposes extracted fields and review hints on a needs_review document", async () => {
+		const { service, rows } = createHarness();
+		rows.set("review", {
+			...visibleDocument("review", "2026-08-19T12:00:00.000Z"),
+			status: "needs_review",
+			issuerName: "Tambo",
+			totalAmount: "12.50",
+			currencyCode: "PEN",
+			documentType: "receipt",
+			issueDate: "2026-08-12",
+			metadata: { doubtfulFields: ["issuerTaxId"], attemptNumber: 1 },
+		});
+
+		const detail = await service.getOne("user-1", "review");
+
+		expect(detail.document).toMatchObject({
+			status: "needs_review",
+			issuerName: "Tambo",
+			issuerTaxId: null,
+			totalAmount: "12.50",
+			currencyCode: "PEN",
+			documentType: "receipt",
+			issueDate: "2026-08-12",
+			doubtfulFields: ["issuerTaxId"],
+		});
+		expect(detail.processing).toEqual({
+			status: "succeeded",
+			attemptNumber: 1,
+			doubtfulFields: ["issuerTaxId"],
+		});
 	});
 });

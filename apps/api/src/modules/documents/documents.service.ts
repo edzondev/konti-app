@@ -4,6 +4,7 @@ import { createDevLogger } from "../../core/dev-logger";
 import { buildDocumentObjectKey } from "../../core/storage/object-key";
 import { OBJECT_STORAGE } from "../../core/storage/storage.constants";
 import type { ObjectStorage } from "../../core/storage/storage.types";
+import type { ProcessingStatus } from "../../database/schema/schema.types";
 import { TaxProfileService } from "../tax-profile/tax-profile.service";
 import { decodeDocumentCursor, encodeDocumentCursor } from "./documents.cursor";
 import { DocumentsRepository } from "./documents.repository";
@@ -13,6 +14,7 @@ import type {
 	DocumentListItem,
 	DocumentRecord,
 	DocumentsRepositoryPort,
+	DoubtfulField,
 } from "./documents.types";
 import type { CreateUploadInput } from "./documents.validation";
 
@@ -24,6 +26,12 @@ const DEFAULT_LIST_LIMIT = 30;
 const MAX_LIST_LIMIT = 50;
 const IDEMPOTENCY_KEY_UNIQUE_INDEX = "documents_profile_idempotency_uidx";
 const VISIBLE_SHA256_UNIQUE_INDEX = "documents_profile_sha256_visible_uidx";
+const DOUBTFUL_FIELDS: readonly DoubtfulField[] = [
+	"issuerTaxId",
+	"issueDate",
+	"totalAmount",
+	"documentType",
+];
 
 @Injectable()
 export class DocumentsService {
@@ -89,6 +97,16 @@ export class DocumentsService {
 			sha256: input.sha256,
 			pageCount: input.pageCount,
 			source: input.source,
+			documentType: "unknown",
+			issuerName: null,
+			issuerTaxId: null,
+			documentNumber: null,
+			totalAmount: null,
+			subtotalAmount: null,
+			taxAmount: null,
+			currencyCode: null,
+			issueDate: null,
+			metadata: {},
 			deletedAt: null,
 			createdAt: new Date(),
 		};
@@ -195,9 +213,9 @@ export class DocumentsService {
 		return { id: document.id, status: "uploaded" };
 	}
 
-	async countUploaded(userId: string): Promise<number> {
+	async countVisible(userId: string): Promise<number> {
 		const current = await this.getCompleteProfile(userId);
-		return this.repository.countUploaded(current.profile.id);
+		return this.repository.countVisible(current.profile.id);
 	}
 
 	async list(
@@ -235,15 +253,8 @@ export class DocumentsService {
 		const document = await this.getVisibleOwnedDocument(userId, documentId);
 
 		return {
-			document: {
-				id: document.id,
-				status: "uploaded",
-				source: document.source,
-				createdAt: document.createdAt.toISOString(),
-				originalFileName: document.originalFileName,
-				mimeType: document.mimeType,
-			},
-			processing: null,
+			document: this.toPublicFields(document),
+			processing: this.toProcessing(document),
 			attention: null,
 		};
 	}
@@ -326,7 +337,7 @@ export class DocumentsService {
 	): Promise<DocumentRecord> {
 		const current = await this.getCompleteProfile(userId);
 		const document = await this.repository.getOwned(current.profile.id, documentId);
-		if (!document || document.status !== "uploaded" || document.deletedAt !== null) {
+		if (!document || document.status === "pending_upload" || document.deletedAt !== null) {
 			throw this.notFound({ userId, documentId });
 		}
 
@@ -340,15 +351,68 @@ export class DocumentsService {
 		});
 
 		return {
+			...this.toPublicFields(document),
+			previewUrl: preview.url,
+			previewExpiresAt: preview.expiresAt,
+		};
+	}
+
+	private toPublicFields(
+		document: DocumentRecord,
+	): Omit<DocumentListItem, "previewUrl" | "previewExpiresAt"> {
+		return {
 			id: document.id,
-			status: "uploaded",
+			status: document.status,
 			source: document.source,
 			createdAt: document.createdAt.toISOString(),
 			originalFileName: document.originalFileName,
 			mimeType: document.mimeType,
-			previewUrl: preview.url,
-			previewExpiresAt: preview.expiresAt,
+			issuerName: document.issuerName,
+			issuerTaxId: document.issuerTaxId,
+			documentNumber: document.documentNumber,
+			totalAmount: document.totalAmount,
+			subtotalAmount: document.subtotalAmount,
+			taxAmount: document.taxAmount,
+			currencyCode: document.currencyCode,
+			documentType: document.documentType,
+			issueDate: document.issueDate,
+			doubtfulFields: this.readDoubtfulFields(document.metadata),
 		};
+	}
+
+	private toProcessing(document: DocumentRecord): DocumentDetail["processing"] {
+		if (document.status === "uploaded") {
+			return null;
+		}
+
+		const metadata = document.metadata ?? {};
+		return {
+			status: this.toRunStatus(document.status),
+			attemptNumber: typeof metadata.attemptNumber === "number" ? metadata.attemptNumber : 1,
+			doubtfulFields: this.readDoubtfulFields(metadata),
+		};
+	}
+
+	private readDoubtfulFields(source: Record<string, unknown> | undefined): DoubtfulField[] {
+		const raw = source?.doubtfulFields;
+		if (!Array.isArray(raw)) {
+			return [];
+		}
+
+		return raw.filter(
+			(value): value is DoubtfulField =>
+				typeof value === "string" && DOUBTFUL_FIELDS.includes(value as DoubtfulField),
+		);
+	}
+
+	private toRunStatus(status: DocumentRecord["status"]): ProcessingStatus {
+		if (status === "failed") {
+			return "failed";
+		}
+		if (status === "processing" || status === "queued") {
+			return "processing";
+		}
+		return "succeeded";
 	}
 
 	private uploadIncomplete(meta?: Record<string, unknown>) {

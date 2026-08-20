@@ -3,16 +3,16 @@ import { memo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import Animated from "react-native-reanimated";
 
-import type { DocumentListItem } from "../types";
+import { listAmount, listSubtitle, listTitle } from "../document-list-copy";
+import type { DocumentListItem, ListSubtitleTone } from "../types";
 
-const TIME_FORMATTER = new Intl.DateTimeFormat("es-PE", {
-	hour: "numeric",
-	minute: "2-digit",
-});
+const GOLD_TEXT_STYLE = { color: "#E2A654" } as const;
 
-function sourceLabel(source: DocumentListItem["source"]) {
-	return source === "camera" ? "Cámara" : "Galería";
-}
+const SUBTITLE_CLASS_NAME: Record<ListSubtitleTone, string> = {
+	muted: "text-[13px] text-konti-ivory/50",
+	primary: "text-[13px] text-konti-primary",
+	gold: "text-[13px]",
+};
 
 type DocumentRowProps = {
 	document: DocumentListItem;
@@ -21,12 +21,14 @@ type DocumentRowProps = {
 
 export const DocumentRow = memo(function DocumentRow({ document, onPress }: DocumentRowProps) {
 	const [pressed, setPressed] = useState(false);
-	const source = sourceLabel(document.source);
+	const title = listTitle(document);
+	const subtitle = listSubtitle(document);
+	const amount = listAmount(document);
 
 	return (
 		<Pressable
 			accessibilityRole="button"
-			accessibilityLabel={`Ver comprobante de ${source}`}
+			accessibilityLabel={`Ver comprobante de ${title}`}
 			onPress={() => {
 				onPress(document.id);
 			}}
@@ -48,7 +50,7 @@ export const DocumentRow = memo(function DocumentRow({ document, onPress }: Docu
 				}}
 			>
 				<Image
-					accessibilityLabel={`Vista previa del comprobante de ${source}`}
+					accessibilityLabel={`Vista previa del comprobante de ${title}`}
 					cachePolicy="memory"
 					contentFit="cover"
 					source={document.previewUrl}
@@ -56,13 +58,18 @@ export const DocumentRow = memo(function DocumentRow({ document, onPress }: Docu
 				/>
 
 				<View className="min-w-0 flex-1 gap-1">
-					<Text className="text-[15px] font-medium text-konti-ivory">{source}</Text>
-					<Text className="text-[13px] text-konti-ivory/50">
-						{TIME_FORMATTER.format(new Date(document.createdAt))}
-					</Text>
+					<Text className="text-[15px] font-medium text-konti-ivory">{title}</Text>
+					{subtitle.text ? (
+						<Text
+							className={SUBTITLE_CLASS_NAME[subtitle.tone]}
+							style={subtitle.tone === "gold" ? GOLD_TEXT_STYLE : undefined}
+						>
+							{subtitle.text}
+						</Text>
+					) : null}
 				</View>
 
-				<Text className="text-[13px] text-konti-primary">Guardado</Text>
+				{amount ? <Text className="text-[15px] font-medium text-konti-ivory">{amount}</Text> : null}
 			</Animated.View>
 		</Pressable>
 	);

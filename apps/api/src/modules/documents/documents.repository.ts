@@ -1,8 +1,8 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { and, count, desc, eq, isNull, lt, or } from "drizzle-orm";
+import { and, count, desc, eq, isNull, lt, ne, or } from "drizzle-orm";
 import { DATABASE } from "../../database/database.constants";
-import { documents } from "../../database/schema";
 import type { Database } from "../../database/database.types";
+import { documents } from "../../database/schema";
 import type {
 	DocumentRecord,
 	DocumentsRepositoryPort,
@@ -97,7 +97,7 @@ export class DocumentsRepository implements DocumentsRepositoryPort {
 			.where(
 				and(
 					eq(documents.taxProfileId, taxProfileId),
-					eq(documents.status, "uploaded"),
+					ne(documents.status, "pending_upload"),
 					isNull(documents.deletedAt),
 					cursorCondition,
 				),
@@ -108,14 +108,14 @@ export class DocumentsRepository implements DocumentsRepositoryPort {
 		return rows as DocumentRecord[];
 	}
 
-	async countUploaded(taxProfileId: string): Promise<number> {
+	async countVisible(taxProfileId: string): Promise<number> {
 		const [result] = await this.db
 			.select({ value: count() })
 			.from(documents)
 			.where(
 				and(
 					eq(documents.taxProfileId, taxProfileId),
-					eq(documents.status, "uploaded"),
+					ne(documents.status, "pending_upload"),
 					isNull(documents.deletedAt),
 				),
 			);

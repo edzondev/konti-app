@@ -34,3 +34,21 @@ export function completeDocumentUpload(documentId: string) {
 		method: "POST",
 	});
 }
+
+const processInFlight = new Map<string, Promise<void>>();
+
+export function processDocument(documentId: string) {
+	const existing = processInFlight.get(documentId);
+	if (existing) {
+		return existing;
+	}
+
+	const request = apiClient<void>(`/v1/documents/${documentId}/process`, {
+		method: "POST",
+		body: {},
+	}).finally(() => {
+		processInFlight.delete(documentId);
+	});
+	processInFlight.set(documentId, request);
+	return request;
+}

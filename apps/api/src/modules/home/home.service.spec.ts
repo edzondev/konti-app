@@ -8,7 +8,7 @@ describe("HomeService", () => {
 		getCurrentUser: jest.fn(),
 	};
 	const documentsService = {
-		countUploaded: jest.fn(),
+		countVisible: jest.fn(),
 	};
 
 	const service = new HomeService(
@@ -37,7 +37,7 @@ describe("HomeService", () => {
 			requiresOnboarding: false,
 			profile: { status: "complete" },
 		});
-		documentsService.countUploaded.mockResolvedValue(0);
+		documentsService.countVisible.mockResolvedValue(0);
 
 		const result = await service.getCurrentHome("user-1");
 
@@ -53,13 +53,13 @@ describe("HomeService", () => {
 		expect(result.summary.processedDocuments).toBe(0);
 	});
 
-	it("returns NOTHING_TO_REVIEW once an uploaded document exists", async () => {
+	it("returns NOTHING_TO_REVIEW once a visible ready document exists", async () => {
 		taxProfileService.getCurrentUser.mockResolvedValue({
 			taxYear: 2026,
 			requiresOnboarding: false,
 			profile: { status: "complete" },
 		});
-		documentsService.countUploaded.mockResolvedValue(1);
+		documentsService.countVisible.mockResolvedValue(1);
 
 		const result = await service.getCurrentHome("user-1");
 

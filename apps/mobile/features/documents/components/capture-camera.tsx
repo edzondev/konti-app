@@ -3,6 +3,7 @@ import { environment } from "@expo/ui/swift-ui/modifiers";
 import { randomUUID } from "expo-crypto";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
+import { useIsFocused } from "expo-router";
 import { useRef, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeIn, FadeOut, ReduceMotion } from "react-native-reanimated";
@@ -27,6 +28,7 @@ type PendingCapture = {
 };
 
 export function CaptureCamera() {
+	const isFocused = useIsFocused();
 	const { data: session } = authClient.useSession();
 	const documentIntake = useDocumentIntake();
 	const device = useCameraDevice("back");
@@ -36,6 +38,7 @@ export function CaptureCamera() {
 	const [busy, setBusy] = useState(false);
 	const busyRef = useRef(false);
 	const statusRef = useRef<CaptureStatus>("idle");
+	const photoRef = useRef<Photo | null>(null);
 
 	function setCaptureStatus(next: CaptureStatus) {
 		// Keep ref in sync immediately so BottomSheet onDismiss (which can fire
@@ -44,10 +47,16 @@ export function CaptureCamera() {
 		setStatus(next);
 	}
 
-	const controlsDisabled = busy || status === "saving" || status === "success" || !device;
+	function releasePhoto() {
+		photoRef.current?.dispose();
+		photoRef.current = null;
+	}
+
+	const controlsDisabled =
+		!isFocused || busy || status === "saving" || status === "success" || !device;
 
 	function beginCapture(): boolean {
-		if (busyRef.current || status === "saving" || status === "success") {
+		if (busyRef.current || statusRef.current === "saving" || statusRef.current === "success") {
 			return false;
 		}
 
@@ -88,11 +97,12 @@ export function CaptureCamera() {
 			return;
 		}
 
+		releasePhoto();
 		const idempotencyKey = randomUUID();
-		let photo: Photo | undefined;
 
 		try {
-			photo = await photoOutput.capturePhoto({}, {});
+			const photo = await photoOutput.capturePhoto({}, {});
+			photoRef.current = photo;
 			const path = await photo.saveToTemporaryFileAsync();
 			const capture: PendingCapture = {
 				file: {
@@ -105,11 +115,13 @@ export function CaptureCamera() {
 			};
 			setPendingCapture(capture);
 			await saveCapture(capture);
+			if (statusRef.current === "success") {
+				releasePhoto();
+			}
 		} catch (error) {
 			log.error("handleCameraCapture failed", error);
 			setCaptureStatus("error");
 		} finally {
-			photo?.dispose();
 			endCapture();
 		}
 	}
@@ -160,6 +172,7 @@ export function CaptureCamera() {
 	}
 
 	function handleScanAnother() {
+		releasePhoto();
 		setPendingCapture(null);
 		setCaptureStatus("idle");
 	}
@@ -176,6 +189,7 @@ export function CaptureCamera() {
 	function handleSheetDismiss() {
 		const current = statusRef.current;
 		if (current === "success") {
+			releasePhoto();
 			setPendingCapture(null);
 			setCaptureStatus("idle");
 			return;
@@ -187,12 +201,12 @@ export function CaptureCamera() {
 	}
 
 	return (
-		<View className="flex-1 bg-konti-bg">
+		<View className="flex-1 bg-konti-bg" pointerEvents={isFocused ? "auto" : "none"}>
 			{device ? (
 				<Camera
 					style={StyleSheet.absoluteFill}
 					device={device}
-					isActive
+					isActive={isFocused}
 					outputs={[photoOutput]}
 					resizeMode="cover"
 				/>
@@ -217,7 +231,12 @@ export function CaptureCamera() {
 						<Text className="text-sm font-medium text-konti-ivory">Elegir de la galería</Text>
 					</Pressable>
 
-					<ShutterButton disabled={controlsDisabled} onPress={handleCameraCapture} />
+					<ShutterButton
+						disabled={controlsDisabled}
+						onPress={() => {
+							void handleCameraCapture();
+						}}
+					/>
 				</View>
 			</View>
 

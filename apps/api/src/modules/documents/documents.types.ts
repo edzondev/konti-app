@@ -1,35 +1,69 @@
-export type DocumentUploadStatus = "pending_upload" | "uploaded";
+import type {
+	DocumentStatus,
+	DocumentType,
+	ProcessingStatus,
+} from "../../database/schema/schema.types";
+
+export type DocumentUploadStatus = Extract<DocumentStatus, "pending_upload" | "uploaded">;
+
+export type DoubtfulField = "issuerTaxId" | "issueDate" | "totalAmount" | "documentType";
 
 export type DocumentRecord = {
 	id: string;
 	taxProfileId: string;
-	status: DocumentUploadStatus;
+	status: DocumentStatus;
 	idempotencyKey: string;
 	objectKey: string;
-	originalFileName: string;
+	originalFileName: string | null;
 	mimeType: "image/jpeg" | "image/png";
 	sizeBytes: number;
 	sha256: string;
 	pageCount: number;
 	source: "camera" | "gallery";
+	documentType: DocumentType;
+	issuerName: string | null;
+	issuerTaxId: string | null;
+	documentNumber: string | null;
+	totalAmount: string | null;
+	subtotalAmount: string | null;
+	taxAmount: string | null;
+	currencyCode: string | null;
+	issueDate: string | null;
+	metadata: Record<string, unknown>;
 	deletedAt: Date | null;
 	createdAt: Date;
 };
 
 export type DocumentListItem = {
 	id: string;
-	status: "uploaded";
+	status: DocumentStatus;
 	source: "camera" | "gallery";
 	createdAt: string;
 	originalFileName: string | null;
 	mimeType: string;
 	previewUrl: string;
 	previewExpiresAt: string;
+	issuerName: string | null;
+	issuerTaxId: string | null;
+	documentNumber: string | null;
+	totalAmount: string | null;
+	subtotalAmount: string | null;
+	taxAmount: string | null;
+	currencyCode: string | null;
+	documentType: string;
+	issueDate: string | null;
+	doubtfulFields: DoubtfulField[];
+};
+
+export type DocumentProcessingView = {
+	status: ProcessingStatus;
+	attemptNumber: number;
+	doubtfulFields: DoubtfulField[];
 };
 
 export type DocumentDetail = {
 	document: Omit<DocumentListItem, "previewUrl" | "previewExpiresAt">;
-	processing: null;
+	processing: DocumentProcessingView | null;
 	attention: null;
 };
 
@@ -47,7 +81,7 @@ export interface DocumentsRepositoryPort {
 		taxProfileId: string,
 		query: { cursor?: { createdAt: Date; id: string }; limit: number },
 	): Promise<DocumentRecord[]>;
-	countUploaded(taxProfileId: string): Promise<number>;
+	countVisible(taxProfileId: string): Promise<number>;
 }
 
 export type CreateUploadResult =

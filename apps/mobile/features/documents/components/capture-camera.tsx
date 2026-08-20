@@ -1,16 +1,21 @@
+import { BottomSheet, Button, Column, Text as SheetText } from "@expo/ui";
+import { environment } from "@expo/ui/swift-ui/modifiers";
+import { randomUUID } from "expo-crypto";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
-import { randomUUID } from "expo-crypto";
 import { useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import Animated from "react-native-reanimated";
-import { Camera, useCameraDevice, usePhotoOutput, type Photo } from "react-native-vision-camera";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import Animated, { FadeIn, FadeOut, ReduceMotion } from "react-native-reanimated";
+import { Camera, type Photo, useCameraDevice, usePhotoOutput } from "react-native-vision-camera";
 
 import { authClient } from "@/core/auth-client";
-import type { LocalImageFile } from "@/features/documents/document-file";
+import { createDevLogger } from "@/core/dev-logger";
+import { isSupportedImageMime, type LocalImageFile } from "@/features/documents/document-file";
 import { useDocumentIntake } from "@/features/documents/use-document-intake";
 
-import { CaptureStatusOverlay } from "./capture-status-overlay";
+const log = createDevLogger("capture-camera");
+
+const SHEET_MODIFIERS = [environment({ key: "colorScheme", value: "dark" })];
 
 type CaptureStatus = "idle" | "saving" | "success" | "error";
 type IntakeSource = "camera" | "gallery";
@@ -30,6 +35,14 @@ export function CaptureCamera() {
 	const [pendingCapture, setPendingCapture] = useState<PendingCapture | null>(null);
 	const [busy, setBusy] = useState(false);
 	const busyRef = useRef(false);
+	const statusRef = useRef<CaptureStatus>("idle");
+
+	function setCaptureStatus(next: CaptureStatus) {
+		// Keep ref in sync immediately so BottomSheet onDismiss (which can fire
+		// in the same turn as a status change) does not clobber retry/save.
+		statusRef.current = next;
+		setStatus(next);
+	}
 
 	const controlsDisabled = busy || status === "saving" || status === "success" || !device;
 
@@ -50,22 +63,23 @@ export function CaptureCamera() {
 
 	async function saveCapture(capture: PendingCapture) {
 		if (!session?.user.id) {
-			setStatus("error");
+			log.error("saveCapture: no active session");
+			setCaptureStatus("error");
 			return;
 		}
 
-		setStatus("saving");
+		setCaptureStatus("saving");
 		try {
 			await documentIntake.mutateAsync({
 				...capture.file,
-				userId: session.user.id,
 				source: capture.source,
 				idempotencyKey: capture.idempotencyKey,
 			});
-			setStatus("success");
+			setCaptureStatus("success");
 			void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-		} catch {
-			setStatus("error");
+		} catch (error) {
+			log.error("saveCapture failed", error);
+			setCaptureStatus("error");
 		}
 	}
 
@@ -91,8 +105,9 @@ export function CaptureCamera() {
 			};
 			setPendingCapture(capture);
 			await saveCapture(capture);
-		} catch {
-			setStatus("error");
+		} catch (error) {
+			log.error("handleCameraCapture failed", error);
+			setCaptureStatus("error");
 		} finally {
 			photo?.dispose();
 			endCapture();
@@ -119,8 +134,9 @@ export function CaptureCamera() {
 				return;
 			}
 
-			if (!isSupportedGalleryMime(asset.mimeType)) {
-				setStatus("error");
+			if (!isSupportedImageMime(asset.mimeType)) {
+				log.error("unsupported mime type", asset.mimeType);
+				setCaptureStatus("error");
 				return;
 			}
 
@@ -135,17 +151,51 @@ export function CaptureCamera() {
 			};
 			setPendingCapture(capture);
 			await saveCapture(capture);
-		} catch {
-			setStatus("error");
+		} catch (error) {
+			log.error("handleGallerySelection failed", error);
+			setCaptureStatus("error");
 		} finally {
 			endCapture();
+		}
+	}
+
+	function handleScanAnother() {
+		setPendingCapture(null);
+		setCaptureStatus("idle");
+	}
+
+	function handleRetry() {
+		if (pendingCapture) {
+			void saveCapture(pendingCapture);
+			return;
+		}
+
+		setCaptureStatus("idle");
+	}
+
+	function handleSheetDismiss() {
+		const current = statusRef.current;
+		if (current === "success") {
+			setPendingCapture(null);
+			setCaptureStatus("idle");
+			return;
+		}
+
+		if (current === "error") {
+			setCaptureStatus("idle");
 		}
 	}
 
 	return (
 		<View className="flex-1 bg-konti-bg">
 			{device ? (
-				<Camera style={StyleSheet.absoluteFill} device={device} isActive outputs={[photoOutput]} resizeMode="cover" />
+				<Camera
+					style={StyleSheet.absoluteFill}
+					device={device}
+					isActive
+					outputs={[photoOutput]}
+					resizeMode="cover"
+				/>
 			) : (
 				<View style={StyleSheet.absoluteFill} className="items-center justify-center px-7">
 					<Text className="text-center text-[15px] text-konti-ivory/60">
@@ -171,21 +221,40 @@ export function CaptureCamera() {
 				</View>
 			</View>
 
-			<CaptureStatusOverlay
-				status={status}
-				onRetry={() => {
-					if (pendingCapture) {
-						void saveCapture(pendingCapture);
-						return;
-					}
+			{status === "saving" ? (
+				<Animated.View
+					entering={FadeIn.duration(160).reduceMotion(ReduceMotion.System)}
+					exiting={FadeOut.duration(160).reduceMotion(ReduceMotion.System)}
+					style={StyleSheet.absoluteFill}
+					className="items-center justify-center bg-konti-bg/75"
+				>
+					<ActivityIndicator size="large" color="#F5F1E8" />
+					<Text className="mt-3 text-sm font-medium text-konti-ivory">Guardando…</Text>
+				</Animated.View>
+			) : null}
 
-					setStatus("idle");
-				}}
-				onScanAnother={() => {
-					setPendingCapture(null);
-					setStatus("idle");
-				}}
-			/>
+			<BottomSheet
+				isPresented={status === "success" || status === "error"}
+				onDismiss={handleSheetDismiss}
+				modifiers={SHEET_MODIFIERS}
+			>
+				<Column alignment="center" spacing={16} style={{ padding: 24 }}>
+					{status === "success" ? (
+						<>
+							<SheetText textStyle={{ fontSize: 22, fontWeight: "600" }}>Guardado</SheetText>
+							<Button label="Escanear otro" onPress={handleScanAnother} />
+						</>
+					) : null}
+					{status === "error" ? (
+						<>
+							<SheetText textStyle={{ textAlign: "center" }}>
+								No se pudo guardar. Inténtalo de nuevo.
+							</SheetText>
+							<Button label="Reintentar" onPress={handleRetry} />
+						</>
+					) : null}
+				</Column>
+			</BottomSheet>
 		</View>
 	);
 }
@@ -214,15 +283,11 @@ function ShutterButton({ disabled, onPress }: { disabled: boolean; onPress: () =
 					transform: [{ scale: pressed ? 0.97 : 1 }],
 					transitionProperty: "transform",
 					transitionDuration: "120ms",
-					transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
+					transitionTimingFunction: "linear",
 				}}
 			>
 				<View className="size-14 rounded-full bg-konti-ivory" />
 			</Animated.View>
 		</Pressable>
 	);
-}
-
-function isSupportedGalleryMime(mimeType: string | undefined): mimeType is "image/jpeg" | "image/png" {
-	return mimeType === "image/jpeg" || mimeType === "image/png";
 }

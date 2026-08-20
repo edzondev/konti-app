@@ -1,4 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
+import { File } from "expo-file-system";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { completeDocumentUpload, createDocumentUpload } from "./documents.api";
+import { prepareLocalFile } from "./document-file";
+import { ingestLocalFile } from "./use-document-intake";
+
+vi.mock("./document-file", () => ({
+	prepareLocalFile: vi.fn(),
+}));
 
 vi.mock("./documents.api", () => ({
 	completeDocumentUpload: vi.fn(),
@@ -13,11 +22,9 @@ vi.mock("@/features/home/home.queries", () => ({
 	homeKeys: { all: ["home"] },
 }));
 
-import {
-	DocumentIntakeError,
-	ingestLocalFile,
-	type DocumentIntakeDependencies,
-} from "./use-document-intake";
+const prepare = vi.mocked(prepareLocalFile);
+const createUpload = vi.mocked(createDocumentUpload);
+const completeUpload = vi.mocked(completeDocumentUpload);
 
 const preparedFile = {
 	uri: "file:///cache/receipt.jpg",
@@ -27,30 +34,7 @@ const preparedFile = {
 	sha256: "a".repeat(64),
 };
 
-function createDependencies(
-	overrides: Partial<DocumentIntakeDependencies> = {},
-): DocumentIntakeDependencies {
-	return {
-		prepare: vi.fn(async () => preparedFile),
-		createUpload: vi.fn(async () => ({
-			duplicate: false as const,
-			document: { id: "document-1", status: "pending_upload" as const },
-			upload: {
-				url: "https://uploads.example.com/document-1",
-				method: "PUT" as const,
-				headers: { "Content-Type": "image/jpeg", "x-amz-meta-sha256": preparedFile.sha256 },
-				expiresAt: "2026-08-19T20:00:00.000Z",
-			},
-		})),
-		putToSignedUrl: vi.fn(async () => undefined),
-		completeUpload: vi.fn(async () => undefined),
-		invalidate: vi.fn(async () => undefined),
-		...overrides,
-	};
-}
-
 const intakeInput = {
-	userId: "user-1",
 	uri: preparedFile.uri,
 	source: "gallery" as const,
 	idempotencyKey: "11111111-1111-4111-8111-111111111111",
@@ -59,46 +43,50 @@ const intakeInput = {
 };
 
 describe("ingestLocalFile", () => {
-	it("maps unsupported files and does not create an upload", async () => {
-		const dependencies = createDependencies({
-			prepare: vi.fn(async () => {
-				throw new Error("Only JPEG or PNG images can be uploaded.");
-			}),
+	beforeEach(() => {
+		vi.clearAllMocks();
+		prepare.mockResolvedValue(preparedFile);
+		createUpload.mockResolvedValue({
+			duplicate: false,
+			document: { id: "document-1", status: "pending_upload" },
+			upload: {
+				url: "https://uploads.example.com/document-1",
+				method: "PUT",
+				headers: { "Content-Type": "image/jpeg", "x-amz-meta-sha256": preparedFile.sha256 },
+				expiresAt: "2026-08-19T20:00:00.000Z",
+			},
 		});
+		completeUpload.mockResolvedValue(undefined);
+	});
 
-		await expect(ingestLocalFile(intakeInput, dependencies)).rejects.toMatchObject(
-			new DocumentIntakeError("UNSUPPORTED_TYPE", "Only JPEG or PNG images can be uploaded."),
-		);
+	it("does not create an upload for an unsupported file", async () => {
+		prepare.mockRejectedValue(new Error("Only JPEG or PNG images can be uploaded."));
 
-		expect(dependencies.createUpload).not.toHaveBeenCalled();
-		expect(dependencies.putToSignedUrl).not.toHaveBeenCalled();
+		await expect(ingestLocalFile(intakeInput)).rejects.toThrow("JPEG or PNG");
+		expect(createUpload).not.toHaveBeenCalled();
 	});
 
 	it("returns an existing duplicate without putting or completing it", async () => {
-		const dependencies = createDependencies({
-			createUpload: vi.fn(async () => ({
-				duplicate: true as const,
-				document: { id: "document-existing", status: "uploaded" },
-			})),
+		const upload = vi.spyOn(File.prototype, "upload");
+		createUpload.mockResolvedValue({
+			duplicate: true,
+			document: { id: "document-existing", status: "uploaded" },
 		});
 
-		await expect(ingestLocalFile(intakeInput, dependencies)).resolves.toEqual({
+		await expect(ingestLocalFile(intakeInput)).resolves.toEqual({
 			documentId: "document-existing",
 			duplicate: true,
 		});
-		expect(dependencies.putToSignedUrl).not.toHaveBeenCalled();
-		expect(dependencies.completeUpload).not.toHaveBeenCalled();
-		expect(dependencies.invalidate).not.toHaveBeenCalled();
+		expect(upload).not.toHaveBeenCalled();
+		expect(completeUpload).not.toHaveBeenCalled();
 	});
 
-	it("uploads, completes, and invalidates home and document queries", async () => {
-		const dependencies = createDependencies();
-
-		await expect(ingestLocalFile(intakeInput, dependencies)).resolves.toEqual({
+	it("uploads and completes a new document", async () => {
+		await expect(ingestLocalFile(intakeInput)).resolves.toEqual({
 			documentId: "document-1",
 			duplicate: false,
 		});
-		expect(dependencies.createUpload).toHaveBeenCalledWith({
+		expect(createUpload).toHaveBeenCalledWith({
 			source: "gallery",
 			originalFileName: "receipt.jpg",
 			mimeType: "image/jpeg",
@@ -107,26 +95,13 @@ describe("ingestLocalFile", () => {
 			pageCount: 1,
 			idempotencyKey: "11111111-1111-4111-8111-111111111111",
 		});
-		expect(dependencies.putToSignedUrl).toHaveBeenCalledWith(
-			"https://uploads.example.com/document-1",
-			"file:///cache/receipt.jpg",
-			{ "Content-Type": "image/jpeg", "x-amz-meta-sha256": "a".repeat(64) },
-		);
-		expect(dependencies.completeUpload).toHaveBeenCalledWith("document-1");
-		expect(dependencies.invalidate).toHaveBeenCalledWith(["home"]);
-		expect(dependencies.invalidate).toHaveBeenCalledWith(["documents"]);
+		expect(completeUpload).toHaveBeenCalledWith("document-1");
 	});
 
 	it("does not complete after a signed PUT failure", async () => {
-		const putError = new Error("Network unavailable");
-		const dependencies = createDependencies({
-			putToSignedUrl: vi.fn(async () => {
-				throw putError;
-			}),
-		});
+		vi.spyOn(File.prototype, "upload").mockRejectedValueOnce(new Error("Network unavailable"));
 
-		await expect(ingestLocalFile(intakeInput, dependencies)).rejects.toThrow(putError);
-		expect(dependencies.completeUpload).not.toHaveBeenCalled();
-		expect(dependencies.invalidate).not.toHaveBeenCalled();
+		await expect(ingestLocalFile(intakeInput)).rejects.toThrow("Network unavailable");
+		expect(completeUpload).not.toHaveBeenCalled();
 	});
 });

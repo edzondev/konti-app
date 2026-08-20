@@ -1,8 +1,16 @@
-import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+	GetObjectCommand,
+	HeadObjectCommand,
+	PutObjectCommand,
+	S3Client,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { createDevLogger } from "../dev-logger";
 import type { ObjectStorage } from "./storage.types";
+
+const logger = createDevLogger("r2-storage");
 
 @Injectable()
 export class R2StorageAdapter implements ObjectStorage {
@@ -24,7 +32,10 @@ export class R2StorageAdapter implements ObjectStorage {
 		this.client = new S3Client({
 			region: "auto",
 			endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+			forcePathStyle: true,
 			credentials: { accessKeyId, secretAccessKey },
+			requestChecksumCalculation: "WHEN_REQUIRED",
+			responseChecksumValidation: "WHEN_REQUIRED",
 		});
 	}
 
@@ -33,40 +44,73 @@ export class R2StorageAdapter implements ObjectStorage {
 		mimeType: string;
 		expiresInSeconds: number;
 	}): Promise<{ url: string; headers: Record<string, string>; expiresAt: string }> {
-		const url = await getSignedUrl(
-			this.client,
-			new PutObjectCommand({
-				Bucket: this.bucketName,
-				Key: input.objectKey,
-				ContentType: input.mimeType,
-			}),
-			{ expiresIn: input.expiresInSeconds },
-		);
+		try {
+			const url = await getSignedUrl(
+				this.client,
+				new PutObjectCommand({
+					Bucket: this.bucketName,
+					Key: input.objectKey,
+				}),
+				{
+					expiresIn: input.expiresInSeconds,
+					unsignableHeaders: new Set([
+						"content-type",
+						"x-amz-checksum-crc32",
+						"x-amz-checksum-crc32c",
+						"x-amz-sdk-checksum-algorithm",
+					]),
+				},
+			);
 
-		return {
-			url,
-			headers: { "Content-Type": input.mimeType },
-			expiresAt: this.getExpiresAt(input.expiresInSeconds),
-		};
+			const signed = new URL(url);
+			logger.info("createUploadUrl", {
+				host: signed.host,
+				signedHeaders: signed.searchParams.get("X-Amz-SignedHeaders"),
+			});
+
+			const expiresAt = this.getExpiresAt(input.expiresInSeconds);
+
+			return {
+				url,
+				headers: { "Content-Type": input.mimeType },
+				expiresAt,
+			};
+		} catch (error) {
+			logger.error("createUploadUrl:failed", {
+				objectKey: input.objectKey,
+				message: error instanceof Error ? error.message : String(error),
+			});
+			throw error;
+		}
 	}
 
 	async createDownloadUrl(input: {
 		objectKey: string;
 		expiresInSeconds: number;
 	}): Promise<{ url: string; expiresAt: string }> {
-		const url = await getSignedUrl(
-			this.client,
-			new GetObjectCommand({
-				Bucket: this.bucketName,
-				Key: input.objectKey,
-			}),
-			{ expiresIn: input.expiresInSeconds },
-		);
+		try {
+			const url = await getSignedUrl(
+				this.client,
+				new GetObjectCommand({
+					Bucket: this.bucketName,
+					Key: input.objectKey,
+				}),
+				{ expiresIn: input.expiresInSeconds },
+			);
 
-		return {
-			url,
-			expiresAt: this.getExpiresAt(input.expiresInSeconds),
-		};
+			const expiresAt = this.getExpiresAt(input.expiresInSeconds);
+
+			return {
+				url,
+				expiresAt,
+			};
+		} catch (error) {
+			logger.error("createDownloadUrl:failed", {
+				objectKey: input.objectKey,
+				message: error instanceof Error ? error.message : String(error),
+			});
+			throw error;
+		}
 	}
 
 	async headObject(objectKey: string): Promise<{ exists: boolean; sizeBytes: number | null }> {
@@ -84,6 +128,10 @@ export class R2StorageAdapter implements ObjectStorage {
 				return { exists: false, sizeBytes: null };
 			}
 
+			logger.error("headObject:failed", {
+				objectKey,
+				message: error instanceof Error ? error.message : String(error),
+			});
 			throw error;
 		}
 	}

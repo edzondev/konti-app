@@ -108,13 +108,14 @@ function createHarness(options: { requiresOnboarding?: boolean } = {}) {
 					)
 					.slice(0, query.limit + 1),
 		),
-		countUploaded: jest.fn(async (taxProfileId: string) =>
-			[...rows.values()].filter(
-				(row) =>
-					row.taxProfileId === taxProfileId &&
-					row.status === "uploaded" &&
-					row.deletedAt === null,
-			).length,
+		countUploaded: jest.fn(
+			async (taxProfileId: string) =>
+				[...rows.values()].filter(
+					(row) =>
+						row.taxProfileId === taxProfileId &&
+						row.status === "uploaded" &&
+						row.deletedAt === null,
+				).length,
 		),
 	};
 	const storage = {
@@ -376,7 +377,10 @@ describe("DocumentsService", () => {
 		const { service, rows, storage } = createHarness();
 		rows.set("newer", visibleDocument("newer", "2026-08-19T12:00:00.000Z"));
 		rows.set("older", visibleDocument("older", "2026-08-18T12:00:00.000Z"));
-		rows.set("pending", { ...visibleDocument("pending", "2026-08-17T12:00:00.000Z"), status: "pending_upload" });
+		rows.set("pending", {
+			...visibleDocument("pending", "2026-08-17T12:00:00.000Z"),
+			status: "pending_upload",
+		});
 		rows.set("deleted", {
 			...visibleDocument("deleted", "2026-08-16T12:00:00.000Z"),
 			deletedAt: new Date(),
@@ -447,7 +451,10 @@ describe("DocumentsService", () => {
 
 	it("returns not found for pending and deleted documents", async () => {
 		const { service, rows } = createHarness();
-		rows.set("pending", { ...visibleDocument("pending", "2026-08-19T12:00:00.000Z"), status: "pending_upload" });
+		rows.set("pending", {
+			...visibleDocument("pending", "2026-08-19T12:00:00.000Z"),
+			status: "pending_upload",
+		});
 		rows.set("deleted", {
 			...visibleDocument("deleted", "2026-08-19T12:00:00.000Z"),
 			deletedAt: new Date(),

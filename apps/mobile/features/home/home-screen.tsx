@@ -95,7 +95,7 @@ function FirstDocumentCta({ primary, onPress }: { primary: HomePrimary; onPress:
 						transform: [{ scale: pressed ? 0.97 : 1 }],
 						transitionProperty: "transform",
 						transitionDuration: "120ms",
-						transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
+						transitionTimingFunction: "linear",
 					}}
 				>
 					<Text className="text-sm font-semibold text-konti-bg">Añadir comprobante</Text>

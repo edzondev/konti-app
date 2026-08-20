@@ -1,6 +1,7 @@
+import { digest, CryptoDigestAlgorithm } from "expo-crypto";
+import { File } from "expo-file-system";
+
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
-const SUPPORTED_MIME_TYPES = new Set(["image/jpeg", "image/png"]);
-const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 
 export type LocalImageFile = {
 	uri: string;
@@ -16,13 +17,9 @@ export type PreparedLocalFile = {
 	sha256: string;
 };
 
-export type PrepareLocalFileDependencies = {
-	getSize(uri: string): Promise<number>;
-	readBytes(uri: string): Promise<Uint8Array>;
-	sha256(bytes: Uint8Array): Promise<string>;
-};
-
-function isSupportedMimeType(mimeType: string | null | undefined): mimeType is "image/jpeg" | "image/png" {
+export function isSupportedImageMime(
+	mimeType: string | null | undefined,
+): mimeType is "image/jpeg" | "image/png" {
 	return mimeType === "image/jpeg" || mimeType === "image/png";
 }
 
@@ -31,43 +28,26 @@ function fileNameFromUri(uri: string): string {
 	return name ? decodeURIComponent(name) : "document";
 }
 
-async function defaultDependencies(): Promise<PrepareLocalFileDependencies> {
-	const [{ File }, crypto] = await Promise.all([import("expo-file-system"), import("expo-crypto")]);
-
-	return {
-		getSize: async (uri) => new File(uri).size,
-		readBytes: async (uri) => new File(uri).bytes(),
-		sha256: async (bytes) => {
-			const digest = await crypto.digest(crypto.CryptoDigestAlgorithm.SHA256, bytes);
-			return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-		},
-	};
-}
-
-export async function prepareLocalFile(
-	file: LocalImageFile,
-	dependencies: PrepareLocalFileDependencies | undefined = undefined,
-): Promise<PreparedLocalFile> {
-	if (!isSupportedMimeType(file.mimeType) || !SUPPORTED_MIME_TYPES.has(file.mimeType)) {
+export async function prepareLocalFile(file: LocalImageFile): Promise<PreparedLocalFile> {
+	if (!isSupportedImageMime(file.mimeType)) {
 		throw new Error("Only JPEG or PNG images can be uploaded.");
 	}
 
-	const deps = dependencies ?? (await defaultDependencies());
-	const sizeBytes = await deps.getSize(file.uri);
-	if (sizeBytes > MAX_IMAGE_BYTES) {
+	const local = new File(file.uri);
+	if (local.size > MAX_IMAGE_BYTES) {
 		throw new Error("Images must be 15 MB or smaller.");
 	}
 
-	const sha256 = await deps.sha256(await deps.readBytes(file.uri));
-	if (!SHA256_PATTERN.test(sha256)) {
-		throw new Error("SHA-256 must be a 64-character lowercase hexadecimal digest.");
-	}
+	const hash = await digest(CryptoDigestAlgorithm.SHA256, await local.bytes());
+	const sha256 = Array.from(new Uint8Array(hash), (byte) =>
+		byte.toString(16).padStart(2, "0"),
+	).join("");
 
 	return {
 		uri: file.uri,
 		originalFileName: file.fileName ?? fileNameFromUri(file.uri),
 		mimeType: file.mimeType,
-		sizeBytes,
+		sizeBytes: local.size,
 		sha256,
 	};
 }

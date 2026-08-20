@@ -9,6 +9,7 @@ import { DocumentRow } from "@/features/documents/components/document-row";
 import { groupDocumentsByDay } from "@/features/documents/group-documents-by-day";
 import type { DocumentListItem } from "@/features/documents/types";
 import { useDocuments } from "@/features/documents/use-documents";
+import { useProcessUploaded } from "@/features/documents/use-process-uploaded";
 
 const TAB_BAR_HEIGHT = 74;
 
@@ -24,10 +25,10 @@ export default function ComprobantesTabScreen() {
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isRefetching, refetch } =
 		documentsQuery;
 	const bottomSpace = TAB_BAR_HEIGHT + Math.max(insets.bottom, 12) + 24;
+	const documents = useMemo(() => data?.pages.flatMap((page) => page.items), [data]);
+	useProcessUploaded(documents);
 	const entries = useMemo(() => {
-		const documents = data?.pages.flatMap((page) => page.items) ?? [];
-
-		return groupDocumentsByDay(documents).flatMap((group) => [
+		return groupDocumentsByDay(documents ?? []).flatMap((group) => [
 			{
 				type: "header" as const,
 				id: `header-${group.items[0]?.id ?? group.title}`,
@@ -39,7 +40,7 @@ export default function ComprobantesTabScreen() {
 				document,
 			})),
 		]);
-	}, [data]);
+	}, [documents]);
 	const handleDocumentPress = useCallback(
 		(documentId: string) => {
 			router.push(`/document/${documentId}`);

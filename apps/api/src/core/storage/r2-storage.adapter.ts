@@ -113,6 +113,27 @@ export class R2StorageAdapter implements ObjectStorage {
 		}
 	}
 
+	async putObject(input: { objectKey: string; body: Buffer; mimeType: string }): Promise<void> {
+		try {
+			await this.client.send(
+				new PutObjectCommand({
+					Bucket: this.bucketName,
+					Key: input.objectKey,
+					Body: input.body,
+					ContentType: input.mimeType,
+				}),
+			);
+
+			logger.info("putObject", { objectKey: input.objectKey });
+		} catch (error) {
+			logger.error("putObject:failed", {
+				objectKey: input.objectKey,
+				message: error instanceof Error ? error.message : String(error),
+			});
+			throw error;
+		}
+	}
+
 	async headObject(objectKey: string): Promise<{ exists: boolean; sizeBytes: number | null }> {
 		try {
 			const object = await this.client.send(

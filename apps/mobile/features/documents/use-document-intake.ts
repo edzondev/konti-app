@@ -4,17 +4,32 @@ import { File } from "expo-file-system";
 import { createDevLogger } from "@/core/dev-logger";
 import { homeKeys } from "@/features/home/home.queries";
 import { type LocalImageFile, prepareLocalFile } from "./document-file";
-import { completeDocumentUpload, createDocumentUpload } from "./documents.api";
+import { completeDocumentUpload, createDocumentUpload, processDocument } from "./documents.api";
 import { documentKeys } from "./documents.queries";
 
 const log = createDevLogger("documents");
+
+const ingestInFlight = new Map<string, Promise<{ documentId: string; duplicate: boolean }>>();
 
 export type DocumentIntakeInput = LocalImageFile & {
 	source: "camera" | "gallery";
 	idempotencyKey: string;
 };
 
-export async function ingestLocalFile(input: DocumentIntakeInput) {
+export function ingestLocalFile(input: DocumentIntakeInput) {
+	const existing = ingestInFlight.get(input.idempotencyKey);
+	if (existing) {
+		return existing;
+	}
+
+	const work = runIngest(input).finally(() => {
+		ingestInFlight.delete(input.idempotencyKey);
+	});
+	ingestInFlight.set(input.idempotencyKey, work);
+	return work;
+}
+
+async function runIngest(input: DocumentIntakeInput) {
 	const prepared = await prepareLocalFile(input);
 	log.info("prepare", { sizeBytes: prepared.sizeBytes, mimeType: prepared.mimeType });
 
@@ -45,6 +60,10 @@ export async function ingestLocalFile(input: DocumentIntakeInput) {
 
 	await completeDocumentUpload(created.document.id);
 	log.info("complete", { documentId: created.document.id });
+
+	void processDocument(created.document.id).catch((error) => {
+		log.error("process failed", error);
+	});
 
 	return { documentId: created.document.id, duplicate: false };
 }

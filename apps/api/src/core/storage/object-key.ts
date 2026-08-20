@@ -8,3 +8,12 @@ export function buildDocumentObjectKey(input: {
 
 	return `users/${input.userId}/tax/${input.taxYear}/documents/${input.documentId}/original.${extension}`;
 }
+
+export function buildExtractionRawObjectKey(input: {
+	userId: string;
+	taxYear: number;
+	documentId: string;
+	attemptNumber: number;
+}): string {
+	return `users/${input.userId}/tax/${input.taxYear}/documents/${input.documentId}/extraction-v1-${input.attemptNumber}.json`;
+}

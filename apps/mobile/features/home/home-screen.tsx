@@ -17,7 +17,7 @@ export function HomeScreen({ userId, firstName }: { userId: string; firstName?: 
 		void homeQuery.refetch();
 	}, [homeQuery]);
 	const handleCapture = useCallback(() => {
-		router.push("/guardar");
+		router.navigate("/guardar");
 	}, [router]);
 
 	return (

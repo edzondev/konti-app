@@ -9,4 +9,5 @@ export interface ObjectStorage {
 		expiresInSeconds: number;
 	}): Promise<{ url: string; expiresAt: string }>;
 	headObject(objectKey: string): Promise<{ exists: boolean; sizeBytes: number | null }>;
+	putObject(input: { objectKey: string; body: Buffer; mimeType: string }): Promise<void>;
 }

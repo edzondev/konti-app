@@ -9,7 +9,6 @@ import type {
 
 export function getDocuments(cursor?: string) {
 	const search = cursor ? `?${new URLSearchParams({ cursor }).toString()}` : "";
-
 	return apiClient<DocumentsPage>(`/v1/documents${search}`);
 }
 

@@ -16,7 +16,10 @@ export class DocumentsRepository implements DocumentsRepositoryPort {
 		private readonly db: Database,
 	) {}
 
-	async findByIdempotencyKey(taxProfileId: string, key: string): Promise<DocumentRecord | undefined> {
+	async findByIdempotencyKey(
+		taxProfileId: string,
+		key: string,
+	): Promise<DocumentRecord | undefined> {
 		const [document] = await this.db
 			.select()
 			.from(documents)
@@ -26,7 +29,10 @@ export class DocumentsRepository implements DocumentsRepositoryPort {
 		return document as DocumentRecord | undefined;
 	}
 
-	async findVisibleBySha256(taxProfileId: string, sha256: string): Promise<DocumentRecord | undefined> {
+	async findVisibleBySha256(
+		taxProfileId: string,
+		sha256: string,
+	): Promise<DocumentRecord | undefined> {
 		const [document] = await this.db
 			.select()
 			.from(documents)

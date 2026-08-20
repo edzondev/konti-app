@@ -1,5 +1,8 @@
 import { ApiError } from "@/core/api-error";
 import { authClient } from "@/core/auth-client";
+import { createDevLogger } from "@/core/dev-logger";
+
+const log = createDevLogger("api");
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -36,15 +39,18 @@ export async function apiClient<T>(path: string, options: ApiRequestOptions = {}
 	}
 
 	if (!response.ok) {
-		const body = (await response.json().catch(() => null)) as
-			| { code?: string; message?: string }
-			| null;
+		const body = (await response.json().catch(() => null)) as {
+			code?: string;
+			message?: string;
+		} | null;
 
-		throw new ApiError(
+		const error = new ApiError(
 			response.status,
 			body?.message ?? `API request failed with status ${response.status}`,
 			body?.code,
 		);
+		log.error(path, error.status, error.message);
+		throw error;
 	}
 
 	return response.json() as Promise<T>;

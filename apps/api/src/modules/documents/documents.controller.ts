@@ -14,9 +14,12 @@ import { fromNodeHeaders } from "better-auth/node";
 import type { Request } from "express";
 import { AUTH } from "../../auth/auth.constants";
 import type { Auth } from "../../auth/auth.factory";
+import { createDevLogger } from "../../core/dev-logger";
 import { decodeDocumentCursor } from "./documents.cursor";
 import { DocumentsService } from "./documents.service";
 import { createUploadSchema } from "./documents.validation";
+
+const logger = createDevLogger("documents.controller");
 
 @Controller("v1/documents")
 export class DocumentsController {
@@ -33,6 +36,10 @@ export class DocumentsController {
 		const result = createUploadSchema.safeParse(body);
 
 		if (!result.success) {
+			logger.warn("createUpload:validation_failed", {
+				userId,
+				issues: result.error.issues.map((issue) => issue.path.join(".")),
+			});
 			throw new BadRequestException({
 				message: "Los datos del comprobante no son válidos.",
 				issues: result.error.issues,
@@ -76,6 +83,7 @@ export class DocumentsController {
 			try {
 				decodeDocumentCursor(cursor);
 			} catch {
+				logger.warn("list:invalid_cursor");
 				throw new BadRequestException({
 					message: "El cursor de paginación no es válido.",
 				});
@@ -93,6 +101,7 @@ export class DocumentsController {
 			parsedLimit < 1 ||
 			parsedLimit > 50
 		) {
+			logger.warn("list:invalid_limit", { limit });
 			throw new BadRequestException({
 				message: "El límite de paginación no es válido.",
 			});

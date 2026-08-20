@@ -44,7 +44,7 @@ export const DocumentRow = memo(function DocumentRow({ document, onPress }: Docu
 					transform: [{ scale: pressed ? 0.97 : 1 }],
 					transitionProperty: "transform",
 					transitionDuration: "120ms",
-					transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
+					transitionTimingFunction: "linear",
 				}}
 			>
 				<Image

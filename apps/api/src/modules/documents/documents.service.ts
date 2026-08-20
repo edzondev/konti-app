@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
+import { createDevLogger } from "../../core/dev-logger";
 import { buildDocumentObjectKey } from "../../core/storage/object-key";
 import { OBJECT_STORAGE } from "../../core/storage/storage.constants";
 import type { ObjectStorage } from "../../core/storage/storage.types";
@@ -14,6 +15,8 @@ import type {
 	DocumentsRepositoryPort,
 } from "./documents.types";
 import type { CreateUploadInput } from "./documents.validation";
+
+const logger = createDevLogger("documents.service");
 
 const UPLOAD_URL_TTL_SECONDS = 300;
 const DOWNLOAD_URL_TTL_SECONDS = 300;
@@ -42,9 +45,17 @@ export class DocumentsService {
 
 		if (existingRequest) {
 			if (existingRequest.status === "pending_upload") {
+				logger.info("createUpload:idempotent_hit_pending", {
+					userId,
+					documentId: existingRequest.id,
+				});
 				return this.createUploadResponse(existingRequest);
 			}
 
+			logger.info("createUpload:idempotent_hit_duplicate", {
+				userId,
+				documentId: existingRequest.id,
+			});
 			return {
 				duplicate: true,
 				document: { id: existingRequest.id, status: existingRequest.status },
@@ -53,6 +64,7 @@ export class DocumentsService {
 
 		const duplicate = await this.repository.findVisibleBySha256(current.profile.id, input.sha256);
 		if (duplicate) {
+			logger.info("createUpload:sha256_duplicate", { userId, documentId: duplicate.id });
 			return {
 				duplicate: true,
 				document: { id: duplicate.id, status: duplicate.status },
@@ -83,6 +95,7 @@ export class DocumentsService {
 
 		try {
 			await this.repository.insertPending(document);
+			logger.info("createUpload:new_document", { userId, documentId: id });
 			return this.createUploadResponse(document);
 		} catch (error) {
 			if (this.isUniqueViolation(error, IDEMPOTENCY_KEY_UNIQUE_INDEX)) {
@@ -91,6 +104,10 @@ export class DocumentsService {
 					input.idempotencyKey,
 				);
 				if (winningRequest) {
+					logger.info("createUpload:idempotency_race_resolved", {
+						userId,
+						documentId: winningRequest.id,
+					});
 					return this.createExistingRequestResponse(winningRequest);
 				}
 			}
@@ -101,10 +118,18 @@ export class DocumentsService {
 					input.sha256,
 				);
 				if (winningDocument) {
+					logger.info("createUpload:sha256_race_resolved", {
+						userId,
+						documentId: winningDocument.id,
+					});
 					return this.duplicateResponse(winningDocument);
 				}
 			}
 
+			logger.error("createUpload:insert_failed", {
+				userId,
+				message: error instanceof Error ? error.message : String(error),
+			});
 			throw error;
 		}
 	}
@@ -116,7 +141,7 @@ export class DocumentsService {
 		const current = await this.getCompleteProfile(userId);
 		const document = await this.repository.getOwned(current.profile.id, documentId);
 		if (!document) {
-			throw this.notFound();
+			throw this.notFound({ userId, documentId });
 		}
 
 		if (document.status === "uploaded") {
@@ -124,14 +149,30 @@ export class DocumentsService {
 		}
 
 		if (document.status !== "pending_upload") {
-			throw this.uploadIncomplete();
+			throw this.uploadIncomplete({
+				userId,
+				documentId,
+				reason: "invalid_status",
+				status: document.status,
+			});
 		}
 
 		const object = await this.storage.headObject(document.objectKey);
 		if (!object.exists) {
-			throw this.uploadIncomplete();
+			throw this.uploadIncomplete({ userId, documentId, reason: "head_object_missing" });
 		}
+		logger.info("completeUpload:head_object_found", {
+			userId,
+			documentId,
+			sizeBytes: object.sizeBytes,
+		});
 		if (object.sizeBytes !== document.sizeBytes) {
+			logger.warn("completeUpload:size_mismatch", {
+				userId,
+				documentId,
+				expectedSizeBytes: document.sizeBytes,
+				actualSizeBytes: object.sizeBytes,
+			});
 			throw new HttpException(
 				{
 					code: "UPLOAD_SIZE_MISMATCH",
@@ -147,9 +188,10 @@ export class DocumentsService {
 			if (latest?.status === "uploaded") {
 				return { id: latest.id, status: "uploaded" };
 			}
-			throw this.uploadIncomplete();
+			throw this.uploadIncomplete({ userId, documentId, reason: "status_update_failed" });
 		}
 
+		logger.info("completeUpload:status_updated", { userId, documentId, status: "uploaded" });
 		return { id: document.id, status: "uploaded" };
 	}
 
@@ -206,7 +248,10 @@ export class DocumentsService {
 		};
 	}
 
-	async createFileUrl(userId: string, documentId: string): Promise<{ url: string; expiresAt: string }> {
+	async createFileUrl(
+		userId: string,
+		documentId: string,
+	): Promise<{ url: string; expiresAt: string }> {
 		const document = await this.getVisibleOwnedDocument(userId, documentId);
 		return this.storage.createDownloadUrl({
 			objectKey: document.objectKey,
@@ -257,10 +302,16 @@ export class DocumentsService {
 	private async getCompleteProfile(userId: string) {
 		const current = await this.taxProfileService.getCurrentUser(userId);
 		if (current.requiresOnboarding || !current.profile) {
+			const message = "Completa tu perfil tributario antes de guardar comprobantes.";
+			logger.warn("getCompleteProfile:profile_incomplete", {
+				userId,
+				status: HttpStatus.CONFLICT,
+				message,
+			});
 			throw new HttpException(
 				{
 					code: "PROFILE_INCOMPLETE",
-					message: "Completa tu perfil tributario antes de guardar comprobantes.",
+					message,
 				},
 				HttpStatus.CONFLICT,
 			);
@@ -269,11 +320,14 @@ export class DocumentsService {
 		return current as typeof current & { profile: NonNullable<typeof current.profile> };
 	}
 
-	private async getVisibleOwnedDocument(userId: string, documentId: string): Promise<DocumentRecord> {
+	private async getVisibleOwnedDocument(
+		userId: string,
+		documentId: string,
+	): Promise<DocumentRecord> {
 		const current = await this.getCompleteProfile(userId);
 		const document = await this.repository.getOwned(current.profile.id, documentId);
 		if (!document || document.status !== "uploaded" || document.deletedAt !== null) {
-			throw this.notFound();
+			throw this.notFound({ userId, documentId });
 		}
 
 		return document;
@@ -297,21 +351,33 @@ export class DocumentsService {
 		};
 	}
 
-	private uploadIncomplete() {
+	private uploadIncomplete(meta?: Record<string, unknown>) {
+		const message = "El archivo aún no está disponible.";
+		logger.warn("completeUpload:upload_incomplete", {
+			...meta,
+			status: HttpStatus.CONFLICT,
+			message,
+		});
 		return new HttpException(
 			{
 				code: "UPLOAD_INCOMPLETE",
-				message: "El archivo aún no está disponible.",
+				message,
 			},
 			HttpStatus.CONFLICT,
 		);
 	}
 
-	private notFound() {
+	private notFound(meta?: Record<string, unknown>) {
+		const message = "No se encontró el comprobante.";
+		logger.warn("documents:not_found", {
+			...meta,
+			status: HttpStatus.NOT_FOUND,
+			message,
+		});
 		return new HttpException(
 			{
 				code: "DOCUMENT_NOT_FOUND",
-				message: "No se encontró el comprobante.",
+				message,
 			},
 			HttpStatus.NOT_FOUND,
 		);

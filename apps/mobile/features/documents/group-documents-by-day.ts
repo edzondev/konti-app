@@ -1,6 +1,12 @@
 import type { DocumentListItem } from "./types";
 
 const LIMA_TIME_ZONE = "America/Lima";
+const DAY_FORMATTER = new Intl.DateTimeFormat("en-CA", { timeZone: LIMA_TIME_ZONE });
+const DATE_TITLE_FORMATTER = new Intl.DateTimeFormat("es-PE", {
+	timeZone: LIMA_TIME_ZONE,
+	day: "numeric",
+	month: "short",
+});
 
 type DocumentDayGroup = {
 	title: string;
@@ -8,15 +14,7 @@ type DocumentDayGroup = {
 };
 
 function calendarDay(date: Date): string {
-	const parts = new Intl.DateTimeFormat("en-CA", {
-		timeZone: LIMA_TIME_ZONE,
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-	}).formatToParts(date);
-	const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
-
-	return `${values.year}-${values.month}-${values.day}`;
+	return DAY_FORMATTER.format(date);
 }
 
 function titleForDay(date: Date, now: Date): string {
@@ -28,11 +26,7 @@ function titleForDay(date: Date, now: Date): string {
 	yesterday.setUTCDate(yesterday.getUTCDate() - 1);
 	if (itemDay === calendarDay(yesterday)) return "Ayer";
 
-	return new Intl.DateTimeFormat("es-PE", {
-		timeZone: LIMA_TIME_ZONE,
-		day: "numeric",
-		month: "short",
-	}).format(date);
+	return DATE_TITLE_FORMATTER.format(date);
 }
 
 export function groupDocumentsByDay(

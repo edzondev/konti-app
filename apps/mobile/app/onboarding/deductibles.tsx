@@ -7,8 +7,7 @@ import { OnboardingShell } from "@/features/onboarding/onboarding-shell";
 const deductibleOptions = [
 	{
 		title: "Sí, quiero recuperarlos",
-		support:
-			"Restaurantes, alquiler y servicios profesionales. Puedes deducir hasta 3 UIT.",
+		support: "Restaurantes, alquiler y servicios profesionales. Puedes deducir hasta 3 UIT.",
 		value: true,
 	},
 	{

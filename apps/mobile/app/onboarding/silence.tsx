@@ -10,9 +10,7 @@ export default function SilenceScreen() {
 		<OnboardingShell
 			title={
 				<Text className="text-[40px] font-light leading-[46px] text-konti-ivory">
-					Te escribimos{" "}
-					<Text className="italic text-konti-primary">solo</Text>{" "}
-					si hace falta.
+					Te escribimos <Text className="italic text-konti-primary">solo</Text> si hace falta.
 				</Text>
 			}
 			body="El resto del tiempo, silencio."

@@ -44,9 +44,7 @@ export default function ReadyScreen() {
 					</View>
 
 					<Text className="text-[40px] font-light leading-[46px] text-konti-ivory">
-						Konti ya sabe{" "}
-						<Text className="italic text-konti-primary">cómo trabajas</Text>
-						.
+						Konti ya sabe <Text className="italic text-konti-primary">cómo trabajas</Text>.
 					</Text>
 				</View>
 			}
@@ -58,10 +56,7 @@ export default function ReadyScreen() {
 			<View className="gap-3 rounded-[18px] bg-konti-surface p-5">
 				<Text className="text-base leading-6 text-konti-ivory">• {incomeSummary}</Text>
 				<Text className="text-base leading-6 text-konti-ivory">
-					• Deducibles:{" "}
-					{trackDeductibles
-						? "los seguimos"
-						: "no los seguimos por ahora"}
+					• Deducibles: {trackDeductibles ? "los seguimos" : "no los seguimos por ahora"}
 				</Text>
 			</View>
 

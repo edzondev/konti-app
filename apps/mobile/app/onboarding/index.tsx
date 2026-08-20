@@ -10,9 +10,7 @@ export default function OnboardingScreen() {
 		<OnboardingShell
 			title={
 				<Text className="text-[40px] font-light leading-[46px] text-konti-ivory">
-					Nosotros nos{" "}
-					<Text className="italic text-konti-primary">encargamos</Text>
-					.
+					Nosotros nos <Text className="italic text-konti-primary">encargamos</Text>.
 				</Text>
 			}
 			body="Tú solo guarda tus comprobantes."

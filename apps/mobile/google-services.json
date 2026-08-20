@@ -1,39 +1,39 @@
 {
-  "project_info": {
-    "project_number": "65550562628",
-    "project_id": "konti-app-505317",
-    "storage_bucket": "konti-app-505317.firebasestorage.app"
-  },
-  "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:65550562628:android:840292d2203084f7025311",
-        "android_client_info": {
-          "package_name": "com.konti.app"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "65550562628-ej4r3nf2e76om0kdjs0ihr93u709tkeq.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDe4X7SV13rFvZLUaYk14DkdBmNJg-zXy0"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "65550562628-ej4r3nf2e76om0kdjs0ihr93u709tkeq.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    }
-  ],
-  "configuration_version": "1"
+	"project_info": {
+		"project_number": "65550562628",
+		"project_id": "konti-app-505317",
+		"storage_bucket": "konti-app-505317.firebasestorage.app"
+	},
+	"client": [
+		{
+			"client_info": {
+				"mobilesdk_app_id": "1:65550562628:android:840292d2203084f7025311",
+				"android_client_info": {
+					"package_name": "com.konti.app"
+				}
+			},
+			"oauth_client": [
+				{
+					"client_id": "65550562628-ej4r3nf2e76om0kdjs0ihr93u709tkeq.apps.googleusercontent.com",
+					"client_type": 3
+				}
+			],
+			"api_key": [
+				{
+					"current_key": "AIzaSyDe4X7SV13rFvZLUaYk14DkdBmNJg-zXy0"
+				}
+			],
+			"services": {
+				"appinvite_service": {
+					"other_platform_oauth_client": [
+						{
+							"client_id": "65550562628-ej4r3nf2e76om0kdjs0ihr93u709tkeq.apps.googleusercontent.com",
+							"client_type": 3
+						}
+					]
+				}
+			}
+		}
+	],
+	"configuration_version": "1"
 }

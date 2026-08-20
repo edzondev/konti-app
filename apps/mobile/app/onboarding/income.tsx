@@ -3,10 +3,7 @@ import { Pressable, Text, View } from "react-native";
 
 import { useOnboarding } from "@/features/onboarding/onboarding-context";
 import { OnboardingShell } from "@/features/onboarding/onboarding-shell";
-import {
-	incomeChoicesToMode,
-	type IncomeChoice,
-} from "@/features/tax-profile/income-mode";
+import { incomeChoicesToMode, type IncomeChoice } from "@/features/tax-profile/income-mode";
 
 const incomeOptions: Array<{
 	title: string;

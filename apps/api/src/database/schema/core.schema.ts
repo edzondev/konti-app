@@ -165,10 +165,7 @@ export const documents = pgTable(
 		uniqueIndex("documents_profile_sha256_visible_uidx")
 			.on(table.taxProfileId, table.sha256)
 			.where(sql`${table.deletedAt} IS NULL`),
-		uniqueIndex("documents_profile_idempotency_uidx").on(
-			table.taxProfileId,
-			table.idempotencyKey,
-		),
+		uniqueIndex("documents_profile_idempotency_uidx").on(table.taxProfileId, table.idempotencyKey),
 	],
 );
 

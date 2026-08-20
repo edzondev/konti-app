@@ -7,7 +7,7 @@ describe("document cursor", () => {
 		expect(decodeDocumentCursor(encodeDocumentCursor(position))).toEqual(position);
 	});
 
-	it('rejects an invalid cursor', () => {
+	it("rejects an invalid cursor", () => {
 		expect(() => decodeDocumentCursor("nope")).toThrow();
 	});
 

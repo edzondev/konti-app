@@ -11,6 +11,24 @@ describe("parseDocumentAnnotation", () => {
 		expect(parseDocumentAnnotation({ issuerTaxId: "20100070970" }).issuerTaxId).toBe("20100070970");
 	});
 
+	it("parses semantic fee-receipt fields from the same annotation", () => {
+		expect(
+			parseDocumentAnnotation({
+				paymentDate: "2026-08-20",
+				grossFeeAmount: "2500.00",
+				incomeTaxWithheldAmount: "200.00",
+				netPaidAmount: "2300.00",
+				payerName: "Cliente SAC",
+			}),
+		).toMatchObject({
+			paymentDate: "2026-08-20",
+			grossFeeAmount: "2500.00",
+			incomeTaxWithheldAmount: "200.00",
+			netPaidAmount: "2300.00",
+			payerName: "Cliente SAC",
+		});
+	});
+
 	it("returns null for missing fields", () => {
 		expect(parseDocumentAnnotation("{}")).toEqual({
 			issuerTaxId: null,
@@ -22,6 +40,11 @@ describe("parseDocumentAnnotation", () => {
 			subtotalAmount: null,
 			taxAmount: null,
 			totalAmount: null,
+			paymentDate: null,
+			grossFeeAmount: null,
+			incomeTaxWithheldAmount: null,
+			netPaidAmount: null,
+			payerName: null,
 		});
 	});
 

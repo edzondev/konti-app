@@ -2,11 +2,12 @@ import { Inject, Injectable } from "@nestjs/common";
 import { and, desc, eq, inArray, ne } from "drizzle-orm";
 import { DATABASE } from "../../database/database.constants";
 import type { Database } from "../../database/database.types";
-import { documentProcessingRuns, documents } from "../../database/schema";
+import { attentionItems, documentProcessingRuns, documents } from "../../database/schema";
 import type { DocumentStatus, ProcessingStatus } from "../../database/schema/schema.types";
+import { buildFourthIncomeAttention } from "../tax-income/tax-income-candidate";
 import type { ExtractionDecision, NormalizedExtraction } from "./extraction";
 
-const PIPELINE_VERSION = "extraction-v1";
+const PIPELINE_VERSION = "extraction-v2";
 const LOCKABLE_STATUSES = [
 	"uploaded",
 	"failed",
@@ -48,6 +49,8 @@ export type AcquireProcessLockResult =
 	| { outcome: "acquired"; document: ProcessDocumentRow; run: ProcessRunRow };
 
 export type CompleteProcessRunInput = {
+	taxProfileId: string;
+	createFourthIncomeAttention: boolean;
 	documentId: string;
 	runId: string;
 	documentStatus: "ready" | "needs_review" | "failed";
@@ -256,6 +259,18 @@ export class DocumentProcessingRepository implements DocumentProcessingRepositor
 					providerVersion: input.providerVersion,
 				})
 				.where(eq(documentProcessingRuns.id, input.runId));
+
+			const attention = input.createFourthIncomeAttention
+				? buildFourthIncomeAttention({
+						taxProfileId: input.taxProfileId,
+						documentId: input.documentId,
+						documentType: input.extracted.documentType,
+						currencyCode: input.extracted.currencyCode,
+					})
+				: null;
+			if (attention) {
+				await tx.insert(attentionItems).values(attention).onConflictDoNothing();
+			}
 		});
 	}
 

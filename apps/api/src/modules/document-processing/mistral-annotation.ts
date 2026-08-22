@@ -56,5 +56,10 @@ export function parseDocumentAnnotation(payload: unknown): RawExtraction {
 		subtotalAmount: readStringField(source, "subtotalAmount"),
 		taxAmount: readStringField(source, "taxAmount"),
 		totalAmount: readStringField(source, "totalAmount"),
+		paymentDate: readStringField(source, "paymentDate"),
+		grossFeeAmount: readStringField(source, "grossFeeAmount"),
+		incomeTaxWithheldAmount: readStringField(source, "incomeTaxWithheldAmount"),
+		netPaidAmount: readStringField(source, "netPaidAmount"),
+		payerName: readStringField(source, "payerName"),
 	};
 }

@@ -15,7 +15,7 @@ type ApiRequestOptions = Omit<RequestInit, "body"> & {
 };
 
 export async function apiClient<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
-	const cookies = authClient.getCookie();
+	const cookies = await authClient.getCookie();
 
 	const headers = new Headers(options.headers);
 

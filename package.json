@@ -12,10 +12,10 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.7",
-		"turbo": "^2.10.10",
-		"typescript": "5.9.2"
+		"turbo": "^2.10.11",
+		"typescript": "7.0.2"
 	},
-	"packageManager": "pnpm@11.17.0",
+	"packageManager": "pnpm@11.22.0",
 	"engines": {
 		"node": ">=22"
 	}

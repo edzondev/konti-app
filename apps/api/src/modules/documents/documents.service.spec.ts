@@ -1,5 +1,6 @@
 import { HttpStatus } from "@nestjs/common";
 import type { ObjectStorage } from "../../core/storage/storage.types";
+import type { TaxIncomeService } from "../tax-income/tax-income.service";
 import type { TaxProfileService } from "../tax-profile/tax-profile.service";
 import { encodeDocumentCursor } from "./documents.cursor";
 import { DocumentsService } from "./documents.service";
@@ -69,7 +70,12 @@ function publicDocumentFields(id: string, createdAt: string) {
 	};
 }
 
-function createHarness(options: { requiresOnboarding?: boolean } = {}) {
+function createHarness(
+	options: {
+		requiresOnboarding?: boolean;
+		incomeMode?: "employment" | "independent" | "mixed";
+	} = {},
+) {
 	const rows = new Map<string, StoredDocument>();
 	const repository = {
 		findByIdempotencyKey: jest.fn(async (taxProfileId: string, key: string) =>
@@ -150,8 +156,11 @@ function createHarness(options: { requiresOnboarding?: boolean } = {}) {
 		getCurrentUser: jest.fn().mockResolvedValue({
 			taxYear: 2026,
 			requiresOnboarding: options.requiresOnboarding ?? false,
-			profile: { id: profileId },
+			profile: { id: profileId, incomeMode: options.incomeMode ?? "independent" },
 		}),
+	};
+	const taxIncomeService = {
+		getDocumentCandidateForProfile: jest.fn().mockResolvedValue(null),
 	};
 
 	return {
@@ -159,10 +168,12 @@ function createHarness(options: { requiresOnboarding?: boolean } = {}) {
 			repository,
 			storage as jest.Mocked<ObjectStorage>,
 			taxProfileService as unknown as TaxProfileService,
+			taxIncomeService as unknown as TaxIncomeService,
 		),
 		repository,
 		rows,
 		storage,
+		taxIncomeService,
 	};
 }
 
@@ -484,6 +495,7 @@ describe("DocumentsService", () => {
 			document: publicDocumentFields("visible", "2026-08-19T12:00:00.000Z"),
 			processing: null,
 			attention: null,
+			taxIncomeCandidate: null,
 		});
 		expect(file).toEqual({
 			url: "https://storage.example/original",
@@ -491,6 +503,54 @@ describe("DocumentsService", () => {
 		});
 		expect(JSON.stringify({ detail, file })).not.toContain("objectKey");
 	});
+
+	it("includes a fee-receipt candidate without inferring payment date", async () => {
+		const { service, rows, taxIncomeService } = createHarness();
+		rows.set("rhe", {
+			...visibleDocument("rhe", "2026-08-19T12:00:00.000Z"),
+			status: "ready",
+			documentType: "fee_receipt",
+			currencyCode: "PEN",
+			issueDate: "2026-08-12",
+		});
+		taxIncomeService.getDocumentCandidateForProfile.mockResolvedValueOnce({
+			eligibility: "insufficient_fields",
+			issueDate: "2026-08-12",
+			paymentDate: null,
+			grossAmount: "2500.00",
+			withheldTaxAmount: "200.00",
+			netPaidAmount: "2300.00",
+			payerName: "Cliente SAC",
+			warnings: ["missing_payment_date"],
+		});
+
+		const detail = await service.getOne("user-1", "rhe");
+
+		expect(detail.taxIncomeCandidate).toMatchObject({
+			eligibility: "insufficient_fields",
+			issueDate: "2026-08-12",
+			paymentDate: null,
+			warnings: ["missing_payment_date"],
+		});
+	});
+
+	it.each(["employment", "mixed"] as const)(
+		"does not expose a fourth-income candidate for a %s profile",
+		async (incomeMode) => {
+			const { service, rows, taxIncomeService } = createHarness({ incomeMode });
+			rows.set("rhe", {
+				...visibleDocument("rhe", "2026-08-19T12:00:00.000Z"),
+				status: "ready",
+				documentType: "fee_receipt",
+				currencyCode: "PEN",
+			});
+
+			await expect(service.getOne("user-1", "rhe")).resolves.toMatchObject({
+				taxIncomeCandidate: null,
+			});
+			expect(taxIncomeService.getDocumentCandidateForProfile).not.toHaveBeenCalled();
+		},
+	);
 
 	it("exposes extracted fields and review hints on a needs_review document", async () => {
 		const { service, rows } = createHarness();

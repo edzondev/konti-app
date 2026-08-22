@@ -15,6 +15,11 @@ export class FakeOcrProvider implements OcrProvider {
 				subtotalAmount: null,
 				taxAmount: null,
 				totalAmount: "148.00",
+				paymentDate: null,
+				grossFeeAmount: null,
+				incomeTaxWithheldAmount: null,
+				netPaidAmount: null,
+				payerName: null,
 			},
 			pageConfidence: null,
 			fieldConfidence: {

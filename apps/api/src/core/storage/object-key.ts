@@ -15,5 +15,5 @@ export function buildExtractionRawObjectKey(input: {
 	documentId: string;
 	attemptNumber: number;
 }): string {
-	return `users/${input.userId}/tax/${input.taxYear}/documents/${input.documentId}/extraction-v1-${input.attemptNumber}.json`;
+	return `users/${input.userId}/tax/${input.taxYear}/documents/${input.documentId}/extraction-v2-${input.attemptNumber}.json`;
 }

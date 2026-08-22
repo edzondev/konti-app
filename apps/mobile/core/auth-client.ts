@@ -11,17 +11,16 @@ if (!baseURL) {
 const client = createAuthClient({
 	baseURL,
 	plugins: [
-		// Types of @better-auth/expo lag the BetterAuthClientPlugin interface.
 		expoClient({
 			scheme: "com.konti.app",
 			storagePrefix: "konti",
 			storage: SecureStore,
-		}) as any,
+		}),
 	],
 });
 
 export const authClient = client as typeof client & {
-	getCookie: () => string;
+	getCookie: () => Promise<string>;
 };
 
 export type Session = NonNullable<ReturnType<typeof authClient.useSession>["data"]>;

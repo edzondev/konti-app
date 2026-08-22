@@ -29,6 +29,11 @@ const readyOcrResult: OcrExtractResult = {
 		subtotalAmount: null,
 		taxAmount: null,
 		totalAmount: "148.00",
+		paymentDate: null,
+		grossFeeAmount: null,
+		incomeTaxWithheldAmount: null,
+		netPaidAmount: null,
+		payerName: null,
 	},
 	pageConfidence: null,
 	fieldConfidence: {
@@ -65,9 +70,14 @@ function storedDocument(status: DocumentStatus): ProcessDocumentRow & {
 }
 
 function createHarness(
-	options: { requiresOnboarding?: boolean; extract?: OcrProvider["extract"] } = {},
+	options: {
+		requiresOnboarding?: boolean;
+		incomeMode?: "employment" | "independent" | "mixed";
+		extract?: OcrProvider["extract"];
+	} = {},
 ) {
 	const documents = new Map<string, ReturnType<typeof storedDocument>>();
+	const completedRuns: Array<Parameters<DocumentProcessingRepositoryPort["completeRun"]>[0]> = [];
 	const runs: Array<
 		ProcessRunRow & {
 			normalizedResult: Record<string, unknown>;
@@ -115,7 +125,7 @@ function createHarness(
 				status: "processing" as ProcessingStatus,
 				startedAt: now,
 				provider,
-				pipelineVersion: "extraction-v1",
+				pipelineVersion: "extraction-v2",
 				normalizedResult: {},
 				fieldConfidence: {
 					issuerTaxId: null,
@@ -149,6 +159,7 @@ function createHarness(
 			return { outcome: "acquired", document, run };
 		},
 		async completeRun(input) {
+			completedRuns.push(input);
 			const document = documents.get(input.documentId);
 			const run = runs.find((row) => row.id === input.runId);
 			if (!document || !run) {
@@ -196,7 +207,7 @@ function createHarness(
 		getCurrentUser: jest.fn().mockResolvedValue({
 			taxYear: 2026,
 			requiresOnboarding: options.requiresOnboarding ?? false,
-			profile: { id: profileId },
+			profile: { id: profileId, incomeMode: options.incomeMode ?? "independent" },
 		}),
 	};
 
@@ -210,6 +221,7 @@ function createHarness(
 		),
 		documents,
 		runs,
+		completedRuns,
 		ocr,
 		storage,
 		seed(status: DocumentStatus) {
@@ -260,7 +272,7 @@ describe("DocumentProcessingService", () => {
 		});
 		expect(harness.storage.putObject).toHaveBeenCalledWith(
 			expect.objectContaining({
-				objectKey: `users/${userId}/tax/2026/documents/${documentId}/extraction-v1-1.json`,
+				objectKey: `users/${userId}/tax/2026/documents/${documentId}/extraction-v2-1.json`,
 				mimeType: "application/json",
 			}),
 		);
@@ -272,6 +284,21 @@ describe("DocumentProcessingService", () => {
 		expect(harness.runs[0]?.status).toBe("succeeded");
 		expect(harness.runs[0]?.provider).toBe("fake");
 	});
+
+	it.each(["employment", "mixed"] as const)(
+		"does not request fourth-income attention for a %s profile",
+		async (incomeMode) => {
+			const harness = createHarness({ incomeMode });
+			harness.seed("uploaded");
+
+			await harness.service.process(userId, documentId);
+
+			expect(harness.completedRuns).toHaveLength(1);
+			expect(harness.completedRuns[0]).toMatchObject({
+				createFourthIncomeAttention: false,
+			});
+		},
+	);
 
 	it("returns PROCESS_IN_PROGRESS when a second process races a fresh lock", async () => {
 		let signalExtractStarted: () => void = () => undefined;
@@ -311,7 +338,7 @@ describe("DocumentProcessingService", () => {
 			status: "processing",
 			startedAt: new Date(FIXED_NOW.getTime() - 3 * 60 * 1000),
 			provider: "fake",
-			pipelineVersion: "extraction-v1",
+			pipelineVersion: "extraction-v2",
 			normalizedResult: {},
 			fieldConfidence: {
 				issuerTaxId: null,

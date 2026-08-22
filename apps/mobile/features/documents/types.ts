@@ -43,6 +43,24 @@ export type DocumentDetail = {
 		doubtfulFields: DoubtfulField[];
 	} | null;
 	attention: null;
+	taxIncomeCandidate?: FourthIncomeCandidate | null;
+};
+
+export type FourthIncomeCandidateWarning =
+	| "document_not_ready"
+	| "missing_payment_date"
+	| "missing_gross_amount"
+	| "missing_withholding_amount";
+
+export type FourthIncomeCandidate = {
+	eligibility: "eligible" | "insufficient_fields" | "unsupported_currency" | "already_decided";
+	issueDate: string | null;
+	paymentDate: string | null;
+	grossAmount: string | null;
+	withheldTaxAmount: string | null;
+	netPaidAmount: string | null;
+	payerName: string | null;
+	warnings: FourthIncomeCandidateWarning[];
 };
 
 export type DocumentsPage = {

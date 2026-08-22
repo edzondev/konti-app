@@ -1,0 +1,49 @@
+{
+	"name": "all progressive brackets",
+	"rulesetVersion": "pe-2026.1.0",
+	"input": {
+		"taxYear": 2026,
+		"jurisdictionCode": "PE",
+		"currencyCode": "PEN",
+		"activity": "ordinary_independent_services",
+		"incomes": [
+			{
+				"id": "income-1",
+				"receivedAt": "2026-08-21",
+				"grossAmountPen": "370000.00",
+				"withheldTaxAmountPen": "0.00"
+			}
+		]
+	},
+	"expected": {
+		"status": "calculated",
+		"rulesetVersion": "pe-2026.1.0",
+		"taxYear": 2026,
+		"grossFourthIncome": "370000.00",
+		"automaticDeduction20": "74000.00",
+		"netFourthIncome": "296000.00",
+		"sevenUitDeduction": "38500.00",
+		"preliminaryTaxableWorkIncome": "257500.00",
+		"calculatedTaxBeforeAdditionalDeductions": "41775.00",
+		"registeredWithholdings": "0.00",
+		"differenceAfterRegisteredWithholdings": "41775.00",
+		"includedIncomeCount": 1,
+		"assumptions": [
+			"cash_basis",
+			"ordinary_independent_services_only",
+			"registered_data_only",
+			"pen_only"
+		],
+		"exclusions": [
+			"additional_deduction_3_uit",
+			"monthly_obligations",
+			"advance_payments",
+			"other_credits"
+		]
+	},
+	"sources": [
+		"https://www.gob.pe/7318-calcular-el-impuesto-a-la-renta-calcular-el-impuesto-de-cuarta-categoria",
+		"https://busquedas.elperuano.pe/dispositivo/NL/2469116-1"
+	],
+	"adaptationNote": "Literal expected values are hand-calculated from the published progressive scale using UIT 2026."
+}

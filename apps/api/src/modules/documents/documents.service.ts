@@ -5,6 +5,7 @@ import { buildDocumentObjectKey } from "../../core/storage/object-key";
 import { OBJECT_STORAGE } from "../../core/storage/storage.constants";
 import type { ObjectStorage } from "../../core/storage/storage.types";
 import type { ProcessingStatus } from "../../database/schema/schema.types";
+import { TaxIncomeService } from "../tax-income/tax-income.service";
 import { TaxProfileService } from "../tax-profile/tax-profile.service";
 import { decodeDocumentCursor, encodeDocumentCursor } from "./documents.cursor";
 import { DocumentsRepository } from "./documents.repository";
@@ -42,6 +43,8 @@ export class DocumentsService {
 		private readonly storage: ObjectStorage,
 		@Inject(TaxProfileService)
 		private readonly taxProfileService: TaxProfileService,
+		@Inject(TaxIncomeService)
+		private readonly taxIncomeService: TaxIncomeService,
 	) {}
 
 	async createUpload(userId: string, input: CreateUploadInput): Promise<CreateUploadResult> {
@@ -250,12 +253,25 @@ export class DocumentsService {
 	}
 
 	async getOne(userId: string, documentId: string): Promise<DocumentDetail> {
-		const document = await this.getVisibleOwnedDocument(userId, documentId);
+		const current = await this.getCompleteProfile(userId);
+		const document = await this.getVisibleOwnedDocumentForProfile(
+			userId,
+			current.profile.id,
+			documentId,
+		);
+		const taxIncomeCandidate =
+			current.profile.incomeMode === "independent"
+				? await this.taxIncomeService.getDocumentCandidateForProfile(
+						document.taxProfileId,
+						document.id,
+					)
+				: null;
 
 		return {
 			document: this.toPublicFields(document),
 			processing: this.toProcessing(document),
 			attention: null,
+			taxIncomeCandidate,
 		};
 	}
 
@@ -336,7 +352,15 @@ export class DocumentsService {
 		documentId: string,
 	): Promise<DocumentRecord> {
 		const current = await this.getCompleteProfile(userId);
-		const document = await this.repository.getOwned(current.profile.id, documentId);
+		return this.getVisibleOwnedDocumentForProfile(userId, current.profile.id, documentId);
+	}
+
+	private async getVisibleOwnedDocumentForProfile(
+		userId: string,
+		taxProfileId: string,
+		documentId: string,
+	): Promise<DocumentRecord> {
+		const document = await this.repository.getOwned(taxProfileId, documentId);
 		if (!document || document.status === "pending_upload" || document.deletedAt !== null) {
 			throw this.notFound({ userId, documentId });
 		}

@@ -25,6 +25,11 @@ export const KONTI_RECEIPT_SCHEMA = {
 			subtotalAmount: { type: ["string", "null"] },
 			taxAmount: { type: ["string", "null"] },
 			totalAmount: { type: ["string", "null"] },
+			paymentDate: { type: ["string", "null"] },
+			grossFeeAmount: { type: ["string", "null"] },
+			incomeTaxWithheldAmount: { type: ["string", "null"] },
+			netPaidAmount: { type: ["string", "null"] },
+			payerName: { type: ["string", "null"] },
 		},
 		required: [
 			"issuerTaxId",
@@ -36,6 +41,11 @@ export const KONTI_RECEIPT_SCHEMA = {
 			"subtotalAmount",
 			"taxAmount",
 			"totalAmount",
+			"paymentDate",
+			"grossFeeAmount",
+			"incomeTaxWithheldAmount",
+			"netPaidAmount",
+			"payerName",
 		],
 	},
 };
@@ -67,7 +77,7 @@ export class MistralOcrProvider implements OcrProvider {
 					jsonSchema: KONTI_RECEIPT_SCHEMA,
 				},
 				documentAnnotationPrompt:
-					"Extrae datos de un comprobante peruano (boleta, factura o recibo). No inventes campos.",
+					"Extrae datos de un comprobante peruano. Para recibos por honorarios separa fecha de emisión y fecha de pago, honorario bruto, retención del Impuesto a la Renta, neto pagado y pagador. No copies la fecha de emisión como fecha de pago y no uses impuestos genéricos como retención. Devuelve null cuando el dato no aparezca; no inventes campos.",
 				includeImageBase64: false,
 				includeBlocks: false,
 			},

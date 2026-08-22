@@ -86,11 +86,12 @@ function Layout() {
 	}
 
 	const requiresOnboarding = taxProfileQuery.data?.requiresOnboarding ?? true;
+	const supportsFourthCategory = taxProfileQuery.data?.profile?.incomeMode === "independent";
 
 	return (
 		<Stack screenOptions={{ headerShown: false }}>
 			<Stack.Protected guard={!session}>
-				<Stack.Screen name="sign-in" />
+				<Stack.Screen name="(auth)/sign-in" />
 			</Stack.Protected>
 
 			<Stack.Protected guard={Boolean(session) && requiresOnboarding}>
@@ -100,6 +101,20 @@ function Layout() {
 			<Stack.Protected guard={Boolean(session) && !requiresOnboarding}>
 				<Stack.Screen name="(tabs)" />
 				<Stack.Screen name="document/[id]" />
+			</Stack.Protected>
+
+			<Stack.Protected guard={Boolean(session) && !requiresOnboarding && supportsFourthCategory}>
+				<Stack.Screen name="tax-income" />
+				<Stack.Screen name="tax-status" />
+				<Stack.Screen
+					name="tax-income-form"
+					options={{
+						presentation: "formSheet",
+						sheetAllowedDetents: [0.9, 1],
+						sheetGrabberVisible: true,
+						headerShown: false,
+					}}
+				/>
 			</Stack.Protected>
 		</Stack>
 	);

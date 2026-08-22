@@ -70,6 +70,8 @@ export class DocumentProcessingService {
 
 		await this.extractAndPersist({
 			userId,
+			taxProfileId: current.profile.id,
+			createFourthIncomeAttention: current.profile.incomeMode === "independent",
 			taxYear: current.taxYear,
 			documentId: lock.document.id,
 			objectKey: lock.document.objectKey,
@@ -80,6 +82,8 @@ export class DocumentProcessingService {
 
 	private async extractAndPersist(input: {
 		userId: string;
+		taxProfileId: string;
+		createFourthIncomeAttention: boolean;
 		taxYear: number;
 		documentId: string;
 		objectKey: string;
@@ -113,6 +117,8 @@ export class DocumentProcessingService {
 			});
 
 			await this.repository.completeRun({
+				taxProfileId: input.taxProfileId,
+				createFourthIncomeAttention: input.createFourthIncomeAttention,
 				documentId: input.documentId,
 				runId: input.run.id,
 				documentStatus: decision.status,

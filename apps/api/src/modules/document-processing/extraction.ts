@@ -11,6 +11,11 @@ export type RawExtraction = {
 	subtotalAmount: string | null;
 	taxAmount: string | null;
 	totalAmount: string | null;
+	paymentDate: string | null;
+	grossFeeAmount: string | null;
+	incomeTaxWithheldAmount: string | null;
+	netPaidAmount: string | null;
+	payerName: string | null;
 };
 
 export type NormalizedExtraction = {
@@ -23,6 +28,11 @@ export type NormalizedExtraction = {
 	subtotalAmount: string | null;
 	taxAmount: string | null;
 	totalAmount: string | null;
+	paymentDate: string | null;
+	grossFeeAmount: string | null;
+	incomeTaxWithheldAmount: string | null;
+	netPaidAmount: string | null;
+	payerName: string | null;
 };
 
 export type DoubtfulField = "issuerTaxId" | "issueDate" | "totalAmount" | "documentType";
@@ -135,6 +145,11 @@ export function normalizeExtraction(raw: RawExtraction): NormalizedExtraction {
 		subtotalAmount: trimOrNull(raw.subtotalAmount),
 		taxAmount: trimOrNull(raw.taxAmount),
 		totalAmount: trimOrNull(raw.totalAmount),
+		paymentDate: parseIssueDate(raw.paymentDate),
+		grossFeeAmount: trimOrNull(raw.grossFeeAmount),
+		incomeTaxWithheldAmount: trimOrNull(raw.incomeTaxWithheldAmount),
+		netPaidAmount: trimOrNull(raw.netPaidAmount),
+		payerName: trimOrNull(raw.payerName),
 	};
 }
 

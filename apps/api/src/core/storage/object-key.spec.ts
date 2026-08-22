@@ -33,6 +33,6 @@ describe("buildExtractionRawObjectKey", () => {
 				documentId: "doc-1",
 				attemptNumber: 2,
 			}),
-		).toBe("users/user-1/tax/2026/documents/doc-1/extraction-v1-2.json");
+		).toBe("users/user-1/tax/2026/documents/doc-1/extraction-v2-2.json");
 	});
 });

@@ -3,6 +3,7 @@ import type {
 	DocumentType,
 	ProcessingStatus,
 } from "../../database/schema/schema.types";
+import type { FourthIncomeCandidate } from "../tax-income/tax-income-candidate";
 
 export type DocumentUploadStatus = Extract<DocumentStatus, "pending_upload" | "uploaded">;
 
@@ -65,6 +66,7 @@ export type DocumentDetail = {
 	document: Omit<DocumentListItem, "previewUrl" | "previewExpiresAt">;
 	processing: DocumentProcessingView | null;
 	attention: null;
+	taxIncomeCandidate: FourthIncomeCandidate | null;
 };
 
 export interface DocumentsRepositoryPort {

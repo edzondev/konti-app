@@ -10,6 +10,11 @@ const raw = {
 	subtotalAmount: "125.42",
 	taxAmount: "22.58",
 	totalAmount: "148.00",
+	paymentDate: "20/08/2026",
+	grossFeeAmount: "2500.00",
+	incomeTaxWithheldAmount: "200.00",
+	netPaidAmount: "2300.00",
+	payerName: "  Cliente SAC  ",
 };
 
 describe("normalizeExtraction", () => {
@@ -38,6 +43,33 @@ describe("normalizeExtraction", () => {
 
 	it("clears invalid RUC", () => {
 		expect(normalizeExtraction({ ...raw, issuerTaxId: "20100070971" }).issuerTaxId).toBeNull();
+	});
+
+	it("keeps fee-receipt payment semantics separate from generic tax", () => {
+		const normalized = normalizeExtraction({
+			...raw,
+			documentType: "recibo_por_honorarios",
+			taxAmount: "450.00",
+			incomeTaxWithheldAmount: null,
+		});
+
+		expect(normalized).toMatchObject({
+			documentType: "fee_receipt",
+			issueDate: "2026-08-12",
+			paymentDate: "2026-08-20",
+			grossFeeAmount: "2500.00",
+			incomeTaxWithheldAmount: null,
+			netPaidAmount: "2300.00",
+			payerName: "Cliente SAC",
+			taxAmount: "450.00",
+		});
+	});
+
+	it("does not infer payment date from issue date", () => {
+		const normalized = normalizeExtraction({ ...raw, paymentDate: null });
+
+		expect(normalized.issueDate).toBe("2026-08-12");
+		expect(normalized.paymentDate).toBeNull();
 	});
 });
 
@@ -77,6 +109,11 @@ describe("validateExtraction", () => {
 			subtotalAmount: null,
 			taxAmount: null,
 			totalAmount: null,
+			paymentDate: null,
+			grossFeeAmount: null,
+			incomeTaxWithheldAmount: null,
+			netPaidAmount: null,
+			payerName: null,
 		};
 		expect(validateExtraction(normalizeExtraction(empty)).status).toBe("failed");
 	});

@@ -1,0 +1,42 @@
+{
+	"name": "no registered income",
+	"rulesetVersion": "pe-2026.1.0",
+	"input": {
+		"taxYear": 2026,
+		"jurisdictionCode": "PE",
+		"currencyCode": "PEN",
+		"activity": "ordinary_independent_services",
+		"incomes": []
+	},
+	"expected": {
+		"status": "insufficient_data",
+		"rulesetVersion": "pe-2026.1.0",
+		"taxYear": 2026,
+		"grossFourthIncome": "0.00",
+		"automaticDeduction20": "0.00",
+		"netFourthIncome": "0.00",
+		"sevenUitDeduction": "0.00",
+		"preliminaryTaxableWorkIncome": "0.00",
+		"calculatedTaxBeforeAdditionalDeductions": "0.00",
+		"registeredWithholdings": "0.00",
+		"differenceAfterRegisteredWithholdings": "0.00",
+		"includedIncomeCount": 0,
+		"assumptions": [
+			"cash_basis",
+			"ordinary_independent_services_only",
+			"registered_data_only",
+			"pen_only"
+		],
+		"exclusions": [
+			"additional_deduction_3_uit",
+			"monthly_obligations",
+			"advance_payments",
+			"other_credits"
+		]
+	},
+	"sources": [
+		"https://www.gob.pe/7318-calcular-el-impuesto-a-la-renta-calcular-el-impuesto-de-cuarta-categoria",
+		"https://busquedas.elperuano.pe/dispositivo/NL/2469116-1"
+	],
+	"adaptationNote": "Konti does not extrapolate missing months and reports an empty stable estimate."
+}

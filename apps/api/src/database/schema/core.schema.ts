@@ -186,6 +186,8 @@ export const taxIncomeRecords = pgTable(
 
 		source: text("source").$type<TaxIncomeSource>().notNull(),
 
+		idempotencyKey: text("idempotency_key"),
+
 		receivedAt: date("received_at", { mode: "string" }).notNull(),
 
 		grossAmount: numeric("gross_amount", {
@@ -236,6 +238,12 @@ export const taxIncomeRecords = pgTable(
 		index("tax_income_records_profile_received_idx").on(table.taxProfileId, table.receivedAt),
 		index("tax_income_records_document_idx").on(table.sourceDocumentId),
 		index("tax_income_records_profile_status_idx").on(table.taxProfileId, table.status),
+		uniqueIndex("tax_income_records_profile_idempotency_uidx")
+			.on(table.taxProfileId, table.idempotencyKey)
+			.where(sql`${table.idempotencyKey} IS NOT NULL`),
+		uniqueIndex("tax_income_records_active_source_document_uidx")
+			.on(table.sourceDocumentId)
+			.where(sql`${table.sourceDocumentId} IS NOT NULL AND ${table.deletedAt} IS NULL`),
 	],
 );
 

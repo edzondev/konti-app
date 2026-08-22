@@ -1,4 +1,4 @@
-import { digest, CryptoDigestAlgorithm } from "expo-crypto";
+import { CryptoDigestAlgorithm, digest } from "expo-crypto";
 import { File } from "expo-file-system";
 
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024;

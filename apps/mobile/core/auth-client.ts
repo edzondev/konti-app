@@ -1,6 +1,7 @@
 import { expoClient } from "@better-auth/expo/client";
 import { createAuthClient } from "better-auth/react";
 import * as SecureStore from "expo-secure-store";
+import { AUTH_APP_SCHEME } from "./auth.constants";
 
 const baseURL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -12,7 +13,7 @@ const client = createAuthClient({
 	baseURL,
 	plugins: [
 		expoClient({
-			scheme: "com.konti.app",
+			scheme: AUTH_APP_SCHEME,
 			storagePrefix: "konti",
 			storage: SecureStore,
 		}),

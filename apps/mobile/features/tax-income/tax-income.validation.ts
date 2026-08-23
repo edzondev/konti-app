@@ -2,6 +2,10 @@ import { z } from "zod";
 
 import { compareMoney, normalizeMoney } from "./money";
 
+export const fourthActivityTypes = ["fourth_ordinary", "fourth_special"] as const;
+export type FourthActivityType = (typeof fourthActivityTypes)[number];
+export type FourthActivitySelection = FourthActivityType | "unsure";
+
 function todayInLima(now: Date): string {
 	const parts = new Intl.DateTimeFormat("en-US", {
 		timeZone: "America/Lima",
@@ -60,6 +64,14 @@ const optionalText = (maxLength: number) =>
 export function createTaxIncomeFormSchema(now = new Date()) {
 	return z
 		.object({
+			activityType: z
+				.union([z.enum(fourthActivityTypes), z.literal("unsure"), z.literal("")])
+				.refine(
+					(value) => value !== "unsure",
+					"Puedes dejarlo pendiente, pero no lo incluiremos sin confirmar la actividad.",
+				)
+				.refine((value) => value !== "", "Elige qué tipo de trabajo realizaste.")
+				.transform((value) => value as FourthActivityType),
 			receivedAt: paymentDateSchema(now),
 			grossAmount: moneySchema({ positive: true }),
 			withheldTaxAmount: moneySchema({ positive: false }),

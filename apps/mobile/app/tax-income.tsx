@@ -1,21 +1,72 @@
 import { FlashList } from "@shopify/flash-list";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { type Href, useRouter } from "expo-router";
-import { Pressable, RefreshControl, Text, View } from "react-native";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { type Href, useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { Alert, Pressable, RefreshControl, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { authClient } from "@/core/auth-client";
+import { triggerHaptic } from "@/core/haptics";
 import { TaxIncomeRow } from "@/features/tax-income/components/tax-income-row";
 import { formatPen } from "@/features/tax-income/money";
-import { taxIncomeListQueryOptions } from "@/features/tax-income/tax-income.queries";
+import {
+	taxIncomeDetailQueryOptions,
+	taxIncomeListQueryOptions,
+} from "@/features/tax-income/tax-income.queries";
+import { recordsWithFocusedIncome } from "@/features/tax-income/tax-income-focus";
+import {
+	initialTaxIncomeFilter,
+	taxIncomeSummaryForFilter,
+} from "@/features/tax-income/tax-income-summary";
+import type { TaxIncomeFilter } from "@/features/tax-income/types";
+
+const FILTERS = [
+	{ value: "all", label: "Todos" },
+	{ value: "employment", label: "Planilla" },
+	{ value: "fourth", label: "Honorarios" },
+] as const satisfies readonly { value: TaxIncomeFilter; label: string }[];
 
 export default function TaxIncomeScreen() {
 	const insets = useSafeAreaInsets();
 	const router = useRouter();
+	const params = useLocalSearchParams<{ type?: string; focus?: string }>();
+	const [filter, setFilter] = useState<TaxIncomeFilter>(() => initialTaxIncomeFilter(params.type));
 	const { data: session } = authClient.useSession();
-	const query = useInfiniteQuery(taxIncomeListQueryOptions(session?.user.id ?? "", 2026));
-	const records = query.data?.pages.flatMap((page) => page.items) ?? [];
-	const summary = query.data?.pages[0]?.summary;
+	const userId = session?.user.id ?? "";
+	const focusId = params.focus ?? "";
+	const query = useInfiniteQuery(taxIncomeListQueryOptions(userId, 2026, filter));
+	const focusedQuery = useQuery(taxIncomeDetailQueryOptions(userId, focusId));
+	const loadedRecords = query.data?.pages.flatMap((page) => page.items) ?? [];
+	const records = recordsWithFocusedIncome(
+		loadedRecords,
+		focusedQuery.data,
+		focusId || undefined,
+		filter,
+	);
+	const pendingCount = records.filter((record) => record.status === "pending_sync").length;
+	const rawSummary = query.data?.pages[0]?.summary;
+	const summary = rawSummary ? taxIncomeSummaryForFilter(rawSummary, filter) : undefined;
+	useEffect(() => {
+		setFilter(initialTaxIncomeFilter(params.type));
+	}, [params.type]);
+	const addIncome = () => {
+		if (filter === "employment") {
+			router.push("/tax-income-form?incomeType=employment" as Href);
+			return;
+		}
+		if (filter === "fourth") {
+			router.push("/tax-income-form" as Href);
+			return;
+		}
+		Alert.alert("Agregar ingreso", "¿Qué tipo de ingreso quieres registrar?", [
+			{
+				text: "Planilla",
+				onPress: () => router.push("/tax-income-form?incomeType=employment" as Href),
+			},
+			{ text: "Honorarios", onPress: () => router.push("/tax-income-form" as Href) },
+			{ text: "Cancelar", style: "cancel" },
+		]);
+	};
 
 	return (
 		<View className="flex-1 bg-konti-bg px-5" style={{ paddingTop: insets.top + 12 }}>
@@ -41,25 +92,49 @@ export default function TaxIncomeScreen() {
 			<View className="mb-4 mt-5 flex-row items-end justify-between gap-5">
 				<View className="flex-1">
 					<Text className="font-mono text-[10px] tracking-[2px] text-konti-primary">
-						CUARTA 2026
+						RENTAS DEL TRABAJO 2026
 					</Text>
 					<Text className="mt-2 text-[32px] font-light tracking-tight text-konti-ivory">
 						Ingresos
 					</Text>
 					<Text className="mt-2 text-[13px] text-konti-ivory/40">
 						{summary
-							? `${summary.count} registrados · ${formatPen(summary.grossAmount)}`
-							: "Lo que efectivamente cobraste"}
+							? `${summary.count} registrados · ${formatPen(summary.grossAmount)}${pendingCount > 0 ? ` · ${pendingCount} guardando` : ""}`
+							: "Honorarios y planilla con tus datos registrados"}
 					</Text>
 				</View>
 				<Pressable
 					accessibilityLabel="Agregar ingreso"
 					accessibilityRole="button"
 					className="min-h-12 items-center justify-center rounded-full bg-konti-ivory px-5"
-					onPress={() => router.push("/tax-income-form" as Href)}
+					onPress={addIncome}
 				>
 					<Text className="text-[14px] font-semibold text-konti-bg">Agregar</Text>
 				</Pressable>
+			</View>
+
+			<View className="mb-4 flex-row rounded-2xl border border-konti-ivory/10 bg-konti-surface p-1">
+				{FILTERS.map((option) => {
+					const selected = filter === option.value;
+					return (
+						<Pressable
+							accessibilityRole="radio"
+							accessibilityState={{ checked: selected }}
+							className={`min-h-11 flex-1 items-center justify-center rounded-xl ${selected ? "bg-konti-ivory" : "bg-transparent"}`}
+							key={option.value}
+							onPress={() => {
+								setFilter(option.value);
+								void triggerHaptic("selection");
+							}}
+						>
+							<Text
+								className={`text-[13px] font-medium ${selected ? "text-konti-bg" : "text-konti-ivory/50"}`}
+							>
+								{option.label}
+							</Text>
+						</Pressable>
+					);
+				})}
 			</View>
 
 			{query.isError ? (
@@ -72,7 +147,7 @@ export default function TaxIncomeScreen() {
 						query.isPending ? (
 							<ScreenMessage message="Cargando ingresos…" />
 						) : (
-							<ScreenMessage message="Aún no registraste ingresos de cuarta en 2026." />
+							<ScreenMessage message={emptyMessage(filter)} />
 						)
 					}
 					onEndReached={() => {
@@ -88,9 +163,12 @@ export default function TaxIncomeScreen() {
 					}
 					renderItem={({ item }) => (
 						<TaxIncomeRow
+							focused={item.id === params.focus}
 							record={item}
-							onPress={() =>
-								router.push(`/tax-income-form?id=${encodeURIComponent(item.id)}` as Href)
+							onPress={
+								item.status === "pending_sync"
+									? undefined
+									: () => router.push(`/tax-income-form?id=${encodeURIComponent(item.id)}` as Href)
 							}
 						/>
 					)}
@@ -99,6 +177,12 @@ export default function TaxIncomeScreen() {
 			)}
 		</View>
 	);
+}
+
+function emptyMessage(filter: TaxIncomeFilter): string {
+	if (filter === "employment") return "Aún no registraste ingresos de planilla en 2026.";
+	if (filter === "fourth") return "Aún no registraste ingresos por honorarios en 2026.";
+	return "Aún no registraste ingresos en 2026.";
 }
 
 function ScreenMessage({ message }: { message: string }) {

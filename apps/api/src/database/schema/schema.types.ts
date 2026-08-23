@@ -2,11 +2,42 @@ export type TaxProfileStatus = "draft" | "complete" | "needs_review";
 
 export type IncomeMode = "employment" | "independent" | "mixed";
 
-export type TaxIncomeType = "employment" | "independent_services";
+export type TaxIncomeType = "fourth_ordinary" | "fourth_special" | "employment";
+
+export type ActivityClassificationSource = "manual_confirmation" | "migrated_default" | "document";
 
 export type TaxIncomeSource = "manual" | "document" | "import" | "integration";
 
 export type TaxIncomeRecordStatus = "pending" | "confirmed";
+
+export type TaxIncomeRecordKind = "payment" | "period" | "year_to_date_snapshot";
+
+export type CoverageScope = "single_payer" | "all_employers";
+
+export type CalculationDisposition = "included" | "excluded_by_coverage" | "needs_resolution";
+
+export type TaxDeductionCategory =
+	| "restaurants_hotels"
+	| "medical_dental_services"
+	| "other_fourth_services"
+	| "rent"
+	| "household_worker_essalud";
+
+export type DeductionVerificationStatus =
+	| "unknown"
+	| "user_confirmed"
+	| "evidence_attached"
+	| "system_verified";
+
+export type DeductionCalculationStatus = "excluded" | "potential" | "included";
+export type TaxDeductionSource = "manual" | "document" | "integration";
+
+export type MonthlyFourthCoverage = "complete" | "partial" | "unknown";
+export type MonthlyFourthActivityClassification = "ordinary" | "special" | "unknown";
+export type MonthlyFactState = "yes" | "no" | "unknown";
+export type TaxFactVerificationScope = "user_provided" | "evidence_attached" | "system_verified";
+export type TaxPeriodFactSource = "manual" | "document" | "integration";
+export type SuspensionRestartState = "not_required" | "required" | "unknown";
 
 export type DocumentType =
 	| "unknown"

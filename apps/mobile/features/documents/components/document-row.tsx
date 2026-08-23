@@ -1,8 +1,9 @@
-import { Image } from "expo-image";
 import { memo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import { NitroImage } from "react-native-nitro-image";
 import Animated from "react-native-reanimated";
 
+import { remoteDocumentImageSource } from "../document-image-source";
 import { listAmount, listSubtitle, listTitle } from "../document-list-copy";
 import type { DocumentListItem, ListSubtitleTone } from "../types";
 
@@ -49,11 +50,11 @@ export const DocumentRow = memo(function DocumentRow({ document, onPress }: Docu
 					transitionTimingFunction: "linear",
 				}}
 			>
-				<Image
+				<NitroImage
 					accessibilityLabel={`Vista previa del comprobante de ${title}`}
-					cachePolicy="memory"
-					contentFit="cover"
-					source={document.previewUrl}
+					image={remoteDocumentImageSource(document.previewUrl, document.id, "low")}
+					recyclingKey={document.id}
+					resizeMode="cover"
 					style={{ height: 64, width: 64, borderRadius: 12 }}
 				/>
 

@@ -2,18 +2,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { randomUUID } from "expo-crypto";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Controller, FormProvider, useForm, useFormContext } from "react-hook-form";
-import {
-	Alert,
-	KeyboardAvoidingView,
-	Platform,
-	Pressable,
-	ScrollView,
-	Text,
-	TextInput,
-	View,
-} from "react-native";
+import { Controller, FormProvider, useForm, useFormContext, useWatch } from "react-hook-form";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import { KeyboardAwareScrollView, KeyboardStickyView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { withUniwind } from "uniwind";
+
+import { triggerHaptic } from "@/core/haptics";
 
 import {
 	useCreateTaxIncome,
@@ -26,7 +21,6 @@ import {
 	type TaxIncomeFormInput,
 	type TaxIncomeFormValues,
 } from "../tax-income.validation";
-import { taxIncomeFormPendingState } from "../tax-income-form.helpers";
 import { ControlledDateField } from "./controlled-date-field";
 
 type TaxIncomeFormProps = {
@@ -35,7 +29,30 @@ type TaxIncomeFormProps = {
 	recordId?: string;
 	documentId?: string;
 	issueDate?: string | null;
+	dueDate?: string | null;
+	documentReportedPaymentDate?: string | null;
 };
+
+const KEYBOARD_STICKY_OFFSET = { closed: 0, opened: -8 } as const;
+const UniKeyboardAwareScrollView = withUniwind(KeyboardAwareScrollView);
+const ACTIVITY_OPTIONS = [
+	{
+		value: "fourth_ordinary",
+		label: "Un trabajo o servicio",
+		description: "Por ejemplo, consultoría, diseño, un oficio u otro servicio independiente.",
+	},
+	{
+		value: "fourth_special",
+		label: "Un cargo especial",
+		description: "Director de empresa, síndico, mandatario, gestor de negocios o albacea.",
+	},
+	{
+		value: "unsure",
+		label: "No estoy seguro",
+		description:
+			"No elegiremos la categoría más favorable ni incluiremos el ingreso hasta que lo confirmes.",
+	},
+] as const;
 
 export function TaxIncomeForm({
 	userId,
@@ -43,12 +60,13 @@ export function TaxIncomeForm({
 	recordId,
 	documentId,
 	issueDate,
+	dueDate,
+	documentReportedPaymentDate,
 }: TaxIncomeFormProps) {
 	const insets = useSafeAreaInsets();
 	const router = useRouter();
 	const [schema] = useState(() => createTaxIncomeFormSchema());
 	const [idempotencyKey] = useState(() => randomUUID());
-	const [submitError, setSubmitError] = useState<string | null>(null);
 	const methods = useForm<TaxIncomeFormInput, unknown, TaxIncomeFormValues>({
 		resolver: zodResolver(schema),
 		defaultValues: initialValues,
@@ -58,54 +76,45 @@ export function TaxIncomeForm({
 	const updateMutation = useUpdateTaxIncome(userId, recordId ?? "");
 	const deleteMutation = useDeleteTaxIncome(userId);
 	const documentDecisionMutation = useDecideDocumentIncome(userId);
-	const { isAnyPending, isDeleting, isSaving } = taxIncomeFormPendingState({
-		isCreatePending: createMutation.isPending,
-		isUpdatePending: updateMutation.isPending,
-		isDeletePending: deleteMutation.isPending,
-		isDocumentDecisionPending: documentDecisionMutation.isPending,
-	});
+	const selectedActivity = useWatch({ control: methods.control, name: "activityType" });
 
-	const submit = methods.handleSubmit(async (values) => {
-		setSubmitError(null);
-		try {
-			if (recordId) {
-				await updateMutation.mutateAsync(values);
-			} else if (documentId) {
-				await documentDecisionMutation.mutateAsync({
-					...values,
-					documentId,
-					decision: "confirmed",
-				});
-			} else {
-				await createMutation.mutateAsync({ ...values, idempotencyKey });
-			}
-			router.back();
-		} catch (error) {
-			setSubmitError(
-				error instanceof Error
-					? error.message
-					: "No pudimos guardar el ingreso. Inténtalo nuevamente.",
-			);
+	const submit = methods.handleSubmit((values) => {
+		if (!recordId && !documentId) {
+			createMutation.mutate({ ...values, idempotencyKey });
+		} else if (recordId) {
+			updateMutation.mutate(values);
+		} else if (documentId) {
+			documentDecisionMutation.mutate({
+				...values,
+				documentId,
+				decision: "paid",
+			});
 		}
+		router.back();
 	});
+	const leaveActivityPending = () => {
+		if (!documentId) {
+			methods.setError("activityType", {
+				type: "manual",
+				message:
+					"Para un ingreso manual, conserva este formulario y confirma la actividad antes de registrarlo.",
+			});
+			return;
+		}
+		documentDecisionMutation.mutate({ documentId, decision: "activity_unsure" });
+		router.back();
+	};
 
 	const confirmDelete = () => {
-		if (!recordId || isAnyPending) return;
+		if (!recordId) return;
 		Alert.alert("Eliminar ingreso", "La estimación se actualizará sin este ingreso.", [
 			{ text: "Cancelar", style: "cancel" },
 			{
 				text: "Eliminar",
 				style: "destructive",
 				onPress: () => {
-					setSubmitError(null);
-					void deleteMutation
-						.mutateAsync(recordId)
-						.then(() => router.back())
-						.catch((error: unknown) => {
-							setSubmitError(
-								error instanceof Error ? error.message : "No pudimos eliminar el ingreso.",
-							);
-						});
+					deleteMutation.mutate(recordId);
+					router.back();
 				},
 			},
 		]);
@@ -113,10 +122,7 @@ export function TaxIncomeForm({
 
 	return (
 		<FormProvider {...methods}>
-			<KeyboardAvoidingView
-				behavior={Platform.OS === "ios" ? "padding" : undefined}
-				className="flex-1 bg-konti-bg"
-			>
+			<View className="flex-1 bg-konti-bg">
 				<View className="flex-row items-center justify-between px-5 pt-4">
 					<Pressable
 						accessibilityRole="button"
@@ -131,8 +137,10 @@ export function TaxIncomeForm({
 					</Text>
 				</View>
 
-				<ScrollView
-					contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 16) + 28 }}
+				<UniKeyboardAwareScrollView
+					bottomOffset={96}
+					contentContainerClassName="pb-7"
+					keyboardDismissMode="interactive"
 					keyboardShouldPersistTaps="handled"
 					showsVerticalScrollIndicator={false}
 				>
@@ -152,11 +160,20 @@ export function TaxIncomeForm({
 							</Text>
 							{documentId && issueDate ? (
 								<Text className="text-[14px] leading-6 text-konti-ivory/45">
-									Fecha de emisión del RHE: {issueDate}. La fecha de cobro se registra por separado.
+									Emitido el {issueDate}
+									{dueDate ? ` y con vencimiento el ${dueDate}` : ""}. La fecha de cobro se confirma
+									por separado.
+								</Text>
+							) : null}
+							{documentId && documentReportedPaymentDate ? (
+								<Text className="text-[13px] leading-5 text-konti-primary/80">
+									El documento indica {documentReportedPaymentDate}, pero no la usaremos sin tu
+									confirmación.
 								</Text>
 							) : null}
 						</View>
 
+						<ControlledActivityField />
 						<ControlledDateField />
 						<ControlledTextField
 							label="Importe bruto"
@@ -185,43 +202,100 @@ export function TaxIncomeForm({
 							placeholder="Algo que quieras recordar"
 						/>
 
-						{submitError ? (
-							<Text accessibilityRole="alert" className="text-[13px] leading-5 text-konti-primary">
-								{submitError}
-							</Text>
+						{recordId ? (
+							<Pressable
+								accessibilityRole="button"
+								className="min-h-12 items-center justify-center"
+								onPress={confirmDelete}
+							>
+								<Text className="text-[14px] text-konti-primary">Eliminar ingreso</Text>
+							</Pressable>
 						) : null}
+					</View>
+				</UniKeyboardAwareScrollView>
 
+				<KeyboardStickyView offset={KEYBOARD_STICKY_OFFSET}>
+					<View
+						className="border-t border-konti-ivory/10 bg-konti-bg px-5 pt-3"
+						style={{ paddingBottom: Math.max(insets.bottom, 16) }}
+					>
 						<Pressable
 							accessibilityRole="button"
-							className={`min-h-14 items-center justify-center rounded-[18px] px-6 ${isAnyPending ? "bg-konti-ivory/35" : "bg-konti-ivory"}`}
-							disabled={isAnyPending}
-							onPress={() => void submit()}
+							className="min-h-14 items-center justify-center rounded-[18px] bg-konti-ivory px-6"
+							onPress={() => {
+								if (selectedActivity === "unsure") {
+									leaveActivityPending();
+									return;
+								}
+								void submit();
+							}}
 						>
 							<Text className="text-[16px] font-semibold text-konti-bg">
-								{isSaving
-									? "Guardando…"
+								{selectedActivity === "unsure"
+									? documentId
+										? "Dejar para revisar"
+										: "Continuar sin clasificar"
 									: documentId
 										? "Registrar como ingreso mío"
 										: "Guardar ingreso"}
 							</Text>
 						</Pressable>
+					</View>
+				</KeyboardStickyView>
+			</View>
+		</FormProvider>
+	);
+}
 
-						{recordId ? (
+function ControlledActivityField() {
+	const { clearErrors, control } = useFormContext<
+		TaxIncomeFormInput,
+		unknown,
+		TaxIncomeFormValues
+	>();
+
+	return (
+		<Controller
+			control={control}
+			name="activityType"
+			render={({ field, fieldState }) => (
+				<View className="gap-2" accessibilityRole="radiogroup">
+					<Text className="text-[13px] font-medium text-konti-ivory/60">
+						¿Qué tipo de actividad generó este ingreso?
+					</Text>
+					<Text className="mb-1 text-[12px] leading-5 text-konti-ivory/40">
+						Esto define si corresponde la deducción automática del 20%.
+					</Text>
+					{ACTIVITY_OPTIONS.map((option) => {
+						const selected = field.value === option.value;
+						return (
 							<Pressable
-								accessibilityRole="button"
-								className="min-h-12 items-center justify-center"
-								disabled={isAnyPending}
-								onPress={confirmDelete}
+								accessibilityRole="radio"
+								accessibilityState={{ checked: selected }}
+								className={`min-h-18 rounded-2xl border px-4 py-3 ${selected ? "border-konti-primary bg-konti-primary/10" : "border-konti-ivory/10 bg-konti-surface"}`}
+								key={option.value}
+								onBlur={field.onBlur}
+								onPress={() => {
+									clearErrors("activityType");
+									field.onChange(option.value);
+									void triggerHaptic("selection");
+								}}
 							>
-								<Text className="text-[14px] text-konti-primary">
-									{isDeleting ? "Eliminando…" : "Eliminar ingreso"}
+								<Text className="text-[14px] font-medium text-konti-ivory">{option.label}</Text>
+								<Text className="mt-1 text-[12px] leading-5 text-konti-ivory/45">
+									{option.description}
 								</Text>
 							</Pressable>
-						) : null}
-					</View>
-				</ScrollView>
-			</KeyboardAvoidingView>
-		</FormProvider>
+						);
+					})}
+					{fieldState.error ? (
+						<Text accessibilityRole="alert" className="text-[12px] text-konti-primary">
+							{fieldState.error.message}
+						</Text>
+					) : null}
+				</View>
+			)}
+		/>
 	);
 }
 

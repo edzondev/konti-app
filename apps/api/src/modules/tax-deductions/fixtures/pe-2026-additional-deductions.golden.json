@@ -1,0 +1,99 @@
+{
+	"input": [
+		{
+			"id": "restaurant",
+			"category": "restaurants_hotels",
+			"paidAt": "2026-01-10",
+			"grossAmountPen": "100.00",
+			"verificationStatus": "user_confirmed",
+			"calculationStatus": "included",
+			"requirements": [
+				{ "code": "accepted_document", "status": "met" },
+				{ "code": "consumer_identity_correct", "status": "met" },
+				{ "code": "payment_recorded", "status": "met" },
+				{ "code": "compatible_economic_activity", "status": "met" },
+				{ "code": "issuer_active_and_habido", "status": "met" },
+				{ "code": "issued_in_tax_year", "status": "met" },
+				{ "code": "banking_evidence_when_required", "status": "met" }
+			]
+		},
+		{
+			"id": "medical",
+			"category": "medical_dental_services",
+			"paidAt": "2026-02-10",
+			"grossAmountPen": "1000.00",
+			"verificationStatus": "evidence_attached",
+			"calculationStatus": "included",
+			"requirements": [
+				{ "code": "fourth_category_receipt", "status": "met" },
+				{ "code": "profession_registered", "status": "met" },
+				{ "code": "beneficiary_identity_correct", "status": "met" },
+				{ "code": "payment_recorded", "status": "met" },
+				{ "code": "issuer_eligible", "status": "met" },
+				{ "code": "banking_evidence_when_required", "status": "met" }
+			],
+			"beneficiary": "spouse",
+			"insuranceReimbursementAmountPen": "200.00"
+		},
+		{
+			"id": "other-service",
+			"category": "other_fourth_services",
+			"paidAt": "2026-03-10",
+			"grossAmountPen": "500.00",
+			"verificationStatus": "user_confirmed",
+			"calculationStatus": "included",
+			"requirements": [
+				{ "code": "fourth_category_receipt", "status": "met" },
+				{ "code": "consumer_identity_correct", "status": "met" },
+				{ "code": "payment_recorded", "status": "met" },
+				{ "code": "issuer_eligible", "status": "met" },
+				{ "code": "banking_evidence_when_required", "status": "met" }
+			],
+			"fourthActivityType": "ordinary"
+		},
+		{
+			"id": "rent",
+			"category": "rent",
+			"paidAt": "2026-04-10",
+			"grossAmountPen": "1000.00",
+			"verificationStatus": "evidence_attached",
+			"calculationStatus": "included",
+			"requirements": [
+				{ "code": "accepted_rent_document", "status": "met" },
+				{ "code": "consumer_identity_correct", "status": "met" },
+				{ "code": "payment_recorded", "status": "met" },
+				{ "code": "property_in_peru", "status": "met" },
+				{ "code": "property_not_exclusively_business_use", "status": "met" },
+				{ "code": "issuer_active_and_habido", "status": "met" },
+				{ "code": "banking_evidence_when_required", "status": "met" }
+			],
+			"attribution": "taxpayer"
+		},
+		{
+			"id": "essalud",
+			"category": "household_worker_essalud",
+			"paidAt": "2026-05-10",
+			"grossAmountPen": "90.00",
+			"verificationStatus": "evidence_attached",
+			"calculationStatus": "included",
+			"requirements": [
+				{ "code": "worker_registration", "status": "met" },
+				{ "code": "form_1676_evidence", "status": "met" },
+				{ "code": "payment_recorded", "status": "met" }
+			]
+		}
+	],
+	"expected": {
+		"restaurantsHotelsDeduction": "15.00",
+		"medicalDentalDeduction": "240.00",
+		"otherFourthServicesDeduction": "150.00",
+		"rentDeduction": "300.00",
+		"householdWorkerEssaludDeduction": "90.00",
+		"totalBeforeCap": "795.00",
+		"includedAdditionalDeduction": "795.00",
+		"amountDiscardedByCap": "0.00",
+		"potentialAmountBeforeCap": "0.00",
+		"capPen": "16500.00",
+		"excludedFactors": []
+	}
+}

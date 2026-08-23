@@ -11,6 +11,7 @@ import type { CreateTaxIncomeInput, UpdateTaxIncomeInput } from "./tax-income.va
 const taxProfileId = "11111111-1111-4111-8111-111111111111";
 const idempotencyKey = "22222222-2222-4222-8222-222222222222";
 const validInput: CreateTaxIncomeInput = {
+	activityType: "fourth_ordinary",
 	receivedAt: "2026-08-21",
 	grossAmount: "2500.00",
 	withheldTaxAmount: "200.00",
@@ -50,13 +51,15 @@ function createHarness() {
 			),
 		),
 		insertManual: jest.fn(async (executor, values) => {
+			if ("incomeType" in values) throw new Error("employment not supported by legacy harness");
 			sequence += 1;
 			const now = new Date("2026-08-21T15:00:00.000Z");
 			const record: TaxIncomeRecord = {
 				id: `income-${sequence}`,
 				taxProfileId: values.taxProfileId,
 				sourceDocumentId: null,
-				incomeType: "independent_services",
+				incomeType: values.activityType,
+				activityClassificationSource: "manual_confirmation",
 				source: "manual",
 				idempotencyKey: values.idempotencyKey,
 				receivedAt: values.receivedAt,
@@ -66,10 +69,10 @@ function createHarness() {
 				exchangeRate: null,
 				grossAmountPen: values.grossAmount,
 				withheldTaxAmountPen: values.withheldTaxAmount,
-				payerName: values.payerName,
+				payerName: values.payerName ?? null,
 				payerTaxId: null,
 				status: "confirmed",
-				notes: values.notes,
+				notes: values.notes ?? null,
 				deletedAt: null,
 				createdAt: now,
 				updatedAt: now,
@@ -84,10 +87,16 @@ function createHarness() {
 				: undefined;
 		}),
 		updateOwned: jest.fn(async (executor, profileId, id, values) => {
+			if ("incomeType" in values) throw new Error("employment not supported by legacy harness");
 			const record = stateFor(executor).get(id);
 			if (!record || record.taxProfileId !== profileId || record.deletedAt) return undefined;
 			const updated: TaxIncomeRecord = {
 				...record,
+				incomeType: values.activityType ?? record.incomeType,
+				activityClassificationSource:
+					values.activityType === undefined
+						? record.activityClassificationSource
+						: "manual_confirmation",
 				receivedAt: values.receivedAt ?? record.receivedAt,
 				grossAmount: values.grossAmount ?? record.grossAmount,
 				withheldTaxAmount: values.withheldTaxAmount ?? record.withheldTaxAmount,
@@ -118,17 +127,19 @@ function createHarness() {
 				.filter((record) => record.taxProfileId === profileId && !record.deletedAt)
 				.sort(
 					(left, right) =>
-						right.receivedAt.localeCompare(left.receivedAt) ||
+						(right.receivedAt ?? right.coverageEnd ?? "").localeCompare(
+							left.receivedAt ?? left.coverageEnd ?? "",
+						) ||
 						right.createdAt.getTime() - left.createdAt.getTime() ||
 						right.id.localeCompare(left.id),
 				)
 				.filter(
 					(record) =>
 						!query.cursor ||
-						record.receivedAt < query.cursor.receivedAt ||
-						(record.receivedAt === query.cursor.receivedAt &&
+						(record.receivedAt ?? record.coverageEnd ?? "") < query.cursor.receivedAt ||
+						((record.receivedAt ?? record.coverageEnd) === query.cursor.receivedAt &&
 							record.createdAt < new Date(query.cursor.createdAt)) ||
-						(record.receivedAt === query.cursor.receivedAt &&
+						((record.receivedAt ?? record.coverageEnd) === query.cursor.receivedAt &&
 							record.createdAt.getTime() === new Date(query.cursor.createdAt).getTime() &&
 							record.id < query.cursor.id),
 				)
@@ -147,13 +158,28 @@ function createHarness() {
 					.reduce((total, record) => total + Number(record.withheldTaxAmount), 0)
 					.toFixed(2),
 				count: visible.length,
+				fourthGrossAmount: visible
+					.reduce((total, record) => total + Number(record.grossAmount), 0)
+					.toFixed(2),
+				employmentGrossAmount: "0.00",
+				withheldFourth: visible
+					.reduce((total, record) => total + Number(record.withheldTaxAmount), 0)
+					.toFixed(2),
+				withheldFifth: "0.00",
+				fourthCount: visible.length,
+				employmentCount: 0,
 			};
 		}),
 		getDocumentForUpdate: jest.fn(),
 		findActiveBySourceDocument: jest.fn(),
 		insertDocumentIncome: jest.fn(),
 		resolveFourthIncomeAttention: jest.fn(),
+		keepFourthIncomeAttentionOpen: jest.fn(),
 		getDocumentCandidateSource: jest.fn(),
+		recalculateEmploymentCoverage: jest.fn(
+			async (_executor: DatabaseExecutor, _taxProfileId: string) => undefined,
+		),
+		resolveEmploymentCoverageConflict: jest.fn(),
 	};
 	const taxStatus = {
 		evaluateAndPersist: jest.fn(async () => ({
@@ -200,7 +226,8 @@ describe("TaxIncomeService", () => {
 			record: {
 				id: "income-1",
 				source: "manual",
-				incomeType: "independent_services",
+				incomeType: "fourth_ordinary",
+				activityClassificationSource: "manual_confirmation",
 				grossAmount: "2500.00",
 				withheldTaxAmount: "200.00",
 				currencyCode: "PEN",
@@ -271,6 +298,22 @@ describe("TaxIncomeService", () => {
 		expect(repository.lockTaxProfileForEvaluation).toHaveBeenCalledTimes(1);
 	});
 
+	it("updates the fourth activity classification with explicit provenance", async () => {
+		const { service } = createHarness();
+		const created = await service.createManual("user-1", validInput);
+
+		await expect(
+			service.update("user-1", created.record.id, {
+				activityType: "fourth_special",
+			} as UpdateTaxIncomeInput),
+		).resolves.toMatchObject({
+			record: {
+				incomeType: "fourth_special",
+				activityClassificationSource: "manual_confirmation",
+			},
+		});
+	});
+
 	it("rejects a partial update that would leave withholding above gross", async () => {
 		const { service } = createHarness();
 		const created = await service.createManual("user-1", validInput);
@@ -339,6 +382,12 @@ describe("TaxIncomeService", () => {
 			grossAmount: "3000.00",
 			withheldTaxAmount: "200.00",
 			count: 2,
+			fourthGrossAmount: "3000.00",
+			employmentGrossAmount: "0.00",
+			withheldFourth: "200.00",
+			withheldFifth: "0.00",
+			fourthCount: 2,
+			employmentCount: 0,
 		});
 	});
 

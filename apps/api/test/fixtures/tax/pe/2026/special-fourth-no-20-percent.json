@@ -1,0 +1,59 @@
+{
+	"name": "special-fourth-no-20-percent",
+	"rulesetVersion": "pe-2026.2.0",
+	"input": {
+		"taxYear": 2026,
+		"jurisdictionCode": "PE",
+		"currencyCode": "PEN",
+		"incomes": [
+			{
+				"id": "ordinary",
+				"activityType": "fourth_ordinary",
+				"receivedAt": "2026-08-20",
+				"grossAmountPen": "100000.00",
+				"withheldTaxAmountPen": "5000.00"
+			},
+			{
+				"id": "special",
+				"activityType": "fourth_special",
+				"receivedAt": "2026-08-21",
+				"grossAmountPen": "10000.00",
+				"withheldTaxAmountPen": "800.00"
+			}
+		]
+	},
+	"expected": {
+		"status": "calculated",
+		"rulesetVersion": "pe-2026.2.0",
+		"taxYear": 2026,
+		"grossFourthIncome": "110000.00",
+		"grossOrdinaryFourthIncome": "100000.00",
+		"automaticDeduction20": "20000.00",
+		"netOrdinaryFourthIncome": "80000.00",
+		"grossSpecialFourthIncome": "10000.00",
+		"netFourthIncome": "90000.00",
+		"sevenUitDeduction": "38500.00",
+		"preliminaryTaxableWorkIncome": "51500.00",
+		"calculatedTaxBeforeAdditionalDeductions": "5560.00",
+		"registeredWithholdings": "5800.00",
+		"registeredFourthWithholdings": "5800.00",
+		"differenceAfterRegisteredWithholdings": "-240.00",
+		"includedIncomeCount": 2,
+		"assumptions": [
+			"cash_basis",
+			"ordinary_and_special_fourth_income",
+			"registered_data_only",
+			"pen_only"
+		],
+		"exclusions": [
+			"additional_deduction_3_uit",
+			"monthly_obligations",
+			"advance_payments",
+			"other_credits"
+		]
+	},
+	"sources": [
+		"https://www.gob.pe/7318",
+		"https://www.gob.pe/institucion/mef/noticias/1314665-mef-establece-en-s-5500-el-valor-de-la-uit-para-el-ano-2026"
+	]
+}

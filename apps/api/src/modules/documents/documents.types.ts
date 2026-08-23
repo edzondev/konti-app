@@ -3,6 +3,8 @@ import type {
 	DocumentType,
 	ProcessingStatus,
 } from "../../database/schema/schema.types";
+import type { TaxDeductionCandidate } from "../tax-deductions/tax-deduction-candidate";
+import type { EmploymentIncomeCandidate } from "../tax-income/employment-income-candidate";
 import type { FourthIncomeCandidate } from "../tax-income/tax-income-candidate";
 
 export type DocumentUploadStatus = Extract<DocumentStatus, "pending_upload" | "uploaded">;
@@ -67,6 +69,9 @@ export type DocumentDetail = {
 	processing: DocumentProcessingView | null;
 	attention: null;
 	taxIncomeCandidate: FourthIncomeCandidate | null;
+	fourthIncomeCandidate: FourthIncomeCandidate | null;
+	employmentIncomeCandidate: EmploymentIncomeCandidate | null;
+	taxDeductionCandidate: TaxDeductionCandidate | null;
 };
 
 export interface DocumentsRepositoryPort {

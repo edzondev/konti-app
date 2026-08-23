@@ -19,6 +19,7 @@ import type { Auth } from "../../auth/auth.factory";
 import { TaxIncomeService } from "./tax-income.service";
 import {
 	createDocumentDecisionSchema,
+	createEmploymentCoverageResolutionSchema,
 	createTaxIncomeSchema,
 	updateTaxIncomeSchema,
 } from "./tax-income.validation";
@@ -38,6 +39,7 @@ export class TaxIncomeController {
 		@Query("year") year?: string,
 		@Query("cursor") cursor?: string,
 		@Query("limit") limit?: string,
+		@Query("type") type?: string,
 	) {
 		const parsedYear = year === undefined ? 2026 : Number(year);
 		const parsedLimit = limit === undefined ? undefined : Number(limit);
@@ -48,11 +50,15 @@ export class TaxIncomeController {
 		) {
 			throw new BadRequestException({ message: "La paginación no es válida." });
 		}
+		if (type !== undefined && type !== "all" && type !== "employment" && type !== "fourth") {
+			throw new BadRequestException({ message: "El filtro de ingresos no es válido." });
+		}
 
 		return this.taxIncomeService.list(await this.getUserId(request), {
 			year: parsedYear,
 			cursor,
 			limit: parsedLimit,
+			type: type as "all" | "employment" | "fourth" | undefined,
 		});
 	}
 
@@ -66,6 +72,20 @@ export class TaxIncomeController {
 	async decideDocument(@Req() request: Request, @Body() body: unknown) {
 		const input = this.parse(createDocumentDecisionSchema(), body);
 		return this.taxIncomeService.decideDocument(await this.getUserId(request), input);
+	}
+
+	@Post(":id/coverage-resolution")
+	async resolveEmploymentCoverage(
+		@Req() request: Request,
+		@Param("id") id: string,
+		@Body() body: unknown,
+	) {
+		const input = this.parse(createEmploymentCoverageResolutionSchema(), body);
+		return this.taxIncomeService.resolveEmploymentCoverageConflict(
+			await this.getUserId(request),
+			id,
+			input,
+		);
 	}
 
 	@Get(":id")

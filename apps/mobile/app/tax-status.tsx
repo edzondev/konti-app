@@ -4,20 +4,33 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { authClient } from "@/core/auth-client";
+import { homeActionRoute } from "@/features/home/home-action";
+import { useHome } from "@/features/home/use-home";
+import { currentTaxProfileQuery } from "@/features/tax-profile/tax-profile.queries";
+import { TaxCoverageCard } from "@/features/tax-status/components/tax-coverage-card";
 import { TaxEstimateCard } from "@/features/tax-status/components/tax-estimate-card";
 import { currentTaxStatusQueryOptions } from "@/features/tax-status/tax-status.queries";
+import { isWorkIncomeOutput } from "@/features/tax-status/types";
 
 export default function TaxStatusScreen() {
 	const insets = useSafeAreaInsets();
 	const router = useRouter();
 	const { data: session } = authClient.useSession();
-	const query = useQuery(currentTaxStatusQueryOptions(session?.user.id ?? ""));
+	const userId = session?.user.id ?? "";
+	const query = useQuery(currentTaxStatusQueryOptions(userId));
+	const homeQuery = useHome(userId);
+	const profileQuery = useQuery(currentTaxProfileQuery(userId));
 
 	if (query.isPending) return <ScreenState message="Actualizando tu estimación…" />;
 	if (query.isError || !query.data)
 		return <ScreenState message="No pudimos cargar tu situación." />;
 
 	const { evaluation, openAttentionCount, status } = query.data;
+	const isWorkIncome = evaluation ? isWorkIncomeOutput(evaluation.output) : false;
+	const nextAttention = homeQuery.data?.attention.nextItem ?? null;
+	const attentionCount = Math.max(openAttentionCount, homeQuery.data?.attention.count ?? 0);
+	const incomeMode = profileQuery.data?.profile?.incomeMode ?? "independent";
+	const addIncomeRoute = homeActionRoute({ kind: "open_tax_income", incomeMode });
 
 	return (
 		<View className="flex-1 bg-konti-bg" style={{ paddingTop: insets.top + 12 }}>
@@ -46,7 +59,7 @@ export default function TaxStatusScreen() {
 							{status === "calculated"
 								? "Estimación actualizada."
 								: status === "attention_required"
-									? "Hay un recibo por revisar."
+									? "Hay información por revisar."
 									: "Aún faltan datos para estimar."}
 						</Text>
 						<Text className="mt-3 text-[15px] leading-6 text-konti-ivory/45">
@@ -54,19 +67,24 @@ export default function TaxStatusScreen() {
 						</Text>
 					</View>
 
-					{openAttentionCount > 0 ? (
+					{attentionCount > 0 ? (
 						<Pressable
 							accessibilityRole="button"
 							className="rounded-[22px] border border-konti-primary/40 bg-konti-primary/10 p-5"
-							onPress={() => router.push("/comprobantes")}
+							onPress={() => {
+								const route = nextAttention
+									? homeActionRoute(nextAttention.action)
+									: "/comprobantes";
+								if (route) router.push(route as Href);
+							}}
 						>
 							<Text className="text-[16px] text-konti-ivory">
-								{openAttentionCount === 1
-									? "1 recibo necesita tu confirmación"
-									: `${openAttentionCount} recibos necesitan tu confirmación`}
+								{attentionCount === 1
+									? "1 elemento necesita tu confirmación"
+									: `${attentionCount} elementos necesitan tu confirmación`}
 							</Text>
 							<Text className="mt-2 text-[13px] leading-5 text-konti-primary">
-								Revisar comprobantes
+								Revisar pendientes
 							</Text>
 						</Pressable>
 					) : null}
@@ -74,9 +92,16 @@ export default function TaxStatusScreen() {
 					{evaluation ? (
 						<>
 							<TaxEstimateCard output={evaluation.output} />
+							{isWorkIncomeOutput(evaluation.output) ? (
+								<TaxCoverageCard
+									monthlyPeriods={query.data.monthlyPeriods ?? []}
+									output={evaluation.output}
+								/>
+							) : null}
 							<Text className="text-[12px] leading-5 text-konti-ivory/35">
-								No incluye deducción adicional de hasta 3 UIT, pagos a cuenta ni obligaciones
-								mensuales.
+								{isWorkIncome
+									? "Es una estimación con lo registrado. La cobertura incompleta y otros factores pueden cambiar el resultado."
+									: "No incluye deducciones adicionales, pagos a cuenta ni obligaciones mensuales."}
 							</Text>
 							<Text className="text-[12px] leading-5 text-konti-ivory/25">
 								Ruleset {evaluation.rulesetVersion} · Calculado con{" "}
@@ -95,7 +120,9 @@ export default function TaxStatusScreen() {
 						<Pressable
 							accessibilityRole="button"
 							className="min-h-13 flex-1 items-center justify-center rounded-full bg-konti-ivory px-4"
-							onPress={() => router.push("/tax-income-form" as Href)}
+							onPress={() => {
+								if (addIncomeRoute) router.push(addIncomeRoute as Href);
+							}}
 						>
 							<Text className="text-[14px] font-semibold text-konti-bg">Agregar ingreso</Text>
 						</Pressable>

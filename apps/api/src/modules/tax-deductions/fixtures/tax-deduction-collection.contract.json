@@ -1,0 +1,42 @@
+{
+	"taxYear": 2026,
+	"identityMasked": "****5678",
+	"summary": {
+		"includedDeductionPen": "15.00",
+		"potentialDeductionPen": "0.00",
+		"capPen": "16500.00",
+		"amountDiscardedByCapPen": "0.00",
+		"byCategory": {
+			"restaurants_hotels": "15.00",
+			"medical_dental_services": "0.00",
+			"other_fourth_services": "0.00",
+			"rent": "0.00",
+			"household_worker_essalud": "0.00"
+		}
+	},
+	"records": [
+		{
+			"id": "deduction-1",
+			"category": "restaurants_hotels",
+			"paidAt": "2026-08-20",
+			"grossAmountPen": "100.00",
+			"verificationStatus": "user_confirmed",
+			"calculationStatus": "included",
+			"sourceDocumentId": null,
+			"requirements": [
+				{ "code": "accepted_document", "status": "met" },
+				{ "code": "consumer_identity_correct", "status": "met" },
+				{ "code": "payment_recorded", "status": "met" },
+				{ "code": "compatible_economic_activity", "status": "met" },
+				{ "code": "issuer_active_and_habido", "status": "met" },
+				{ "code": "issued_in_tax_year", "status": "met" },
+				{ "code": "banking_evidence_when_required", "status": "not_applicable" }
+			],
+			"medical": null,
+			"fourthActivityType": null,
+			"rentAttribution": null,
+			"createdAt": "2026-08-23T12:00:00.000Z",
+			"updatedAt": "2026-08-23T12:00:00.000Z"
+		}
+	]
+}

@@ -3,6 +3,7 @@ import type { PropsWithChildren } from "react";
 import { useEffect, useRef, useState } from "react";
 import { authClient } from "@/core/auth-client";
 import { ApiError } from "./api-error";
+import { shouldClearQueryCache } from "./query-session-lifecycle";
 
 function QuerySessionLifecycle() {
 	const queryClient = useQueryClient();
@@ -11,7 +12,7 @@ function QuerySessionLifecycle() {
 	const userId = session?.user.id;
 
 	useEffect(() => {
-		if (previousUserId.current && !userId) {
+		if (shouldClearQueryCache(previousUserId.current, userId)) {
 			queryClient.clear();
 		}
 

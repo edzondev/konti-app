@@ -1,22 +1,20 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { getCurrentTaxStatus, getTaxEvaluation } from "./tax-status.api";
+import { taxStatusKeys } from "./tax-status.keys";
 
-export const taxStatusKeys = {
-	current: ["tax-status", "current"] as const,
-	evaluation: (id: string) => ["tax-status", "evaluation", id] as const,
-};
+export { taxStatusKeys } from "./tax-status.keys";
 
 export const currentTaxStatusQueryOptions = (userId: string) =>
 	queryOptions({
-		queryKey: taxStatusKeys.current,
+		queryKey: taxStatusKeys.current(userId),
 		queryFn: getCurrentTaxStatus,
 		enabled: Boolean(userId),
 	});
 
 export const taxEvaluationQueryOptions = (userId: string, evaluationId: string) =>
 	queryOptions({
-		queryKey: taxStatusKeys.evaluation(evaluationId),
+		queryKey: taxStatusKeys.evaluation(userId, evaluationId),
 		queryFn: () => getTaxEvaluation(evaluationId),
 		enabled: Boolean(userId && evaluationId),
 	});

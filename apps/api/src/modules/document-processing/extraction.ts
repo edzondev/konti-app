@@ -11,11 +11,35 @@ export type RawExtraction = {
 	subtotalAmount: string | null;
 	taxAmount: string | null;
 	totalAmount: string | null;
-	paymentDate: string | null;
+	paymentTerms: string | null;
+	dueDate: string | null;
+	actualPaymentDate: string | null;
 	grossFeeAmount: string | null;
 	incomeTaxWithheldAmount: string | null;
 	netPaidAmount: string | null;
 	payerName: string | null;
+	employmentRecordKind?: string | null;
+	employmentGrossAmount?: string | null;
+	employmentWithheldTaxAmount?: string | null;
+	coverageStart?: string | null;
+	coverageEnd?: string | null;
+	coverageScope?: string | null;
+	employerName?: string | null;
+	employerTaxId?: string | null;
+	deductionCategoryHint?: string | null;
+	serviceDescription?: string | null;
+	amountPaid?: string | null;
+	insuranceReimbursementAmount?: string | null;
+	paymentMethodEvidence?: string | null;
+	propertyCountry?: string | null;
+	propertyUse?: string | null;
+	supportingFormNumber?: string | null;
+	workerRegistrationEvidence?: string | null;
+	attributionHint?: string | null;
+	/** Transient OCR value. Providers must remove it before persistence. */
+	consumerDocumentNumber?: string | null;
+	consumerDocumentBlindIndex?: string | null;
+	consumerDocumentLast4?: string | null;
 };
 
 export type NormalizedExtraction = {
@@ -28,12 +52,42 @@ export type NormalizedExtraction = {
 	subtotalAmount: string | null;
 	taxAmount: string | null;
 	totalAmount: string | null;
-	paymentDate: string | null;
+	paymentTerms: PaymentTerms;
+	dueDate: string | null;
+	actualPaymentDate: string | null;
 	grossFeeAmount: string | null;
 	incomeTaxWithheldAmount: string | null;
 	netPaidAmount: string | null;
 	payerName: string | null;
+	employmentRecordKind: "period" | "year_to_date_snapshot" | null;
+	employmentGrossAmount: string | null;
+	employmentWithheldTaxAmount: string | null;
+	coverageStart: string | null;
+	coverageEnd: string | null;
+	coverageScope: "single_payer" | "all_employers" | null;
+	employerName: string | null;
+	employerTaxId: string | null;
+	deductionCategoryHint:
+		| "restaurants_hotels"
+		| "medical_dental_services"
+		| "other_fourth_services"
+		| "rent"
+		| "household_worker_essalud"
+		| null;
+	serviceDescription: string | null;
+	amountPaid: string | null;
+	insuranceReimbursementAmount: string | null;
+	paymentMethodEvidence: string | null;
+	propertyCountry: string | null;
+	propertyUse: string | null;
+	supportingFormNumber: string | null;
+	workerRegistrationEvidence: string | null;
+	attributionHint: "taxpayer" | "spouse_or_partner" | "unknown" | null;
+	consumerDocumentBlindIndex: string | null;
+	consumerDocumentLast4: string | null;
 };
+
+export type PaymentTerms = "cash" | "credit" | "unknown";
 
 export type DoubtfulField = "issuerTaxId" | "issueDate" | "totalAmount" | "documentType";
 
@@ -53,6 +107,8 @@ const DOCUMENT_TYPE_MAP: Record<string, DocumentType> = {
 	factura: "invoice",
 	recibo_por_honorarios: "fee_receipt",
 	boleta_de_pago: "payroll_slip",
+	certificado_retenciones: "withholding_certificate",
+	reporte_sunat: "sunat_document",
 	otro: "other",
 };
 
@@ -87,6 +143,25 @@ function normalizeCurrencyCode(value: string | null): "PEN" | "USD" | null {
 		return "USD";
 	}
 	return null;
+}
+
+function normalizePaymentTerms(value: string | null): PaymentTerms {
+	const normalized = trimOrNull(value)?.toLowerCase();
+	if (normalized === "cash" || normalized === "contado" || normalized === "al contado") {
+		return "cash";
+	}
+	if (normalized === "credit" || normalized === "credito" || normalized === "crédito") {
+		return "credit";
+	}
+	return "unknown";
+}
+
+function normalizeEnum<T extends string>(
+	value: string | null | undefined,
+	allowed: readonly T[],
+): T | null {
+	const normalized = trimOrNull(value ?? null);
+	return normalized && allowed.includes(normalized as T) ? (normalized as T) : null;
 }
 
 function isValidCalendarDate(year: number, month: number, day: number): boolean {
@@ -134,6 +209,16 @@ function normalizeIssuerTaxId(value: string | null): string | null {
 	return isValidPeruRuc(trimmed) ? trimmed : null;
 }
 
+function normalizeConsumerBlindIndex(value: string | null | undefined): string | null {
+	const normalized = trimOrNull(value ?? null)?.toLowerCase() ?? null;
+	return normalized && /^[a-f0-9]{64}$/.test(normalized) ? normalized : null;
+}
+
+function normalizeConsumerLast4(value: string | null | undefined): string | null {
+	const normalized = trimOrNull(value ?? null);
+	return normalized && /^\d{4}$/.test(normalized) ? normalized : null;
+}
+
 export function normalizeExtraction(raw: RawExtraction): NormalizedExtraction {
 	return {
 		issuerTaxId: normalizeIssuerTaxId(raw.issuerTaxId),
@@ -145,11 +230,46 @@ export function normalizeExtraction(raw: RawExtraction): NormalizedExtraction {
 		subtotalAmount: trimOrNull(raw.subtotalAmount),
 		taxAmount: trimOrNull(raw.taxAmount),
 		totalAmount: trimOrNull(raw.totalAmount),
-		paymentDate: parseIssueDate(raw.paymentDate),
+		paymentTerms: normalizePaymentTerms(raw.paymentTerms),
+		dueDate: parseIssueDate(raw.dueDate),
+		actualPaymentDate: parseIssueDate(raw.actualPaymentDate),
 		grossFeeAmount: trimOrNull(raw.grossFeeAmount),
 		incomeTaxWithheldAmount: trimOrNull(raw.incomeTaxWithheldAmount),
 		netPaidAmount: trimOrNull(raw.netPaidAmount),
 		payerName: trimOrNull(raw.payerName),
+		employmentRecordKind: normalizeEnum(raw.employmentRecordKind, [
+			"period",
+			"year_to_date_snapshot",
+		]),
+		employmentGrossAmount: trimOrNull(raw.employmentGrossAmount ?? null),
+		employmentWithheldTaxAmount: trimOrNull(raw.employmentWithheldTaxAmount ?? null),
+		coverageStart: parseIssueDate(raw.coverageStart ?? null),
+		coverageEnd: parseIssueDate(raw.coverageEnd ?? null),
+		coverageScope: normalizeEnum(raw.coverageScope, ["single_payer", "all_employers"]),
+		employerName: trimOrNull(raw.employerName ?? null),
+		employerTaxId: trimOrNull(raw.employerTaxId ?? null),
+		deductionCategoryHint: normalizeEnum(raw.deductionCategoryHint, [
+			"restaurants_hotels",
+			"medical_dental_services",
+			"other_fourth_services",
+			"rent",
+			"household_worker_essalud",
+		]),
+		serviceDescription: trimOrNull(raw.serviceDescription ?? null),
+		amountPaid: trimOrNull(raw.amountPaid ?? null),
+		insuranceReimbursementAmount: trimOrNull(raw.insuranceReimbursementAmount ?? null),
+		paymentMethodEvidence: trimOrNull(raw.paymentMethodEvidence ?? null),
+		propertyCountry: trimOrNull(raw.propertyCountry ?? null),
+		propertyUse: trimOrNull(raw.propertyUse ?? null),
+		supportingFormNumber: trimOrNull(raw.supportingFormNumber ?? null),
+		workerRegistrationEvidence: trimOrNull(raw.workerRegistrationEvidence ?? null),
+		attributionHint: normalizeEnum(raw.attributionHint, [
+			"taxpayer",
+			"spouse_or_partner",
+			"unknown",
+		]),
+		consumerDocumentBlindIndex: normalizeConsumerBlindIndex(raw.consumerDocumentBlindIndex),
+		consumerDocumentLast4: normalizeConsumerLast4(raw.consumerDocumentLast4),
 	};
 }
 

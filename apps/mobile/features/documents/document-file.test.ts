@@ -1,7 +1,20 @@
 import { File } from "expo-file-system";
 import { describe, expect, it, vi } from "vitest";
 
-import { prepareLocalFile } from "./document-file";
+import { localJpegFromCameraFile, prepareLocalFile } from "./document-file";
+
+describe("localJpegFromCameraFile", () => {
+	it.each([
+		["/cache/capture.jpg", "file:///cache/capture.jpg"],
+		["file:///cache/capture.jpg", "file:///cache/capture.jpg"],
+	])("normalizes camera path %s without touching image bytes", (filePath, expectedUri) => {
+		expect(localJpegFromCameraFile(filePath, "request-1")).toEqual({
+			uri: expectedUri,
+			fileName: "comprobante-request-1.jpg",
+			mimeType: "image/jpeg",
+		});
+	});
+});
 
 describe("prepareLocalFile", () => {
 	it("returns upload metadata for a supported local image", async () => {

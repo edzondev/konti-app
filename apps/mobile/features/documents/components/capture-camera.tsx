@@ -1,17 +1,21 @@
 import { BottomSheet, Button, Column, Text as SheetText } from "@expo/ui";
 import { environment } from "@expo/ui/swift-ui/modifiers";
 import { randomUUID } from "expo-crypto";
-import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { useIsFocused } from "expo-router";
 import { useRef, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeIn, FadeOut, ReduceMotion } from "react-native-reanimated";
-import { Camera, type Photo, useCameraDevice, usePhotoOutput } from "react-native-vision-camera";
+import { Camera, useCameraDevice, usePhotoOutput } from "react-native-vision-camera";
 
 import { authClient } from "@/core/auth-client";
 import { createDevLogger } from "@/core/dev-logger";
-import { isSupportedImageMime, type LocalImageFile } from "@/features/documents/document-file";
+import { triggerHaptic } from "@/core/haptics";
+import {
+	isSupportedImageMime,
+	localJpegFromCameraFile,
+	type LocalImageFile,
+} from "@/features/documents/document-file";
 import { useDocumentIntake } from "@/features/documents/use-document-intake";
 
 const log = createDevLogger("capture-camera");
@@ -38,18 +42,17 @@ export function CaptureCamera() {
 	const [busy, setBusy] = useState(false);
 	const busyRef = useRef(false);
 	const statusRef = useRef<CaptureStatus>("idle");
-	const photoRef = useRef<Photo | null>(null);
 
 	function setCaptureStatus(next: CaptureStatus) {
 		// Keep ref in sync immediately so BottomSheet onDismiss (which can fire
 		// in the same turn as a status change) does not clobber retry/save.
+		const previous = statusRef.current;
 		statusRef.current = next;
 		setStatus(next);
-	}
 
-	function releasePhoto() {
-		photoRef.current?.dispose();
-		photoRef.current = null;
+		if (next !== previous && (next === "success" || next === "error")) {
+			void triggerHaptic(next);
+		}
 	}
 
 	const controlsDisabled =
@@ -85,7 +88,6 @@ export function CaptureCamera() {
 				idempotencyKey: capture.idempotencyKey,
 			});
 			setCaptureStatus("success");
-			void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 		} catch (error) {
 			log.error("saveCapture failed", error);
 			setCaptureStatus("error");
@@ -97,27 +99,17 @@ export function CaptureCamera() {
 			return;
 		}
 
-		releasePhoto();
 		const idempotencyKey = randomUUID();
 
 		try {
-			const photo = await photoOutput.capturePhoto({}, {});
-			photoRef.current = photo;
-			const path = await photo.saveToTemporaryFileAsync();
+			const photoFile = await photoOutput.capturePhotoToFile({}, {});
 			const capture: PendingCapture = {
-				file: {
-					uri: path.startsWith("file://") ? path : `file://${path}`,
-					fileName: `comprobante-${idempotencyKey}.jpg`,
-					mimeType: "image/jpeg",
-				},
+				file: localJpegFromCameraFile(photoFile.filePath, idempotencyKey),
 				idempotencyKey,
 				source: "camera",
 			};
 			setPendingCapture(capture);
 			await saveCapture(capture);
-			if (statusRef.current === "success") {
-				releasePhoto();
-			}
 		} catch (error) {
 			log.error("handleCameraCapture failed", error);
 			setCaptureStatus("error");
@@ -172,7 +164,6 @@ export function CaptureCamera() {
 	}
 
 	function handleScanAnother() {
-		releasePhoto();
 		setPendingCapture(null);
 		setCaptureStatus("idle");
 	}
@@ -189,7 +180,6 @@ export function CaptureCamera() {
 	function handleSheetDismiss() {
 		const current = statusRef.current;
 		if (current === "success") {
-			releasePhoto();
 			setPendingCapture(null);
 			setCaptureStatus("idle");
 			return;
@@ -206,7 +196,7 @@ export function CaptureCamera() {
 				<Camera
 					style={StyleSheet.absoluteFill}
 					device={device}
-					isActive={isFocused}
+					isActive={isFocused && status === "idle"}
 					outputs={[photoOutput]}
 					resizeMode="cover"
 				/>

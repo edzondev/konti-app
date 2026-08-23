@@ -1,55 +1,62 @@
 {
-	"version": "7",
-	"dialect": "postgresql",
-	"entries": [
-		{
-			"idx": 0,
-			"version": "7",
-			"when": 1786496692219,
-			"tag": "0000_init-auth",
-			"breakpoints": true
-		},
-		{
-			"idx": 1,
-			"version": "7",
-			"when": 1786598471356,
-			"tag": "0001_init-konti-core",
-			"breakpoints": true
-		},
-		{
-			"idx": 2,
-			"version": "7",
-			"when": 1787097031030,
-			"tag": "0002_naive_hydra",
-			"breakpoints": true
-		},
-		{
-			"idx": 3,
-			"version": "7",
-			"when": 1787159697351,
-			"tag": "0003_late_quentin_quire",
-			"breakpoints": true
-		},
-		{
-			"idx": 4,
-			"version": "7",
-			"when": 1787162502273,
-			"tag": "0004_rich_kid_colt",
-			"breakpoints": true
-		},
-		{
-			"idx": 5,
-			"version": "7",
-			"when": 1787348481341,
-			"tag": "0005_phase4_fourth_category",
-			"breakpoints": true
-		},
-		{
-			"idx": 6,
-			"version": "7",
-			"when": 1787354618122,
-			"tag": "0006_better_auth_update_migration",
-			"breakpoints": true
-		}
-	]
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1786496692219,
+      "tag": "0000_init-auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786598471356,
+      "tag": "0001_init-konti-core",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787097031030,
+      "tag": "0002_naive_hydra",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787159697351,
+      "tag": "0003_late_quentin_quire",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1787162502273,
+      "tag": "0004_rich_kid_colt",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1787348481341,
+      "tag": "0005_phase4_fourth_category",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787354618122,
+      "tag": "0006_better_auth_update_migration",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787509749156,
+      "tag": "0007_phase4_work_income_4_1_to_4_6",
+      "breakpoints": true
+    }
+  ]
 }

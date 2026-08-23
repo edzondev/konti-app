@@ -8,7 +8,9 @@ const base = {
 	hasActiveIncome: false,
 	decision: null,
 	normalizedResult: {
-		paymentDate: "2026-08-20",
+		paymentTerms: "cash",
+		dueDate: null,
+		actualPaymentDate: "2026-08-20",
 		grossFeeAmount: "2500.00",
 		incomeTaxWithheldAmount: "200.00",
 		netPaidAmount: "2300.00",
@@ -22,26 +24,48 @@ describe("deriveFourthIncomeCandidate", () => {
 		expect(deriveFourthIncomeCandidate(base)).toEqual({
 			eligibility: "eligible",
 			issueDate: "2026-08-12",
-			paymentDate: "2026-08-20",
+			paymentTerms: "cash",
+			dueDate: null,
+			documentReportedPaymentDate: "2026-08-20",
 			grossAmount: "2500.00",
 			withheldTaxAmount: "200.00",
 			netPaidAmount: "2300.00",
 			payerName: "Cliente SAC",
+			decision: null,
 			warnings: [],
 		});
 	});
 
-	it("keeps payment date empty instead of copying issue date", () => {
+	it("keeps collection empty without making the candidate ineligible", () => {
 		const candidate = deriveFourthIncomeCandidate({
 			...base,
-			normalizedResult: { ...base.normalizedResult, paymentDate: null },
+			normalizedResult: { ...base.normalizedResult, actualPaymentDate: null },
 		});
 
 		expect(candidate).toMatchObject({
-			eligibility: "insufficient_fields",
+			eligibility: "eligible",
 			issueDate: "2026-08-12",
-			paymentDate: null,
-			warnings: ["missing_payment_date"],
+			documentReportedPaymentDate: null,
+			warnings: [],
+		});
+	});
+
+	it("exposes a credit due date without treating it as collection", () => {
+		const candidate = deriveFourthIncomeCandidate({
+			...base,
+			normalizedResult: {
+				...base.normalizedResult,
+				paymentTerms: "credit",
+				dueDate: "2026-09-10",
+				actualPaymentDate: null,
+			},
+		});
+
+		expect(candidate).toMatchObject({
+			eligibility: "eligible",
+			paymentTerms: "credit",
+			dueDate: "2026-09-10",
+			documentReportedPaymentDate: null,
 		});
 	});
 
@@ -71,6 +95,23 @@ describe("deriveFourthIncomeCandidate", () => {
 		});
 		expect(deriveFourthIncomeCandidate({ ...base, decision: "not_mine" })).toMatchObject({
 			eligibility: "already_decided",
+		});
+	});
+
+	it.each(["unpaid", "unsure"] as const)(
+		"keeps a %s receipt actionable for later collection confirmation",
+		(decision) => {
+			expect(deriveFourthIncomeCandidate({ ...base, decision })).toMatchObject({
+				eligibility: "eligible",
+				decision,
+			});
+		},
+	);
+
+	it("keeps an unknown activity classification actionable without creating an income", () => {
+		expect(deriveFourthIncomeCandidate({ ...base, decision: "activity_unsure" })).toMatchObject({
+			eligibility: "eligible",
+			decision: "activity_unsure",
 		});
 	});
 

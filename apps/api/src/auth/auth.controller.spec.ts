@@ -1,3 +1,5 @@
+jest.mock("better-auth/node", () => ({ fromNodeHeaders: (headers: unknown) => headers }));
+
 import { Test, type TestingModule } from "@nestjs/testing";
 import { AUTH } from "./auth.constants";
 import { AuthController } from "./auth.controller";

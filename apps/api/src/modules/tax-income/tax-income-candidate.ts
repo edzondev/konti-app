@@ -2,18 +2,20 @@ import type { DocumentStatus, DocumentType } from "../../database/schema/schema.
 
 export type FourthIncomeCandidateWarning =
 	| "document_not_ready"
-	| "missing_payment_date"
 	| "missing_gross_amount"
 	| "missing_withholding_amount";
 
 export type FourthIncomeCandidate = {
 	eligibility: "eligible" | "insufficient_fields" | "unsupported_currency" | "already_decided";
 	issueDate: string | null;
-	paymentDate: string | null;
+	paymentTerms: "cash" | "credit" | "unknown";
+	dueDate: string | null;
+	documentReportedPaymentDate: string | null;
 	grossAmount: string | null;
 	withheldTaxAmount: string | null;
 	netPaidAmount: string | null;
 	payerName: string | null;
+	decision: FourthIncomeCandidateSource["decision"];
 	warnings: FourthIncomeCandidateWarning[];
 };
 
@@ -23,7 +25,7 @@ export type FourthIncomeCandidateSource = {
 	issueDate: string | null;
 	currencyCode: string | null;
 	hasActiveIncome: boolean;
-	decision: "confirmed" | "not_mine" | null;
+	decision: "paid" | "unpaid" | "unsure" | "activity_unsure" | "not_mine" | null;
 	normalizedResult: Record<string, unknown>;
 };
 
@@ -60,19 +62,22 @@ export function deriveFourthIncomeCandidate(
 ): FourthIncomeCandidate | null {
 	if (source.documentType !== "fee_receipt") return null;
 
-	const paymentDate = stringOrNull(source.normalizedResult, "paymentDate");
+	const rawPaymentTerms = stringOrNull(source.normalizedResult, "paymentTerms");
+	const paymentTerms =
+		rawPaymentTerms === "cash" || rawPaymentTerms === "credit" ? rawPaymentTerms : "unknown";
+	const dueDate = stringOrNull(source.normalizedResult, "dueDate");
+	const documentReportedPaymentDate = stringOrNull(source.normalizedResult, "actualPaymentDate");
 	const grossAmount = stringOrNull(source.normalizedResult, "grossFeeAmount");
 	const withheldTaxAmount = stringOrNull(source.normalizedResult, "incomeTaxWithheldAmount");
 	const warnings: FourthIncomeCandidateWarning[] = [];
 	if (source.status !== "ready" && source.status !== "needs_review") {
 		warnings.push("document_not_ready");
 	}
-	if (!paymentDate) warnings.push("missing_payment_date");
 	if (!grossAmount) warnings.push("missing_gross_amount");
 	if (!withheldTaxAmount) warnings.push("missing_withholding_amount");
 
 	let eligibility: FourthIncomeCandidate["eligibility"];
-	if (source.hasActiveIncome || source.decision !== null) {
+	if (source.hasActiveIncome || source.decision === "paid" || source.decision === "not_mine") {
 		eligibility = "already_decided";
 	} else if (source.currencyCode !== "PEN") {
 		eligibility = "unsupported_currency";
@@ -85,11 +90,14 @@ export function deriveFourthIncomeCandidate(
 	return {
 		eligibility,
 		issueDate: source.issueDate,
-		paymentDate,
+		paymentTerms,
+		dueDate,
+		documentReportedPaymentDate,
 		grossAmount,
 		withheldTaxAmount,
 		netPaidAmount: stringOrNull(source.normalizedResult, "netPaidAmount"),
 		payerName: stringOrNull(source.normalizedResult, "payerName"),
+		decision: source.decision,
 		warnings,
 	};
 }

@@ -1,65 +1,70 @@
 {
-	"expo": {
-		"name": "app-konti",
-		"slug": "app-konti",
-		"version": "1.0.0",
-		"orientation": "portrait",
-		"icon": "./assets/images/icon.png",
-		"scheme": "appkonti",
-		"userInterfaceStyle": "automatic",
-		"ios": {
-			"supportsTablet": true,
-			"infoPlist": {
-				"NSCameraUsageDescription": "Konti usa la cámara para guardar tus comprobantes."
-			}
-		},
-		"android": {
-			"adaptiveIcon": {
-				"backgroundColor": "#E6F4FE",
-				"foregroundImage": "./assets/images/android-icon-foreground.png",
-				"backgroundImage": "./assets/images/android-icon-background.png",
-				"monochromeImage": "./assets/images/android-icon-monochrome.png"
-			},
-			"predictiveBackGestureEnabled": false,
-			"package": "com.konti.app",
-			"permissions": ["android.permission.CAMERA"],
-			"googleServicesFile": "./google-services.json"
-		},
-		"web": {
-			"bundler": "metro",
-			"output": "static",
-			"favicon": "./assets/images/favicon.png"
-		},
-		"plugins": [
-			"@react-native-google-signin/google-signin",
-			"expo-router",
-			[
-				"expo-splash-screen",
-				{
-					"image": "./assets/images/splash-icon.png",
-					"resizeMode": "contain",
-					"backgroundColor": "#ffffff"
-				}
-			],
-			"expo-secure-store",
-			[
-				"expo-image-picker",
-				{
-					"photosPermission": "Konti necesita acceso a tus fotos para guardar tus comprobantes."
-				}
-			],
-			"expo-image"
-		],
-		"experiments": {
-			"typedRoutes": true,
-			"reactCompiler": true
-		},
-		"extra": {
-			"router": {},
-			"eas": {
-				"projectId": "2a4640e5-ff57-4106-b9d0-2623bfea9d16"
-			}
-		},
-		"owner": "edzondev"
-	}
+  "expo": {
+    "name": "app-konti",
+    "slug": "app-konti",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "appkonti",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Konti usa la cámara para guardar tus comprobantes."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.konti.app",
+      "permissions": ["android.permission.CAMERA"],
+      "googleServicesFile": "./google-services.json"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "@react-native-google-signin/google-signin",
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Konti necesita acceso a tus fotos para guardar tus comprobantes."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2a4640e5-ff57-4106-b9d0-2623bfea9d16"
+      }
+    },
+    "owner": "edzondev",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2a4640e5-ff57-4106-b9d0-2623bfea9d16"
+    }
+  }
 }

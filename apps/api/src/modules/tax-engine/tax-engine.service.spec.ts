@@ -1,9 +1,10 @@
 import belowSevenUit from "../../../test/fixtures/tax/pe/2026/below-seven-uit.json";
 import noIncome from "../../../test/fixtures/tax/pe/2026/no-income.json";
 import progressiveBrackets from "../../../test/fixtures/tax/pe/2026/progressive-brackets.json";
+import specialFourth from "../../../test/fixtures/tax/pe/2026/special-fourth-no-20-percent.json";
 import withholdingsExceedTax from "../../../test/fixtures/tax/pe/2026/withholdings-exceed-tax.json";
 import { TaxEngineInputError, TaxEngineService } from "./tax-engine.service";
-import type { FourthCategory2026Input } from "./tax-engine.types";
+import type { FourthCategory2026Input, LegacyFourthCategory2026Input } from "./tax-engine.types";
 
 const exclusions = [
 	"additional_deduction_3_uit",
@@ -12,7 +13,7 @@ const exclusions = [
 	"other_credits",
 ] as const;
 
-function input(incomes: FourthCategory2026Input["incomes"]): FourthCategory2026Input {
+function input(incomes: LegacyFourthCategory2026Input["incomes"]): LegacyFourthCategory2026Input {
 	return {
 		taxYear: 2026,
 		jurisdictionCode: "PE",
@@ -22,9 +23,15 @@ function input(incomes: FourthCategory2026Input["incomes"]): FourthCategory2026I
 	};
 }
 
-function income(grossAmountPen: string, withheldTaxAmountPen = "0.00", id = "income-1") {
+function income(
+	grossAmountPen: string,
+	withheldTaxAmountPen = "0.00",
+	id = "income-1",
+	activityType: "fourth_ordinary" | "fourth_special" = "fourth_ordinary",
+) {
 	return {
 		id,
+		activityType,
 		receivedAt: "2026-08-21",
 		grossAmountPen,
 		withheldTaxAmountPen,
@@ -121,12 +128,140 @@ describe("TaxEngineService", () => {
 		expect(result.exclusions).toEqual(exclusions);
 	});
 
+	it("creates a v2 annual snapshot with ordinary and special fourth breakdowns", () => {
+		const result = engine.calculateFourthCategory2026({
+			taxYear: 2026,
+			jurisdictionCode: "PE",
+			currencyCode: "PEN",
+			incomes: [
+				income("100000.00", "5000.00", "ordinary"),
+				income("10000.00", "800.00", "special", "fourth_special"),
+			],
+		} as FourthCategory2026Input);
+
+		expect(result).toMatchObject({
+			rulesetVersion: "pe-2026.2.0",
+			grossOrdinaryFourthIncome: "100000.00",
+			automaticDeduction20: "20000.00",
+			netOrdinaryFourthIncome: "80000.00",
+			grossSpecialFourthIncome: "10000.00",
+			netFourthIncome: "90000.00",
+			registeredFourthWithholdings: "5800.00",
+			preliminaryTaxableWorkIncome: "51500.00",
+			calculatedTaxBeforeAdditionalDeductions: "5560.00",
+			differenceAfterRegisteredWithholdings: "-240.00",
+			includedIncomeCount: 2,
+		});
+	});
+
 	it("is deterministic for the same canonical input", () => {
 		const canonicalInput = input([income("123456.78", "987.65")]);
 
 		expect(engine.calculateFourthCategory2026(canonicalInput)).toEqual(
 			engine.calculateFourthCategory2026(canonicalInput),
 		);
+	});
+
+	it("consolidates fifth-category income and excludes covered or unresolved records", () => {
+		const result = engine.calculateWorkIncome2026({
+			taxYear: 2026,
+			jurisdictionCode: "PE",
+			currencyCode: "PEN",
+			fourthIncomes: [],
+			employmentIncomes: [
+				{
+					id: "ytd",
+					recordKind: "year_to_date_snapshot",
+					coverageStart: "2026-01-01",
+					coverageEnd: "2026-06-30",
+					coverageScope: "single_payer",
+					grossAmountPen: "30000.00",
+					withheldTaxAmountPen: "1000.00",
+					calculationDisposition: "included",
+					payerTaxId: "20123456789",
+					payerName: "ACME SAC",
+				},
+				{
+					id: "march",
+					recordKind: "period",
+					coverageStart: "2026-03-01",
+					coverageEnd: "2026-03-31",
+					coverageScope: "single_payer",
+					grossAmountPen: "5000.00",
+					withheldTaxAmountPen: "150.00",
+					calculationDisposition: "excluded_by_coverage",
+					payerTaxId: "20123456789",
+					payerName: "ACME SAC",
+				},
+			],
+		});
+
+		expect(result).toMatchObject({
+			rulesetVersion: "pe-2026.2.0",
+			status: "calculated",
+			grossFifthIncome: "30000.00",
+			registeredFifthWithholdings: "1000.00",
+			includedFifthIncomeCount: 1,
+			isDefinitive: false,
+		});
+	});
+
+	it("preserves fifth-category employers, ranges and missing months in the public output", () => {
+		const result = engine.calculateWorkIncome2026({
+			taxYear: 2026,
+			jurisdictionCode: "PE",
+			currencyCode: "PEN",
+			fourthIncomes: [],
+			employmentIncomes: [
+				{
+					id: "march",
+					recordKind: "period",
+					coverageStart: "2026-03-01",
+					coverageEnd: "2026-03-31",
+					coverageScope: "single_payer",
+					grossAmountPen: "5000.00",
+					withheldTaxAmountPen: "150.00",
+					calculationDisposition: "included",
+					payerTaxId: "20123456789",
+					payerName: "ACME SAC",
+				},
+			],
+		});
+
+		expect(result).toMatchObject({
+			employers: [{ payerTaxId: "20123456789", payerName: "ACME SAC" }],
+			employmentCoverageRanges: [{ start: "2026-03-01", end: "2026-03-31" }],
+			missingEmploymentMonths: expect.arrayContaining(["2026-01", "2026-12"]),
+			hasMultipleEmployers: false,
+		});
+	});
+
+	it("does not claim known unregistered information without an explicit signal", () => {
+		const result = engine.calculateWorkIncome2026({
+			taxYear: 2026,
+			jurisdictionCode: "PE",
+			currencyCode: "PEN",
+			fourthIncomes: [income("1000.00")],
+			employmentIncomes: [],
+		});
+
+		expect(result.coverage.excludedFactors).toEqual(["annual_filing_obligation_not_determined"]);
+	});
+
+	it("exposes known unregistered information only when the caller confirms it", () => {
+		const result = engine.calculateWorkIncome2026({
+			taxYear: 2026,
+			jurisdictionCode: "PE",
+			currencyCode: "PEN",
+			fourthIncomes: [income("1000.00")],
+			employmentIncomes: [],
+			knownUnregisteredInformation: true,
+		});
+
+		expect(result.coverage.excludedFactors).toEqual([
+			"known_unregistered_information",
+			"annual_filing_obligation_not_determined",
+		]);
 	});
 
 	it.each([
@@ -138,7 +273,7 @@ describe("TaxEngineService", () => {
 		const invalidInput = {
 			...input([income("1000.00")]),
 			...override,
-		} as FourthCategory2026Input;
+		} as LegacyFourthCategory2026Input;
 
 		expect(() => engine.calculateFourthCategory2026(invalidInput)).toThrow(TaxEngineInputError);
 	});
@@ -167,11 +302,19 @@ describe("TaxEngineService", () => {
 	it.each([noIncome, belowSevenUit, progressiveBrackets, withholdingsExceedTax])(
 		"matches the $name golden fixture",
 		(fixture) => {
-			expect(engine.calculateFourthCategory2026(fixture.input as FourthCategory2026Input)).toEqual(
-				fixture.expected,
-			);
+			expect(
+				engine.calculateFourthCategory2026(fixture.input as LegacyFourthCategory2026Input),
+			).toEqual(fixture.expected);
 			expect(fixture.rulesetVersion).toBe("pe-2026.1.0");
 			expect(fixture.sources).toHaveLength(2);
 		},
 	);
+
+	it("matches the special-fourth v2 golden fixture", () => {
+		expect(
+			engine.calculateFourthCategory2026(specialFourth.input as FourthCategory2026Input),
+		).toEqual(specialFourth.expected);
+		expect(specialFourth.rulesetVersion).toBe("pe-2026.2.0");
+		expect(specialFourth.sources).toHaveLength(2);
+	});
 });

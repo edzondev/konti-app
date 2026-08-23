@@ -1,19 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Image } from "expo-image";
 import { type Href, useLocalSearchParams, useRouter } from "expo-router";
 import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { NitroImage } from "react-native-nitro-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { withUniwind } from "uniwind";
 
 import { authClient } from "@/core/auth-client";
+import { EmploymentIncomeCandidateCard } from "@/features/documents/components/employment-income-candidate-card";
 import { FourthIncomeCandidateCard } from "@/features/documents/components/fourth-income-candidate-card";
+import { TaxDeductionDocumentCandidateCard } from "@/features/documents/components/tax-deduction-document-candidate-card";
 import { detailFieldRows } from "@/features/documents/document-detail-copy";
+import { remoteDocumentImageSource } from "@/features/documents/document-image-source";
 import { createDocumentFileUrl, processDocument } from "@/features/documents/documents.api";
 import { documentKeys } from "@/features/documents/documents.queries";
+import { taxDeductionCandidateRoute } from "@/features/documents/tax-deduction-candidate";
 import { useDocument } from "@/features/documents/use-document";
 import { useDecideDocumentIncome } from "@/features/tax-income/tax-income.mutations";
 
-const GOLD_TEXT_STYLE = { color: "#E2A654" } as const;
-const IMAGE_HEIGHT = 280;
+const UniNitroImage = withUniwind(NitroImage);
 
 export default function DocumentScreen() {
 	const insets = useSafeAreaInsets();
@@ -34,7 +38,9 @@ export default function DocumentScreen() {
 	});
 	const retryMutation = useMutation({
 		mutationFn: () => processDocument(documentId),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: documentKeys.all }),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: documentKeys.all });
+		},
 	});
 
 	if (documentQuery.isPending) {
@@ -46,19 +52,43 @@ export default function DocumentScreen() {
 	}
 
 	const { document } = documentQuery.data;
-	const candidate = documentQuery.data.taxIncomeCandidate ?? null;
+	const candidate =
+		documentQuery.data.fourthIncomeCandidate ?? documentQuery.data.taxIncomeCandidate ?? null;
+	const employmentCandidate = documentQuery.data.employmentIncomeCandidate ?? null;
+	const deductionCandidate = documentQuery.data.taxDeductionCandidate ?? null;
 	const processing = document.status === "processing";
 	const openIncomeForm = () => {
 		if (!candidate) return;
 		const params = new URLSearchParams({ documentId });
 		if (candidate.issueDate) params.set("issueDate", candidate.issueDate);
-		if (candidate.paymentDate) params.set("paymentDate", candidate.paymentDate);
+		if (candidate.dueDate) params.set("dueDate", candidate.dueDate);
+		if (candidate.documentReportedPaymentDate) {
+			params.set("documentReportedPaymentDate", candidate.documentReportedPaymentDate);
+		}
 		if (candidate.grossAmount) params.set("grossAmount", candidate.grossAmount);
 		if (candidate.withheldTaxAmount) {
 			params.set("withheldTaxAmount", candidate.withheldTaxAmount);
 		}
 		if (candidate.payerName) params.set("payerName", candidate.payerName);
 		router.push(`/tax-income-form?${params.toString()}` as Href);
+	};
+	const confirmPaymentDecision = (decision: "paid" | "unpaid" | "unsure") => {
+		if (decision === "paid") {
+			openIncomeForm();
+			return;
+		}
+
+		documentDecisionMutation.mutate(
+			{ documentId, decision },
+			{
+				onError: (error: unknown) => {
+					Alert.alert(
+						"No pudimos guardar tu respuesta",
+						error instanceof Error ? error.message : "Inténtalo nuevamente.",
+					);
+				},
+			},
+		);
 	};
 	const confirmNotMine = () => {
 		Alert.alert(
@@ -69,11 +99,44 @@ export default function DocumentScreen() {
 				{
 					text: "Confirmar",
 					onPress: () => {
-						documentDecisionMutation.mutate({ documentId, decision: "not_mine" });
+						documentDecisionMutation.mutate(
+							{ documentId, decision: "not_mine" },
+							{
+								onError: (error: unknown) => {
+									Alert.alert(
+										"No pudimos guardar tu respuesta",
+										error instanceof Error ? error.message : "Inténtalo nuevamente.",
+									);
+								},
+							},
+						);
 					},
 				},
 			],
 		);
+	};
+	const openEmploymentForm = () => {
+		if (!employmentCandidate) return;
+		const params = new URLSearchParams({ documentId, incomeType: "employment" });
+		if (employmentCandidate.recordKind) params.set("recordKind", employmentCandidate.recordKind);
+		if (employmentCandidate.coverageStart) {
+			params.set("coverageStart", employmentCandidate.coverageStart);
+		}
+		if (employmentCandidate.coverageEnd) params.set("coverageEnd", employmentCandidate.coverageEnd);
+		if (employmentCandidate.coverageScope) {
+			params.set("coverageScope", employmentCandidate.coverageScope);
+		}
+		if (employmentCandidate.grossAmount) params.set("grossAmount", employmentCandidate.grossAmount);
+		if (employmentCandidate.withheldTaxAmount) {
+			params.set("withheldTaxAmount", employmentCandidate.withheldTaxAmount);
+		}
+		if (employmentCandidate.payerName) params.set("payerName", employmentCandidate.payerName);
+		if (employmentCandidate.payerTaxId) params.set("payerTaxId", employmentCandidate.payerTaxId);
+		router.push(`/tax-income-form?${params.toString()}` as Href);
+	};
+	const openTaxDeductionForm = () => {
+		if (!deductionCandidate) return;
+		router.push(taxDeductionCandidateRoute(documentId, deductionCandidate) as Href);
 	};
 
 	return (
@@ -95,17 +158,14 @@ export default function DocumentScreen() {
 				contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
 				showsVerticalScrollIndicator={false}
 			>
-				<View
-					className="my-4 overflow-hidden rounded-3xl bg-konti-surface"
-					style={{ height: IMAGE_HEIGHT }}
-				>
+				<View className="my-4 h-[280px] overflow-hidden rounded-3xl bg-konti-surface">
 					{fileUrlQuery.data ? (
-						<Image
+						<UniNitroImage
 							accessibilityLabel="Imagen del comprobante"
-							cachePolicy="memory"
-							contentFit="contain"
-							source={fileUrlQuery.data.url}
-							style={{ height: IMAGE_HEIGHT, width: "100%" }}
+							className="h-[280px] w-full"
+							image={remoteDocumentImageSource(fileUrlQuery.data.url, documentId, "high")}
+							recyclingKey={documentId}
+							resizeMode="contain"
 						/>
 					) : (
 						<View className="flex-1 items-center justify-center px-4">
@@ -147,8 +207,20 @@ export default function DocumentScreen() {
 							<FourthIncomeCandidateCard
 								candidate={candidate}
 								isPending={documentDecisionMutation.isPending}
-								onConfirm={openIncomeForm}
+								onDecision={confirmPaymentDecision}
 								onNotMine={confirmNotMine}
+							/>
+						) : null}
+						{employmentCandidate ? (
+							<EmploymentIncomeCandidateCard
+								candidate={employmentCandidate}
+								onReview={openEmploymentForm}
+							/>
+						) : null}
+						{deductionCandidate ? (
+							<TaxDeductionDocumentCandidateCard
+								candidate={deductionCandidate}
+								onReview={openTaxDeductionForm}
 							/>
 						) : null}
 					</View>
@@ -171,8 +243,7 @@ function DetailField({
 		<View className="flex-row items-baseline justify-between gap-4 py-2">
 			<Text className="text-[13px] text-konti-ivory/50">{label}</Text>
 			<Text
-				className="shrink text-right text-[15px] text-konti-ivory"
-				style={doubtful ? GOLD_TEXT_STYLE : undefined}
+				className={`shrink text-right text-[15px] ${doubtful ? "text-konti-primary" : "text-konti-ivory"}`}
 			>
 				{value}
 			</Text>

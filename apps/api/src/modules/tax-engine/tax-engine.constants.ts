@@ -14,6 +14,18 @@ export const FOURTH_CATEGORY_2026_RULESET = {
 	] as const,
 } as const;
 
+export const FOURTH_CATEGORY_2026_RULESET_V2 = {
+	...FOURTH_CATEGORY_2026_RULESET,
+	rulesetVersion: "pe-2026.2.0",
+} as const;
+
+export const FOURTH_CATEGORY_2026_ASSUMPTIONS_V2 = [
+	"cash_basis",
+	"ordinary_and_special_fourth_income",
+	"registered_data_only",
+	"pen_only",
+] as const;
+
 export const FOURTH_CATEGORY_2026_ASSUMPTIONS = [
 	"cash_basis",
 	"ordinary_independent_services_only",

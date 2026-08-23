@@ -8,8 +8,27 @@ import { Text, View } from "react-native";
 import { useUniwind } from "uniwind";
 
 import { authClient } from "@/core/auth-client";
+import { triggerHaptic } from "@/core/haptics";
 
 const DEFAULT_ERROR_MESSAGE = "No se pudo entrar. Inténtalo de nuevo.";
+
+function googleErrorMessage(error: unknown): string {
+	const code =
+		typeof error === "object" && error !== null && "code" in error
+			? (error as { code?: unknown }).code
+			: null;
+
+	switch (code) {
+		case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+			return "Google Play Services no está disponible.";
+
+		case statusCodes.IN_PROGRESS:
+			return "Ya existe un inicio de sesión en curso.";
+
+		default:
+			return DEFAULT_ERROR_MESSAGE;
+	}
+}
 
 export function GoogleSignInButton() {
 	const { theme } = useUniwind();
@@ -25,31 +44,18 @@ export function GoogleSignInButton() {
 		setMessage(null);
 
 		try {
-			const { user, error, isCancelled } = await GoogleOneTapSignIn.authenticate();
+			await GoogleOneTapSignIn.checkPlayServices(true);
+			const response = await GoogleOneTapSignIn.presentExplicitSignIn();
 
-			if (isCancelled) {
+			if (response.type === "cancelled") {
 				return;
 			}
 
-			if (error) {
-				switch (error.code) {
-					case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-						setMessage("Google Play Services no está disponible.");
-						break;
-
-					case statusCodes.IN_PROGRESS:
-						setMessage("Ya existe un inicio de sesión en curso.");
-						break;
-
-					default:
-						setMessage(DEFAULT_ERROR_MESSAGE);
-				}
-
-				return;
-			}
+			const user = response.data;
 
 			if (!user?.idToken) {
 				setMessage("Google no devolvió una credencial válida.");
+				await triggerHaptic("error");
 				return;
 			}
 
@@ -62,9 +68,14 @@ export function GoogleSignInButton() {
 
 			if (signInError) {
 				setMessage(signInError.message ?? "No se pudo crear la sesión de Konti.");
+				await triggerHaptic("error");
+				return;
 			}
-		} catch {
-			setMessage(DEFAULT_ERROR_MESSAGE);
+
+			await triggerHaptic("success");
+		} catch (error) {
+			setMessage(googleErrorMessage(error));
+			await triggerHaptic("error");
 		} finally {
 			setIsSigningIn(false);
 		}

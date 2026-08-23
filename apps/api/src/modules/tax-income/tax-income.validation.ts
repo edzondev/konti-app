@@ -3,6 +3,9 @@ import { z } from "zod";
 
 const MONEY_PATTERN = /^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/;
 const MAX_NUMERIC_14_2 = new Decimal("999999999999.99");
+const fourthActivityTypeSchema = z.enum(["fourth_ordinary", "fourth_special"]);
+const employmentRecordKindSchema = z.enum(["period", "year_to_date_snapshot"]);
+const coverageScopeSchema = z.enum(["single_payer", "all_employers"]);
 
 function todayInLima(now: Date): string {
 	const parts = new Intl.DateTimeFormat("en-US", {
@@ -22,6 +25,15 @@ function isCalendarDate(value: string): boolean {
 }
 
 function receivedAtSchema(now: Date) {
+	const today = todayInLima(now);
+	return z
+		.string()
+		.refine(isCalendarDate)
+		.refine((value) => value >= "2026-01-01" && value <= "2026-12-31")
+		.refine((value) => value <= today);
+}
+
+function coverageDateSchema(now: Date) {
 	const today = todayInLima(now);
 	return z
 		.string()
@@ -81,6 +93,7 @@ function addWithholdingConstraint<Schema extends z.ZodType<Record<string, unknow
 
 function editableFields(now: Date) {
 	return {
+		activityType: fourthActivityTypeSchema,
 		receivedAt: receivedAtSchema(now),
 		grossAmount: moneySchema({ positive: true }),
 		withheldTaxAmount: moneySchema({ positive: false }),
@@ -90,7 +103,7 @@ function editableFields(now: Date) {
 }
 
 export function createTaxIncomeSchema(now = new Date()) {
-	return addWithholdingConstraint(
+	const fourth = addWithholdingConstraint(
 		z
 			.object({
 				...editableFields(now),
@@ -98,12 +111,61 @@ export function createTaxIncomeSchema(now = new Date()) {
 			})
 			.strict(),
 	);
+	const employment = addWithholdingConstraint(
+		z
+			.object({
+				incomeType: z.literal("employment"),
+				recordKind: employmentRecordKindSchema,
+				coverageStart: coverageDateSchema(now),
+				coverageEnd: coverageDateSchema(now),
+				coverageScope: coverageScopeSchema,
+				grossAmount: moneySchema({ positive: true }),
+				withheldTaxAmount: moneySchema({ positive: false }),
+				payerName: optionalText(160),
+				payerTaxId: z
+					.union([z.string().regex(/^\d{11}$/), z.null()])
+					.optional()
+					.transform((value) => value ?? null),
+				notes: optionalText(1000),
+				idempotencyKey: z.string().uuid(),
+			})
+			.strict()
+			.superRefine((value, context) => {
+				if (value.coverageStart > value.coverageEnd) {
+					context.addIssue({
+						code: "custom",
+						path: ["coverageEnd"],
+						message: "El fin de cobertura no puede preceder al inicio.",
+					});
+				}
+				if (value.coverageScope === "single_payer" && !value.payerName && !value.payerTaxId) {
+					context.addIssue({
+						code: "custom",
+						path: ["payerName"],
+						message: "Identifica al empleador de este ingreso.",
+					});
+				}
+				if (
+					value.coverageScope === "all_employers" &&
+					value.recordKind !== "year_to_date_snapshot"
+				) {
+					context.addIssue({
+						code: "custom",
+						path: ["coverageScope"],
+						message: "La cobertura de todos los empleadores requiere un acumulado confirmado.",
+					});
+				}
+			}),
+	);
+
+	return z.union([fourth, employment]);
 }
 
 export function updateTaxIncomeSchema(now = new Date()) {
-	return addWithholdingConstraint(
+	const fourth = addWithholdingConstraint(
 		z
 			.object({
+				activityType: fourthActivityTypeSchema.optional(),
 				receivedAt: editableFields(now).receivedAt.optional(),
 				grossAmount: editableFields(now).grossAmount.optional(),
 				withheldTaxAmount: editableFields(now).withheldTaxAmount.optional(),
@@ -113,28 +175,114 @@ export function updateTaxIncomeSchema(now = new Date()) {
 			.strict()
 			.refine((value) => Object.values(value).some((field) => field !== undefined)),
 	);
+	const employment = addWithholdingConstraint(
+		z
+			.object({
+				incomeType: z.literal("employment"),
+				recordKind: employmentRecordKindSchema.optional(),
+				coverageStart: coverageDateSchema(now).optional(),
+				coverageEnd: coverageDateSchema(now).optional(),
+				coverageScope: coverageScopeSchema.optional(),
+				grossAmount: moneySchema({ positive: true }).optional(),
+				withheldTaxAmount: moneySchema({ positive: false }).optional(),
+				payerName: optionalText(160, true),
+				payerTaxId: z.union([z.string().regex(/^\d{11}$/), z.null()]).optional(),
+				notes: optionalText(1000, true),
+			})
+			.strict()
+			.refine((value) => Object.keys(value).some((field) => field !== "incomeType")),
+	);
+
+	return z.union([fourth, employment]);
 }
 
 export function createDocumentDecisionSchema(now = new Date()) {
-	const notMine = z
-		.object({
-			documentId: z.string().uuid(),
-			decision: z.literal("not_mine"),
-		})
-		.strict();
-	const confirmed = addWithholdingConstraint(
+	const noIncomeDecision = (decision: "unpaid" | "unsure" | "activity_unsure" | "not_mine") =>
 		z
 			.object({
 				documentId: z.string().uuid(),
-				decision: z.literal("confirmed"),
+				decision: z.literal(decision),
+			})
+			.strict();
+	const paid = addWithholdingConstraint(
+		z
+			.object({
+				documentId: z.string().uuid(),
+				decision: z.literal("paid"),
 				...editableFields(now),
 			})
 			.strict(),
 	);
+	const employmentConfirmed = addWithholdingConstraint(
+		z
+			.object({
+				documentId: z.string().uuid(),
+				decision: z.literal("employment_confirmed"),
+				incomeType: z.literal("employment"),
+				recordKind: employmentRecordKindSchema,
+				coverageStart: coverageDateSchema(now),
+				coverageEnd: coverageDateSchema(now),
+				coverageScope: coverageScopeSchema,
+				grossAmount: moneySchema({ positive: true }),
+				withheldTaxAmount: moneySchema({ positive: false }),
+				payerName: optionalText(160),
+				payerTaxId: z
+					.union([z.string().regex(/^\d{11}$/), z.null()])
+					.optional()
+					.transform((value) => value ?? null),
+				notes: optionalText(1000),
+			})
+			.strict()
+			.superRefine((value, context) => {
+				if (value.coverageStart > value.coverageEnd) {
+					context.addIssue({ code: "custom", path: ["coverageEnd"], message: "Rango inválido." });
+				}
+				if (value.coverageScope === "single_payer" && !value.payerName && !value.payerTaxId) {
+					context.addIssue({
+						code: "custom",
+						path: ["payerName"],
+						message: "Empleador requerido.",
+					});
+				}
+				if (
+					value.coverageScope === "all_employers" &&
+					value.recordKind !== "year_to_date_snapshot"
+				) {
+					context.addIssue({
+						code: "custom",
+						path: ["coverageScope"],
+						message: "Cobertura inválida.",
+					});
+				}
+			}),
+	);
 
-	return z.union([notMine, confirmed]);
+	return z.union([
+		paid,
+		employmentConfirmed,
+		noIncomeDecision("unpaid"),
+		noIncomeDecision("unsure"),
+		noIncomeDecision("activity_unsure"),
+		noIncomeDecision("not_mine"),
+	]);
+}
+
+export function createEmploymentCoverageResolutionSchema() {
+	return z
+		.object({
+			decision: z.enum(["include_separately", "exclude_as_covered"]),
+		})
+		.strict();
 }
 
 export type CreateTaxIncomeInput = z.output<ReturnType<typeof createTaxIncomeSchema>>;
+export type CreateFourthTaxIncomeInput = Extract<CreateTaxIncomeInput, { activityType: string }>;
+export type CreateEmploymentTaxIncomeInput = Extract<
+	CreateTaxIncomeInput,
+	{ incomeType: "employment" }
+>;
 export type UpdateTaxIncomeInput = z.output<ReturnType<typeof updateTaxIncomeSchema>>;
 export type DocumentDecisionInput = z.output<ReturnType<typeof createDocumentDecisionSchema>>;
+export type EmploymentCoverageResolutionInput = z.output<
+	ReturnType<typeof createEmploymentCoverageResolutionSchema>
+>;

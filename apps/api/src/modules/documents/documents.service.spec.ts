@@ -1,5 +1,6 @@
 import { HttpStatus } from "@nestjs/common";
 import type { ObjectStorage } from "../../core/storage/storage.types";
+import type { TaxDeductionService } from "../tax-deductions/tax-deduction.service";
 import type { TaxIncomeService } from "../tax-income/tax-income.service";
 import type { TaxProfileService } from "../tax-profile/tax-profile.service";
 import { encodeDocumentCursor } from "./documents.cursor";
@@ -74,6 +75,7 @@ function createHarness(
 	options: {
 		requiresOnboarding?: boolean;
 		incomeMode?: "employment" | "independent" | "mixed";
+		trackDeductibles?: boolean;
 	} = {},
 ) {
 	const rows = new Map<string, StoredDocument>();
@@ -156,10 +158,18 @@ function createHarness(
 		getCurrentUser: jest.fn().mockResolvedValue({
 			taxYear: 2026,
 			requiresOnboarding: options.requiresOnboarding ?? false,
-			profile: { id: profileId, incomeMode: options.incomeMode ?? "independent" },
+			profile: {
+				id: profileId,
+				incomeMode: options.incomeMode ?? "independent",
+				trackDeductibles: options.trackDeductibles ?? false,
+			},
 		}),
 	};
 	const taxIncomeService = {
+		getDocumentCandidateForProfile: jest.fn().mockResolvedValue(null),
+		getEmploymentDocumentCandidateForProfile: jest.fn().mockResolvedValue(null),
+	};
+	const taxDeductionService = {
 		getDocumentCandidateForProfile: jest.fn().mockResolvedValue(null),
 	};
 
@@ -169,11 +179,13 @@ function createHarness(
 			storage as jest.Mocked<ObjectStorage>,
 			taxProfileService as unknown as TaxProfileService,
 			taxIncomeService as unknown as TaxIncomeService,
+			taxDeductionService as unknown as TaxDeductionService,
 		),
 		repository,
 		rows,
 		storage,
 		taxIncomeService,
+		taxDeductionService,
 	};
 }
 
@@ -496,6 +508,9 @@ describe("DocumentsService", () => {
 			processing: null,
 			attention: null,
 			taxIncomeCandidate: null,
+			fourthIncomeCandidate: null,
+			employmentIncomeCandidate: null,
+			taxDeductionCandidate: null,
 		});
 		expect(file).toEqual({
 			url: "https://storage.example/original",
@@ -534,7 +549,7 @@ describe("DocumentsService", () => {
 		});
 	});
 
-	it.each(["employment", "mixed"] as const)(
+	it.each(["employment"] as const)(
 		"does not expose a fourth-income candidate for a %s profile",
 		async (incomeMode) => {
 			const { service, rows, taxIncomeService } = createHarness({ incomeMode });
@@ -551,6 +566,53 @@ describe("DocumentsService", () => {
 			expect(taxIncomeService.getDocumentCandidateForProfile).not.toHaveBeenCalled();
 		},
 	);
+
+	it("checks both candidate kinds for a mixed profile", async () => {
+		const { service, rows, taxIncomeService } = createHarness({ incomeMode: "mixed" });
+		rows.set("document", {
+			...visibleDocument("document", "2026-08-19T12:00:00.000Z"),
+			status: "ready",
+		});
+
+		await service.getOne("user-1", "document");
+
+		expect(taxIncomeService.getDocumentCandidateForProfile).toHaveBeenCalledTimes(1);
+		expect(taxIncomeService.getEmploymentDocumentCandidateForProfile).toHaveBeenCalledTimes(1);
+	});
+
+	it("exposes a deduction candidate only when deductible tracking is enabled", async () => {
+		const { service, rows, taxDeductionService } = createHarness({ trackDeductibles: true });
+		rows.set("restaurant", {
+			...visibleDocument("restaurant", "2026-08-19T12:00:00.000Z"),
+			status: "ready",
+			currencyCode: "PEN",
+			issueDate: "2026-08-19",
+		});
+		taxDeductionService.getDocumentCandidateForProfile.mockResolvedValueOnce({
+			categoryHint: "restaurants_hotels",
+			expenseDate: "2026-08-19",
+			grossAmount: "100.00",
+			insuranceReimbursementAmount: null,
+			serviceDescription: "Consumo",
+			paymentMethodEvidence: null,
+			propertyCountry: null,
+			propertyUse: null,
+			supportingFormNumber: null,
+			workerRegistrationEvidence: null,
+			attributionHint: null,
+			verificationStatus: "evidence_attached",
+			calculationStatus: "potential",
+			warnings: ["Confirma los requisitos antes de incluir este gasto."],
+		});
+
+		await expect(service.getOne("user-1", "restaurant")).resolves.toMatchObject({
+			taxDeductionCandidate: {
+				categoryHint: "restaurants_hotels",
+				verificationStatus: "evidence_attached",
+				calculationStatus: "potential",
+			},
+		});
+	});
 
 	it("exposes extracted fields and review hints on a needs_review document", async () => {
 		const { service, rows } = createHarness();

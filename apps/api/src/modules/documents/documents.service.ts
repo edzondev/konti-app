@@ -5,6 +5,7 @@ import { buildDocumentObjectKey } from "../../core/storage/object-key";
 import { OBJECT_STORAGE } from "../../core/storage/storage.constants";
 import type { ObjectStorage } from "../../core/storage/storage.types";
 import type { ProcessingStatus } from "../../database/schema/schema.types";
+import { TaxDeductionService } from "../tax-deductions/tax-deduction.service";
 import { TaxIncomeService } from "../tax-income/tax-income.service";
 import { TaxProfileService } from "../tax-profile/tax-profile.service";
 import { decodeDocumentCursor, encodeDocumentCursor } from "./documents.cursor";
@@ -45,6 +46,8 @@ export class DocumentsService {
 		private readonly taxProfileService: TaxProfileService,
 		@Inject(TaxIncomeService)
 		private readonly taxIncomeService: TaxIncomeService,
+		@Inject(TaxDeductionService)
+		private readonly taxDeductionService: TaxDeductionService,
 	) {}
 
 	async createUpload(userId: string, input: CreateUploadInput): Promise<CreateUploadResult> {
@@ -259,19 +262,33 @@ export class DocumentsService {
 			current.profile.id,
 			documentId,
 		);
-		const taxIncomeCandidate =
-			current.profile.incomeMode === "independent"
-				? await this.taxIncomeService.getDocumentCandidateForProfile(
-						document.taxProfileId,
-						document.id,
-					)
-				: null;
+		const [fourthIncomeCandidate, employmentIncomeCandidate, taxDeductionCandidate] =
+			await Promise.all([
+				current.profile.incomeMode === "independent" || current.profile.incomeMode === "mixed"
+					? this.taxIncomeService.getDocumentCandidateForProfile(document.taxProfileId, document.id)
+					: null,
+				current.profile.incomeMode === "employment" || current.profile.incomeMode === "mixed"
+					? this.taxIncomeService.getEmploymentDocumentCandidateForProfile(
+							document.taxProfileId,
+							document.id,
+						)
+					: null,
+				current.profile.trackDeductibles
+					? this.taxDeductionService.getDocumentCandidateForProfile(
+							document.taxProfileId,
+							document.id,
+						)
+					: null,
+			]);
 
 		return {
 			document: this.toPublicFields(document),
 			processing: this.toProcessing(document),
 			attention: null,
-			taxIncomeCandidate,
+			taxIncomeCandidate: fourthIncomeCandidate,
+			fourthIncomeCandidate,
+			employmentIncomeCandidate,
+			taxDeductionCandidate,
 		};
 	}
 

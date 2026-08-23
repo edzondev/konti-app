@@ -10,7 +10,9 @@ const raw = {
 	subtotalAmount: "125.42",
 	taxAmount: "22.58",
 	totalAmount: "148.00",
-	paymentDate: "20/08/2026",
+	paymentTerms: "cash",
+	dueDate: null,
+	actualPaymentDate: "20/08/2026",
 	grossFeeAmount: "2500.00",
 	incomeTaxWithheldAmount: "200.00",
 	netPaidAmount: "2300.00",
@@ -56,7 +58,9 @@ describe("normalizeExtraction", () => {
 		expect(normalized).toMatchObject({
 			documentType: "fee_receipt",
 			issueDate: "2026-08-12",
-			paymentDate: "2026-08-20",
+			paymentTerms: "cash",
+			dueDate: null,
+			actualPaymentDate: "2026-08-20",
 			grossFeeAmount: "2500.00",
 			incomeTaxWithheldAmount: null,
 			netPaidAmount: "2300.00",
@@ -65,11 +69,79 @@ describe("normalizeExtraction", () => {
 		});
 	});
 
-	it("does not infer payment date from issue date", () => {
-		const normalized = normalizeExtraction({ ...raw, paymentDate: null });
+	it("does not infer actual payment date from issue date", () => {
+		const normalized = normalizeExtraction({ ...raw, actualPaymentDate: null });
 
 		expect(normalized.issueDate).toBe("2026-08-12");
-		expect(normalized.paymentDate).toBeNull();
+		expect(normalized.actualPaymentDate).toBeNull();
+	});
+
+	it("persists only protected consumer identity evidence", () => {
+		const normalized = normalizeExtraction({
+			...raw,
+			consumerDocumentNumber: "12345678",
+			consumerDocumentBlindIndex: "a".repeat(64),
+			consumerDocumentLast4: "5678",
+		});
+
+		expect(normalized).toMatchObject({
+			consumerDocumentBlindIndex: "a".repeat(64),
+			consumerDocumentLast4: "5678",
+		});
+		expect(normalized).not.toHaveProperty("consumerDocumentNumber");
+		expect(JSON.stringify(normalized)).not.toContain("12345678");
+	});
+
+	it("normalizes explicit payroll coverage without inferring it from issueDate", () => {
+		const normalized = normalizeExtraction({
+			...raw,
+			documentType: "boleta_de_pago",
+			employmentRecordKind: "period",
+			employmentGrossAmount: "5000.00",
+			employmentWithheldTaxAmount: "150.00",
+			coverageStart: "01/03/2026",
+			coverageEnd: "31/03/2026",
+			coverageScope: "single_payer",
+			employerName: " ACME SAC ",
+			employerTaxId: "20123456789",
+		});
+
+		expect(normalized).toMatchObject({
+			documentType: "payroll_slip",
+			employmentRecordKind: "period",
+			coverageStart: "2026-03-01",
+			coverageEnd: "2026-03-31",
+			coverageScope: "single_payer",
+			employerName: "ACME SAC",
+			employerTaxId: "20123456789",
+		});
+		expect(
+			normalizeExtraction({ ...raw, documentType: "boleta_de_pago" }).coverageStart,
+		).toBeNull();
+	});
+
+	it.each([
+		["certificado_retenciones", "withholding_certificate"],
+		["reporte_sunat", "sunat_document"],
+	] as const)("maps %s employment evidence to %s", (documentType, expected) => {
+		expect(normalizeExtraction({ ...raw, documentType }).documentType).toBe(expected);
+	});
+
+	it("keeps a credit due date separate from actual collection", () => {
+		const normalized = normalizeExtraction({
+			...raw,
+			documentType: "recibo_por_honorarios",
+			issueDate: "2024-03-18",
+			paymentTerms: "credit",
+			dueDate: "2024-04-19",
+			actualPaymentDate: null,
+		});
+
+		expect(normalized).toMatchObject({
+			paymentTerms: "credit",
+			dueDate: "2024-04-19",
+			actualPaymentDate: null,
+		});
 	});
 });
 
@@ -109,7 +181,9 @@ describe("validateExtraction", () => {
 			subtotalAmount: null,
 			taxAmount: null,
 			totalAmount: null,
-			paymentDate: null,
+			paymentTerms: null,
+			dueDate: null,
+			actualPaymentDate: null,
 			grossFeeAmount: null,
 			incomeTaxWithheldAmount: null,
 			netPaidAmount: null,

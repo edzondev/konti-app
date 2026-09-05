@@ -78,7 +78,7 @@ export type EvaluateCurrentTaxStatusContext = {
 };
 
 export type CurrentTaxStatus = {
-	status: "calculated" | "attention_required" | "insufficient_data";
+	status: "calculated" | "up_to_date" | "attention_required" | "insufficient_data";
 	taxYear: 2026;
 	evaluation: {
 		id: string;

@@ -267,7 +267,7 @@ export class TaxStatusService {
 		) {
 			throw new ConflictException({
 				code: "TAX_PROFILE_MODE_NOT_SUPPORTED",
-				message: "Este cálculo está disponible para ingresos independientes.",
+				message: "Este cálculo no está disponible para tu modalidad de ingresos.",
 			});
 		}
 
@@ -279,11 +279,15 @@ export class TaxStatusService {
 		openAttentionCount: number,
 		monthlyPeriods: readonly MonthlyApplicablePeriod[],
 	): CurrentTaxStatus {
+		const snapshotStatus = evaluation?.outputSnapshot.status;
+		const hasUnreviewedPeriods = monthlyPeriods.some((period) => period.status === "not_reviewed");
 		return {
 			status:
 				openAttentionCount > 0
 					? "attention_required"
-					: (evaluation?.outputSnapshot.status ?? "insufficient_data"),
+					: snapshotStatus === "calculated" && !hasUnreviewedPeriods
+						? "up_to_date"
+						: (snapshotStatus ?? "insufficient_data"),
 			taxYear: 2026,
 			evaluation: evaluation
 				? {

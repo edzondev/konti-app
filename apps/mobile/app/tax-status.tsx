@@ -56,11 +56,13 @@ export default function TaxStatusScreen() {
 							TU SITUACIÓN
 						</Text>
 						<Text className="mt-4 text-[36px] font-light leading-[42px] tracking-tight text-konti-ivory">
-							{status === "calculated"
-								? "Estimación actualizada."
-								: status === "attention_required"
-									? "Hay información por revisar."
-									: "Aún faltan datos para estimar."}
+							{status === "up_to_date"
+								? "No hay nada pendiente por revisar."
+								: status === "calculated"
+									? "Estimación actualizada."
+									: status === "attention_required"
+										? "Hay información por revisar."
+										: "Aún faltan datos para estimar."}
 						</Text>
 						<Text className="mt-3 text-[15px] leading-6 text-konti-ivory/45">
 							Con tus datos registrados hasta hoy. No proyectamos meses faltantes.

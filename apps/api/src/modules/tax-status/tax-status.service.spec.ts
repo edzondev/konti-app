@@ -269,6 +269,55 @@ describe("TaxStatusService", () => {
 		});
 	});
 
+	it("reports up_to_date when the estimate is calculated and nothing is pending review", async () => {
+		jest.useFakeTimers().setSystemTime(new Date("2026-08-23T17:00:00.000Z"));
+		try {
+			const { service, setMonthlyPeriodStates } = createHarness();
+			setMonthlyPeriodStates(
+				Array.from({ length: 8 }, (_, index) => ({
+					period: `2026-${String(index + 1).padStart(2, "0")}`,
+					status: "no_action_detected" as const,
+				})),
+			);
+			await service.evaluateAndPersist(executor, {
+				taxProfileId,
+				taxYear: 2026,
+				triggeredBy: "tax_income_created",
+			});
+
+			await expect(service.getCurrent("user-1")).resolves.toMatchObject({
+				status: "up_to_date",
+				openAttentionCount: 0,
+			});
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
+	it("keeps calculated when an elapsed month is still unreviewed", async () => {
+		jest.useFakeTimers().setSystemTime(new Date("2026-08-23T17:00:00.000Z"));
+		try {
+			const { service, setMonthlyPeriodStates } = createHarness();
+			setMonthlyPeriodStates(
+				Array.from({ length: 7 }, (_, index) => ({
+					period: `2026-${String(index + 1).padStart(2, "0")}`,
+					status: "no_action_detected" as const,
+				})),
+			);
+			await service.evaluateAndPersist(executor, {
+				taxProfileId,
+				taxYear: 2026,
+				triggeredBy: "tax_income_created",
+			});
+
+			await expect(service.getCurrent("user-1")).resolves.toMatchObject({
+				status: "calculated",
+			});
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it("persists every new independent evaluation with the unified work-income contract", async () => {
 		const { service, evaluations } = createHarness();
 

@@ -1,4 +1,9 @@
-export type HomeStatus = "starting" | "calculated" | "attention_required" | "insufficient_data";
+export type HomeStatus =
+	| "starting"
+	| "calculated"
+	| "up_to_date"
+	| "attention_required"
+	| "insufficient_data";
 
 export type LegacyHomePrimaryAction =
 	| "open_capture"

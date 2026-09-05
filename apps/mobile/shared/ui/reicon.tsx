@@ -1,4 +1,3 @@
-import { withUniwind } from "uniwind";
 import AddIcon from "reicon-react-native/icons/Add";
 import ArrowDownIcon from "reicon-react-native/icons/ArrowDown";
 import ArrowRightIcon from "reicon-react-native/icons/ArrowRight";
@@ -7,6 +6,7 @@ import CheckIcon from "reicon-react-native/icons/Check";
 import HelpCircleIcon from "reicon-react-native/icons/HelpCircle";
 import HomeIcon from "reicon-react-native/icons/Home";
 import ReceiptIcon from "reicon-react-native/icons/Receipt";
+import { withUniwind } from "uniwind";
 
 /** Direct reicon imports wrapped once at module level for Uniwind colorClassName. */
 export const Add = withUniwind(AddIcon);

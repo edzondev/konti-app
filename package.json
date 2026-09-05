@@ -7,6 +7,7 @@
 		"lint": "biome lint .",
 		"format": "biome format --write .",
 		"typecheck": "turbo run typecheck",
+		"test": "turbo run test",
 		"check": "biome check . && turbo run typecheck",
 		"check:write": "biome check --write ."
 	},
@@ -15,8 +16,8 @@
 		"turbo": "^2.10.11",
 		"typescript": "7.0.2"
 	},
-	"packageManager": "pnpm@11.22.0",
+	"packageManager": "pnpm@11.24.0",
 	"engines": {
-		"node": ">=22"
+		"node": ">=24"
 	}
 }

@@ -14,7 +14,9 @@
 			"!**/coverage",
 			"!**/.expo",
 			"!**/android",
-			"!**/ios"
+			"!**/ios",
+			"!**/drizzle",
+			"!*.dc.html"
 		]
 	},
 	"formatter": {
@@ -32,6 +34,18 @@
 			}
 		}
 	},
+	"overrides": [
+		{
+			"includes": ["apps/mobile/global.css"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noDuplicateCustomProperties": "off"
+					}
+				}
+			}
+		}
+	],
 	"javascript": {
 		"parser": {
 			"unsafeParameterDecoratorsEnabled": true

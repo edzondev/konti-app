@@ -1,5 +1,5 @@
-import { HomeScreen } from "@/features/home/home-screen";
 import { authClient } from "@/core/auth-client";
+import { HomeScreen } from "@/features/home/home-screen";
 
 export default function InicioTabScreen() {
 	const { data: session } = authClient.useSession();

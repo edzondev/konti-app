@@ -13,8 +13,8 @@ import { createDevLogger } from "@/core/dev-logger";
 import { triggerHaptic } from "@/core/haptics";
 import {
 	isSupportedImageMime,
-	localJpegFromCameraFile,
 	type LocalImageFile,
+	localJpegFromCameraFile,
 } from "@/features/documents/document-file";
 import { useDocumentIntake } from "@/features/documents/use-document-intake";
 

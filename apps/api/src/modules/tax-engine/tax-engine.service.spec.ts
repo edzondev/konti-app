@@ -318,3 +318,75 @@ describe("TaxEngineService", () => {
 		expect(specialFourth.sources).toHaveLength(2);
 	});
 });
+
+describe("TaxEngineService — golden P0 de la suite QA", () => {
+	const engine = new TaxEngineService();
+
+	it("TAX4-001: RHE de S/100,000 con retención de S/5,000", () => {
+		const result = engine.calculateFourthCategory2026(
+			input([income("100000.00", "5000.00", "rhe-100k")]),
+		);
+
+		expect(result).toMatchObject({
+			automaticDeduction20: "20000.00",
+			netFourthIncome: "80000.00",
+			sevenUitDeduction: "38500.00",
+			preliminaryTaxableWorkIncome: "41500.00",
+			calculatedTaxBeforeAdditionalDeductions: "4160.00",
+			registeredWithholdings: "5000.00",
+			differenceAfterRegisteredWithholdings: "-840.00",
+		});
+	});
+
+	it("MIX-003: impuesto exacto en las fronteras acumuladas de 5, 20, 35, 45 y 50 UIT", () => {
+		const cases = [
+			["82500.00", "27500.00", "2200.00"],
+			["185625.00", "110000.00", "13750.00"],
+			["288750.00", "192500.00", "27775.00"],
+			["357500.00", "247500.00", "38775.00"],
+			["391875.00", "275000.00", "47025.00"],
+		] as const;
+
+		for (const [gross, taxable, expectedTax] of cases) {
+			expect(
+				engine.calculateFourthCategory2026(input([income(gross, "0.00", `bracket-${gross}`)])),
+			).toMatchObject({
+				preliminaryTaxableWorkIncome: taxable,
+				calculatedTaxBeforeAdditionalDeductions: expectedTax,
+			});
+		}
+	});
+
+	it("MIX-001: cuarta neta 30,000 + quinta 30,000 con créditos de 2,200", () => {
+		const result = engine.calculateWorkIncome2026({
+			taxYear: 2026,
+			jurisdictionCode: "PE",
+			currencyCode: "PEN",
+			fourthIncomes: [income("37500.00", "0.00", "fourth-ordinary")],
+			employmentIncomes: [
+				{
+					id: "employment-period",
+					recordKind: "period",
+					coverageStart: "2026-01-01",
+					coverageEnd: "2026-12-31",
+					coverageScope: "single_payer",
+					grossAmountPen: "30000.00",
+					withheldTaxAmountPen: "2200.00",
+					calculationDisposition: "included",
+					payerTaxId: "20100047218",
+					payerName: null,
+				},
+			],
+			confirmedAdvancePayments: "0.00",
+		});
+
+		expect(result).toMatchObject({
+			status: "calculated",
+			grossFourthIncome: "37500.00",
+			grossFifthIncome: "30000.00",
+			registeredWithholdings: "2200.00",
+			differenceAfterRegisteredWithholdings: "-480.00",
+			isDefinitive: false,
+		});
+	});
+});

@@ -150,11 +150,19 @@ export async function invalidateTaxIncomeRelated(
 		);
 	}
 
+	const startedAt = Date.now();
 	const results = await Promise.allSettled(invalidations);
 	const failedCount = results.filter((result) => result.status === "rejected").length;
 	if (failedCount > 0) {
-		performanceLog.warn("related_invalidations_failed", { failedCount });
+		performanceLog.warn("related_invalidations_failed", {
+			failedCount,
+			durationMs: Date.now() - startedAt,
+		});
+		return;
 	}
+	performanceLog.info("related_invalidations_completed", {
+		durationMs: Date.now() - startedAt,
+	});
 }
 
 export function useCreateTaxIncome(userId: string, callbacks: CreateTaxIncomeCallbacks = {}) {

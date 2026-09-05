@@ -174,6 +174,7 @@ function createHarness() {
 		findActiveBySourceDocument: jest.fn(),
 		insertDocumentIncome: jest.fn(),
 		resolveFourthIncomeAttention: jest.fn(),
+		markDocumentNotRelevant: jest.fn(),
 		keepFourthIncomeAttentionOpen: jest.fn(),
 		getDocumentCandidateSource: jest.fn(),
 		recalculateEmploymentCoverage: jest.fn(

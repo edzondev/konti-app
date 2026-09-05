@@ -24,6 +24,7 @@ type DecisionState = {
 	activeIncome: TaxIncomeRecord | undefined;
 	attentionStatus: "open" | "resolved";
 	resolution: Record<string, unknown> | null;
+	documentTaxRelevanceStatus: "unknown" | "potentially_relevant" | "not_relevant" | "needs_review";
 };
 
 function cloneState(state: DecisionState): DecisionState {
@@ -53,6 +54,7 @@ function createHarness() {
 		activeIncome: undefined,
 		attentionStatus: "open",
 		resolution: null,
+		documentTaxRelevanceStatus: "potentially_relevant",
 	};
 	const stateFor = (executor: DatabaseExecutor) => executor as unknown as DecisionState;
 	const repository = {
@@ -103,6 +105,10 @@ function createHarness() {
 				state.resolution = structuredClone(resolution);
 			},
 		),
+		markDocumentNotRelevant: jest.fn(async (executor: DatabaseExecutor) => {
+			const state = stateFor(executor);
+			state.documentTaxRelevanceStatus = "not_relevant";
+		}),
 		keepFourthIncomeAttentionOpen: jest.fn(
 			async (
 				executor: DatabaseExecutor,
@@ -263,8 +269,8 @@ describe("TaxIncomeService document decision", () => {
 		});
 	});
 
-	it("resolves not-mine without changing document tax relevance", async () => {
-		const { service, repository, taxStatus, document, getCommittedState } = createHarness();
+	it("resolves not-mine and marks the document tributarily irrelevant", async () => {
+		const { service, repository, taxStatus, getCommittedState } = createHarness();
 
 		await expect(
 			service.decideDocument("user-1", { documentId, decision: "not_mine" }),
@@ -272,7 +278,12 @@ describe("TaxIncomeService document decision", () => {
 		expect(repository.insertDocumentIncome).not.toHaveBeenCalled();
 		expect(taxStatus.evaluateAndPersist).not.toHaveBeenCalled();
 		expect(getCommittedState().resolution).toEqual({ decision: "not_mine" });
-		expect(document.taxRelevanceStatus).toBe("potentially_relevant");
+		expect(repository.markDocumentNotRelevant).toHaveBeenCalledWith(
+			expect.anything(),
+			profileId,
+			documentId,
+		);
+		expect(getCommittedState().documentTaxRelevanceStatus).toBe("not_relevant");
 	});
 
 	it("rolls back paid income and attention when evaluation fails", async () => {
@@ -286,6 +297,7 @@ describe("TaxIncomeService document decision", () => {
 			activeIncome: undefined,
 			attentionStatus: "open",
 			resolution: null,
+			documentTaxRelevanceStatus: "potentially_relevant",
 		});
 	});
 

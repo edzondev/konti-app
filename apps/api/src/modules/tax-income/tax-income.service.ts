@@ -423,6 +423,7 @@ export class TaxIncomeService {
 				await this.repository.resolveFourthIncomeAttention(tx, profile.id, input.documentId, {
 					decision: "not_mine",
 				});
+				await this.repository.markDocumentNotRelevant(tx, profile.id, input.documentId);
 				return { kind: "not_mine" as const };
 			}
 			if (
@@ -530,7 +531,10 @@ export class TaxIncomeService {
 		if (!allowed) {
 			throw new ConflictException({
 				code: "TAX_PROFILE_MODE_NOT_SUPPORTED",
-				message: "Este registro está disponible para ingresos independientes.",
+				message:
+					kind === "fourth"
+						? "Tu perfil es de planilla; aquí registras ingresos por honorarios."
+						: "Tu perfil es de ingresos independientes; aquí registras ingresos de planilla.",
 			});
 		}
 

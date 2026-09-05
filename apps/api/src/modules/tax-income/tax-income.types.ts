@@ -181,6 +181,11 @@ export interface TaxIncomeRepositoryPort {
 		documentId: string,
 		resolution: Record<string, unknown>,
 	): Promise<void>;
+	markDocumentNotRelevant(
+		executor: DatabaseExecutor,
+		taxProfileId: string,
+		documentId: string,
+	): Promise<void>;
 	keepFourthIncomeAttentionOpen(
 		executor: DatabaseExecutor,
 		taxProfileId: string,

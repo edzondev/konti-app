@@ -639,6 +639,17 @@ export class TaxIncomeRepository implements TaxIncomeRepositoryPort {
 			);
 	}
 
+	async markDocumentNotRelevant(
+		executor: DatabaseExecutor,
+		taxProfileId: string,
+		documentId: string,
+	): Promise<void> {
+		await executor
+			.update(documents)
+			.set({ taxRelevanceStatus: "not_relevant", updatedAt: new Date() })
+			.where(and(eq(documents.id, documentId), eq(documents.taxProfileId, taxProfileId)));
+	}
+
 	async keepFourthIncomeAttentionOpen(
 		executor: DatabaseExecutor,
 		taxProfileId: string,

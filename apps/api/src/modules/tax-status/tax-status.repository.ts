@@ -14,6 +14,7 @@ import {
 import type { TaxDeductionRecord } from "../tax-deductions/tax-deduction.types";
 import type { EmploymentIncome2026 } from "../tax-engine/pe-2026/fifth-category.rules";
 import type { FourthCategory2026Income } from "../tax-engine/tax-engine.types";
+import { lastDayOfPeriod } from "./period-bounds";
 import type {
 	CompletedTaxEvaluation,
 	InsertCompletedTaxEvaluation,
@@ -258,7 +259,7 @@ export class TaxStatusRepository implements TaxStatusRepositoryPort {
 					eq(taxEvaluations.evaluationType, "period_review"),
 					eq(taxEvaluations.status, "completed"),
 					gte(taxEvaluations.periodStart, "2026-01-01"),
-					lte(taxEvaluations.periodStart, `${throughPeriod}-31`),
+					lte(taxEvaluations.periodStart, lastDayOfPeriod(throughPeriod)),
 					isNotNull(taxEvaluations.completedAt),
 				),
 			)

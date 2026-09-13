@@ -1,16 +1,9 @@
-/**
- * Standalone Better Auth instance for the CLI only
- * (`pnpm dlx auth@latest generate --config ./src/lib/auth.ts`).
- *
- * NestJS creates auth via `createAuth()` in AuthModule — do not import this
- * file into the Nest app.
- */
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth } from "better-auth";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
-import * as schema from "../database/schema";
+import * as schema from "../database/schema/index.js";
 
 const pool = new Pool({
 	connectionString: process.env.DATABASE_URL,

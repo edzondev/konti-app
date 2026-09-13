@@ -47,8 +47,7 @@
 				{
 					"photosPermission": "Konti necesita acceso a tus fotos para guardar tus comprobantes."
 				}
-			],
-			"expo-image"
+			]
 		],
 		"experiments": {
 			"typedRoutes": true,
@@ -60,6 +59,12 @@
 				"projectId": "2a4640e5-ff57-4106-b9d0-2623bfea9d16"
 			}
 		},
-		"owner": "edzondev"
+		"owner": "edzondev",
+		"runtimeVersion": {
+			"policy": "appVersion"
+		},
+		"updates": {
+			"url": "https://u.expo.dev/2a4640e5-ff57-4106-b9d0-2623bfea9d16"
+		}
 	}
 }

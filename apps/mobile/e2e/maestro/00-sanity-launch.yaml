@@ -1,0 +1,16 @@
+appId: com.konti.app
+---
+# SMK base: demuestra que Maestro conecta, lanza la app y lee la UI.
+# La app puede arrancar en 3 estados validos (login, onboarding o Home);
+# el assert acepta cualquiera porque la pantalla exacta depende de la sesion local.
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible:
+      - "Términos · Privacidad"
+      - "Continuar"
+      - "Comprobantes"
+    timeout: 30000
+
+- takeScreenshot: 00-sanity-launch

@@ -1,12 +1,12 @@
-import { Injectable, type OnApplicationShutdown } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import type { Database } from "./database.types";
-import * as schema from "./schema";
+import { Database } from "./database.types.js";
+import * as schema from "./schema/index.js";
 
 @Injectable()
-export class DatabaseService implements OnApplicationShutdown {
+export class DatabaseService {
 	private readonly pool: Pool;
 	readonly db: Database;
 

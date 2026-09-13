@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.5.13/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -14,7 +14,8 @@
 			"!**/coverage",
 			"!**/.expo",
 			"!**/android",
-			"!**/ios"
+			"!**/ios",
+			"!**/drizzle"
 		]
 	},
 	"formatter": {
@@ -32,6 +33,18 @@
 			}
 		}
 	},
+	"overrides": [
+		{
+			"includes": ["apps/mobile/global.css"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noDuplicateCustomProperties": "off"
+					}
+				}
+			}
+		}
+	],
 	"javascript": {
 		"parser": {
 			"unsafeParameterDecoratorsEnabled": true

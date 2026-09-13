@@ -2,9 +2,9 @@ import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { expo } from "@better-auth/expo";
 import type { ConfigService } from "@nestjs/config";
 import { type BetterAuthPlugin, betterAuth } from "better-auth";
-import type { Database } from "../database/database.types";
-import * as schema from "../database/schema";
-import { AUTH_TRUSTED_ORIGINS } from "./auth.constants";
+import type { Database } from "../database/database.types.js";
+import * as schema from "../database/schema/index.js";
+import { AUTH_TRUSTED_ORIGINS } from "./auth.constants.js";
 
 export function createAuth(db: Database, configService: ConfigService) {
 	return betterAuth({

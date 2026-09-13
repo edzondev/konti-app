@@ -1,1 +1,0 @@
-ALTER TABLE "tax_profiles" ADD COLUMN "track_deductibles" boolean DEFAULT false NOT NULL;

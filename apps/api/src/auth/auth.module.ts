@@ -1,11 +1,10 @@
 import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-
-import { DatabaseModule } from "../database/database.module";
-import { DatabaseService } from "../database/database.service";
-import { AUTH } from "./auth.constants";
-import { AuthController } from "./auth.controller";
-import { createAuth } from "./auth.factory";
+import { DatabaseModule } from "../database/database.module.js";
+import { DatabaseService } from "../database/database.service.js";
+import { AUTH } from "./auth.constants.js";
+import { AuthController } from "./auth.controller.js";
+import { createAuth } from "./auth.factory.js";
 
 @Module({
 	imports: [DatabaseModule],

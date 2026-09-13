@@ -1,11 +1,8 @@
 import { Tabs } from "expo-router";
 
-import { KontiTabBar } from "@/features/home/components/konti-tab-bar";
-
 export default function TabLayout() {
 	return (
 		<Tabs
-			tabBar={(props) => <KontiTabBar {...props} />}
 			screenOptions={{
 				animation: "none",
 				headerShown: false,

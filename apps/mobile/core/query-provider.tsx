@@ -1,26 +1,6 @@
-import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { PropsWithChildren } from "react";
-import { useEffect, useRef, useState } from "react";
-import { authClient } from "@/core/auth-client";
-import { ApiError } from "./api-error";
-import { shouldClearQueryCache } from "./query-session-lifecycle";
-
-function QuerySessionLifecycle() {
-	const queryClient = useQueryClient();
-	const { data: session } = authClient.useSession();
-	const previousUserId = useRef<string | undefined>(undefined);
-	const userId = session?.user.id;
-
-	useEffect(() => {
-		if (shouldClearQueryCache(previousUserId.current, userId)) {
-			queryClient.clear();
-		}
-
-		previousUserId.current = userId;
-	}, [queryClient, userId]);
-
-	return null;
-}
+import { useState } from "react";
 
 export function QueryProvider({ children }: PropsWithChildren) {
 	const [queryClient] = useState(
@@ -29,15 +9,7 @@ export function QueryProvider({ children }: PropsWithChildren) {
 				defaultOptions: {
 					queries: {
 						staleTime: 30_000,
-						retry: (failureCount, error) => {
-							if (error instanceof ApiError && error.status >= 400 && error.status < 500) {
-								return false;
-							}
-
-							return failureCount < 2;
-						},
-						refetchOnMount: true,
-						refetchOnReconnect: true,
+						retry: 2,
 					},
 					mutations: {
 						retry: 0,
@@ -46,10 +18,5 @@ export function QueryProvider({ children }: PropsWithChildren) {
 			}),
 	);
 
-	return (
-		<QueryClientProvider client={queryClient}>
-			<QuerySessionLifecycle />
-			{children}
-		</QueryClientProvider>
-	);
+	return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "documents" ADD COLUMN "igv_amount" numeric(14, 2);

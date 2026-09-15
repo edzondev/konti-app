@@ -39,8 +39,7 @@ export class OcrClient {
 		});
 
 		if (!response.ok) {
-			const text = await response.text();
-			this.logger.error(`Mistral OCR failed: ${response.status} ${text}`);
+			this.logger.error(`Mistral OCR failed: ${response.status}`);
 			throw new Error(`Mistral OCR failed: ${response.status}`);
 		}
 

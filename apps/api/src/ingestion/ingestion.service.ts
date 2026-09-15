@@ -25,29 +25,33 @@ export class IngestionService {
 	) {}
 
 	async process(input: IngestionInput): Promise<void> {
-		const extracted = await this.extract(input);
+		const { extracted, source } = await this.extract(input);
 
 		await this.db
 			.update(documents)
 			.set({
 				...extracted,
 				status: "ready",
-				extractionSource: input.qrPayload ? "qr" : "ocr",
+				extractionSource: source,
 				updatedAt: new Date(),
 			})
 			.where(eq(documents.id, input.documentId));
 
-		this.logger.log(`document ${input.documentId} ready via ${input.qrPayload ? "qr" : "ocr"}`);
+		this.logger.log(`document ${input.documentId} ready via ${source}`);
 	}
 
-	private async extract(input: IngestionInput): Promise<ExtractedDocument> {
+	private async extract(
+		input: IngestionInput,
+	): Promise<{ extracted: ExtractedDocument; source: "qr" | "ocr" }> {
 		if (input.qrPayload) {
 			const parsed = parseQrPayload(input.qrPayload);
-			if (parsed) return parsed;
-
+			if (parsed) {
+				return { extracted: parsed, source: "qr" };
+			}
 			this.logger.warn(`QR parse failed for document ${input.documentId}, falling back to OCR`);
 		}
 
-		return this.ocr.extract(input.buffer, input.mimeType);
+		const extracted = await this.ocr.extract(input.buffer, input.mimeType);
+		return { extracted, source: "ocr" };
 	}
 }

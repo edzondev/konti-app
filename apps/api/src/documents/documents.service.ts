@@ -35,6 +35,18 @@ export class DocumentsService {
 
 	async create(userId: string, dto: CreateDocumentDto, file: UploadInput) {
 		const sha256 = createHash("sha256").update(file.buffer).digest("hex");
+
+		// Idempotencia: misma imagen del mismo usuario → devolver el existente.
+		const [existing] = await this.db
+			.select()
+			.from(documents)
+			.where(and(eq(documents.userId, userId), eq(documents.sha256, sha256), isNull(documents.deletedAt)))
+			.limit(1);
+
+		if (existing) {
+			return existing;
+		}
+
 		const objectKey = buildDocumentObjectKey(userId, file.mimeType);
 
 		await this.storage.upload(objectKey, file.buffer, file.mimeType);
@@ -100,12 +112,23 @@ export class DocumentsService {
 		return doc;
 	}
 
+	async softDelete(userId: string, id: string): Promise<void> {
+		const [updated] = await this.db
+			.update(documents)
+			.set({ deletedAt: new Date(), updatedAt: new Date() })
+			.where(and(visibleToUser(userId), eq(documents.id, id)))
+			.returning({ id: documents.id });
+
+		if (!updated) throw new NotFoundException("Document not found");
+	}
+
 	async summary(userId: string, month?: string) {
 		const target = month ?? currentMonth();
 		const { start, end } = monthRange(target);
 
 		const where = and(
 			visibleToUser(userId),
+			eq(documents.status, "ready"),
 			gte(documents.issueDate, start),
 			lte(documents.issueDate, end),
 		);

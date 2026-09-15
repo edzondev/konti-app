@@ -8,6 +8,8 @@ import * as schema from "../database/schema/index.js";
 import { AUTH_TRUSTED_ORIGINS } from "./auth.constants.js";
 
 export function createAuth(db: Database, configService: ConfigService<Env, true>) {
+	const isProd = configService.get("NODE_ENV") === "production";
+
 	return betterAuth({
 		database: drizzleAdapter(db, {
 			provider: "pg",
@@ -20,6 +22,14 @@ export function createAuth(db: Database, configService: ConfigService<Env, true>
 		},
 		plugins: [expo() as BetterAuthPlugin],
 		trustedOrigins: [...AUTH_TRUSTED_ORIGINS],
+		advanced: {
+			useSecureCookies: isProd,
+			defaultCookieAttributes: {
+				httpOnly: true,
+				sameSite: "lax",
+				secure: isProd,
+			},
+		},
 		socialProviders: {
 			google: {
 				clientId: configService.getOrThrow("GOOGLE_WEB_CLIENT_ID"),

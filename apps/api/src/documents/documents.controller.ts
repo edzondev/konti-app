@@ -2,7 +2,9 @@ import {
 	BadRequestException,
 	Body,
 	Controller,
+	Delete,
 	Get,
+	HttpCode,
 	MaxFileSizeValidator,
 	Param,
 	ParseFilePipe,
@@ -20,6 +22,7 @@ import { CurrentUser } from "../auth/current-user.decorator.js";
 import { DocumentMimeTypeSchema } from "../storage/mime.js";
 import { CreateDocumentDto, DocumentIdParamDto, ListDocumentsQueryDto } from "./documents.dto.js";
 import { DocumentsService } from "./documents.service.js";
+import { DocumentsRateLimitGuard } from "./documents-rate-limit.guard.js";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
@@ -29,6 +32,7 @@ export class DocumentsController {
 	constructor(private readonly documentsService: DocumentsService) {}
 
 	@Post()
+	@UseGuards(DocumentsRateLimitGuard)
 	@UseInterceptors(FileInterceptor("file", { storage: memoryStorage() }))
 	async create(
 		@CurrentUser() user: AuthUser,
@@ -65,5 +69,14 @@ export class DocumentsController {
 	@Get(":id")
 	async findOne(@CurrentUser() user: AuthUser, @Param() params: DocumentIdParamDto) {
 		return this.documentsService.findOne(user.id, params.id);
+	}
+
+	@Delete(":id")
+	@HttpCode(204)
+	async softDelete(
+		@CurrentUser() user: AuthUser,
+		@Param() params: DocumentIdParamDto,
+	): Promise<void> {
+		await this.documentsService.softDelete(user.id, params.id);
 	}
 }

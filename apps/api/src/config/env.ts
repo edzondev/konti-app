@@ -32,6 +32,9 @@ export const EnvSchema = v.object({
 	R2_DOWNLOAD_TTL_SECONDS: numberFromEnv(300, 1),
 
 	MISTRAL_API_KEY: v.pipe(v.string(), v.minLength(1)),
+
+	POSTHOG_API_KEY: v.pipe(v.string(), v.minLength(1)),
+	POSTHOG_HOST: v.optional(v.pipe(v.string(), v.url()), "https://us.i.posthog.com"),
 });
 
 export type Env = v.InferOutput<typeof EnvSchema>;

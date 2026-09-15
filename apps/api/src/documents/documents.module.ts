@@ -5,6 +5,7 @@ import { DatabaseModule } from "../database/database.module.js";
 import { IngestionModule } from "../ingestion/ingestion.module.js";
 import { StorageModule } from "../storage/storage.module.js";
 import { DocumentsController } from "./documents.controller.js";
+import { DocumentsRateLimitGuard } from "./documents-rate-limit.guard.js";
 import { DocumentsService } from "./documents.service.js";
 
 @Module({
@@ -16,7 +17,7 @@ import { DocumentsService } from "./documents.service.js";
 			storage: memoryStorage(),
 		}),
 	],
-	providers: [DocumentsService],
+	providers: [DocumentsService, DocumentsRateLimitGuard],
 	controllers: [DocumentsController],
 })
 export class DocumentsModule {}

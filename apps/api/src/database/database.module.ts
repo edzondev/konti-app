@@ -9,12 +9,12 @@ import { DatabaseService } from "./database.service.js";
 		DatabaseService,
 		{
 			provide: DATABASE,
-			useFactory: (databaseService: DatabaseService) => {
-				return databaseService.db;
-			},
+			useFactory: (databaseService: DatabaseService) => databaseService.db,
 			inject: [DatabaseService],
 		},
 	],
-	exports: [DATABASE, DatabaseService],
+	// Los consumidores inyectan el cliente vía `DATABASE`; `DatabaseService`
+	// queda interno (es infraestructura: pool + lifecycle).
+	exports: [DATABASE],
 })
 export class DatabaseModule {}

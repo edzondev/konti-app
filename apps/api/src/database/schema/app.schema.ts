@@ -1,4 +1,5 @@
 import {
+	AnyPgColumn,
 	boolean,
 	char,
 	date,
@@ -56,13 +57,13 @@ export const documents = pgTable(
 		documentNumber: text("document_number"),
 		currencyCode: char("currency_code", { length: 3 }),
 		totalAmount: numeric("total_amount", { precision: 14, scale: 2 }),
-
+		igvAmount: numeric("igv_amount", { precision: 14, scale: 2 }),
 		// Cómo se obtuvieron los datos
 		extractionSource: text("extraction_source").$type<"qr" | "ocr" | "manual">(),
 		wasUserCorrected: boolean("was_user_corrected").default(false).notNull(),
 
 		// Duplicados
-		duplicateOfId: uuid("duplicate_of_id").references((): any => documents.id, {
+		duplicateOfId: uuid("duplicate_of_id").references((): AnyPgColumn => documents.id, {
 			onDelete: "set null",
 		}),
 

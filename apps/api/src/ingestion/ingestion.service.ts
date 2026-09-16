@@ -1,10 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { and, count, eq, gte, isNull } from "drizzle-orm";
+import { and, count, desc, eq, gte, isNotNull, isNull } from "drizzle-orm";
 import type { Env } from "../config/env.js";
 import { InjectDatabase } from "../database/database.decorators.js";
 import type { Database } from "../database/database.types.js";
 import { documents } from "../database/schema/app.schema.js";
+import { type Category, categorizeByName } from "./category-map.js";
 import type { ExtractedDocument } from "./ingestion.types.js";
 import { parseLocalText } from "./local-parser.js";
 import { OcrClient } from "./ocr-client.js";
@@ -12,6 +13,7 @@ import { parseQrPayload } from "./qr-parser.js";
 
 interface IngestionInput {
 	documentId: string;
+	userId: string;
 	buffer: Buffer;
 	mimeType: string;
 	qrPayload?: string;
@@ -35,12 +37,14 @@ export class IngestionService {
 
 	async process(input: IngestionInput): Promise<void> {
 		const { extracted, source } = await this.extract(input);
+		const category = await this.resolveCategory(input.userId, extracted);
 
 		// No pisar soft-delete, docs ya listos/fallidos, ni correcciones del usuario.
 		const [applied] = await this.db
 			.update(documents)
 			.set({
 				...extracted,
+				category,
 				status: "ready",
 				extractionSource: source,
 				updatedAt: new Date(),
@@ -62,7 +66,43 @@ export class IngestionService {
 			return;
 		}
 
-		this.logger.log(`document ${input.documentId} ready via ${source}`);
+		this.logger.log(`document ${input.documentId} ready via ${source} category=${category}`);
+	}
+
+	/**
+	 * Si hay issuerName → categorizeByName.
+	 * Si no, busca un nombre conocido del mismo usuario+RUC en documentos previos.
+	 */
+	private async resolveCategory(
+		userId: string,
+		extracted: ExtractedDocument,
+	): Promise<Category> {
+		if (extracted.issuerName?.trim()) {
+			return categorizeByName(extracted.issuerName);
+		}
+
+		if (!extracted.issuerTaxId?.trim()) {
+			return "otros";
+		}
+
+		const [known] = await this.db
+			.select({ issuerName: documents.issuerName })
+			.from(documents)
+			.where(
+				and(
+					eq(documents.userId, userId),
+					eq(documents.issuerTaxId, extracted.issuerTaxId),
+					isNotNull(documents.issuerName),
+				),
+			)
+			.orderBy(desc(documents.createdAt))
+			.limit(1);
+
+		if (known?.issuerName) {
+			return categorizeByName(known.issuerName);
+		}
+
+		return "otros";
 	}
 
 	private async extract(
@@ -86,7 +126,9 @@ export class IngestionService {
 
 		const budgetAvailable = await this.hasOcrBudget();
 		if (!budgetAvailable) {
-			this.logger.warn(`OCR budget exhausted, degrading document ${input.documentId} to manual`);
+			this.logger.warn(
+				`OCR budget exhausted, degrading document ${input.documentId} to manual`,
+			);
 			return { extracted: emptyExtraction(), source: "manual" };
 		}
 

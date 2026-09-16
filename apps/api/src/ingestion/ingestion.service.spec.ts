@@ -32,29 +32,60 @@ describe("IngestionService", () => {
 			update: vi.fn().mockReturnValue({ set: setMock }),
 			select: vi.fn().mockReturnValue({
 				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockResolvedValue([{ count: 0 }]),
+					where: vi.fn().mockReturnValue({
+						orderBy: vi.fn().mockReturnValue({
+							limit: vi.fn().mockResolvedValue([]),
+						}),
+						// OCR budget path: where() resolves to rows with count
+						then: undefined,
+					}),
 				}),
 			}),
 		};
+
+		// Dual path: budget count vs category lookup
+		const whereFn = vi.fn().mockImplementation(() => {
+			const chain = {
+				orderBy: vi.fn().mockReturnValue({
+					limit: vi.fn().mockResolvedValue([]),
+				}),
+			};
+			// Thenable for `await select...where()` (OCR budget)
+			Object.assign(chain, {
+				then: (resolve: (v: unknown) => unknown) =>
+					Promise.resolve([{ count: 0 }]).then(resolve),
+			});
+			return chain;
+		});
+		db.select = vi.fn().mockReturnValue({
+			from: vi.fn().mockReturnValue({ where: whereFn }),
+		});
+
 		service = new IngestionService(db as never, ocr, config);
 	});
 
 	it("guarda extractionSource=qr cuando el QR parsea", async () => {
 		await service.process({
 			documentId: "doc-1",
+			userId: "user-1",
 			buffer: Buffer.from("x"),
 			mimeType: "image/jpeg",
 			qrPayload: "20543722309|03|BC35|00105975|111.35|2026-08-21",
 		});
 
 		expect(ocr.extract).not.toHaveBeenCalled();
-		const setArg = setMock.mock.calls[0]?.[0] as { extractionSource: string };
+		const setArg = setMock.mock.calls[0]?.[0] as {
+			extractionSource: string;
+			category: string;
+		};
 		expect(setArg.extractionSource).toBe("qr");
+		expect(setArg.category).toBe("otros");
 	});
 
 	it("guarda extractionSource=local cuando localText parsea", async () => {
 		await service.process({
 			documentId: "doc-local",
+			userId: "user-1",
 			buffer: Buffer.from("x"),
 			mimeType: "image/jpeg",
 			localText: "RUC 20543722309 Fecha 21/08/2026 Total 50.00",
@@ -64,9 +95,33 @@ describe("IngestionService", () => {
 		const setArg = setMock.mock.calls[0]?.[0] as {
 			extractionSource: string;
 			totalAmount: string;
+			category: string;
 		};
 		expect(setArg.extractionSource).toBe("local");
 		expect(setArg.totalAmount).toBe("50.00");
+		expect(setArg.category).toBe("otros");
+	});
+
+	it("categoriza por issuerName conocido del mismo RUC", async () => {
+		const whereFn = vi.fn().mockReturnValue({
+			orderBy: vi.fn().mockReturnValue({
+				limit: vi.fn().mockResolvedValue([{ issuerName: "Wong" }]),
+			}),
+		});
+		db.select = vi.fn().mockReturnValue({
+			from: vi.fn().mockReturnValue({ where: whereFn }),
+		});
+
+		await service.process({
+			documentId: "doc-learn",
+			userId: "user-1",
+			buffer: Buffer.from("x"),
+			mimeType: "image/jpeg",
+			qrPayload: "20543722309|03|BC35|00105975|111.35|2026-08-21",
+		});
+
+		const setArg = setMock.mock.calls[0]?.[0] as { category: string };
+		expect(setArg.category).toBe("supermercado");
 	});
 
 	it("guarda extractionSource=ocr cuando el QR es basura y hay cupo", async () => {
@@ -83,14 +138,19 @@ describe("IngestionService", () => {
 
 		await service.process({
 			documentId: "doc-2",
+			userId: "user-1",
 			buffer: Buffer.from("x"),
 			mimeType: "image/jpeg",
 			qrPayload: "basura",
 		});
 
 		expect(ocr.extract).toHaveBeenCalledOnce();
-		const setArg = setMock.mock.calls[0]?.[0] as { extractionSource: string };
+		const setArg = setMock.mock.calls[0]?.[0] as {
+			extractionSource: string;
+			category: string;
+		};
 		expect(setArg.extractionSource).toBe("ocr");
+		expect(setArg.category).toBe("otros");
 	});
 
 	it("degrada a manual sin llamar Mistral cuando no hay cupo OCR", async () => {
@@ -98,6 +158,7 @@ describe("IngestionService", () => {
 
 		await service.process({
 			documentId: "doc-manual",
+			userId: "user-1",
 			buffer: Buffer.from("x"),
 			mimeType: "image/jpeg",
 		});
@@ -120,6 +181,7 @@ describe("IngestionService", () => {
 
 		await service.process({
 			documentId: "doc-skip",
+			userId: "user-1",
 			buffer: Buffer.from("x"),
 			mimeType: "image/jpeg",
 			qrPayload: "20543722309|03|BC35|00105975|111.35|2026-08-21",

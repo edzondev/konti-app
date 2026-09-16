@@ -13,6 +13,7 @@ import {
 	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
+import type { Category } from "../../ingestion/category-map.js";
 import { user } from "./auth.schema.js";
 
 /**
@@ -63,6 +64,9 @@ export const documents = pgTable(
 		// Cómo se obtuvieron los datos
 		extractionSource: text("extraction_source").$type<"qr" | "ocr" | "local" | "manual">(),
 		wasUserCorrected: boolean("was_user_corrected").default(false).notNull(),
+
+		// Categoría de gasto (Home / deducibles)
+		category: text("category").$type<Category>().default("otros").notNull(),
 
 		// Duplicados
 		duplicateOfId: uuid("duplicate_of_id").references((): AnyPgColumn => documents.id, {

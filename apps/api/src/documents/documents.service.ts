@@ -6,7 +6,12 @@ import {
 	Logger,
 	NotFoundException,
 } from "@nestjs/common";
-import { and, count, desc, eq, gte, isNull, lte, sum } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, lt, lte } from "drizzle-orm";
+import {
+	type Category,
+	categoryLabel,
+	DEDUCTIBLE_CATEGORIES,
+} from "../ingestion/category-map.js";
 import { InjectDatabase } from "../database/database.decorators.js";
 import type { Database } from "../database/database.types.js";
 import { documents } from "../database/schema/app.schema.js";
@@ -15,6 +20,7 @@ import type { DocumentMimeType } from "../storage/mime.js";
 import { buildDocumentObjectKey } from "../storage/object-keys.js";
 import { StorageService } from "../storage/storage.service.js";
 import { CreateDocumentDto, UpdateDocumentDto } from "./documents.dto.js";
+import { generateInsight } from "./insight-rules.js";
 
 interface UploadInput {
 	buffer: Buffer;
@@ -116,6 +122,7 @@ export class DocumentsService {
 		}
 
 		void this.processInBackground(
+			userId,
 			document.id,
 			file.buffer,
 			file.mimeType,
@@ -220,35 +227,131 @@ export class DocumentsService {
 		const target = month ?? currentMonth();
 		const { start, end } = monthRange(target);
 
-		const where = and(
-			visibleToUser(userId),
-			eq(documents.status, "ready"),
-			gte(documents.issueDate, start),
-			lte(documents.issueDate, end),
-		);
-
-		// Agregamos en SQL en lugar de traer todas las filas y sumar en JS.
-		const [totals] = await this.db
-			.select({ documentCount: count(), totalAmount: sum(documents.totalAmount) })
+		const currentDocs = await this.db
+			.select({
+				id: documents.id,
+				issuerName: documents.issuerName,
+				totalAmount: documents.totalAmount,
+				category: documents.category,
+				issueDate: documents.issueDate,
+			})
 			.from(documents)
-			.where(where);
+			.where(
+				and(
+					visibleToUser(userId),
+					eq(documents.status, "ready"),
+					gte(documents.issueDate, start),
+					lte(documents.issueDate, end),
+				),
+			);
 
-		const [lastDocument] = await this.db
-			.select()
+		const historyStart = shiftMonth(target, -3);
+		const historyEndExclusive = target; // meses [historyStart, target)
+		const { start: histStart } = monthRange(historyStart);
+		const { start: histEndExclusive } = monthRange(historyEndExclusive);
+
+		const historyDocs = await this.db
+			.select({
+				totalAmount: documents.totalAmount,
+				issueDate: documents.issueDate,
+			})
 			.from(documents)
-			.where(where)
-			.orderBy(desc(documents.issueDate), desc(documents.createdAt))
-			.limit(1);
+			.where(
+				and(
+					visibleToUser(userId),
+					eq(documents.status, "ready"),
+					gte(documents.issueDate, histStart),
+					lt(documents.issueDate, histEndExclusive),
+				),
+			);
+
+		const totalAmount = currentDocs.reduce((acc, d) => acc + Number(d.totalAmount ?? 0), 0);
+		const documentCount = currentDocs.length;
+
+		const amountsByCategory = new Map<Category, number>();
+		for (const doc of currentDocs) {
+			const cat = doc.category;
+			amountsByCategory.set(cat, (amountsByCategory.get(cat) ?? 0) + Number(doc.totalAmount ?? 0));
+		}
+
+		const categories = [...amountsByCategory.entries()]
+			.sort((a, b) => b[1] - a[1])
+			.map(([name, amount]) => ({ name: categoryLabel(name), amount }));
+
+		const deductibleSet = new Set<Category>(DEDUCTIBLE_CATEGORIES);
+		const deductibleDocs = currentDocs.filter((d) => deductibleSet.has(d.category));
+
+		const deductibleByCategory = new Map<
+			Category,
+			Array<{ id: string; issuerName: string | null; totalAmount: string | null }>
+		>();
+		for (const doc of deductibleDocs) {
+			const cat = doc.category;
+			const list = deductibleByCategory.get(cat) ?? [];
+			list.push({
+				id: doc.id,
+				issuerName: doc.issuerName,
+				totalAmount: doc.totalAmount,
+			});
+			deductibleByCategory.set(cat, list);
+		}
+
+		const deductibleItems = [...deductibleByCategory.entries()].map(([cat, docs]) => ({
+			categoryName: categoryLabel(cat),
+			documents: docs,
+		}));
+
+		const deductibles = {
+			count: deductibleDocs.length,
+			totalAmount: deductibleDocs.reduce((acc, d) => acc + Number(d.totalAmount ?? 0), 0),
+			categoryNames: [...new Set(deductibleItems.map((i) => i.categoryName))],
+			items: deductibleItems,
+		};
+
+		// Totales por mes histórico (YYYY-MM → sum)
+		const historyTotals = new Map<string, number>();
+		for (const doc of historyDocs) {
+			if (!doc.issueDate) continue;
+			const key = doc.issueDate.slice(0, 7);
+			historyTotals.set(key, (historyTotals.get(key) ?? 0) + Number(doc.totalAmount ?? 0));
+		}
+		const historyMonthTotals = [...historyTotals.values()].filter((v) => v > 0);
+		const avg =
+			historyMonthTotals.length > 0
+				? historyMonthTotals.reduce((a, b) => a + b, 0) / historyMonthTotals.length
+				: 0;
+		const ratio = avg > 0 ? totalAmount / avg : 0;
+
+		const categoryShares: Partial<Record<Category, number>> = {};
+		if (totalAmount > 0) {
+			for (const [cat, amount] of amountsByCategory) {
+				categoryShares[cat] = amount / totalAmount;
+			}
+		}
+
+		// monthsWithData: solo meses previos con gasto (el insight de "primer mes" usa === 0)
+		const monthsWithData = historyMonthTotals.length;
+
+		const insight = generateInsight({
+			monthsWithData,
+			currentCount: documentCount,
+			avg,
+			ratio,
+			categoryShares,
+		});
 
 		return {
 			month: target,
-			totalAmount: Number(totals?.totalAmount ?? 0),
-			documentCount: totals?.documentCount ?? 0,
-			lastDocument: lastDocument ?? null,
+			totalAmount,
+			documentCount,
+			insight,
+			categories,
+			deductibles,
 		};
 	}
 
 	private async processInBackground(
+		userId: string,
 		documentId: string,
 		buffer: Buffer,
 		mimeType: DocumentMimeType,
@@ -256,7 +359,14 @@ export class DocumentsService {
 		localText?: string,
 	): Promise<void> {
 		try {
-			await this.ingestion.process({ documentId, buffer, mimeType, qrPayload, localText });
+			await this.ingestion.process({
+				documentId,
+				userId,
+				buffer,
+				mimeType,
+				qrPayload,
+				localText,
+			});
 		} catch (error) {
 			this.logger.error(
 				`Ingesta falló para el documento ${documentId}`,
@@ -332,4 +442,13 @@ function monthRange(month: string): { start: string; end: string } {
 		start: start.toISOString().slice(0, 10),
 		end: end.toISOString().slice(0, 10),
 	};
+}
+
+/** Desplaza `YYYY-MM` por `delta` meses. */
+function shiftMonth(month: string, delta: number): string {
+	const [yearPart, monthPart] = month.split("-");
+	const date = new Date(Date.UTC(Number(yearPart), Number(monthPart) - 1 + delta, 1));
+	const y = date.getUTCFullYear();
+	const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+	return `${y}-${m}`;
 }

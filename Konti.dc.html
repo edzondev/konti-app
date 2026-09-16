@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #EFEAE1; -webkit-font-smoothing: antialiased; }
+  a { color: #17150F; text-decoration: none; }
+  @keyframes kShimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+  @keyframes kSpin { to { transform: rotate(360deg); } }
+  @keyframes kTrack { 0% { left: -60px; } 100% { left: 100%; } }
+  a:hover { color: #D49440; }
+</style>
+</helmet>
+
+<div style="background: #EFEAE1; padding: 56px 48px 72px; font-family: Geist, system-ui, sans-serif; color: #17150F;">
+
+  <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 40px;">
+    <span style="font-size: 22px; font-weight: 400; letter-spacing: -0.04em;">kont<span style="color: #E2A654;">i</span></span>
+    <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Mini contador personal · sistema</span>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 56px 40px;">
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Home</span>
+      <div data-screen-label="Home" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06); display: flex; flex-direction: column;">
+        <div style="height: 48px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 4px;">
+          <span style="font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;">9:41</span>
+          <span style="display: flex; gap: 6px; opacity: 0.7;">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 19.5 2.5 8.8A13 13 0 0 1 21.5 8.8L12 19.5Z" fill="#17150F"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="17" height="10" rx="3" stroke="#17150F" stroke-width="1.5"></rect><rect x="4" y="9" width="11" height="6" rx="1.5" fill="#17150F"></rect><path d="M21 10.5v3" stroke="#17150F" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          </span>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 24px 0;">
+          <span style="font-size: 20px; font-weight: 400; letter-spacing: -0.04em;">kont<span style="color: #E2A654;">i</span></span>
+          <button type="button" aria-label="Ajustes" style="appearance: none; border: 0; background: transparent; padding: 8px; margin: -8px -8px -8px 0; cursor: pointer; color: rgba(23,21,15,0.35); display: flex; transition: color 160ms ease;" style-hover="color: rgba(23,21,15,0.6)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>
+          </button>
+        </div>
+
+        <div style="flex: 1; overflow: hidden; padding: 0 24px;">
+          <div style="height: 32px;"></div>
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654; flex-shrink: 0;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Septiembre 2026</span>
+          </div>
+
+          <div style="margin-top: 18px; display: flex; align-items: baseline; gap: 8px;">
+            <span style="font-size: 30px; font-weight: 400; letter-spacing: -0.03em; color: rgba(23,21,15,0.4);">S/</span>
+            <span style="font-size: 60px; font-weight: 300; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; margin-left: -1px;">480.50</span>
+          </div>
+
+          <div style="margin-top: 14px; font-size: 15px; line-height: 1.5; color: rgba(23,21,15,0.55); max-width: 300px;">Vas parecido a agosto. Nada fuera de lo normal.</div>
+
+          <div style="margin-top: 40px; font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">En qué se fue</div>
+          <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Supermercado</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">162.80</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Restaurantes</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">124.00</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Transporte</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">86.30</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Servicios médicos</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">64.00</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em; color: rgba(23,21,15,0.55);">Otros</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; color: rgba(23,21,15,0.55);">43.40</span>
+            </div>
+          </div>
+
+          <button type="button" style="margin-top: 24px; width: 100%; appearance: none; text-align: left; font: inherit; color: inherit; cursor: pointer; background: rgba(226,166,84,0.10); border: 0; border-left: 2px solid #E2A654; border-radius: 20px; padding: 18px 18px 18px 20px; display: flex; align-items: center; gap: 14px; transition: background 180ms ease, transform 180ms ease;" style-hover="background: rgba(226,166,84,0.16)" style-active="transform: scale(0.98)">
+            <span style="flex: 1; min-width: 0;">
+              <span style="display: block; font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Deducciones</span>
+              <span style="display: block; margin-top: 10px; font-size: 17px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.3;">3 gastos podrían <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 20px; color: #C98F3C; letter-spacing: -0.01em;">reducir tu impuesto anual</span>.</span>
+              <span style="display: block; margin-top: 8px; font-size: 13px; color: rgba(23,21,15,0.55);">Categorías: Restaurantes, Servicios médicos.</span>
+            </span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="m9 5 7 7-7 7"></path></svg>
+          </button>
+        </div>
+
+        <button type="button" aria-label="Escanear boleta" style="position: absolute; right: 24px; bottom: 102px; width: 60px; height: 60px; border-radius: 999px; border: 0; background: #17150F; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(23,21,15,0.15); transition: transform 180ms cubic-bezier(.2,.8,.3,1);" style-active="transform: scale(0.96)">
+          <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17v-10Z"></path><circle cx="12" cy="13.2" r="3.1"></circle></svg>
+        </button>
+
+        <div style="flex-shrink: 0; background: #FBF8F3; border-top: 1px solid rgba(23,21,15,0.06); padding: 12px 0 0; display: grid; grid-template-columns: repeat(3, 1fr);">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: #17150F;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.2 12 4l8 6.2V20H4v-9.8Z"></path><path d="M9.6 20v-5.4h4.8V20"></path></svg>
+            <span style="font-size: 11px; font-weight: 500;">Inicio</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg>
+            <span style="font-size: 11px;">Comprobantes</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3.6"></circle><path d="M5 20c1.2-3.3 3.8-5 7-5s5.8 1.7 7 5"></path></svg>
+            <span style="font-size: 11px;">Perfil</span>
+          </div>
+          <div style="grid-column: 1 / -1; height: 22px; display: flex; align-items: center; justify-content: center; padding-top: 8px;">
+            <span style="width: 108px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.22);"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Home · sin deducibles</span>
+      <div data-screen-label="Home sin deducibles" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06); display: flex; flex-direction: column;">
+        <div style="height: 48px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 4px;">
+          <span style="font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;">9:41</span>
+          <span style="display: flex; gap: 6px; opacity: 0.7;">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 19.5 2.5 8.8A13 13 0 0 1 21.5 8.8L12 19.5Z" fill="#17150F"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="17" height="10" rx="3" stroke="#17150F" stroke-width="1.5"></rect><rect x="4" y="9" width="11" height="6" rx="1.5" fill="#17150F"></rect><path d="M21 10.5v3" stroke="#17150F" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          </span>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 24px 0;">
+          <span style="font-size: 20px; font-weight: 400; letter-spacing: -0.04em;">kont<span style="color: #E2A654;">i</span></span>
+          <button type="button" aria-label="Ajustes" style="appearance: none; border: 0; background: transparent; padding: 8px; margin: -8px -8px -8px 0; cursor: pointer; color: rgba(23,21,15,0.35); display: flex; transition: color 160ms ease;" style-hover="color: rgba(23,21,15,0.6)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>
+          </button>
+        </div>
+
+        <div style="flex: 1; overflow: hidden; padding: 0 24px;">
+          <div style="height: 32px;"></div>
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654; flex-shrink: 0;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Septiembre 2026</span>
+          </div>
+
+          <div style="margin-top: 18px; display: flex; align-items: baseline; gap: 8px;">
+            <span style="font-size: 30px; font-weight: 400; letter-spacing: -0.03em; color: rgba(23,21,15,0.4);">S/</span>
+            <span style="font-size: 60px; font-weight: 300; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; margin-left: -1px;">480.50</span>
+          </div>
+
+          <div style="margin-top: 14px; font-size: 15px; line-height: 1.5; color: rgba(23,21,15,0.55); max-width: 300px;">Vas parecido a agosto. Nada fuera de lo normal.</div>
+
+          <div style="margin-top: 40px; font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">En qué se fue</div>
+          <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Supermercado</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">162.80</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Restaurantes</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">124.00</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Transporte</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">86.30</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Servicios médicos</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">64.00</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em; color: rgba(23,21,15,0.55);">Otros</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; color: rgba(23,21,15,0.55);">43.40</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; background: rgba(23,21,15,0.03); border-radius: 20px; padding: 18px 20px;">
+            <div style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Deducciones</div>
+            <div style="margin-top: 10px; font-size: 15px; line-height: 1.5; color: rgba(23,21,15,0.55);">Este mes no hubo gastos que suelan aplicar.</div>
+          </div>
+        </div>
+
+        <button type="button" aria-label="Escanear boleta" style="position: absolute; right: 24px; bottom: 102px; width: 60px; height: 60px; border-radius: 999px; border: 0; background: #17150F; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(23,21,15,0.15); transition: transform 180ms cubic-bezier(.2,.8,.3,1);" style-active="transform: scale(0.96)">
+          <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17v-10Z"></path><circle cx="12" cy="13.2" r="3.1"></circle></svg>
+        </button>
+
+        <div style="flex-shrink: 0; background: #FBF8F3; border-top: 1px solid rgba(23,21,15,0.06); padding: 12px 0 0; display: grid; grid-template-columns: repeat(3, 1fr);">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: #17150F;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.2 12 4l8 6.2V20H4v-9.8Z"></path><path d="M9.6 20v-5.4h4.8V20"></path></svg>
+            <span style="font-size: 11px; font-weight: 500;">Inicio</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg>
+            <span style="font-size: 11px;">Comprobantes</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3.6"></circle><path d="M5 20c1.2-3.3 3.8-5 7-5s5.8 1.7 7 5"></path></svg>
+            <span style="font-size: 11px;">Perfil</span>
+          </div>
+          <div style="grid-column: 1 / -1; height: 22px; display: flex; align-items: center; justify-content: center; padding-top: 8px;">
+            <span style="width: 108px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.22);"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Home · cargando</span>
+      <div data-screen-label="Home cargando" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06); display: flex; flex-direction: column;">
+        <div style="height: 48px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 4px;">
+          <span style="font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;">9:41</span>
+          <span style="display: flex; gap: 6px; opacity: 0.7;">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 19.5 2.5 8.8A13 13 0 0 1 21.5 8.8L12 19.5Z" fill="#17150F"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="17" height="10" rx="3" stroke="#17150F" stroke-width="1.5"></rect><rect x="4" y="9" width="11" height="6" rx="1.5" fill="#17150F"></rect><path d="M21 10.5v3" stroke="#17150F" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          </span>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 24px 0;">
+          <span style="font-size: 20px; font-weight: 400; letter-spacing: -0.04em;">kont<span style="color: #E2A654;">i</span></span>
+          <button type="button" aria-label="Ajustes" style="appearance: none; border: 0; background: transparent; padding: 8px; margin: -8px -8px -8px 0; cursor: pointer; color: rgba(23,21,15,0.35); display: flex; transition: color 160ms ease;" style-hover="color: rgba(23,21,15,0.6)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>
+          </button>
+        </div>
+
+        <div style="flex: 1; overflow: hidden; padding: 0 24px;">
+          <div style="height: 32px;"></div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654; flex-shrink: 0;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Septiembre 2026</span>
+          </div>
+          <div style="margin-top: 20px;"><span style="display: block; width: 200px; height: 60px; border-radius: 12px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span></div>
+          <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
+            <span style="display: block; width: 300px; height: 14px; border-radius: 7px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span>
+            <span style="display: block; width: 240px; height: 14px; border-radius: 7px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span>
+          </div>
+          <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;"><span style="display: block; width: 120px; height: 14px; border-radius: 7px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span><span style="display: block; width: 80px; height: 14px; border-radius: 7px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span></div>
+            <div style="display: flex; align-items: center; justify-content: space-between;"><span style="display: block; width: 120px; height: 14px; border-radius: 7px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span><span style="display: block; width: 80px; height: 14px; border-radius: 7px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span></div>
+            <div style="display: flex; align-items: center; justify-content: space-between;"><span style="display: block; width: 120px; height: 14px; border-radius: 7px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span><span style="display: block; width: 80px; height: 14px; border-radius: 7px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span></div>
+            <div style="display: flex; align-items: center; justify-content: space-between;"><span style="display: block; width: 120px; height: 14px; border-radius: 7px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span><span style="display: block; width: 80px; height: 14px; border-radius: 7px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span></div>
+            <div style="display: flex; align-items: center; justify-content: space-between;"><span style="display: block; width: 120px; height: 14px; border-radius: 7px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span><span style="display: block; width: 80px; height: 14px; border-radius: 7px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span></div>
+          </div>
+          <div style="margin-top: 32px;"><span style="display: block; width: 100%; height: 100px; border-radius: 16px; background-image: linear-gradient(90deg, rgba(23,21,15,0.07) 0%, rgba(23,21,15,0.03) 50%, rgba(23,21,15,0.07) 100%); background-size: 200% 100%; animation: kShimmer 1.6s linear infinite;"></span></div>
+        </div>
+
+        <button type="button" aria-label="Escanear boleta" style="position: absolute; right: 24px; bottom: 102px; width: 60px; height: 60px; border-radius: 999px; border: 0; background: #17150F; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(23,21,15,0.15); transition: transform 180ms cubic-bezier(.2,.8,.3,1);" style-active="transform: scale(0.96)">
+          <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17v-10Z"></path><circle cx="12" cy="13.2" r="3.1"></circle></svg>
+        </button>
+
+        <div style="flex-shrink: 0; background: #FBF8F3; border-top: 1px solid rgba(23,21,15,0.06); padding: 12px 0 0; display: grid; grid-template-columns: repeat(3, 1fr);">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: #17150F;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.2 12 4l8 6.2V20H4v-9.8Z"></path><path d="M9.6 20v-5.4h4.8V20"></path></svg>
+            <span style="font-size: 11px; font-weight: 500;">Inicio</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg>
+            <span style="font-size: 11px;">Comprobantes</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3.6"></circle><path d="M5 20c1.2-3.3 3.8-5 7-5s5.8 1.7 7 5"></path></svg>
+            <span style="font-size: 11px;">Perfil</span>
+          </div>
+          <div style="grid-column: 1 / -1; height: 22px; display: flex; align-items: center; justify-content: center; padding-top: 8px;">
+            <span style="width: 108px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.22);"></span>
+          </div>
+        </div>
+      </div>
+    </div>    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Home · primer mes</span>
+      <div data-screen-label="Home primer mes" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06); display: flex; flex-direction: column;">
+        <div style="height: 48px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 4px;">
+          <span style="font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;">9:41</span>
+          <span style="display: flex; gap: 6px; opacity: 0.7;">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 19.5 2.5 8.8A13 13 0 0 1 21.5 8.8L12 19.5Z" fill="#17150F"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="17" height="10" rx="3" stroke="#17150F" stroke-width="1.5"></rect><rect x="4" y="9" width="11" height="6" rx="1.5" fill="#17150F"></rect><path d="M21 10.5v3" stroke="#17150F" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          </span>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 24px 0;">
+          <span style="font-size: 20px; font-weight: 400; letter-spacing: -0.04em;">kont<span style="color: #E2A654;">i</span></span>
+          <button type="button" aria-label="Ajustes" style="appearance: none; border: 0; background: transparent; padding: 8px; margin: -8px -8px -8px 0; cursor: pointer; color: rgba(23,21,15,0.35); display: flex; transition: color 160ms ease;" style-hover="color: rgba(23,21,15,0.6)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>
+          </button>
+        </div>
+
+        <div style="flex: 1; overflow: hidden; padding: 0 24px;">
+          <div style="height: 48px;"></div>
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: rgba(23,21,15,0.2); flex-shrink: 0;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Septiembre 2026</span>
+          </div>
+
+          <div style="margin-top: 24px; font-size: 38px; font-weight: 300; letter-spacing: -0.03em; line-height: 1.12; max-width: 290px;">Todo empieza con una <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 44px; color: #D49440;">foto</span>.</div>
+
+          <div style="margin-top: 16px; font-size: 15px; line-height: 1.5; color: rgba(23,21,15,0.55); max-width: 300px;">Tu primer mes con Konti. Estamos organizando todo.</div>
+
+          <button type="button" style="margin-top: 32px; appearance: none; border: 0; font: inherit; cursor: pointer; background: #17150F; color: #F5F1EA; border-radius: 999px; height: 56px; padding: 0 30px; font-size: 16px; font-weight: 500; letter-spacing: -0.01em; display: inline-flex; align-items: center; gap: 12px; transition: transform 180ms ease, background 180ms ease;" style-hover="background: #221F17" style-active="transform: scale(0.98)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5F1EA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17v-10Z"></path><circle cx="12" cy="13.2" r="3.1"></circle></svg>
+            Escanear comprobante
+          </button>
+
+          
+        </div>
+
+        <button type="button" aria-label="Escanear boleta" style="position: absolute; right: 24px; bottom: 102px; width: 60px; height: 60px; border-radius: 999px; border: 0; background: #17150F; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(23,21,15,0.15); transition: transform 180ms cubic-bezier(.2,.8,.3,1);" style-active="transform: scale(0.96)">
+          <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17v-10Z"></path><circle cx="12" cy="13.2" r="3.1"></circle></svg>
+        </button>
+
+        <div style="flex-shrink: 0; background: #FBF8F3; border-top: 1px solid rgba(23,21,15,0.06); padding: 12px 0 0; display: grid; grid-template-columns: repeat(3, 1fr);">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: #17150F;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.2 12 4l8 6.2V20H4v-9.8Z"></path><path d="M9.6 20v-5.4h4.8V20"></path></svg>
+            <span style="font-size: 11px; font-weight: 500;">Inicio</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg>
+            <span style="font-size: 11px;">Comprobantes</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3.6"></circle><path d="M5 20c1.2-3.3 3.8-5 7-5s5.8 1.7 7 5"></path></svg>
+            <span style="font-size: 11px;">Perfil</span>
+          </div>
+          <div style="grid-column: 1 / -1; height: 22px; display: flex; align-items: center; justify-content: center; padding-top: 8px;">
+            <span style="width: 108px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.22);"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Deducciones</span>
+      <div data-screen-label="Deducciones" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06);">
+        <div style="position: absolute; inset: 0; padding: 56px 24px 0;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 20px; font-weight: 400; letter-spacing: -0.04em;">kont<span style="color: #E2A654;">i</span></span>
+            <span style="color: rgba(23,21,15,0.35); display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg></span>
+          </div>
+          <div style="height: 32px;"></div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654; flex-shrink: 0;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Septiembre 2026</span>
+          </div>
+          <div style="margin-top: 18px; display: flex; align-items: baseline; gap: 8px;">
+            <span style="font-size: 30px; font-weight: 400; letter-spacing: -0.03em; color: rgba(23,21,15,0.4);">S/</span>
+            <span style="font-size: 60px; font-weight: 300; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums;">480.50</span>
+          </div>
+        </div>
+        <div style="position: absolute; inset: 0; background: rgba(23,21,15,0.5);"></div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 24px 24px 0 0; box-shadow: 0 -12px 40px rgba(23,21,15,0.22); padding: 10px 24px 24px;">
+          <div style="display: flex; justify-content: center;"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.16);"></span></div>
+          <div style="margin-top: 22px;"><div style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654; flex-shrink: 0;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Deducciones</span>
+          </div></div>
+          <div style="margin-top: 12px; font-size: 28px; font-weight: 300; letter-spacing: -0.03em; line-height: 1.2;">3 gastos podrían reducir tu impuesto <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 33px; color: #D49440; letter-spacing: -0.01em;">anual</span>.</div>
+          <div style="margin-top: 10px; font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; color: rgba(23,21,15,0.55);">S/&#8202;308.00 en total</div>
+          <div style="margin-top: 20px; height: 1px; background: rgba(23,21,15,0.06);"></div>
+          <div style="margin-top: 20px;"><div style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Restaurantes</div>
+            <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="width: 40px; height: 40px; border-radius: 10px; background: #F5F1EA; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg></span>
+              <span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Osaka Miraflores</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums;">184.00</span>
+            </div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="width: 40px; height: 40px; border-radius: 10px; background: #F5F1EA; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg></span>
+              <span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Tanta San Isidro</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums;">64.00</span>
+            </div>
+            </div>
+          </div>
+          <div style="margin-top: 22px;"><div style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Servicios médicos</div>
+            <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="width: 40px; height: 40px; border-radius: 10px; background: #F5F1EA; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg></span>
+              <span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Clínica Internacional</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums;">60.00</span>
+            </div>
+            </div>
+          </div>
+          <div style="margin-top: 24px; height: 1px; background: rgba(23,21,15,0.06);"></div>
+          <div style="margin-top: 22px;"><div style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Qué hacer</div>
+          <div style="margin-top: 10px; font-size: 14px; line-height: 1.6; color: rgba(23,21,15,0.55);">En marzo, cuando llegue el momento de declarar, ya los tendrás ordenados. Si tienes contador, puedes exportarlos.</div></div>
+          <div style="margin-top: 18px;"><div style="background: rgba(23,21,15,0.03); border-radius: 16px; padding: 16px; font-size: 12px; line-height: 1.6; color: rgba(23,21,15,0.55);">Konti solo identifica gastos que suelen aplicar. El cálculo real depende de tu situación tributaria.</div></div>
+          <button type="button" style="margin-top: 12px; width: 100%; appearance: none; border: 0; background: transparent; font: inherit; cursor: pointer; color: #17150F; height: 46px; font-size: 15px; font-weight: 500; transition: opacity 160ms ease;" style-hover="opacity: 0.6">Entendido</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Deducciones · sin deducibles</span>
+      <div data-screen-label="Deducciones sin datos" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06);">
+        <div style="position: absolute; inset: 0; padding: 56px 24px 0;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 20px; font-weight: 400; letter-spacing: -0.04em;">kont<span style="color: #E2A654;">i</span></span>
+            <span style="color: rgba(23,21,15,0.35); display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg></span>
+          </div>
+          <div style="height: 32px;"></div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654; flex-shrink: 0;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Septiembre 2026</span>
+          </div>
+          <div style="margin-top: 18px; display: flex; align-items: baseline; gap: 8px;">
+            <span style="font-size: 30px; font-weight: 400; letter-spacing: -0.03em; color: rgba(23,21,15,0.4);">S/</span>
+            <span style="font-size: 60px; font-weight: 300; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums;">142.90</span>
+          </div>
+        </div>
+        <div style="position: absolute; inset: 0; background: rgba(23,21,15,0.5);"></div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 24px 24px 0 0; box-shadow: 0 -12px 40px rgba(23,21,15,0.22); padding: 10px 24px 24px;">
+          <div style="display: flex; justify-content: center;"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.16);"></span></div>
+          <div style="margin-top: 22px;"><div style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654; flex-shrink: 0;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Deducciones</span>
+          </div></div>
+          <div style="margin-top: 12px; font-size: 28px; font-weight: 300; letter-spacing: -0.03em; line-height: 1.2;">Este mes, nada <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 33px; color: #D49440; letter-spacing: -0.01em;">deducible</span>.</div>
+          <div style="margin-top: 12px; font-size: 15px; line-height: 1.55; color: rgba(23,21,15,0.55); max-width: 320px;">Ninguno de tus gastos de septiembre suele aplicar a deducciones.</div>
+          <div style="margin-top: 20px; height: 1px; background: rgba(23,21,15,0.06);"></div>
+          <div style="margin: 36px 0 34px; display: flex; justify-content: center;">
+            <svg width="72" height="72" viewBox="0 0 48 48" fill="none" stroke="#E2A654" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 8h22v32l-3.7-2.6-3.6 2.6L24 37.4l-3.7 2.6L16.7 37.4 13 40V8Z"></path>
+              <path d="M19 18.5h10"></path>
+              <path d="M19 25.5h6"></path>
+            </svg>
+          </div>
+          <div style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Qué hacer</div>
+          <div style="margin-top: 10px; font-size: 14px; line-height: 1.6; color: rgba(23,21,15,0.55);">En marzo, cuando llegue el momento de declarar, ya los tendrás ordenados. Si tienes contador, puedes exportarlos.</div>
+          <div style="margin-top: 18px;"><div style="background: rgba(23,21,15,0.03); border-radius: 16px; padding: 16px; font-size: 12px; line-height: 1.6; color: rgba(23,21,15,0.55);">Konti solo identifica gastos que suelen aplicar. El cálculo real depende de tu situación tributaria.</div></div>
+          <button type="button" style="margin-top: 12px; width: 100%; appearance: none; border: 0; background: transparent; font: inherit; cursor: pointer; color: #17150F; height: 46px; font-size: 15px; font-weight: 500; transition: opacity 160ms ease;" style-hover="opacity: 0.6">Entendido</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Deducciones · muchos</span>
+      <div data-screen-label="Deducciones scroll" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06);">
+        <div style="position: absolute; inset: 0; padding: 56px 24px 0;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 20px; font-weight: 400; letter-spacing: -0.04em;">kont<span style="color: #E2A654;">i</span></span>
+            <span style="color: rgba(23,21,15,0.35); display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg></span>
+          </div>
+        </div>
+        <div style="position: absolute; inset: 0; background: rgba(23,21,15,0.5);"></div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; top: 68px; background: #FFFFFF; border-radius: 24px 24px 0 0; box-shadow: 0 -12px 40px rgba(23,21,15,0.22); display: flex; flex-direction: column;">
+          <div style="flex-shrink: 0; padding: 10px 24px 0;">
+            <div style="display: flex; justify-content: center;"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.16);"></span></div>
+            <div style="margin-top: 22px;"><div style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654; flex-shrink: 0;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Deducciones</span>
+          </div></div>
+            <div style="margin-top: 12px; font-size: 28px; font-weight: 300; letter-spacing: -0.03em; line-height: 1.2;">9 gastos podrían reducir tu impuesto <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 33px; color: #D49440; letter-spacing: -0.01em;">anual</span>.</div>
+            <div style="margin-top: 10px; font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; color: rgba(23,21,15,0.55);">S/&#8202;1,254.00 en total</div>
+            <div style="margin-top: 20px; height: 1px; background: rgba(23,21,15,0.06);"></div>
+          </div>
+
+          <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 0 24px 0;">
+            <div style="margin-top: 20px;"><div style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Restaurantes</div>
+            <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="width: 40px; height: 40px; border-radius: 10px; background: #F5F1EA; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg></span>
+              <span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Osaka Miraflores</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums;">184.00</span>
+            </div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="width: 40px; height: 40px; border-radius: 10px; background: #F5F1EA; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg></span>
+              <span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Tanta San Isidro</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums;">64.00</span>
+            </div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="width: 40px; height: 40px; border-radius: 10px; background: #F5F1EA; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg></span>
+              <span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">La Mar Cebichería</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums;">210.00</span>
+            </div>
+            </div>
+          </div>
+            <div style="margin-top: 22px;"><div style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Servicios médicos</div>
+            <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="width: 40px; height: 40px; border-radius: 10px; background: #F5F1EA; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg></span>
+              <span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Clínica Internacional</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums;">60.00</span>
+            </div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="width: 40px; height: 40px; border-radius: 10px; background: #F5F1EA; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg></span>
+              <span style="flex: 1; min-width: 0; font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Dr. Luis Paredes</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums;">180.00</span>
+            </div>
+            </div>
+          </div>
+            <div style="padding: 14px 0 0 52px; font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 17px; color: rgba(23,21,15,0.45);">y 4 más</div>
+            <div style="margin-top: 24px; height: 1px; background: rgba(23,21,15,0.06);"></div>
+            <div style="margin-top: 22px; padding-bottom: 20px;"><div style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Qué hacer</div>
+          <div style="margin-top: 10px; font-size: 14px; line-height: 1.6; color: rgba(23,21,15,0.55);">En marzo, cuando llegue el momento de declarar, ya los tendrás ordenados. Si tienes contador, puedes exportarlos.</div></div>
+          </div>
+
+          <div style="flex-shrink: 0; border-top: 1px solid rgba(23,21,15,0.06); background: #FFFFFF; padding: 16px 24px 24px;">
+            <div style="background: rgba(23,21,15,0.03); border-radius: 16px; padding: 16px; font-size: 12px; line-height: 1.6; color: rgba(23,21,15,0.55);">Konti solo identifica gastos que suelen aplicar. El cálculo real depende de tu situación tributaria.</div>
+            <button type="button" style="margin-top: 12px; width: 100%; appearance: none; border: 0; background: transparent; font: inherit; cursor: pointer; color: #17150F; height: 46px; font-size: 15px; font-weight: 500; transition: opacity 160ms ease;" style-hover="opacity: 0.6">Entendido</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Deducciones · tu año</span>
+      <div data-screen-label="Deducciones anual" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06);">
+        <div style="height: 48px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 4px;">
+          <span style="font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;">9:41</span>
+          <span style="display: flex; gap: 6px; opacity: 0.7;">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 19.5 2.5 8.8A13 13 0 0 1 21.5 8.8L12 19.5Z" fill="#17150F"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="17" height="10" rx="3" stroke="#17150F" stroke-width="1.5"></rect><rect x="4" y="9" width="11" height="6" rx="1.5" fill="#17150F"></rect><path d="M21 10.5v3" stroke="#17150F" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          </span>
+        </div>
+        <div style="display: flex; align-items: center; padding: 4px 24px 0;">
+          <button type="button" aria-label="Volver" style="appearance: none; border: 0; background: transparent; cursor: pointer; padding: 8px; margin-left: -8px; color: rgba(23,21,15,0.45); display: flex; transition: color 160ms ease;" style-hover="color: #17150F">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"></path></svg>
+          </button>
+        </div>
+
+        <div style="flex: 1; overflow: hidden; padding: 0 24px;">
+          <div style="height: 20px;"></div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654; flex-shrink: 0;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Deducciones 2026</span>
+          </div>
+          <div style="margin-top: 14px; font-size: 32px; font-weight: 300; letter-spacing: -0.03em; line-height: 1.18;">Tu año <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 38px; color: #D49440; letter-spacing: -0.01em;">hasta ahora</span>.</div>
+
+          <div style="margin-top: 32px; font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Total acumulado</div>
+          <div style="margin-top: 14px; display: flex; align-items: baseline; gap: 8px;">
+            <span style="font-size: 28px; font-weight: 400; letter-spacing: -0.03em; color: rgba(23,21,15,0.4);">S/</span>
+            <span style="font-size: 56px; font-weight: 300; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums;">1,240.00</span>
+          </div>
+          <div style="margin-top: 12px; font-size: 14px; color: rgba(23,21,15,0.55);">En 8 comprobantes.</div>
+
+          <div style="margin-top: 24px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.06); overflow: hidden;">
+            <span style="display: block; width: 8%; height: 4px; border-radius: 2px; background: #E2A654;"></span>
+          </div>
+          <div style="margin-top: 10px; font-size: 12px; color: rgba(23,21,15,0.55); font-variant-numeric: tabular-nums;">Del tope anual de 3 UIT</div>
+
+          <div style="margin-top: 40px; font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">En qué se fue</div>
+          <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Restaurantes</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">780.00</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Servicios médicos</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">340.00</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+              <span style="font-size: 15px; font-weight: 500; letter-spacing: -0.015em; color: rgba(23,21,15,0.55);">Servicios profesionales</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; color: rgba(23,21,15,0.55);">120.00</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 36px; background: rgba(226,166,84,0.10); border-left: 2px solid #E2A654; border-radius: 20px; padding: 18px 20px; font-size: 14px; line-height: 1.6; color: #17150F;">Este monto podría reducir tu impuesto anual. Confirma con tu contador.</div>
+        </div>
+
+        <div style="flex-shrink: 0; height: 34px; display: flex; align-items: center; justify-content: center;">
+          <span style="width: 108px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.22);"></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Exportar</span>
+      <div data-screen-label="Exportar" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06);">
+        <div style="position: absolute; inset: 0; padding: 56px 24px; opacity: 0.5;">
+          <div style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Deducciones 2026</div>
+          <div style="margin-top: 14px; font-size: 32px; font-weight: 300; letter-spacing: -0.03em;">Tu año hasta ahora.</div>
+          <div style="margin-top: 32px; height: 80px; background: rgba(23,21,15,0.04); border-radius: 16px;"></div>
+        </div>
+        <div style="position: absolute; inset: 0; background: rgba(23,21,15,0.32);"></div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 24px 24px 0 0; box-shadow: 0 -12px 40px rgba(23,21,15,0.2); padding: 10px 24px 24px;">
+          <div style="display: flex; justify-content: center;"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.16);"></span></div>
+          <div style="margin-top: 20px; display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654; flex-shrink: 0;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Exportar</span>
+          </div>
+          <div style="margin-top: 12px; font-size: 24px; font-weight: 300; letter-spacing: -0.03em; line-height: 1.24;">Comparte con tu <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 28px; color: #D49440; letter-spacing: -0.01em;">contador</span>.</div>
+          <div style="margin-top: 10px; font-size: 14px; line-height: 1.55; color: rgba(23,21,15,0.55);">Genera un archivo con tus comprobantes y datos del año. Tú decides qué compartir.</div>
+
+          <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 18px;">
+            <div style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; padding: 0; display: flex; align-items: center; gap: 14px;">
+              <span style="width: 22px; height: 22px; border-radius: 999px; background: #E2A654; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#17150F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 12.4 3.8 3.8L18 7.6"></path></svg>
+              </span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Comprobantes del año</span>
+                <span style="display: block; margin-top: 2px; font-size: 13px; color: rgba(23,21,15,0.55);">Siempre incluido · 8 archivos, PDF y JPG</span>
+              </span>
+            </div>
+            <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 14px; transition: opacity 160ms ease;" style-hover="opacity: 0.7">
+              <span style="width: 22px; height: 22px; border-radius: 999px; background: #E2A654; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#17150F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 12.4 3.8 3.8L18 7.6"></path></svg>
+              </span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Resumen por categoría</span>
+                <span style="display: block; margin-top: 2px; font-size: 13px; color: rgba(23,21,15,0.55);">Una página con los totales del año</span>
+              </span>
+            </button>
+            <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 14px; transition: opacity 160ms ease;" style-hover="opacity: 0.7">
+              <span style="width: 22px; height: 22px; border-radius: 999px; background: #E2A654; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#17150F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 12.4 3.8 3.8L18 7.6"></path></svg>
+              </span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Lista de deducibles</span>
+                <span style="display: block; margin-top: 2px; font-size: 13px; color: rgba(23,21,15,0.55);">8 comprobantes con su categoría</span>
+              </span>
+            </button>
+            <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 14px; transition: opacity 160ms ease;" style-hover="opacity: 0.7">
+              <span style="width: 22px; height: 22px; border-radius: 999px; border: 1.5px solid rgba(23,21,15,0.4); flex-shrink: 0;"></span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font-size: 15px; font-weight: 500; letter-spacing: -0.015em;">Datos personales</span>
+                <span style="display: block; margin-top: 2px; font-size: 13px; color: rgba(23,21,15,0.55);">Nombre y DNI</span>
+              </span>
+            </button>
+          </div>
+
+          <div style="margin-top: 30px; font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 15px; line-height: 1.5; color: rgba(23,21,15,0.55);">El archivo se genera por 30 días. Puedes revocar el acceso cuando quieras.</div>
+
+          <button type="button" style="margin-top: 20px; width: 100%; appearance: none; border: 0; font: inherit; cursor: pointer; background: #17150F; color: #F5F1EA; border-radius: 999px; height: 56px; font-size: 16px; font-weight: 500; letter-spacing: -0.01em; transition: transform 180ms ease, background 180ms ease;" style-hover="background: #221F17" style-active="transform: scale(0.98)">Generar archivo</button>
+          <button type="button" style="margin-top: 4px; width: 100%; appearance: none; border: 0; background: transparent; font: inherit; cursor: pointer; color: rgba(23,21,15,0.55); height: 46px; font-size: 15px; font-weight: 500; transition: color 160ms ease;" style-hover="color: #17150F">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Comprobantes</span>
+      <div data-screen-label="Comprobantes" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06); display: flex; flex-direction: column;">
+        <div style="height: 48px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 4px;">
+          <span style="font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;">9:41</span>
+          <span style="display: flex; gap: 6px; opacity: 0.7;">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 19.5 2.5 8.8A13 13 0 0 1 21.5 8.8L12 19.5Z" fill="#17150F"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="17" height="10" rx="3" stroke="#17150F" stroke-width="1.5"></rect><rect x="4" y="9" width="11" height="6" rx="1.5" fill="#17150F"></rect><path d="M21 10.5v3" stroke="#17150F" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          </span>
+        </div>
+        <div style="flex: 1; overflow: hidden; padding: 12px 24px 0;">
+          <div style="font-size: 32px; font-weight: 300; letter-spacing: -0.03em;">Comprobantes</div>
+          <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; background: #FBF8F3; border: 1px solid rgba(23,21,15,0.06); border-radius: 16px;">
+            <button type="button" aria-label="Mes anterior" style="appearance: none; border: 0; background: transparent; cursor: pointer; padding: 6px; color: rgba(23,21,15,0.45); display: flex; transition: color 160ms ease;" style-hover="color: #17150F">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"></path></svg>
+            </button>
+            <div style="text-align: center;">
+              <div style="font-size: 17px; font-weight: 500; letter-spacing: -0.02em;">Septiembre 2026</div>
+              <div style="margin-top: 3px; font-size: 13px; color: rgba(23,21,15,0.55); font-variant-numeric: tabular-nums;">S/&#8202;480.50 · 12 comprobantes</div>
+            </div>
+            <button type="button" aria-label="Mes siguiente" style="appearance: none; border: 0; background: transparent; cursor: pointer; padding: 6px; color: rgba(23,21,15,0.45); display: flex; transition: color 160ms ease;" style-hover="color: #17150F">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </button>
+          </div>
+
+          <div style="margin-top: 18px; display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Hoy</span>
+          </div>
+
+          <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
+            <button type="button" style="appearance: none; text-align: left; font: inherit; color: inherit; cursor: pointer; background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); border-radius: 20px; padding: 12px 14px 12px 16px; display: flex; align-items: center; gap: 14px; box-shadow: 0 1px 3px rgba(23,21,15,0.04); transition: box-shadow 180ms ease, transform 180ms ease;" style-hover="box-shadow: 0 4px 14px rgba(23,21,15,0.07)" style-active="transform: scale(0.99)">
+              <span style="width: 48px; height: 48px; border-radius: 12px; background: #F5F1EA; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg>
+              </span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font-size: 16px; font-weight: 500; letter-spacing: -0.02em;">Plaza Vea Salaverry</span>
+                <span style="display: block; margin-top: 2px; font-size: 13px; color: rgba(23,21,15,0.55);">Supermercado · Hoy</span>
+              </span>
+              <span style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">87.40</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.35)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+              </span>
+            </button>
+
+            <div style="background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); border-radius: 20px; padding: 12px 14px 12px 16px; display: flex; align-items: center; gap: 14px; box-shadow: 0 1px 3px rgba(23,21,15,0.04);">
+              <span style="width: 48px; height: 48px; border-radius: 12px; background: #F5F1EA; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <span style="width: 24px; height: 24px; border-radius: 999px; border: 2px solid rgba(226,166,84,0.25); border-top-color: #E2A654; animation: kSpin 900ms linear infinite;"></span>
+              </span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font-size: 16px; font-weight: 500; letter-spacing: -0.02em; color: rgba(23,21,15,0.55);">Procesando…</span>
+                <span style="display: block; margin-top: 2px; font-size: 13px; color: rgba(23,21,15,0.35);">Leyendo la foto · Hoy, 7:22 p.m.</span>
+              </span>
+            </div>
+
+            <button type="button" style="appearance: none; text-align: left; font: inherit; color: inherit; cursor: pointer; background: rgba(226,166,84,0.10); border: 0; border-left: 2px solid #E2A654; border-radius: 20px; padding: 12px 14px 12px 16px; display: flex; align-items: center; gap: 14px; transition: background 180ms ease, transform 180ms ease;" style-hover="background: rgba(226,166,84,0.16)" style-active="transform: scale(0.99)">
+              <span style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C98F3C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 20.5 19H3.5L12 4.5Z"></path><path d="M12 10v4"></path><path d="M12 16.4v.2"></path></svg>
+              </span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font-size: 16px; font-weight: 500; letter-spacing: -0.02em;">No pudimos leerlo</span>
+                <span style="display: block; margin-top: 2px; font-size: 13px; color: rgba(23,21,15,0.55);">Sin categoría · Hoy, 1:08 p.m.</span>
+              </span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="m9 5 7 7-7 7"></path></svg>
+            </button>
+          </div>
+
+          <div style="margin-top: 18px; display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: rgba(23,21,15,0.2);"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Esta semana</span>
+          </div>
+
+          <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
+            <button type="button" style="appearance: none; text-align: left; font: inherit; color: inherit; cursor: pointer; background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); border-radius: 20px; padding: 12px 14px 12px 16px; display: flex; align-items: center; gap: 14px; box-shadow: 0 1px 3px rgba(23,21,15,0.04); transition: box-shadow 180ms ease, transform 180ms ease;" style-hover="box-shadow: 0 4px 14px rgba(23,21,15,0.07)" style-active="transform: scale(0.99)">
+              <span style="width: 48px; height: 48px; border-radius: 12px; background: #F5F1EA; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg>
+              </span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font-size: 16px; font-weight: 500; letter-spacing: -0.02em;">Farmacia Inkafarma</span>
+                <span style="display: block; margin-top: 2px; font-size: 13px; color: rgba(23,21,15,0.55);">Servicios médicos · Vie 11</span>
+              </span>
+              <span style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">42.10</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.35)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+              </span>
+            </button>
+            <button type="button" style="appearance: none; text-align: left; font: inherit; color: inherit; cursor: pointer; background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); border-radius: 20px; padding: 12px 14px 12px 16px; display: flex; align-items: center; gap: 14px; box-shadow: 0 1px 3px rgba(23,21,15,0.04); transition: box-shadow 180ms ease, transform 180ms ease;" style-hover="box-shadow: 0 4px 14px rgba(23,21,15,0.07)" style-active="transform: scale(0.99)">
+              <span style="width: 48px; height: 48px; border-radius: 12px; background: #F5F1EA; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg>
+              </span>
+              <span style="flex: 1; min-width: 0;">
+                <span style="display: block; font-size: 16px; font-weight: 500; letter-spacing: -0.02em;">Grifo Primax</span>
+                <span style="display: block; margin-top: 2px; font-size: 13px; color: rgba(23,21,15,0.55);">Transporte · Jue 10</span>
+              </span>
+              <span style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">120.00</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.35)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" aria-label="Escanear boleta" style="position: absolute; right: 24px; bottom: 102px; width: 60px; height: 60px; border-radius: 999px; border: 0; background: #17150F; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(23,21,15,0.15); transition: transform 180ms cubic-bezier(.2,.8,.3,1);" style-active="transform: scale(0.96)">
+          <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17v-10Z"></path><circle cx="12" cy="13.2" r="3.1"></circle></svg>
+        </button>
+
+        <div style="flex-shrink: 0; background: #FBF8F3; border-top: 1px solid rgba(23,21,15,0.06); padding: 12px 0 0; display: grid; grid-template-columns: repeat(3, 1fr);">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.2 12 4l8 6.2V20H4v-9.8Z"></path><path d="M9.6 20v-5.4h4.8V20"></path></svg>
+            <span style="font-size: 11px;">Inicio</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: #17150F;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg>
+            <span style="font-size: 11px; font-weight: 500;">Comprobantes</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3.6"></circle><path d="M5 20c1.2-3.3 3.8-5 7-5s5.8 1.7 7 5"></path></svg>
+            <span style="font-size: 11px;">Perfil</span>
+          </div>
+          <div style="grid-column: 1 / -1; height: 22px; display: flex; align-items: center; justify-content: center; padding-top: 8px;">
+            <span style="width: 108px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.22);"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Comprobantes · mes vacío</span>
+      <div data-screen-label="Comprobantes mes vacio" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06); display: flex; flex-direction: column;">
+        <div style="height: 48px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 4px;">
+          <span style="font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;">9:41</span>
+          <span style="display: flex; gap: 6px; opacity: 0.7;">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 19.5 2.5 8.8A13 13 0 0 1 21.5 8.8L12 19.5Z" fill="#17150F"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="17" height="10" rx="3" stroke="#17150F" stroke-width="1.5"></rect><rect x="4" y="9" width="11" height="6" rx="1.5" fill="#17150F"></rect><path d="M21 10.5v3" stroke="#17150F" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          </span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; padding: 12px 24px 0;">
+          <div style="font-size: 32px; font-weight: 300; letter-spacing: -0.03em;">Comprobantes</div>
+          <div style="margin-top: 22px; display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; background: #FBF8F3; border: 1px solid rgba(23,21,15,0.06); border-radius: 16px;">
+            <span style="padding: 6px; color: rgba(23,21,15,0.45); display: flex;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"></path></svg>
+            </span>
+            <div style="text-align: center;">
+              <div style="font-size: 17px; font-weight: 500; letter-spacing: -0.02em;">Agosto 2026</div>
+              <div style="margin-top: 3px; font-size: 13px; color: rgba(23,21,15,0.55); font-variant-numeric: tabular-nums;">S/&#8202;0.00 · 0 comprobantes</div>
+            </div>
+            <span style="padding: 6px; color: rgba(23,21,15,0.45); display: flex;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </span>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 80px; text-align: center;">
+            <svg width="72" height="72" viewBox="0 0 48 48" fill="none" stroke="#E2A654" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 8h22v32l-3.7-2.6-3.6 2.6L24 37.4l-3.7 2.6L16.7 37.4 13 40V8Z"></path>
+              <path d="M19 18h10"></path>
+              <path d="M19 25h6"></path>
+            </svg>
+            <div style="margin-top: 26px; font-size: 18px; font-weight: 500; letter-spacing: -0.02em;">Sin comprobantes este mes</div>
+            <div style="margin-top: 8px; font-size: 15px; color: rgba(23,21,15,0.55);">Toca el botón para escanear el primero.</div>
+          </div>
+        </div>
+        <button type="button" aria-label="Escanear boleta" style="position: absolute; right: 24px; bottom: 102px; width: 60px; height: 60px; border-radius: 999px; border: 0; background: #17150F; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(23,21,15,0.15); transition: transform 180ms cubic-bezier(.2,.8,.3,1);" style-active="transform: scale(0.96)">
+          <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17v-10Z"></path><circle cx="12" cy="13.2" r="3.1"></circle></svg>
+        </button>
+        <div style="flex-shrink: 0; background: #FBF8F3; border-top: 1px solid rgba(23,21,15,0.06); padding: 12px 0 0; display: grid; grid-template-columns: repeat(3, 1fr);">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.2 12 4l8 6.2V20H4v-9.8Z"></path><path d="M9.6 20v-5.4h4.8V20"></path></svg>
+            <span style="font-size: 11px;">Inicio</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: #17150F;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg>
+            <span style="font-size: 11px; font-weight: 500;">Comprobantes</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3.6"></circle><path d="M5 20c1.2-3.3 3.8-5 7-5s5.8 1.7 7 5"></path></svg>
+            <span style="font-size: 11px;">Perfil</span>
+          </div>
+          <div style="grid-column: 1 / -1; height: 22px; display: flex; align-items: center; justify-content: center; padding-top: 8px;">
+            <span style="width: 108px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.22);"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Comprobante</span>
+      <div data-screen-label="Comprobante" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06);">
+        <div style="position: absolute; inset: 0; padding: 60px 24px; opacity: 0.5;">
+          <div style="font-size: 32px; font-weight: 300; letter-spacing: -0.03em;">Comprobantes</div>
+          <div style="margin-top: 22px; height: 70px; background: #FBF8F3; border: 1px solid rgba(23,21,15,0.06); border-radius: 16px;"></div>
+          <div style="margin-top: 26px; height: 76px; background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); border-radius: 20px;"></div>
+        </div>
+        <div style="position: absolute; inset: 0; background: rgba(23,21,15,0.32);"></div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 24px 24px 0 0; box-shadow: 0 -12px 40px rgba(23,21,15,0.18); padding: 10px 24px 28px;">
+          <div style="display: flex; justify-content: center;"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.16);"></span></div>
+          <div style="margin-top: 18px; height: 160px; border-radius: 16px; background: #F5F1EA; overflow: hidden; display: flex; flex-direction: column; gap: 10px; padding: 26px 24px; box-sizing: border-box;">
+            <span style="height: 9px; width: 52%; background: rgba(23,21,15,0.14); border-radius: 2px;"></span>
+            <span style="height: 7px; width: 34%; background: rgba(23,21,15,0.09); border-radius: 2px;"></span>
+            <span style="height: 7px; width: 74%; background: rgba(23,21,15,0.07); border-radius: 2px; margin-top: 16px;"></span>
+            <span style="height: 7px; width: 66%; background: rgba(23,21,15,0.07); border-radius: 2px;"></span>
+            <span style="height: 11px; width: 30%; background: rgba(23,21,15,0.12); border-radius: 2px; margin-top: 18px; align-self: flex-end;"></span>
+          </div>
+          <div style="margin-top: 22px; font-size: 32px; font-weight: 300; letter-spacing: -0.03em;">Plaza Vea Salaverry</div>
+          <div style="margin-top: 10px; display: flex; align-items: baseline; gap: 7px;">
+            <span style="font-size: 24px; font-weight: 400; letter-spacing: -0.03em; color: rgba(23,21,15,0.4);">S/</span>
+            <span style="font-size: 44px; font-weight: 300; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums;">87.40</span>
+          </div>
+          <div style="margin-top: 18px; height: 1px; background: rgba(23,21,15,0.06);"></div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(23,21,15,0.06);">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">Fecha</span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">16/09/2026</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(23,21,15,0.06);">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">Categoría</span>
+            <span style="font-size: 15px; font-weight: 500;">Supermercado</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(23,21,15,0.06);">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">RUC</span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">20100070970</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(23,21,15,0.06);">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">Tipo</span>
+            <span style="font-size: 15px; font-weight: 500;">Boleta</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(23,21,15,0.06);">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">Número</span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">B001-004912</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 0;">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">Origen</span>
+            <span style="font-size: 15px; font-weight: 500;">Cámara</span>
+          </div>
+          <button type="button" style="margin-top: 14px; width: 100%; appearance: none; border: 1px solid rgba(23,21,15,0.12); font: inherit; cursor: pointer; background: transparent; color: #17150F; border-radius: 999px; height: 52px; font-size: 16px; font-weight: 500; transition: background 180ms ease, transform 180ms ease;" style-hover="background: #FBF8F3" style-active="transform: scale(0.98)">Editar información</button>
+          <button type="button" style="margin-top: 4px; width: 100%; appearance: none; border: 0; background: transparent; font: inherit; cursor: pointer; color: #B91C1C; height: 46px; font-size: 15px; font-weight: 500; transition: opacity 160ms ease;" style-hover="opacity: 0.7">Eliminar comprobante</button>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Comprobante · procesando</span>
+      <div data-screen-label="Comprobante procesando" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06);">
+        <div style="position: absolute; inset: 0; padding: 60px 24px; opacity: 0.5;">
+          <div style="font-size: 32px; font-weight: 300; letter-spacing: -0.03em;">Comprobantes</div>
+          <div style="margin-top: 22px; height: 70px; background: #FBF8F3; border: 1px solid rgba(23,21,15,0.06); border-radius: 16px;"></div>
+          <div style="margin-top: 26px; height: 76px; background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); border-radius: 20px;"></div>
+          <div style="margin-top: 12px; height: 76px; background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); border-radius: 20px;"></div>
+        </div>
+        <div style="position: absolute; inset: 0; background: rgba(23,21,15,0.32);"></div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 24px 24px 0 0; box-shadow: 0 -12px 40px rgba(23,21,15,0.2); padding: 10px 24px 32px;">
+          <div style="display: flex; justify-content: center;"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.16);"></span></div>
+          <div style="margin-top: 20px; height: 180px; border-radius: 16px; background: #F5F1EA; display: flex; align-items: center; justify-content: center;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.28)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg>
+          </div>
+          <div style="margin-top: 24px; font-size: 26px; font-weight: 300; letter-spacing: -0.03em;">Leyendo tu comprobante.</div>
+          <div style="margin-top: 12px; font-size: 15px; line-height: 1.5; color: rgba(23,21,15,0.55); max-width: 300px;">Esto suele tomar unos segundos. Puedes cerrar esta pantalla.</div>
+          <div style="margin-top: 32px; position: relative; height: 2px; background: rgba(23,21,15,0.06); overflow: hidden;">
+            <span style="position: absolute; top: 0; left: -60px; width: 60px; height: 2px; background: #E2A654; animation: kTrack 1.5s ease-in-out infinite;"></span>
+          </div>
+          <div style="height: 32px;"></div>
+        </div>
+      </div>
+    </div>    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Comprobante · no pudimos leerlo</span>
+      <div data-screen-label="Comprobante no leido" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06);">
+        <div style="position: absolute; inset: 0; padding: 60px 24px; opacity: 0.5;">
+          <div style="font-size: 32px; font-weight: 300; letter-spacing: -0.03em;">Comprobantes</div>
+          <div style="margin-top: 22px; height: 70px; background: #FBF8F3; border: 1px solid rgba(23,21,15,0.06); border-radius: 16px;"></div>
+          <div style="margin-top: 26px; height: 76px; background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); border-radius: 20px;"></div>
+          <div style="margin-top: 12px; height: 76px; background: rgba(226,166,84,0.10); border-left: 2px solid #E2A654; border-radius: 20px;"></div>
+        </div>
+        <div style="position: absolute; inset: 0; background: rgba(23,21,15,0.32);"></div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 24px 24px 0 0; box-shadow: 0 -12px 40px rgba(23,21,15,0.18); padding: 10px 24px 28px;">
+          <div style="display: flex; justify-content: center;"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.16);"></span></div>
+          <div style="margin-top: 18px; height: 180px; border-radius: 16px; background: #F5F1EA; display: flex; align-items: center; justify-content: center;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.28)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17v-10Z"></path><circle cx="12" cy="13.2" r="3.1"></circle></svg>
+          </div>
+          <div style="margin-top: 24px; display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Lectura fallida</span>
+          </div>
+          <div style="margin-top: 14px; font-size: 32px; font-weight: 300; letter-spacing: -0.03em; line-height: 1.16;">No pudimos <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 38px; color: #D49440;">leerlo</span></div>
+          <div style="margin-top: 14px; font-size: 15px; line-height: 1.55; color: rgba(23,21,15,0.55); max-width: 300px;">La foto no es lo bastante clara. Puedes intentar de nuevo o ingresar los datos a mano.</div>
+          <div style="margin-top: 22px; height: 1px; background: rgba(23,21,15,0.06);"></div>
+          <button type="button" style="margin-top: 22px; width: 100%; appearance: none; border: 0; font: inherit; cursor: pointer; background: #17150F; color: #F5F1EA; border-radius: 999px; height: 56px; font-size: 16px; font-weight: 500; letter-spacing: -0.01em; transition: transform 180ms ease, background 180ms ease;" style-hover="background: #221F17" style-active="transform: scale(0.98)">Reintentar</button>
+          <button type="button" style="margin-top: 10px; width: 100%; appearance: none; border: 1px solid rgba(23,21,15,0.12); font: inherit; cursor: pointer; background: transparent; color: #17150F; border-radius: 999px; height: 52px; font-size: 16px; font-weight: 500; transition: background 180ms ease, transform 180ms ease;" style-hover="background: #FBF8F3" style-active="transform: scale(0.98)">Ingresar a mano</button>
+          <button type="button" style="margin-top: 4px; width: 100%; appearance: none; border: 0; background: transparent; font: inherit; cursor: pointer; color: #B91C1C; height: 46px; font-size: 15px; font-weight: 500; transition: opacity 160ms ease;" style-hover="opacity: 0.7">Eliminar comprobante</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Comprobante · editar</span>
+      <div data-screen-label="Comprobante editar" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06);">
+        <div style="position: absolute; inset: 0; padding: 60px 24px; opacity: 0.5;">
+          <div style="font-size: 32px; font-weight: 300; letter-spacing: -0.03em;">Comprobantes</div>
+          <div style="margin-top: 22px; height: 70px; background: #FBF8F3; border: 1px solid rgba(23,21,15,0.06); border-radius: 16px;"></div>
+          <div style="margin-top: 26px; height: 76px; background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); border-radius: 20px;"></div>
+        </div>
+        <div style="position: absolute; inset: 0; background: rgba(23,21,15,0.32);"></div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 24px 24px 0 0; box-shadow: 0 -12px 40px rgba(23,21,15,0.2); padding: 10px 24px 24px;">
+          <div style="display: flex; justify-content: center;"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.16);"></span></div>
+          <div style="margin-top: 20px; display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654; flex-shrink: 0;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Editar comprobante</span>
+          </div>
+          <div style="margin-top: 12px; font-size: 24px; font-weight: 300; letter-spacing: -0.03em; line-height: 1.24;"><span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 28px; color: #D49440; letter-spacing: -0.01em;">Completa</span> los datos.</div>
+          <div style="margin-top: 10px; font-size: 14px; line-height: 1.55; color: rgba(23,21,15,0.55);">Corrige lo que falte. Konti guarda tus cambios.</div>
+
+          <div style="margin-top: 28px;">
+          <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 13px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(23,21,15,0.06); transition: opacity 160ms ease;" style-hover="opacity: 0.6">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">Comercio</span>
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 15px; font-weight: 500;">Plaza Vea Salaverry</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.28)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </span>
+          </button>
+          <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 13px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(23,21,15,0.06); transition: opacity 160ms ease;" style-hover="opacity: 0.6">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">RUC</span>
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">20100070970</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.28)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </span>
+          </button>
+          <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 13px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(23,21,15,0.06); transition: opacity 160ms ease;" style-hover="opacity: 0.6">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">Fecha</span>
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">16/09/2026</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.28)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </span>
+          </button>
+          <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 13px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(23,21,15,0.06); transition: opacity 160ms ease;" style-hover="opacity: 0.6">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">Tipo</span>
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 15px; font-weight: 500;">Boleta</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9.5 6 6 6-6"></path></svg>
+            </span>
+          </button>
+          <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 13px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(23,21,15,0.06); transition: opacity 160ms ease;" style-hover="opacity: 0.6">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">Número</span>
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">B001-004912</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.28)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </span>
+          </button>
+          <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 13px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(23,21,15,0.06); transition: opacity 160ms ease;" style-hover="opacity: 0.6">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">Monto</span>
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums;">S/&#8202;87.40</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.28)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </span>
+          </button>
+          <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 13px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(23,21,15,0.06); transition: opacity 160ms ease;" style-hover="opacity: 0.6">
+            <span style="font-size: 13px; color: rgba(23,21,15,0.55);">IGV</span>
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 16px; color: rgba(23,21,15,0.62);">Sin completar</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.28)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </span>
+          </button>
+          </div>
+
+          <button type="button" style="margin-top: 28px; width: 100%; appearance: none; border: 0; font: inherit; cursor: pointer; background: #17150F; color: #F5F1EA; border-radius: 999px; height: 56px; font-size: 16px; font-weight: 500; letter-spacing: -0.01em; transition: transform 180ms ease, background 180ms ease;" style-hover="background: #221F17" style-active="transform: scale(0.98)">Guardar cambios</button>
+          <button type="button" style="margin-top: 4px; width: 100%; appearance: none; border: 0; background: transparent; font: inherit; cursor: pointer; color: rgba(23,21,15,0.55); height: 46px; font-size: 15px; font-weight: 500; transition: color 160ms ease;" style-hover="color: #17150F">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Escanear</span>
+      <div data-screen-label="Escanear" style="position: relative; width: 390px; height: 844px; background: #23201B; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06);">
+        <div style="position: absolute; inset: 0; background: #3A342B;"></div>
+        <div style="position: absolute; left: 46px; top: 236px; width: 298px; height: 372px; background: #E9E3D8; border-radius: 4px;"></div>
+        <div style="position: absolute; left: 46px; top: 236px; width: 298px; height: 372px; display: flex; flex-direction: column; gap: 14px; padding: 34px 28px; box-sizing: border-box;">
+          <span style="height: 10px; width: 58%; background: rgba(23,21,15,0.16); border-radius: 2px;"></span>
+          <span style="height: 8px; width: 40%; background: rgba(23,21,15,0.10); border-radius: 2px;"></span>
+          <span style="height: 8px; width: 80%; background: rgba(23,21,15,0.08); border-radius: 2px; margin-top: 22px;"></span>
+          <span style="height: 8px; width: 72%; background: rgba(23,21,15,0.08); border-radius: 2px;"></span>
+          <span style="height: 8px; width: 78%; background: rgba(23,21,15,0.08); border-radius: 2px;"></span>
+          <span style="height: 8px; width: 46%; background: rgba(23,21,15,0.08); border-radius: 2px;"></span>
+          <span style="height: 14px; width: 36%; background: rgba(23,21,15,0.14); border-radius: 2px; margin-top: 30px; align-self: flex-end;"></span>
+        </div>
+        <div style="position: absolute; inset: 0; box-shadow: inset 0 0 0 9999px rgba(0,0,0,0.6); clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0, 46px 236px, 46px 608px, 344px 608px, 344px 236px, 46px 236px);"></div>
+
+        <div style="position: absolute; left: 46px; top: 236px; width: 24px; height: 24px; border-left: 2px solid #E2A654; border-top: 2px solid #E2A654;"></div>
+        <div style="position: absolute; left: 320px; top: 236px; width: 24px; height: 24px; border-right: 2px solid #E2A654; border-top: 2px solid #E2A654;"></div>
+        <div style="position: absolute; left: 46px; top: 584px; width: 24px; height: 24px; border-left: 2px solid #E2A654; border-bottom: 2px solid #E2A654;"></div>
+        <div style="position: absolute; left: 320px; top: 584px; width: 24px; height: 24px; border-right: 2px solid #E2A654; border-bottom: 2px solid #E2A654;"></div>
+
+        <div style="position: absolute; top: 48px; left: 0; right: 0; height: 56px; display: flex; align-items: center; padding: 0 20px;">
+          <button type="button" aria-label="Cerrar" style="appearance: none; border: 0; cursor: pointer; width: 36px; height: 36px; border-radius: 999px; background: rgba(255,255,255,0.14); color: #FFFFFF; display: flex; align-items: center; justify-content: center; transition: background 160ms ease;" style-hover="background: rgba(255,255,255,0.24)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+          </button>
+          <div style="flex: 1; display: flex; justify-content: center;">
+            <span style="display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,0.12); font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.8);">
+                <span style="width: 5px; height: 5px; border-radius: 999px; background: rgba(255,255,255,0.6);"></span>Buscando comprobante
+              </span>
+          </div>
+          <span style="width: 36px;"></span>
+        </div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 56px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 28px;">
+          <button type="button" aria-label="Galería" style="appearance: none; border: 0; cursor: pointer; width: 46px; height: 46px; border-radius: 14px; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; transition: background 160ms ease;" style-hover="background: rgba(255,255,255,0.2)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="3"></rect><path d="m4.5 17 4.6-5 3.4 3.4 2.6-2.6L19.5 17"></path><circle cx="9" cy="9.3" r="1.4"></circle></svg>
+          </button>
+          <button type="button" aria-label="Capturar" style="appearance: none; cursor: pointer; width: 76px; height: 76px; border-radius: 999px; background: #FFFFFF; border: 3px solid rgba(255,255,255,0.55); box-shadow: 0 8px 24px rgba(0,0,0,0.35); transition: transform 180ms cubic-bezier(.2,.8,.3,1);" style-active="transform: scale(0.94)"></button>
+          <span style="justify-self: end; width: 46px;"></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Escanear · QR detectado</span>
+      <div data-screen-label="Escanear QR" style="position: relative; width: 390px; height: 844px; background: #23201B; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06);">
+        <div style="position: absolute; inset: 0; background: #3A342B;"></div>
+        <div style="position: absolute; left: 46px; top: 236px; width: 298px; height: 372px; background: #E9E3D8; border-radius: 4px;"></div>
+        <div style="position: absolute; left: 46px; top: 236px; width: 298px; height: 372px; display: flex; flex-direction: column; gap: 14px; padding: 34px 28px; box-sizing: border-box;">
+          <span style="height: 10px; width: 58%; background: rgba(23,21,15,0.16); border-radius: 2px;"></span>
+          <span style="height: 8px; width: 40%; background: rgba(23,21,15,0.10); border-radius: 2px;"></span>
+          <span style="height: 8px; width: 80%; background: rgba(23,21,15,0.08); border-radius: 2px; margin-top: 22px;"></span>
+          <span style="height: 8px; width: 72%; background: rgba(23,21,15,0.08); border-radius: 2px;"></span>
+          <span style="height: 8px; width: 78%; background: rgba(23,21,15,0.08); border-radius: 2px;"></span>
+          <span style="height: 8px; width: 46%; background: rgba(23,21,15,0.08); border-radius: 2px;"></span>
+          <span style="height: 14px; width: 36%; background: rgba(23,21,15,0.14); border-radius: 2px; margin-top: 30px; align-self: flex-end;"></span>
+        </div>
+        <div style="position: absolute; inset: 0; box-shadow: inset 0 0 0 9999px rgba(0,0,0,0.6); clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 0, 46px 236px, 46px 608px, 344px 608px, 344px 236px, 46px 236px);"></div>
+
+        <div style="position: absolute; left: 46px; top: 236px; width: 298px; height: 372px; border: 1px solid rgba(226,166,84,0.35); border-radius: 4px;"></div>
+        <div style="position: absolute; left: 46px; top: 236px; width: 24px; height: 24px; border-left: 2px solid #E2A654; border-top: 2px solid #E2A654; box-shadow: -2px -2px 14px rgba(226,166,84,0.55);"></div>
+        <div style="position: absolute; left: 320px; top: 236px; width: 24px; height: 24px; border-right: 2px solid #E2A654; border-top: 2px solid #E2A654; box-shadow: 2px -2px 14px rgba(226,166,84,0.55);"></div>
+        <div style="position: absolute; left: 46px; top: 584px; width: 24px; height: 24px; border-left: 2px solid #E2A654; border-bottom: 2px solid #E2A654; box-shadow: -2px 2px 14px rgba(226,166,84,0.55);"></div>
+        <div style="position: absolute; left: 320px; top: 584px; width: 24px; height: 24px; border-right: 2px solid #E2A654; border-bottom: 2px solid #E2A654; box-shadow: 2px 2px 14px rgba(226,166,84,0.55);"></div>
+
+        <div style="position: absolute; top: 48px; left: 0; right: 0; height: 56px; display: flex; align-items: center; padding: 0 20px;">
+          <button type="button" aria-label="Cerrar" style="appearance: none; border: 0; cursor: pointer; width: 36px; height: 36px; border-radius: 999px; background: rgba(255,255,255,0.14); color: #FFFFFF; display: flex; align-items: center; justify-content: center; transition: background 160ms ease;" style-hover="background: rgba(255,255,255,0.24)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+          </button>
+          <div style="flex: 1; display: flex; justify-content: center;">
+            <span style="display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: rgba(226,166,84,0.20); font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: #E2A654;">
+                <span style="width: 5px; height: 5px; border-radius: 999px; background: #E2A654;"></span>QR detectado
+              </span>
+          </div>
+          <span style="width: 36px;"></span>
+        </div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 56px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 28px;">
+          <button type="button" aria-label="Galería" style="appearance: none; border: 0; cursor: pointer; width: 46px; height: 46px; border-radius: 14px; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; transition: background 160ms ease;" style-hover="background: rgba(255,255,255,0.2)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="3"></rect><path d="m4.5 17 4.6-5 3.4 3.4 2.6-2.6L19.5 17"></path><circle cx="9" cy="9.3" r="1.4"></circle></svg>
+          </button>
+          <button type="button" aria-label="Capturar" style="appearance: none; cursor: pointer; width: 76px; height: 76px; border-radius: 999px; background: #FFFFFF; border: 3px solid rgba(255,255,255,0.55); box-shadow: 0 8px 24px rgba(0,0,0,0.35); transition: transform 180ms cubic-bezier(.2,.8,.3,1);" style-active="transform: scale(0.94)"></button>
+          <span style="justify-self: end; width: 46px;"></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Guardado</span>
+      <div data-screen-label="Guardado" style="position: relative; width: 390px; height: 844px; background: #3A342B; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06);">
+        <div style="position: absolute; left: 46px; top: 236px; width: 298px; height: 372px; background: #E9E3D8; border-radius: 4px;"></div>
+        <div style="position: absolute; left: 46px; top: 236px; width: 298px; height: 372px; display: flex; flex-direction: column; gap: 14px; padding: 34px 28px; box-sizing: border-box;">
+          <span style="height: 10px; width: 58%; background: rgba(23,21,15,0.16); border-radius: 2px;"></span>
+          <span style="height: 8px; width: 40%; background: rgba(23,21,15,0.10); border-radius: 2px;"></span>
+          <span style="height: 8px; width: 80%; background: rgba(23,21,15,0.08); border-radius: 2px; margin-top: 22px;"></span>
+          <span style="height: 8px; width: 72%; background: rgba(23,21,15,0.08); border-radius: 2px;"></span>
+          <span style="height: 14px; width: 36%; background: rgba(23,21,15,0.14); border-radius: 2px; margin-top: 30px; align-self: flex-end;"></span>
+        </div>
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55);"></div>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 24px 24px 0 0; box-shadow: 0 -12px 40px rgba(23,21,15,0.24); padding: 10px 24px 24px; display: flex; flex-direction: column; align-items: center;">
+          <span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.16);"></span>
+          <span style="margin-top: 20px; width: 48px; height: 48px; border-radius: 999px; background: #E2A654; display: flex; align-items: center; justify-content: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 12.4 3.6 3.6 7.4-8"></path></svg>
+          </span>
+          <div style="margin-top: 20px; font-size: 22px; font-weight: 500; letter-spacing: -0.02em;">Guardado.</div>
+          <div style="margin-top: 8px; font-size: 15px; color: rgba(23,21,15,0.55);">Te avisamos cuando esté listo.</div>
+          <div style="height: 24px;"></div>
+        </div>
+      </div>
+    </div>    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Bienvenida</span>
+      <div data-screen-label="Bienvenida" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06); display: flex; flex-direction: column;">
+        <div style="height: 48px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 4px;">
+          <span style="font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;">9:41</span>
+          <span style="display: flex; gap: 6px; opacity: 0.7;">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 19.5 2.5 8.8A13 13 0 0 1 21.5 8.8L12 19.5Z" fill="#17150F"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="17" height="10" rx="3" stroke="#17150F" stroke-width="1.5"></rect><rect x="4" y="9" width="11" height="6" rx="1.5" fill="#17150F"></rect><path d="M21 10.5v3" stroke="#17150F" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          </span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; padding: 16px 32px 34px;">
+          <div style="text-align: center; font-size: 20px; font-weight: 400; letter-spacing: -0.04em;">kont<span style="color: #E2A654;">i</span></div>
+          <div style="margin-top: 120px;">
+            <div style="font-size: 38px; font-weight: 300; letter-spacing: -0.03em; line-height: 1.14;">Tu mini contador <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 44px; color: #D49440; letter-spacing: -0.01em;">personal</span>.</div>
+            <div style="margin-top: 20px; font-size: 16px; line-height: 1.5; color: rgba(23,21,15,0.55); max-width: 270px;">Toma una foto de tu boleta y Konti te dice qué significa.</div>
+          </div>
+          <div style="flex: 1;"></div>
+          <button type="button" style="appearance: none; border: 1px solid rgba(23,21,15,0.06); font: inherit; cursor: pointer; background: #FFFFFF; color: #17150F; border-radius: 999px; height: 56px; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 16px; font-weight: 500; letter-spacing: -0.01em; box-shadow: 0 1px 3px rgba(23,21,15,0.04); transition: transform 180ms ease, box-shadow 180ms ease;" style-hover="box-shadow: 0 4px 14px rgba(23,21,15,0.08)" style-active="transform: scale(0.98)">
+            <svg width="19" height="19" viewBox="0 0 48 48"><path fill="#4285F4" d="M45 24c0-1.6-.1-2.7-.4-4H24v8h12c-.2 2-1.5 5-4.8 7l6.3 4.9C41.2 36.2 45 30.7 45 24Z"></path><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.3-4.9c-1.9 1.3-4.5 2.2-8.2 2.2-6 0-11-3.9-12.8-9.3l-6.6 5C8.1 40.8 15.4 46 24 46Z"></path><path fill="#FBBC05" d="M11.2 28.7A13.6 13.6 0 0 1 10.5 24c0-1.6.3-3.2.7-4.7l-6.6-5A22 22 0 0 0 2 24c0 3.5.9 6.9 2.6 9.7l6.6-5Z"></path><path fill="#EA4335" d="M24 10.2c4.2 0 7 1.8 8.7 3.4l5.6-5.4C34.9 4.9 29.9 2 24 2 15.4 2 8.1 7.2 4.6 14.3l6.6 5C13 13.9 18 10.2 24 10.2Z"></path></svg>
+            Continuar con Google
+          </button>
+          <div style="margin-top: 20px; text-align: center; font-size: 12px; line-height: 1.6; color: rgba(23,21,15,0.45);">Al continuar, aceptas nuestros <a href="#terminos">Términos</a> y <a href="#privacidad">Política de Privacidad</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Permiso de cámara</span>
+      <div data-screen-label="Permiso de camara" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06); display: flex; flex-direction: column;">
+        <div style="height: 48px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 4px;">
+          <span style="font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;">9:41</span>
+          <span style="display: flex; gap: 6px; opacity: 0.7;">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 19.5 2.5 8.8A13 13 0 0 1 21.5 8.8L12 19.5Z" fill="#17150F"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="17" height="10" rx="3" stroke="#17150F" stroke-width="1.5"></rect><rect x="4" y="9" width="11" height="6" rx="1.5" fill="#17150F"></rect><path d="M21 10.5v3" stroke="#17150F" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          </span>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; padding: 90px 32px 34px;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#17150F" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17v-10Z"></path><circle cx="12" cy="13.2" r="3.1"></circle></svg>
+          <div style="margin-top: 44px; font-size: 34px; font-weight: 300; letter-spacing: -0.03em; line-height: 1.16;">Para <span style="font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 40px; color: #D49440;">escanear</span> tus comprobantes</div>
+          <div style="margin-top: 18px; font-size: 16px; line-height: 1.55; color: rgba(23,21,15,0.55); max-width: 290px;">Necesitamos acceso a la cámara para leer tus boletas. También puedes importar desde tu galería.</div>
+          <div style="flex: 1;"></div>
+          <button type="button" style="appearance: none; border: 0; font: inherit; cursor: pointer; background: #17150F; color: #F5F1EA; border-radius: 999px; height: 56px; font-size: 16px; font-weight: 500; letter-spacing: -0.01em; transition: transform 180ms ease, background 180ms ease;" style-hover="background: #221F17" style-active="transform: scale(0.98)">Permitir cámara</button>
+          <button type="button" style="margin-top: 8px; appearance: none; border: 0; background: transparent; font: inherit; cursor: pointer; color: rgba(23,21,15,0.55); height: 48px; font-size: 15px; font-weight: 500; transition: color 160ms ease;" style-hover="color: #17150F">Ahora no</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Perfil</span>
+      <div data-screen-label="Perfil" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06); display: flex; flex-direction: column;">
+        <div style="height: 48px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 4px;">
+          <span style="font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;">9:41</span>
+          <span style="display: flex; gap: 6px; opacity: 0.7;">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 19.5 2.5 8.8A13 13 0 0 1 21.5 8.8L12 19.5Z" fill="#17150F"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="17" height="10" rx="3" stroke="#17150F" stroke-width="1.5"></rect><rect x="4" y="9" width="11" height="6" rx="1.5" fill="#17150F"></rect><path d="M21 10.5v3" stroke="#17150F" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          </span>
+        </div>
+        <div style="flex: 1; overflow: hidden; padding: 12px 24px 0;">
+          <div style="font-size: 32px; font-weight: 300; letter-spacing: -0.03em;">Perfil</div>
+
+          <div style="margin-top: 28px; display: flex; align-items: center; gap: 18px;">
+            <span style="width: 72px; height: 72px; border-radius: 999px; background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); box-shadow: 0 1px 3px rgba(23,21,15,0.04); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 300; letter-spacing: -0.03em; flex-shrink: 0;">D</span>
+            <span style="min-width: 0;">
+              <span style="display: block; font-size: 20px; font-weight: 500; letter-spacing: -0.02em;">Diego Ramírez</span>
+              <span style="display: block; margin-top: 3px; font-size: 14px; color: rgba(23,21,15,0.55);">diego@apuestatotal.com</span>
+            </span>
+          </div>
+
+          <div style="margin-top: 26px; display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: #E2A654;"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Plan</span>
+          </div>
+          <div style="margin-top: 12px; background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); border-radius: 20px; box-shadow: 0 1px 3px rgba(23,21,15,0.04); padding: 18px 20px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 16px; font-weight: 500; letter-spacing: -0.015em;">Tu plan</span>
+            <span style="font-size: 15px; color: rgba(23,21,15,0.55);">Gratis</span>
+          </div>
+
+          <div style="margin-top: 24px; display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: rgba(23,21,15,0.2);"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Cuenta</span>
+          </div>
+          <div style="margin-top: 12px; background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); border-radius: 20px; box-shadow: 0 1px 3px rgba(23,21,15,0.04); overflow: hidden;">
+            <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(23,21,15,0.06); transition: background 160ms ease;" style-hover="background: #FBF8F3">
+              <span style="font-size: 16px; letter-spacing: -0.015em;">Privacidad y datos</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.35)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </button>
+            <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(23,21,15,0.06); transition: background 160ms ease;" style-hover="background: #FBF8F3">
+              <span style="font-size: 16px; letter-spacing: -0.015em;">Notificaciones</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.35)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </button>
+            <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; transition: background 160ms ease;" style-hover="background: #FBF8F3">
+              <span style="font-size: 16px; letter-spacing: -0.015em;">Apariencia</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.35)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </button>
+          </div>
+
+          <div style="margin-top: 24px; display: flex; align-items: center; gap: 8px;">
+            <span style="width: 6px; height: 6px; border-radius: 999px; background: rgba(23,21,15,0.2);"></span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.55);">Legal</span>
+          </div>
+          <div style="margin-top: 12px; background: #FFFFFF; border: 1px solid rgba(23,21,15,0.06); border-radius: 20px; box-shadow: 0 1px 3px rgba(23,21,15,0.04); overflow: hidden;">
+            <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(23,21,15,0.06); transition: background 160ms ease;" style-hover="background: #FBF8F3">
+              <span style="font-size: 16px; letter-spacing: -0.015em;">Términos y condiciones</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.35)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </button>
+            <button type="button" style="width: 100%; appearance: none; border: 0; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; transition: background 160ms ease;" style-hover="background: #FBF8F3">
+              <span style="font-size: 16px; letter-spacing: -0.015em;">Política de privacidad</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(23,21,15,0.35)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"></path></svg>
+            </button>
+          </div>
+
+          <div style="margin-top: 22px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px;">
+            <button type="button" style="appearance: none; border: 0; background: transparent; font: inherit; cursor: pointer; padding: 0; color: rgba(23,21,15,0.55); font-size: 15px; font-weight: 500; transition: color 160ms ease;" style-hover="color: #17150F">Cerrar sesión</button>
+            <button type="button" style="appearance: none; border: 0; background: transparent; font: inherit; cursor: pointer; padding: 0; color: #B91C1C; font-size: 14px; transition: opacity 160ms ease;" style-hover="opacity: 0.7">Eliminar cuenta</button>
+          </div>
+        </div>
+
+        <div style="flex-shrink: 0; background: #FBF8F3; border-top: 1px solid rgba(23,21,15,0.06); padding: 12px 0 0; display: grid; grid-template-columns: repeat(3, 1fr);">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.2 12 4l8 6.2V20H4v-9.8Z"></path><path d="M9.6 20v-5.4h4.8V20"></path></svg>
+            <span style="font-size: 11px;">Inicio</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: rgba(23,21,15,0.35);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4v-17Z"></path><path d="M9.2 8.2h5.6M9.2 12h5.6"></path></svg>
+            <span style="font-size: 11px;">Comprobantes</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px; color: #17150F;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3.6"></circle><path d="M5 20c1.2-3.3 3.8-5 7-5s5.8 1.7 7 5"></path></svg>
+            <span style="font-size: 11px; font-weight: 500;">Perfil</span>
+          </div>
+          <div style="grid-column: 1 / -1; height: 22px; display: flex; align-items: center; justify-content: center; padding-top: 8px;">
+            <span style="width: 108px; height: 4px; border-radius: 2px; background: rgba(23,21,15,0.22);"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(23,21,15,0.45);">Sin conexión</span>
+      <div data-screen-label="Sin conexion" style="position: relative; width: 390px; height: 844px; background: #F5F1EA; border-radius: 40px; overflow: hidden; box-shadow: 0 1px 2px rgba(23,21,15,0.08), 0 20px 50px -14px rgba(23,21,15,0.2), 0 0 0 1px rgba(23,21,15,0.06); display: flex; flex-direction: column;">
+        <div style="height: 48px; flex-shrink: 0; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 4px;">
+          <span style="font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;">9:41</span>
+          <span style="display: flex; gap: 6px; opacity: 0.7;">
+            <svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 19.5 2.5 8.8A13 13 0 0 1 21.5 8.8L12 19.5Z" fill="#17150F"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="17" height="10" rx="3" stroke="#17150F" stroke-width="1.5"></rect><rect x="4" y="9" width="11" height="6" rx="1.5" fill="#17150F"></rect><path d="M21 10.5v3" stroke="#17150F" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          </span>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 24px 0;">
+          <span style="font-size: 20px; font-weight: 400; letter-spacing: -0.04em;">kont<span style="color: #E2A654;">i</span></span>
+          <button type="button" aria-label="Ajustes" style="appearance: none; border: 0; background: transparent; padding: 8px; margin: -8px -8px -8px 0; cursor: pointer; color: rgba(23,21,15,0.35); display: flex; transition: color 160ms ease;" style-hover="color: rgba(23,21,15,0.6)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>
+          </button>
+        </div>
+
+        <div style="flex: 1; overflow: hidden; padding: 0 24px;">
+          <div style="height: 100px;"></div>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#17150F" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.4 18.5h9.4a3.6 3.6 0 0 0 .6-7.15A5.2 5.2 0 0 0 8.2 9.1"></path><path d="M6.6 11.4a3.6 3.6 0 0 0 .8 7.1"></path><path d="M4 4l16 16"></path></svg>
+          <div style="margin-top: 36px; font-size: 26px; font-weight: 300; letter-spacing: -0.03em;">Sin conexión.</div>
+          <div style="margin-top: 12px; font-size: 15px; line-height: 1.5; color: rgba(23,21,15,0.55); max-width: 280px;">Revisa tu internet e intenta de nuevo.</div>
+          <button type="button" style="margin-top: 32px; appearance: none; border: 0; font: inherit; cursor: pointer; background: #17150F; color: #F5F1EA; border-radius: 999px; height: 56px; padding: 0 34px; font-size: 16px; font-weight: 500; letter-spacing: -0.01em; transition: transform 180ms ease, background 180ms ease;" style-hover="background: #221F17" style-active="transform: scale(0.98)">Reintentar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

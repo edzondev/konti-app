@@ -1,30 +1,14 @@
 @import "tailwindcss";
 @import "uniwind";
 
-@theme {
-	--color-konti-bg: oklch(16.9% 0.004 84.6);
-	--color-konti-surface: oklch(20.6% 0.005 67.5);
-	--color-konti-primary: oklch(76.6% 0.121 72.7);
-	--color-konti-ivory: oklch(92.6% 0.017 84.6);
-	--color-konti-ivory-secondary: oklch(95.9% 0.01 81.8);
-}
-
 @layer theme {
-	:root {
-		@variant light {
-			--color-konti-bg: oklch(95.9% 0.01 81.8);
-			--color-konti-surface: oklch(20.6% 0.005 67.5);
-			--color-konti-primary: oklch(76.6% 0.121 72.7);
-			--color-konti-ivory: oklch(19.6% 0.012 91.8);
-			--color-konti-ivory-secondary: oklch(95.9% 0.01 81.8);
-		}
+    :root {
+        @variant light {
+            --color-konti-bg: oklch(0.9593 0.0103 81.8);
+        }
 
-		@variant dark {
-			--color-konti-bg: oklch(16.9% 0.004 84.6);
-			--color-konti-surface: oklch(20.6% 0.005 67.5);
-			--color-konti-primary: oklch(76.6% 0.121 72.7);
-			--color-konti-ivory: oklch(92.6% 0.017 84.6);
-			--color-konti-ivory-secondary: oklch(95.9% 0.01 81.8);
-		}
-	}
+        @variant dark {
+            --color-konti-bg: oklch(16.9% 0.004 84.6);
+        }
+    }
 }

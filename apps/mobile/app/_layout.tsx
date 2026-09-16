@@ -1,0 +1,46 @@
+import "react-native-reanimated";
+import "../global.css";
+
+import { GoogleOneTapSignIn } from "@react-native-google-signin/google-signin";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+
+import { AppProviders } from "@/core/app-providers";
+import { authClient } from "@/core/auth-client";
+
+export { ErrorBoundary } from "expo-router";
+
+export const unstable_settings = {
+	initialRouteName: "(tabs)",
+};
+
+void SplashScreen.preventAutoHideAsync();
+
+GoogleOneTapSignIn.configure({
+	webClientId: "autoDetect",
+});
+
+export default function RootLayout() {
+	return (
+		<AppProviders>
+			<RootNavigator />
+		</AppProviders>
+	);
+}
+
+function RootNavigator() {
+	const { data: session } = authClient.useSession();
+
+	return (
+		<Stack screenOptions={{ headerShown: false }}>
+			<Stack.Protected guard={!session}>
+				<Stack.Screen name="sign-in" />
+			</Stack.Protected>
+
+			<Stack.Protected guard={Boolean(session)}>
+				<Stack.Screen name="(tabs)" />
+				<Stack.Screen name="document/[id]" />
+			</Stack.Protected>
+		</Stack>
+	);
+}

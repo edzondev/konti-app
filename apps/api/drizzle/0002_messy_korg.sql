@@ -1,0 +1,2 @@
+DROP INDEX "documents_user_sha256_idx";--> statement-breakpoint
+CREATE UNIQUE INDEX "documents_user_sha256_alive_uidx" ON "documents" USING btree ("user_id","sha256") WHERE "documents"."deleted_at" is null;

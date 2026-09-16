@@ -1,9 +1,4 @@
-import {
-	BadRequestException,
-	HttpException,
-	HttpStatus,
-	NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, HttpException, HttpStatus, NotFoundException } from "@nestjs/common";
 import { describe, expect, it, vi } from "vitest";
 import { HttpExceptionFilter } from "./http-exception.filter.js";
 
@@ -23,7 +18,10 @@ describe("HttpExceptionFilter", () => {
 		const statusSpy = vi.fn();
 		const jsonSpy = vi.fn();
 
-		filter.catch(new NotFoundException("Document not found"), mockHost(statusSpy, jsonSpy) as never);
+		filter.catch(
+			new NotFoundException("Document not found"),
+			mockHost(statusSpy, jsonSpy) as never,
+		);
 
 		expect(statusSpy).toHaveBeenCalledWith(404);
 		expect(jsonSpy).toHaveBeenCalledWith({

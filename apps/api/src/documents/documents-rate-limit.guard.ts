@@ -30,8 +30,9 @@ export class DocumentsRateLimitGuard implements CanActivate {
 		if (!userId) throw new UnauthorizedException();
 
 		const now = Date.now();
-		let entry = this.hits.get(userId);
+		this.pruneExpired(now);
 
+		let entry = this.hits.get(userId);
 		if (!entry || now >= entry.resetAt) {
 			entry = { count: 0, resetAt: now + WINDOW_MS };
 			this.hits.set(userId, entry);
@@ -44,5 +45,13 @@ export class DocumentsRateLimitGuard implements CanActivate {
 		}
 
 		return true;
+	}
+
+	private pruneExpired(now: number): void {
+		for (const [key, entry] of this.hits) {
+			if (now >= entry.resetAt) {
+				this.hits.delete(key);
+			}
+		}
 	}
 }

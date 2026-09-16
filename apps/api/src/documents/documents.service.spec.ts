@@ -67,9 +67,9 @@ describe("DocumentsService", () => {
 			}),
 		});
 
-		await expect(service.softDelete("user-1", "00000000-0000-4000-8000-000000000001")).rejects.toBeInstanceOf(
-			NotFoundException,
-		);
+		await expect(
+			service.softDelete("user-1", "00000000-0000-4000-8000-000000000001"),
+		).rejects.toBeInstanceOf(NotFoundException);
 	});
 
 	it("softDelete: marca deletedAt cuando existe", async () => {

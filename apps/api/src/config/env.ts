@@ -35,6 +35,10 @@ export const EnvSchema = v.object({
 
 	POSTHOG_API_KEY: v.pipe(v.string(), v.minLength(1)),
 	POSTHOG_HOST: v.optional(v.pipe(v.string(), v.url()), "https://us.i.posthog.com"),
+
+	// Tope global de llamadas Mistral OCR por mes (America/Lima). 0 = degradar a manual.
+	OCR_MONTHLY_LIMIT: numberFromEnv(100, 0),
+	OCR_TIMEOUT_MS: numberFromEnv(30_000, 1_000),
 });
 
 export type Env = v.InferOutput<typeof EnvSchema>;

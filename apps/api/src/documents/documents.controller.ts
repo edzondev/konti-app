@@ -8,6 +8,7 @@ import {
 	MaxFileSizeValidator,
 	Param,
 	ParseFilePipe,
+	Patch,
 	Post,
 	Query,
 	UploadedFile,
@@ -20,7 +21,12 @@ import * as v from "valibot";
 import { AuthGuard, type AuthUser } from "../auth/auth.guard.js";
 import { CurrentUser } from "../auth/current-user.decorator.js";
 import { DocumentMimeTypeSchema } from "../storage/mime.js";
-import { CreateDocumentDto, DocumentIdParamDto, ListDocumentsQueryDto } from "./documents.dto.js";
+import {
+	CreateDocumentDto,
+	DocumentIdParamDto,
+	ListDocumentsQueryDto,
+	UpdateDocumentDto,
+} from "./documents.dto.js";
 import { DocumentsService } from "./documents.service.js";
 import { DocumentsRateLimitGuard } from "./documents-rate-limit.guard.js";
 
@@ -66,9 +72,27 @@ export class DocumentsController {
 		return this.documentsService.summary(user.id, query.month);
 	}
 
+	// Antes de @Get(':id') para que "image" no se interprete como UUID.
+	@Get(":id/image")
+	async getImage(
+		@CurrentUser() user: AuthUser,
+		@Param() params: DocumentIdParamDto,
+	): Promise<{ url: string; expiresAt: string }> {
+		return this.documentsService.getImageUrl(user.id, params.id);
+	}
+
 	@Get(":id")
 	async findOne(@CurrentUser() user: AuthUser, @Param() params: DocumentIdParamDto) {
 		return this.documentsService.findOne(user.id, params.id);
+	}
+
+	@Patch(":id")
+	async update(
+		@CurrentUser() user: AuthUser,
+		@Param() params: DocumentIdParamDto,
+		@Body() dto: UpdateDocumentDto,
+	) {
+		return this.documentsService.update(user.id, params.id, dto);
 	}
 
 	@Delete(":id")

@@ -14,13 +14,24 @@ import { IngestionService } from "../ingestion/ingestion.service.js";
 import type { DocumentMimeType } from "../storage/mime.js";
 import { buildDocumentObjectKey } from "../storage/object-keys.js";
 import { StorageService } from "../storage/storage.service.js";
-import { CreateDocumentDto } from "./documents.dto.js";
+import { CreateDocumentDto, UpdateDocumentDto } from "./documents.dto.js";
 
 interface UploadInput {
 	buffer: Buffer;
 	size: number;
 	mimeType: DocumentMimeType;
 }
+
+const EDITABLE_FIELDS = [
+	"documentType",
+	"issuerName",
+	"issuerTaxId",
+	"issueDate",
+	"documentNumber",
+	"currencyCode",
+	"totalAmount",
+	"igvAmount",
+] as const;
 
 @Injectable()
 export class DocumentsService {
@@ -40,7 +51,13 @@ export class DocumentsService {
 		const [existing] = await this.db
 			.select()
 			.from(documents)
-			.where(and(eq(documents.userId, userId), eq(documents.sha256, sha256), isNull(documents.deletedAt)))
+			.where(
+				and(
+					eq(documents.userId, userId),
+					eq(documents.sha256, sha256),
+					isNull(documents.deletedAt),
+				),
+			)
 			.limit(1);
 
 		if (existing) {
@@ -74,14 +91,37 @@ export class DocumentsService {
 			// Compensación: evitamos dejar un objeto huérfano en el storage.
 			await this.storage.delete(objectKey).catch((deleteError: unknown) => {
 				this.logger.error(
-					`No se pudo limpiar el objeto ${objectKey}`,
+					`No se pudo limpiar storage tras fallo de insert (sha256=${sha256.slice(0, 12)})`,
 					deleteError instanceof Error ? deleteError.stack : undefined,
 				);
 			});
+
+			// Carrera: otro request insertó el mismo hash vivo.
+			if (isUniqueViolation(error)) {
+				const [raceWinner] = await this.db
+					.select()
+					.from(documents)
+					.where(
+						and(
+							eq(documents.userId, userId),
+							eq(documents.sha256, sha256),
+							isNull(documents.deletedAt),
+						),
+					)
+					.limit(1);
+				if (raceWinner) return raceWinner;
+			}
+
 			throw error;
 		}
 
-		void this.processInBackground(document.id, file.buffer, file.mimeType, dto.qrPayload);
+		void this.processInBackground(
+			document.id,
+			file.buffer,
+			file.mimeType,
+			dto.qrPayload,
+			dto.localText,
+		);
 
 		return document;
 	}
@@ -110,6 +150,60 @@ export class DocumentsService {
 
 		if (!doc) throw new NotFoundException("Document not found");
 		return doc;
+	}
+
+	async update(userId: string, id: string, dto: UpdateDocumentDto) {
+		const current = await this.findOne(userId, id);
+
+		const patch: {
+			documentType?: (typeof documents.$inferSelect)["documentType"];
+			issuerName?: string | null;
+			issuerTaxId?: string | null;
+			issueDate?: string | null;
+			documentNumber?: string | null;
+			currencyCode?: string | null;
+			totalAmount?: string | null;
+			igvAmount?: string | null;
+		} = {};
+		let changed = false;
+
+		for (const field of EDITABLE_FIELDS) {
+			if (!Object.hasOwn(dto, field)) continue;
+			const value = dto[field];
+			if (value === undefined) continue;
+
+			if (field === "documentType") {
+				patch.documentType = value as (typeof documents.$inferSelect)["documentType"];
+			} else {
+				patch[field] = value;
+			}
+
+			if (!sameFieldValue(current[field], value)) {
+				changed = true;
+			}
+		}
+
+		if (Object.keys(patch).length === 0) {
+			throw new BadRequestException("Debes enviar al menos un campo editable");
+		}
+
+		const [updated] = await this.db
+			.update(documents)
+			.set({
+				...patch,
+				...(changed ? { wasUserCorrected: true } : {}),
+				updatedAt: new Date(),
+			})
+			.where(and(visibleToUser(userId), eq(documents.id, id)))
+			.returning();
+
+		if (!updated) throw new NotFoundException("Document not found");
+		return updated;
+	}
+
+	async getImageUrl(userId: string, id: string): Promise<{ url: string; expiresAt: string }> {
+		const doc = await this.findOne(userId, id);
+		return this.storage.downloadUrlWithExpiry(doc.objectKey);
 	}
 
 	async softDelete(userId: string, id: string): Promise<void> {
@@ -159,9 +253,10 @@ export class DocumentsService {
 		buffer: Buffer,
 		mimeType: DocumentMimeType,
 		qrPayload?: string,
+		localText?: string,
 	): Promise<void> {
 		try {
-			await this.ingestion.process({ documentId, buffer, mimeType, qrPayload });
+			await this.ingestion.process({ documentId, buffer, mimeType, qrPayload, localText });
 		} catch (error) {
 			this.logger.error(
 				`Ingesta falló para el documento ${documentId}`,
@@ -189,6 +284,22 @@ export class DocumentsService {
 // Filtro compartido: documentos del usuario y no borrados (soft delete).
 const visibleToUser = (userId: string) =>
 	and(eq(documents.userId, userId), isNull(documents.deletedAt));
+
+function sameFieldValue(current: unknown, next: string | null): boolean {
+	if (current === null || current === undefined) return next === null;
+	return String(current) === next;
+}
+
+function isUniqueViolation(error: unknown): boolean {
+	if (!error || typeof error !== "object") return false;
+	const code =
+		"code" in error
+			? String((error as { code: unknown }).code)
+			: "cause" in error && error.cause && typeof error.cause === "object" && "code" in error.cause
+				? String((error.cause as { code: unknown }).code)
+				: undefined;
+	return code === "23505";
+}
 
 const PERU_TIME_ZONE = "America/Lima";
 

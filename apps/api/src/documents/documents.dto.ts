@@ -1,9 +1,24 @@
 import { createStandardSchemaDTO } from "nestjs-standard-schema";
 import * as v from "valibot";
+import { AmountSchema, IsoDateSchema, RucSchema } from "../ingestion/schemas.js";
 
 export const CreateDocumentSchema = v.object({
 	source: v.picklist(["camera", "gallery", "share"]),
 	qrPayload: v.optional(v.pipe(v.string(), v.maxLength(2000))),
+	localText: v.optional(v.pipe(v.string(), v.maxLength(2000))),
+});
+
+export const UpdateDocumentSchema = v.object({
+	documentType: v.optional(
+		v.picklist(["boleta", "factura", "recibo_honorarios", "ticket", "unknown"]),
+	),
+	issuerName: v.optional(v.nullable(v.pipe(v.string(), v.maxLength(200)))),
+	issuerTaxId: v.optional(v.nullable(RucSchema)),
+	issueDate: v.optional(v.nullable(IsoDateSchema)),
+	documentNumber: v.optional(v.nullable(v.pipe(v.string(), v.maxLength(50)))),
+	currencyCode: v.optional(v.nullable(v.pipe(v.string(), v.regex(/^[A-Z]{3}$/)))),
+	totalAmount: v.optional(v.nullable(AmountSchema)),
+	igvAmount: v.optional(v.nullable(AmountSchema)),
 });
 
 export const ListDocumentsQuerySchema = v.object({
@@ -16,6 +31,9 @@ export const DocumentIdParamSchema = v.object({
 
 export const CreateDocumentDto = createStandardSchemaDTO(CreateDocumentSchema);
 export type CreateDocumentDto = v.InferOutput<typeof CreateDocumentSchema>;
+
+export const UpdateDocumentDto = createStandardSchemaDTO(UpdateDocumentSchema);
+export type UpdateDocumentDto = v.InferOutput<typeof UpdateDocumentSchema>;
 
 export const ListDocumentsQueryDto = createStandardSchemaDTO(ListDocumentsQuerySchema);
 export type ListDocumentsQueryDto = v.InferOutput<typeof ListDocumentsQuerySchema>;

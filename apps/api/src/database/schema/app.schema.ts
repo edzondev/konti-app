@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
 	AnyPgColumn,
 	boolean,
@@ -9,6 +10,7 @@ import {
 	pgTable,
 	text,
 	timestamp,
+	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth.schema.js";
@@ -59,7 +61,7 @@ export const documents = pgTable(
 		totalAmount: numeric("total_amount", { precision: 14, scale: 2 }),
 		igvAmount: numeric("igv_amount", { precision: 14, scale: 2 }),
 		// Cómo se obtuvieron los datos
-		extractionSource: text("extraction_source").$type<"qr" | "ocr" | "manual">(),
+		extractionSource: text("extraction_source").$type<"qr" | "ocr" | "local" | "manual">(),
 		wasUserCorrected: boolean("was_user_corrected").default(false).notNull(),
 
 		// Duplicados
@@ -79,8 +81,10 @@ export const documents = pgTable(
 		// Filtrar por estado (para el worker y para el listado)
 		index("documents_user_status_idx").on(table.userId, table.status),
 
-		// Deduplicación por hash de imagen, por usuario
-		index("documents_user_sha256_idx").on(table.userId, table.sha256),
+		// Deduplicación fuerte: un hash vivo por usuario
+		uniqueIndex("documents_user_sha256_alive_uidx")
+			.on(table.userId, table.sha256)
+			.where(sql`${table.deletedAt} is null`),
 
 		// Búsqueda rápida por sha256 (para el worker antes de insertar)
 		index("documents_sha256_idx").on(table.sha256),

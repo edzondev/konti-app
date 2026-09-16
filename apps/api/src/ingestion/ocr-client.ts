@@ -3,7 +3,13 @@ import { ConfigService } from "@nestjs/config";
 import * as v from "valibot";
 import type { Env } from "../config/env.js";
 import type { ExtractedDocument } from "./ingestion.types.js";
-import { IsoDateSchema } from "./schemas.js";
+import {
+	AmountCandidateSchema,
+	DocumentNumberSchema,
+	IsoDateSchema,
+	normalizeAmountCandidate,
+	RucSchema,
+} from "./schemas.js";
 
 interface MistralOcrResponse {
 	pages?: Array<{ markdown?: string }>;
@@ -15,9 +21,11 @@ export class OcrClient {
 	private readonly logger = new Logger(OcrClient.name);
 	private readonly apiKey: string;
 	private readonly endpoint = "https://api.mistral.ai/v1/ocr";
+	private readonly timeoutMs: number;
 
 	constructor(config: ConfigService<Env, true>) {
 		this.apiKey = config.getOrThrow("MISTRAL_API_KEY");
+		this.timeoutMs = config.get("OCR_TIMEOUT_MS");
 	}
 
 	async extract(buffer: Buffer, mimeType: string): Promise<ExtractedDocument> {
@@ -29,14 +37,24 @@ export class OcrClient {
 			},
 		};
 
-		const response = await fetch(this.endpoint, {
-			method: "POST",
-			headers: {
-				Authorization: `Bearer ${this.apiKey}`,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(body),
-		});
+		let response: Response;
+		try {
+			response = await fetch(this.endpoint, {
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${this.apiKey}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(body),
+				signal: AbortSignal.timeout(this.timeoutMs),
+			});
+		} catch (error) {
+			if (error instanceof Error && error.name === "TimeoutError") {
+				this.logger.error(`Mistral OCR timed out after ${this.timeoutMs}ms`);
+				throw new Error(`Mistral OCR timed out after ${this.timeoutMs}ms`);
+			}
+			throw error;
+		}
 
 		if (!response.ok) {
 			this.logger.error(`Mistral OCR failed: ${response.status}`);
@@ -49,11 +67,6 @@ export class OcrClient {
 		return parseMarkdown(markdown);
 	}
 }
-
-// --- Validación de cada campo extraído (valibot) ---
-const RucSchema = v.pipe(v.string(), v.regex(/^(10|15|17|20)\d{9}$/));
-const DocumentNumberSchema = v.pipe(v.string(), v.regex(/^[BFE]\d{3}-\d{1,8}$/));
-const AmountSchema = v.pipe(v.string(), v.regex(/^\d+[.,]\d{2}$/));
 
 // Parser heurístico sobre el markdown que devuelve Mistral: extrae con regex y
 // valida cada campo con valibot. Si no encuentra un campo, lo deja en null.
@@ -76,7 +89,8 @@ function parseMarkdown(markdown: string): ExtractedDocument {
 		issueDate: v.is(IsoDateSchema, rawDate) ? rawDate : null,
 		documentNumber: v.is(DocumentNumberSchema, rawNumber) ? rawNumber : null,
 		currencyCode: "PEN",
-		totalAmount: v.is(AmountSchema, amount) ? amount.replace(",", ".") : null,
-		igvAmount: v.is(AmountSchema, igv) ? igv.replace(",", ".") : null,
+		totalAmount:
+			amount && v.is(AmountCandidateSchema, amount) ? normalizeAmountCandidate(amount) : null,
+		igvAmount: igv && v.is(AmountCandidateSchema, igv) ? normalizeAmountCandidate(igv) : null,
 	};
 }

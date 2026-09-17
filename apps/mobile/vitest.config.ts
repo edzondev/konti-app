@@ -8,7 +8,7 @@ module.exports = {
 	},
 	test: {
 		environment: "node",
-		include: ["core/**/*.test.ts", "features/**/*.test.ts"],
+		include: ["__tests__/**/*.test.ts"],
 		setupFiles: ["./vitest.setup.ts"],
 	},
 };

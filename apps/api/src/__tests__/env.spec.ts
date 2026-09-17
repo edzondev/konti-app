@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateEnv } from "./env.js";
+import { validateEnv } from "../config/env.js";
 
 const base = {
 	DATABASE_URL: "postgres://u:p@localhost:5432/db",

@@ -62,7 +62,7 @@ vi.mock("@/core/haptics", () => ({
 	triggerHaptic: haptics.trigger,
 }));
 
-import { GoogleSignInButton } from "./google-sign-in-button";
+import { GoogleSignInButton } from "../features/auth/google-sign-in-button";
 
 const GOOGLE_USER = {
 	type: "success",

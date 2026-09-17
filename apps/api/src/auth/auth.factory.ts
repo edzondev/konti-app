@@ -32,7 +32,11 @@ export function createAuth(db: Database, configService: ConfigService<Env, true>
 		},
 		socialProviders: {
 			google: {
-				clientId: configService.getOrThrow("GOOGLE_WEB_CLIENT_ID"),
+				clientId: [
+					configService.getOrThrow("GOOGLE_WEB_CLIENT_ID"),
+					configService.getOrThrow("GOOGLE_ANDROID_CLIENT_ID"),
+					configService.get("GOOGLE_IOS_CLIENT_ID"),
+				].filter((id): id is string => Boolean(id)),
 				clientSecret: configService.getOrThrow("GOOGLE_CLIENT_SECRET"),
 				prompt: "select_account",
 			},

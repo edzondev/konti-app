@@ -37,6 +37,10 @@ yarn-error.log*
 .DS_Store
 *.pem
 
+# Git worktrees / SDD scratch
+.worktrees/
+.superpowers/
+
 # Agents
 .agents/*
 

@@ -52,8 +52,7 @@ describe("IngestionService", () => {
 			};
 			// Thenable for `await select...where()` (OCR budget)
 			Object.assign(chain, {
-				then: (resolve: (v: unknown) => unknown) =>
-					Promise.resolve([{ count: 0 }]).then(resolve),
+				then: (resolve: (v: unknown) => unknown) => Promise.resolve([{ count: 0 }]).then(resolve),
 			});
 			return chain;
 		});

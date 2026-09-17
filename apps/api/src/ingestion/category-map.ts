@@ -44,19 +44,19 @@ export const CATEGORY_MAP: Record<string, Category> = {
 	"punto azul": "restaurantes",
 	"chino walon": "restaurantes",
 	"el señor de huanca": "restaurantes",
-	"norkys": "restaurantes",
+	norkys: "restaurantes",
 	rokys: "restaurantes",
 	"papa johns": "restaurantes",
 	"domino s": "restaurantes",
 	dominos: "restaurantes",
-	"subway": "restaurantes",
+	subway: "restaurantes",
 	"chili s": "restaurantes",
-	"tgif": "restaurantes",
+	tgif: "restaurantes",
 	"segundo muelle": "restaurantes",
 	"el honesto mike": "restaurantes",
-	"central": "restaurantes",
-	"maido": "restaurantes",
-	"isola": "restaurantes",
+	central: "restaurantes",
+	maido: "restaurantes",
+	isola: "restaurantes",
 	"cafe emasa": "restaurantes",
 
 	// supermercado
@@ -69,10 +69,10 @@ export const CATEGORY_MAP: Record<string, Category> = {
 	mass: "supermercado",
 	vea: "supermercado",
 	"super maxi": "supermercado",
-	"oxxo": "supermercado",
-	"listo": "supermercado",
-	"tambo": "supermercado",
-	"spar": "supermercado",
+	oxxo: "supermercado",
+	listo: "supermercado",
+	tambo: "supermercado",
+	spar: "supermercado",
 
 	// transporte
 	uber: "transporte",
@@ -106,11 +106,11 @@ export const CATEGORY_MAP: Record<string, Category> = {
 	policlinico: "servicios_medicos",
 	"san pablo": "servicios_medicos",
 	oncosalud: "servicios_medicos",
-	"auna": "servicios_medicos",
+	auna: "servicios_medicos",
 	"pacifico seguros": "servicios_medicos",
 	rimac: "servicios_medicos",
-	"sanitas": "servicios_medicos",
-	"laboratorio": "servicios_medicos",
+	sanitas: "servicios_medicos",
+	laboratorio: "servicios_medicos",
 
 	// servicios_profesionales
 	"estudio contable": "servicios_profesionales",
@@ -132,10 +132,10 @@ export const CATEGORY_MAP: Record<string, Category> = {
 	bitel: "hogar_servicios",
 	calidda: "hogar_servicios",
 	"pluz energia": "hogar_servicios",
-	"electroperu": "hogar_servicios",
-	"win": "hogar_servicios",
-	"wow": "hogar_servicios",
-	"directv": "hogar_servicios",
+	electroperu: "hogar_servicios",
+	win: "hogar_servicios",
+	wow: "hogar_servicios",
+	directv: "hogar_servicios",
 
 	// entretenimiento
 	cinemark: "entretenimiento",
@@ -163,9 +163,9 @@ export const CATEGORY_MAP: Record<string, Category> = {
 	instituto: "educacion",
 	colegio: "educacion",
 	academia: "educacion",
-	"idiomas": "educacion",
+	idiomas: "educacion",
 	britanico: "educacion",
-	"icpna": "educacion",
+	icpna: "educacion",
 };
 
 const NORMALIZE_MAP: Record<string, string> = {

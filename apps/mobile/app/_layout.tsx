@@ -16,8 +16,13 @@ export const unstable_settings = {
 
 void SplashScreen.preventAutoHideAsync();
 
+const googleWebClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+if (!googleWebClientId) {
+	throw new Error("EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID is not defined");
+}
+
 GoogleOneTapSignIn.configure({
-	webClientId: "autoDetect",
+	webClientId: googleWebClientId,
 });
 
 export default function RootLayout() {

@@ -7,14 +7,10 @@ import {
 	NotFoundException,
 } from "@nestjs/common";
 import { and, desc, eq, gte, isNull, lt, lte } from "drizzle-orm";
-import {
-	type Category,
-	categoryLabel,
-	DEDUCTIBLE_CATEGORIES,
-} from "../ingestion/category-map.js";
 import { InjectDatabase } from "../database/database.decorators.js";
 import type { Database } from "../database/database.types.js";
 import { documents } from "../database/schema/app.schema.js";
+import { type Category, categoryLabel, DEDUCTIBLE_CATEGORIES } from "../ingestion/category-map.js";
 import { IngestionService } from "../ingestion/ingestion.service.js";
 import type { DocumentMimeType } from "../storage/mime.js";
 import { buildDocumentObjectKey } from "../storage/object-keys.js";

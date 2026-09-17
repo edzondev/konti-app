@@ -73,10 +73,7 @@ export class IngestionService {
 	 * Si hay issuerName → categorizeByName.
 	 * Si no, busca un nombre conocido del mismo usuario+RUC en documentos previos.
 	 */
-	private async resolveCategory(
-		userId: string,
-		extracted: ExtractedDocument,
-	): Promise<Category> {
+	private async resolveCategory(userId: string, extracted: ExtractedDocument): Promise<Category> {
 		if (extracted.issuerName?.trim()) {
 			return categorizeByName(extracted.issuerName);
 		}
@@ -126,9 +123,7 @@ export class IngestionService {
 
 		const budgetAvailable = await this.hasOcrBudget();
 		if (!budgetAvailable) {
-			this.logger.warn(
-				`OCR budget exhausted, degrading document ${input.documentId} to manual`,
-			);
+			this.logger.warn(`OCR budget exhausted, degrading document ${input.documentId} to manual`);
 			return { extracted: emptyExtraction(), source: "manual" };
 		}
 

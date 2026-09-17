@@ -2,13 +2,13 @@
 @import "uniwind";
 
 @layer theme {
-    :root {
-        @variant light {
-            --color-konti-bg: oklch(0.9593 0.0103 81.8);
-        }
+	:root {
+		@variant light {
+			--color-konti-bg: oklch(0.9593 0.0103 81.8);
+		}
 
-        @variant dark {
-            --color-konti-bg: oklch(16.9% 0.004 84.6);
-        }
-    }
+		@variant dark {
+			--color-konti-bg: oklch(16.9% 0.004 84.6);
+		}
+	}
 }

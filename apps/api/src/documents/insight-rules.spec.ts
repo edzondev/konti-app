@@ -23,9 +23,7 @@ describe("generateInsight", () => {
 	});
 
 	it("ratio bajo extremo", () => {
-		expect(generateInsight({ ...base, ratio: 0.4 })).toBe(
-			"Es tu mes más tranquilo en un tiempo.",
-		);
+		expect(generateInsight({ ...base, ratio: 0.4 })).toBe("Es tu mes más tranquilo en un tiempo.");
 	});
 
 	it("ratio bajo moderado", () => {

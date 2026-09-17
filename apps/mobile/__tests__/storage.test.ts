@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-describe("getAppStorage", () => {
+describe("app storage", () => {
 	beforeEach(() => {
 		vi.resetModules();
 	});

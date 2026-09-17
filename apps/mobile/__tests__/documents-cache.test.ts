@@ -34,4 +34,21 @@ describe("documents-cache", () => {
 		const { currentLimaMonth } = await import("../features/documents/documents-cache.js");
 		expect(currentLimaMonth(new Date("2026-09-17T18:00:00Z"))).toMatch(/^\d{4}-\d{2}$/);
 	});
+
+	it("clearLocalDocuments wipes MMKV and React Query documents keys", async () => {
+		const { writeDocumentsCache, readDocumentsCache } = await import(
+			"../features/documents/documents-cache.js"
+		);
+		const { QUERY_KEYS } = await import("../core/query-keys.js");
+		const { queryClient } = await import("../core/query-provider.js");
+		const { clearLocalDocuments } = await import("../features/documents/clear-local-documents.js");
+
+		writeDocumentsCache("2026-09", [DOC]);
+		queryClient.setQueryData(QUERY_KEYS.documentsMonth("2026-09"), [DOC]);
+
+		clearLocalDocuments();
+
+		expect(readDocumentsCache("2026-09")).toBeUndefined();
+		expect(queryClient.getQueryData(QUERY_KEYS.documentsMonth("2026-09"))).toBeUndefined();
+	});
 });

@@ -1,7 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/core/api-fetch";
 import { QUERY_KEYS } from "@/core/query-keys";
-import { type DocumentListItem, DocumentListSchema } from "./document";
+import { queryClient } from "@/core/query-provider";
+import {
+	type DocumentImage,
+	DocumentImageSchema,
+	type DocumentListItem,
+	DocumentListItemSchema,
+	DocumentListSchema,
+	type UpdateDocumentInput,
+} from "./document";
 import { currentLimaMonth, readDocumentsCache, writeDocumentsCache } from "./documents-cache";
 
 export async function fetchDocuments(month: string): Promise<DocumentListItem[]> {
@@ -9,6 +17,28 @@ export async function fetchDocuments(month: string): Promise<DocumentListItem[]>
 	const docs = DocumentListSchema.parse(raw);
 	writeDocumentsCache(month, docs);
 	return docs;
+}
+
+export async function fetchDocument(id: string): Promise<DocumentListItem> {
+	const raw = await apiFetch<unknown>(`/documents/${id}`);
+	return DocumentListItemSchema.parse(raw);
+}
+
+export async function fetchDocumentImage(id: string): Promise<DocumentImage> {
+	const raw = await apiFetch<unknown>(`/documents/${id}/image`);
+	return DocumentImageSchema.parse(raw);
+}
+
+export function peekDocument(id: string): DocumentListItem | undefined {
+	for (const [, data] of queryClient.getQueriesData({ queryKey: QUERY_KEYS.documents })) {
+		if (Array.isArray(data)) {
+			const found = data.find((doc: DocumentListItem) => doc.id === id);
+			if (found) return found;
+		} else if (data && typeof data === "object" && "id" in data && data.id === id) {
+			return data as DocumentListItem;
+		}
+	}
+	return undefined;
 }
 
 export function useDocuments(month = currentLimaMonth()) {
@@ -19,5 +49,56 @@ export function useDocuments(month = currentLimaMonth()) {
 		initialData: cached,
 		initialDataUpdatedAt: cached ? Date.now() : undefined,
 		queryFn: () => fetchDocuments(month),
+		refetchInterval: (query) =>
+			query.state.data?.some((doc) => doc.status === "pending") ? 3000 : false,
+	});
+}
+
+export function useDocument(id: string | undefined) {
+	const cached = id ? peekDocument(id) : undefined;
+
+	return useQuery({
+		queryKey: QUERY_KEYS.document(id ?? ""),
+		queryFn: () => fetchDocument(id!),
+		enabled: Boolean(id),
+		initialData: cached,
+		refetchInterval: (query) => (query.state.data?.status === "pending" ? 3000 : false),
+	});
+}
+
+export function useDocumentImage(id: string, enabled: boolean) {
+	return useQuery({
+		queryKey: QUERY_KEYS.documentImage(id),
+		queryFn: () => fetchDocumentImage(id),
+		enabled,
+		staleTime: 60_000,
+	});
+}
+
+export function useDeleteDocument() {
+	const client = useQueryClient();
+
+	return useMutation({
+		mutationFn: (id: string) => apiFetch(`/documents/${id}`, { method: "DELETE" }),
+		onSuccess: () => {
+			void client.invalidateQueries({ queryKey: QUERY_KEYS.documents });
+		},
+	});
+}
+
+export function useUpdateDocument() {
+	const client = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ id, patch }: { id: string; patch: UpdateDocumentInput }) =>
+			apiFetch<unknown>(`/documents/${id}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(patch),
+			}).then((raw) => DocumentListItemSchema.parse(raw)),
+		onSuccess: (doc) => {
+			client.setQueryData(QUERY_KEYS.document(doc.id), doc);
+			void client.invalidateQueries({ queryKey: QUERY_KEYS.documents });
+		},
 	});
 }

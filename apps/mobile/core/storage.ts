@@ -1,3 +1,4 @@
+import * as Crypto from "expo-crypto";
 import * as SecureStore from "expo-secure-store";
 import { createMMKV, type MMKV } from "react-native-mmkv";
 
@@ -14,17 +15,11 @@ function getOrCreateEncryptionKey(): string {
 	const existing = SecureStore.getItem(SECURE_KEY);
 	if (existing) return existing;
 
-	const bytes = new Uint8Array(8);
-	const webCrypto = (
-		globalThis as unknown as { crypto: { getRandomValues: (array: Uint8Array) => Uint8Array } }
-	).crypto;
-	webCrypto.getRandomValues(bytes);
-	const key = bytesToHex(bytes);
+	const key = bytesToHex(Crypto.getRandomBytes(8));
 	SecureStore.setItem(SECURE_KEY, key);
 	return key;
 }
 
-/** Synchronous encrypted MMKV — SecureStore key is sync so cache reads stay instant. */
 export function getAppStorage(): MMKV {
 	if (instance) return instance;
 	instance = createMMKV({

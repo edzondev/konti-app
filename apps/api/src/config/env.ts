@@ -24,6 +24,8 @@ export const EnvSchema = v.object({
 	BETTER_AUTH_URL: v.pipe(v.string(), v.url()),
 	GOOGLE_WEB_CLIENT_ID: v.pipe(v.string(), v.minLength(1)),
 	GOOGLE_CLIENT_SECRET: v.pipe(v.string(), v.minLength(1)),
+	GOOGLE_ANDROID_CLIENT_ID: v.pipe(v.string(), v.minLength(1)),
+	GOOGLE_IOS_CLIENT_ID: v.optional(v.pipe(v.string(), v.minLength(1))),
 
 	R2_ACCOUNT_ID: v.pipe(v.string(), v.minLength(1)),
 	R2_ACCESS_KEY_ID: v.pipe(v.string(), v.minLength(1)),

@@ -1,14 +1,73 @@
 @import "tailwindcss";
 @import "uniwind";
 
+@theme {
+	--font-sans: "Geist-Regular";
+	--font-sans-light: "Geist-Light";
+	--font-sans-medium: "Geist-Medium";
+	--font-sans-semibold: "Geist-SemiBold";
+	--font-mono: "GeistMono-Regular";
+	--font-mono-medium: "GeistMono-Medium";
+}
+
 @layer theme {
 	:root {
-		@variant light {
-			--color-konti-bg: oklch(0.9593 0.0103 81.8);
+		@variant dark {
+			--color-konti-canvas: oklch(15.95% 0.0045 84.59);
+			--color-konti-bg: oklch(19.12% 0.0061 91.66);
+			--color-konti-surface-bar: oklch(21.74% 0.0078 95.42);
+			--color-konti-surface-raised: oklch(23.54% 0.0098 88.79);
+			--color-konti-ink: oklch(94.75% 0.0131 82.4);
+			--color-konti-ink-hover: oklch(89.98% 0.0179 81.33);
+			--color-konti-on-ink: oklch(19.59% 0.012 91.79);
+			--color-konti-ink-muted: oklch(94.75% 0.0131 82.4 / 0.55);
+			--color-konti-ink-subtle: oklch(94.75% 0.0131 82.4 / 0.45);
+			--color-konti-ink-faint: oklch(94.75% 0.0131 82.4 / 0.35);
+			--color-konti-ink-disabled: oklch(94.75% 0.0131 82.4 / 0.2);
+			--color-konti-handle: oklch(94.75% 0.0131 82.4 / 0.22);
+			--color-konti-skeleton: oklch(94.75% 0.0131 82.4 / 0.105);
+			--color-konti-border: oklch(94.75% 0.0131 82.4 / 0.09);
+			--color-konti-fill: oklch(94.75% 0.0131 82.4 / 0.045);
+			--color-konti-scrim: oklch(0% 0 0 / 0.65);
+			--color-konti-shadow: oklch(0% 0 0 / 0.6);
+			--color-konti-amber: oklch(76.61% 0.1215 72.73);
+			--color-konti-amber-strong: oklch(82.2% 0.1059 75.11);
+			--color-konti-amber-deep: oklch(78.2% 0.1165 73.29);
+			--color-konti-amber-tint: oklch(76.61% 0.1215 72.73 / 0.1);
+			--color-konti-amber-tint-hover: oklch(76.61% 0.1215 72.73 / 0.16);
+			--color-konti-danger: oklch(72.13% 0.1445 27.32);
+			--color-konti-camera-bg: oklch(24.51% 0.0103 80.61);
+			--color-konti-camera-scene: oklch(32.84% 0.0175 78.01);
+			--color-konti-paper: oklch(91.75% 0.0161 82.79);
 		}
 
-		@variant dark {
-			--color-konti-bg: oklch(16.9% 0.004 84.6);
+		@variant light {
+			--color-konti-canvas: oklch(93.85% 0.0132 82.4);
+			--color-konti-bg: oklch(95.93% 0.0103 81.8);
+			--color-konti-surface-bar: oklch(98.01% 0.0074 80.72);
+			--color-konti-surface-raised: oklch(100% 0 0);
+			--color-konti-ink: oklch(19.59% 0.012 91.79);
+			--color-konti-ink-hover: oklch(23.99% 0.0153 89.92);
+			--color-konti-on-ink: oklch(95.93% 0.0103 81.8);
+			--color-konti-ink-muted: oklch(19.59% 0.012 91.79 / 0.55);
+			--color-konti-ink-subtle: oklch(19.59% 0.012 91.79 / 0.45);
+			--color-konti-ink-faint: oklch(19.59% 0.012 91.79 / 0.35);
+			--color-konti-ink-disabled: oklch(19.59% 0.012 91.79 / 0.2);
+			--color-konti-handle: oklch(19.59% 0.012 91.79 / 0.22);
+			--color-konti-skeleton: oklch(19.59% 0.012 91.79 / 0.07);
+			--color-konti-border: oklch(19.59% 0.012 91.79 / 0.06);
+			--color-konti-fill: oklch(19.59% 0.012 91.79 / 0.03);
+			--color-konti-scrim: oklch(19.59% 0.012 91.79 / 0.5);
+			--color-konti-shadow: oklch(19.59% 0.012 91.79 / 0.2);
+			--color-konti-amber: oklch(76.61% 0.1215 72.73);
+			--color-konti-amber-strong: oklch(71.44% 0.1253 70.5);
+			--color-konti-amber-deep: oklch(69.19% 0.1206 72.88);
+			--color-konti-amber-tint: oklch(76.61% 0.1215 72.73 / 0.1);
+			--color-konti-amber-tint-hover: oklch(76.61% 0.1215 72.73 / 0.16);
+			--color-konti-danger: oklch(50.54% 0.1905 27.52);
+			--color-konti-camera-bg: oklch(24.51% 0.0103 80.61);
+			--color-konti-camera-scene: oklch(32.84% 0.0175 78.01);
+			--color-konti-paper: oklch(91.75% 0.0161 82.79);
 		}
 	}
 }

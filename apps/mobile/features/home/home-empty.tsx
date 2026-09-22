@@ -25,6 +25,7 @@ export function HomeEmpty({ monthLabel }: HomeEmptyProps) {
 			</Text>
 
 			<Pressable
+				accessibilityLabel="Escanear comprobante"
 				accessibilityRole="button"
 				className="mt-8 h-14 flex-row items-center gap-3 self-start rounded-full bg-konti-ink px-[30px]"
 			>

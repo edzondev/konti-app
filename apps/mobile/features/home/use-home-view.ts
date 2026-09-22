@@ -16,7 +16,7 @@ export type HomeView =
 						variant: "highlight";
 						count: number;
 						categoryNames: string[];
-						summaryLine: string;
+						summary: { before: string; emphasis: string; after: string };
 						categoriesLine: string;
 				  };
 	  };
@@ -55,7 +55,11 @@ export function useHomeView(): HomeView {
 						variant: "highlight",
 						count: deductibles.count,
 						categoryNames: deductibles.categoryNames,
-						summaryLine: `${deductibles.count} gastos podrían reducir tu impuesto anual`,
+						summary: {
+							before: `${deductibles.count} gastos podrían `,
+							emphasis: "reducir tu impuesto anual",
+							after: "",
+						},
 						categoriesLine: `Categorías: ${deductibles.categoryNames.join(", ")}.`,
 					},
 	};

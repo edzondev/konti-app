@@ -1,8 +1,6 @@
 import { Text, View } from "react-native";
 
-import { ArrowRight } from "@/shared/ui/reicon";
-
-const SUMMARY_EMPHASIS = "reducir tu impuesto anual";
+import { ChevronRight } from "@/shared/ui/reicon";
 
 type HomeDeductions =
 	| { variant: "none"; message: string }
@@ -10,7 +8,7 @@ type HomeDeductions =
 			variant: "highlight";
 			count: number;
 			categoryNames: string[];
-			summaryLine: string;
+			summary: { before: string; emphasis: string; after: string };
 			categoriesLine: string;
 	  };
 
@@ -26,25 +24,16 @@ function DeductionsEyebrow() {
 	);
 }
 
-function HighlightSummary({ summaryLine }: { summaryLine: string }) {
-	const emphasisIndex = summaryLine.indexOf(SUMMARY_EMPHASIS);
-
-	if (emphasisIndex === -1) {
-		return (
-			<Text className="mt-2.5 text-[17px] leading-snug tracking-tight text-konti-ink">
-				{summaryLine}
-			</Text>
-		);
-	}
-
-	const before = summaryLine.slice(0, emphasisIndex);
-	const after = summaryLine.slice(emphasisIndex + SUMMARY_EMPHASIS.length);
-
+function HighlightSummary({
+	summary,
+}: {
+	summary: { before: string; emphasis: string; after: string };
+}) {
 	return (
 		<Text className="mt-2.5 text-[17px] leading-snug tracking-tight text-konti-ink">
-			{before}
-			<Text className="text-konti-amber-deep">{SUMMARY_EMPHASIS}</Text>
-			{after}
+			{summary.before}
+			<Text className="text-konti-amber-deep">{summary.emphasis}</Text>
+			{summary.after}
 		</Text>
 	);
 }
@@ -65,12 +54,12 @@ export function HomeDeductionsCard({ deductions }: HomeDeductionsCardProps) {
 		<View className="mt-6 flex-row items-center gap-3.5 rounded-[20px] border-l-2 border-konti-amber bg-konti-amber-tint py-[18px] pl-5 pr-[18px]">
 			<View className="min-w-0 flex-1">
 				<DeductionsEyebrow />
-				<HighlightSummary summaryLine={deductions.summaryLine} />
+				<HighlightSummary summary={deductions.summary} />
 				<Text className="mt-2 text-[13px] text-konti-ink-muted">
 					{deductions.categoriesLine}
 				</Text>
 			</View>
-			<ArrowRight colorClassName="text-konti-ink-subtle" size={18} />
+			<ChevronRight colorClassName="text-konti-ink-subtle" size={18} />
 		</View>
 	);
 }

@@ -1,5 +1,5 @@
-import { CaptureCamera } from "@/features/documents/capture-camera";
+import { Redirect } from "expo-router";
 
 export default function GuardarScreen() {
-	return <CaptureCamera />;
+	return <Redirect href="/comprobantes" />;
 }

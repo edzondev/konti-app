@@ -1,19 +1,35 @@
 import AddIcon from "reicon-react-native/icons/Add";
+import AlertTriangleIcon from "reicon-react-native/icons/AlertTriangle";
 import ArrowDownIcon from "reicon-react-native/icons/ArrowDown";
 import ArrowRightIcon from "reicon-react-native/icons/ArrowRight";
 import CalendarIcon from "reicon-react-native/icons/Calendar";
+import CameraIcon from "reicon-react-native/icons/Camera";
 import CheckIcon from "reicon-react-native/icons/Check";
+import ChevronDownIcon from "reicon-react-native/icons/ChevronDown";
+import ChevronLeftIcon from "reicon-react-native/icons/ChevronLeft";
+import ChevronRightIcon from "reicon-react-native/icons/ChevronRight";
 import HelpCircleIcon from "reicon-react-native/icons/HelpCircle";
 import HomeIcon from "reicon-react-native/icons/Home";
+import ImageIcon from "reicon-react-native/icons/Image";
+import MenuIcon from "reicon-react-native/icons/Menu";
 import ReceiptIcon from "reicon-react-native/icons/Receipt";
+import XIcon from "reicon-react-native/icons/X";
 import { withUniwind } from "uniwind";
 
 /** Direct reicon imports wrapped once at module level for Uniwind colorClassName. */
 export const Add = withUniwind(AddIcon);
+export const AlertTriangle = withUniwind(AlertTriangleIcon);
 export const ArrowDown = withUniwind(ArrowDownIcon);
 export const ArrowRight = withUniwind(ArrowRightIcon);
 export const Calendar = withUniwind(CalendarIcon);
+export const Camera = withUniwind(CameraIcon);
 export const Check = withUniwind(CheckIcon);
+export const ChevronDown = withUniwind(ChevronDownIcon);
+export const ChevronLeft = withUniwind(ChevronLeftIcon);
+export const ChevronRight = withUniwind(ChevronRightIcon);
 export const HelpCircle = withUniwind(HelpCircleIcon);
 export const Home = withUniwind(HomeIcon);
+export const Image = withUniwind(ImageIcon);
+export const Menu = withUniwind(MenuIcon);
 export const Receipt = withUniwind(ReceiptIcon);
+export const X = withUniwind(XIcon);

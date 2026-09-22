@@ -39,12 +39,20 @@ function RootNavigator() {
 	return (
 		<Stack screenOptions={{ headerShown: false }}>
 			<Stack.Protected guard={!session}>
-				<Stack.Screen name="sign-in" />
+				<Stack.Screen name="(auth)/sign-in" />
 			</Stack.Protected>
 
 			<Stack.Protected guard={Boolean(session)}>
 				<Stack.Screen name="(tabs)" />
-				<Stack.Screen name="document/[id]" />
+				<Stack.Screen
+					name="comprobante/[id]"
+					options={{
+						presentation: "transparentModal",
+						headerShown: false,
+						animation: "none",
+						contentStyle: { backgroundColor: "transparent" },
+					}}
+				/>
 			</Stack.Protected>
 		</Stack>
 	);

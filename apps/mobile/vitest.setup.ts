@@ -20,22 +20,9 @@ vi.mock("expo-file-system", () => ({
 vi.mock("expo-crypto", () => ({
 	CryptoDigestAlgorithm: { SHA256: "SHA-256" },
 	digest: async () => new ArrayBuffer(32),
+	getRandomBytes: (size: number) => Uint8Array.from({ length: size }, (_, i) => i + 1),
 	getRandomBytesAsync: async (size: number) => Uint8Array.from({ length: size }, (_, i) => i + 1),
 }));
-
-const globalWithCrypto = globalThis as typeof globalThis & {
-	crypto?: { getRandomValues: <T extends ArrayBufferView>(array: T) => T };
-};
-
-if (typeof globalWithCrypto.crypto?.getRandomValues !== "function") {
-	globalWithCrypto.crypto = {
-		getRandomValues<T extends ArrayBufferView>(array: T): T {
-			const view = new Uint8Array(array.buffer, array.byteOffset, array.byteLength);
-			for (let i = 0; i < view.length; i++) view[i] = (i + 1) % 256;
-			return array;
-		},
-	};
-}
 
 vi.mock("expo-secure-store", () => ({
 	getItem: (key: string) => secureMemory.get(key) ?? null,

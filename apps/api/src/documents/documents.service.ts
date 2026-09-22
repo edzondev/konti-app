@@ -6,7 +6,7 @@ import {
 	Logger,
 	NotFoundException,
 } from "@nestjs/common";
-import { and, desc, eq, gte, isNull, lt, lte } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, lt, lte, or } from "drizzle-orm";
 import { InjectDatabase } from "../database/database.decorators.js";
 import type { Database } from "../database/database.types.js";
 import { documents } from "../database/schema/app.schema.js";
@@ -134,8 +134,18 @@ export class DocumentsService {
 
 		if (month) {
 			const { start, end } = monthRange(month);
-			filters.push(gte(documents.issueDate, start));
-			filters.push(lte(documents.issueDate, end));
+			const createdStart = limaMonthStart(month);
+			const createdEndExclusive = limaMonthStart(shiftMonth(month, 1));
+			filters.push(
+				or(
+					and(gte(documents.issueDate, start), lte(documents.issueDate, end)),
+					and(
+						isNull(documents.issueDate),
+						gte(documents.createdAt, createdStart),
+						lt(documents.createdAt, createdEndExclusive),
+					),
+				),
+			);
 		}
 
 		return this.db
@@ -195,6 +205,7 @@ export class DocumentsService {
 			.set({
 				...patch,
 				...(changed ? { wasUserCorrected: true } : {}),
+				...(current.status !== "ready" ? { status: "ready" } : {}),
 				updatedAt: new Date(),
 			})
 			.where(and(visibleToUser(userId), eq(documents.id, id)))
@@ -447,4 +458,9 @@ function shiftMonth(month: string, delta: number): string {
 	const y = date.getUTCFullYear();
 	const m = String(date.getUTCMonth() + 1).padStart(2, "0");
 	return `${y}-${m}`;
+}
+
+/** Inicio del mes en hora de Lima (UTC-5 todo el año). */
+function limaMonthStart(month: string): Date {
+	return new Date(`${month}-01T00:00:00-05:00`);
 }

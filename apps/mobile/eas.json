@@ -1,6 +1,6 @@
 {
 	"cli": {
-		"version": ">= 21.8.0",
+		"version": ">= 23.1.0",
 		"appVersionSource": "remote"
 	},
 	"build": {
@@ -9,9 +9,9 @@
 			"distribution": "internal",
 			"environment": "development",
 			"android": {
-				"buildType": "apk",
-				"gradleCommand": ":app:assembleDebug"
-			}
+				"buildType": "apk"
+			},
+			"channel": "development"
 		},
 		"preview": {
 			"distribution": "internal",

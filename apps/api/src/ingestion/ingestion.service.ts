@@ -67,9 +67,7 @@ export class IngestionService {
 			return;
 		}
 
-		this.logger.log(
-			`document ${input.documentId} ${status} via ${source} category=${category}`,
-		);
+		this.logger.log(`document ${input.documentId} ${status} via ${source} category=${category}`);
 	}
 
 	/**

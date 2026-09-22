@@ -16,11 +16,11 @@ export function HomeEmpty({ monthLabel }: HomeEmptyProps) {
 				</Text>
 			</View>
 
-			<Text className="mt-6 max-w-[290px] font-sans-light text-[38px] leading-tight tracking-tight text-konti-ink">
+			<Text className="mt-6 max-w-72.5 font-sans-light text-[38px] leading-tight tracking-tight text-konti-ink">
 				Todo empieza con una <Text className="text-konti-amber-deep">foto</Text>.
 			</Text>
 
-			<Text className="mt-4 max-w-[300px] text-[15px] leading-6 text-konti-ink-muted">
+			<Text className="mt-4 max-w-75 text-[15px] leading-6 text-konti-ink-muted">
 				Tu primer mes con Konti. Estamos organizando todo.
 			</Text>
 

@@ -44,15 +44,6 @@ function RootNavigator() {
 
 			<Stack.Protected guard={Boolean(session)}>
 				<Stack.Screen name="(tabs)" />
-				<Stack.Screen
-					name="comprobante/[id]"
-					options={{
-						presentation: "transparentModal",
-						headerShown: false,
-						animation: "none",
-						contentStyle: { backgroundColor: "transparent" },
-					}}
-				/>
 			</Stack.Protected>
 		</Stack>
 	);

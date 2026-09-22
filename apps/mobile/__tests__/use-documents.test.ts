@@ -6,6 +6,8 @@ vi.mock("@/core/api-fetch", () => ({
 	apiFetch,
 }));
 
+vi.mock("expo-file-system", () => ({ File: class File {} }));
+
 const DOC = {
 	id: "11111111-1111-4111-8111-111111111111",
 	status: "ready" as const,
@@ -27,7 +29,7 @@ describe("documents fetch + cache initialData", () => {
 
 	it("serves MMKV cache synchronously for initialData", async () => {
 		const { writeDocumentsCache, readDocumentsCache } = await import(
-			"../features/documents/documents-cache.js"
+			"../features/documents/document.js"
 		);
 		writeDocumentsCache("2026-09", [DOC]);
 		expect(readDocumentsCache("2026-09")).toEqual([DOC]);
@@ -36,7 +38,7 @@ describe("documents fetch + cache initialData", () => {
 	it("fetchDocuments writes through to MMKV after apiFetch", async () => {
 		apiFetch.mockResolvedValue([{ ...DOC, issuerName: "Updated" }]);
 		const { fetchDocuments } = await import("../features/documents/use-documents.js");
-		const { readDocumentsCache } = await import("../features/documents/documents-cache.js");
+		const { readDocumentsCache } = await import("../features/documents/document.js");
 
 		const docs = await fetchDocuments("2026-09");
 		expect(docs[0]?.issuerName).toBe("Updated");

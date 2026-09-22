@@ -10,7 +10,9 @@ import ChevronLeftIcon from "reicon-react-native/icons/ChevronLeft";
 import ChevronRightIcon from "reicon-react-native/icons/ChevronRight";
 import HelpCircleIcon from "reicon-react-native/icons/HelpCircle";
 import HomeIcon from "reicon-react-native/icons/Home";
+import ImageIcon from "reicon-react-native/icons/Image";
 import ReceiptIcon from "reicon-react-native/icons/Receipt";
+import XIcon from "reicon-react-native/icons/X";
 import { withUniwind } from "uniwind";
 
 /** Direct reicon imports wrapped once at module level for Uniwind colorClassName. */
@@ -26,4 +28,6 @@ export const ChevronLeft = withUniwind(ChevronLeftIcon);
 export const ChevronRight = withUniwind(ChevronRightIcon);
 export const HelpCircle = withUniwind(HelpCircleIcon);
 export const Home = withUniwind(HomeIcon);
+export const Image = withUniwind(ImageIcon);
 export const Receipt = withUniwind(ReceiptIcon);
+export const X = withUniwind(XIcon);

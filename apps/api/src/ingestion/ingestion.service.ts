@@ -38,6 +38,7 @@ export class IngestionService {
 	async process(input: IngestionInput): Promise<void> {
 		const { extracted, source } = await this.extract(input);
 		const category = await this.resolveCategory(input.userId, extracted);
+		const status = isExtractionIncomplete(extracted.totalAmount) ? "failed" : "ready";
 
 		// No pisar soft-delete, docs ya listos/fallidos, ni correcciones del usuario.
 		const [applied] = await this.db
@@ -45,7 +46,7 @@ export class IngestionService {
 			.set({
 				...extracted,
 				category,
-				status: "ready",
+				status,
 				extractionSource: source,
 				updatedAt: new Date(),
 			})
@@ -66,7 +67,9 @@ export class IngestionService {
 			return;
 		}
 
-		this.logger.log(`document ${input.documentId} ready via ${source} category=${category}`);
+		this.logger.log(
+			`document ${input.documentId} ${status} via ${source} category=${category}`,
+		);
 	}
 
 	/**
@@ -155,6 +158,13 @@ function emptyExtraction(): ExtractedDocument {
 		totalAmount: null,
 		igvAmount: null,
 	};
+}
+
+/** Incomplete = no usable total: null/empty, NaN, or <= 0. */
+function isExtractionIncomplete(totalAmount: string | null | undefined): boolean {
+	if (totalAmount == null || totalAmount === "") return true;
+	const n = Number(totalAmount);
+	return Number.isNaN(n) || n <= 0;
 }
 
 function startOfMonthInLima(): Date {

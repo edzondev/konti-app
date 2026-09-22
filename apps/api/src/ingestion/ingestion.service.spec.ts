@@ -74,9 +74,11 @@ describe("IngestionService", () => {
 
 		expect(ocr.extract).not.toHaveBeenCalled();
 		const setArg = setMock.mock.calls[0]?.[0] as {
+			status: string;
 			extractionSource: string;
 			category: string;
 		};
+		expect(setArg.status).toBe("ready");
 		expect(setArg.extractionSource).toBe("qr");
 		expect(setArg.category).toBe("otros");
 	});
@@ -145,9 +147,11 @@ describe("IngestionService", () => {
 
 		expect(ocr.extract).toHaveBeenCalledOnce();
 		const setArg = setMock.mock.calls[0]?.[0] as {
+			status: string;
 			extractionSource: string;
 			category: string;
 		};
+		expect(setArg.status).toBe("failed");
 		expect(setArg.extractionSource).toBe("ocr");
 		expect(setArg.category).toBe("otros");
 	});
@@ -168,7 +172,7 @@ describe("IngestionService", () => {
 			extractionSource: string;
 			totalAmount: string | null;
 		};
-		expect(setArg.status).toBe("ready");
+		expect(setArg.status).toBe("failed");
 		expect(setArg.extractionSource).toBe("manual");
 		expect(setArg.totalAmount).toBeNull();
 	});

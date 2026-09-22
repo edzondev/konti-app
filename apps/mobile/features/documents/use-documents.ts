@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { File } from "expo-file-system";
 import { apiFetch } from "@/core/api-fetch";
 import { QUERY_KEYS } from "@/core/query-keys";
 import { queryClient } from "@/core/query-provider";
@@ -8,9 +9,13 @@ import {
 	type DocumentListItem,
 	DocumentListItemSchema,
 	DocumentListSchema,
+	readDocumentsCache,
 	type UpdateDocumentInput,
+	writeDocumentsCache,
 } from "./document";
-import { currentLimaMonth, readDocumentsCache, writeDocumentsCache } from "./documents-cache";
+import { currentLimaMonth } from "./document-ui";
+
+export { clearLocalDocuments, readDocumentsCache, writeDocumentsCache } from "./document";
 
 export async function fetchDocuments(month: string): Promise<DocumentListItem[]> {
 	const raw = await apiFetch<unknown>(`/documents?month=${encodeURIComponent(month)}`);
@@ -43,7 +48,6 @@ export function peekDocument(id: string): DocumentListItem | undefined {
 
 export function useDocuments(month = currentLimaMonth()) {
 	const cached = readDocumentsCache(month);
-
 	return useQuery({
 		queryKey: QUERY_KEYS.documentsMonth(month),
 		initialData: cached,
@@ -56,10 +60,9 @@ export function useDocuments(month = currentLimaMonth()) {
 
 export function useDocument(id: string | undefined) {
 	const cached = id ? peekDocument(id) : undefined;
-
 	return useQuery({
 		queryKey: QUERY_KEYS.document(id ?? ""),
-		queryFn: () => fetchDocument(id!),
+		queryFn: () => fetchDocument(id as string),
 		enabled: Boolean(id),
 		initialData: cached,
 		refetchInterval: (query) => (query.state.data?.status === "pending" ? 3000 : false),
@@ -77,7 +80,6 @@ export function useDocumentImage(id: string, enabled: boolean) {
 
 export function useDeleteDocument() {
 	const client = useQueryClient();
-
 	return useMutation({
 		mutationFn: (id: string) => apiFetch(`/documents/${id}`, { method: "DELETE" }),
 		onSuccess: () => {
@@ -88,7 +90,6 @@ export function useDeleteDocument() {
 
 export function useUpdateDocument() {
 	const client = useQueryClient();
-
 	return useMutation({
 		mutationFn: ({ id, patch }: { id: string; patch: UpdateDocumentInput }) =>
 			apiFetch<unknown>(`/documents/${id}`, {
@@ -98,6 +99,38 @@ export function useUpdateDocument() {
 			}).then((raw) => DocumentListItemSchema.parse(raw)),
 		onSuccess: (doc) => {
 			client.setQueryData(QUERY_KEYS.document(doc.id), doc);
+			void client.invalidateQueries({ queryKey: QUERY_KEYS.documents });
+		},
+	});
+}
+
+export type CreateDocumentInput = {
+	source: "camera" | "gallery" | "share";
+	uri: string;
+	mimeType?: string;
+	qrPayload?: string;
+};
+
+function toFileUri(uri: string): string {
+	if (uri.startsWith("file://")) return uri;
+	if (uri.startsWith("/") || /^[A-Za-z]:[\\/]/.test(uri)) return `file://${uri}`;
+	return uri;
+}
+
+export async function createDocument(input: CreateDocumentInput): Promise<DocumentListItem> {
+	const body = new FormData();
+	body.append("file", new File(toFileUri(input.uri)));
+	body.append("source", input.source);
+	if (input.qrPayload) body.append("qrPayload", input.qrPayload);
+	const raw = await apiFetch<unknown>("/documents", { method: "POST", body });
+	return DocumentListItemSchema.parse(raw);
+}
+
+export function useCreateDocument() {
+	const client = useQueryClient();
+	return useMutation({
+		mutationFn: createDocument,
+		onSuccess: () => {
 			void client.invalidateQueries({ queryKey: QUERY_KEYS.documents });
 		},
 	});

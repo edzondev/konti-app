@@ -11,7 +11,9 @@ import {
 
 const NOW = new Date("2026-09-17T18:00:00-05:00");
 
-function doc(partial: Partial<DocumentListItem> & Pick<DocumentListItem, "id" | "status">): DocumentListItem {
+function doc(
+	partial: Partial<DocumentListItem> & Pick<DocumentListItem, "id" | "status">,
+): DocumentListItem {
 	return {
 		issuerName: "ACME",
 		totalAmount: "10.00",
@@ -39,9 +41,21 @@ describe("document-ui", () => {
 	it("groups by today, this week, and earlier", () => {
 		const sections = groupDocumentsByPeriod(
 			[
-				doc({ id: "11111111-1111-4111-8111-111111111111", status: "ready", issueDate: "2026-09-17" }),
-				doc({ id: "22222222-2222-4222-8222-222222222222", status: "ready", issueDate: "2026-09-16" }),
-				doc({ id: "33333333-3333-4333-8333-333333333333", status: "ready", issueDate: "2026-09-10" }),
+				doc({
+					id: "11111111-1111-4111-8111-111111111111",
+					status: "ready",
+					issueDate: "2026-09-17",
+				}),
+				doc({
+					id: "22222222-2222-4222-8222-222222222222",
+					status: "ready",
+					issueDate: "2026-09-16",
+				}),
+				doc({
+					id: "33333333-3333-4333-8333-333333333333",
+					status: "ready",
+					issueDate: "2026-09-10",
+				}),
 				doc({
 					id: "44444444-4444-4444-8444-444444444444",
 					status: "pending",
@@ -62,7 +76,11 @@ describe("document-ui", () => {
 		expect(
 			monthTotals([
 				doc({ id: "11111111-1111-4111-8111-111111111111", status: "ready", totalAmount: "87.40" }),
-				doc({ id: "22222222-2222-4222-8222-222222222222", status: "pending", totalAmount: "99.00" }),
+				doc({
+					id: "22222222-2222-4222-8222-222222222222",
+					status: "pending",
+					totalAmount: "99.00",
+				}),
 				doc({ id: "33333333-3333-4333-8333-333333333333", status: "failed", totalAmount: null }),
 			]),
 		).toEqual({ amount: 87.4, count: 3 });

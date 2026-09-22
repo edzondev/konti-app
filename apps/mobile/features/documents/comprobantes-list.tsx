@@ -2,14 +2,6 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Modal, Pressable, SectionList, Text, View } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import Animated, {
-	interpolate,
-	runOnJS,
-	useAnimatedStyle,
-	useSharedValue,
-	withTiming,
-} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { triggerHaptic } from "@/core/haptics";
@@ -17,6 +9,7 @@ import type { DocumentListItem } from "@/features/documents/document";
 import {
 	formatMoney,
 	groupDocumentsByPeriod,
+	isExtractionIncomplete,
 	limaYmd,
 	MONTH_NAMES,
 	monthFromParts,
@@ -25,10 +18,10 @@ import {
 	parseMonth,
 	rowSubtitle,
 	shiftMonth,
+	currentLimaMonth,
 } from "@/features/documents/document-ui";
-import { currentLimaMonth } from "@/features/documents/documents-cache";
 import { useDocuments } from "@/features/documents/use-documents";
-import { AlertTriangle, Camera, ChevronLeft, ChevronRight, Receipt } from "@/shared/ui/reicon";
+import { AlertTriangle, ChevronLeft, ChevronRight, Receipt } from "@/shared/ui/reicon";
 import { UniSafeAreaView } from "@/shared/ui/safe-area";
 
 export function ComprobantesList() {
@@ -98,14 +91,6 @@ export function ComprobantesList() {
 				renderItem={({ item }) => <DocumentRow doc={item} today={today} />}
 			/>
 
-			<ScanFab
-				bottom={Math.max(insets.bottom, 16) + 8}
-				onPress={() => {
-					void triggerHaptic("selection");
-					router.push("/guardar");
-				}}
-			/>
-
 			<MonthPicker
 				visible={pickerOpen}
 				month={month}
@@ -119,33 +104,6 @@ export function ComprobantesList() {
 				}}
 			/>
 		</UniSafeAreaView>
-	);
-}
-
-function ScanFab({ bottom, onPress }: { bottom: number; onPress: () => void }) {
-	const pressed = useSharedValue(0);
-	const tap = Gesture.Tap()
-		.onBegin(() => pressed.set(withTiming(1, { duration: 80 })))
-		.onFinalize(() => pressed.set(withTiming(0, { duration: 140 })))
-		.onEnd(() => runOnJS(onPress)());
-
-	const style = useAnimatedStyle(() => ({
-		transform: [{ scale: interpolate(pressed.get(), [0, 1], [1, 0.98]) }],
-	}));
-
-	return (
-		<GestureDetector gesture={tap}>
-			<Animated.View style={[{ bottom }, style]} className="absolute right-5">
-				<View
-					accessible
-					accessibilityRole="button"
-					accessibilityLabel="Escanear comprobante"
-					className="h-14 w-14 items-center justify-center rounded-full bg-black"
-				>
-					<Camera color="#fff" size={22} />
-				</View>
-			</Animated.View>
-		</GestureDetector>
 	);
 }
 
@@ -197,8 +155,9 @@ function MonthCard({
 }
 
 function DocumentRow({ doc, today }: { doc: DocumentListItem; today: string }) {
-	const failed = doc.status === "failed";
 	const pending = doc.status === "pending";
+	const failed =
+		doc.status === "failed" || (doc.status === "ready" && isExtractionIncomplete(doc));
 	const title = pending
 		? "Procesando..."
 		: failed
@@ -236,7 +195,7 @@ function DocumentRow({ doc, today }: { doc: DocumentListItem; today: string }) {
 					{rowSubtitle(doc, today)}
 				</Text>
 			</View>
-			{doc.status === "ready" ? (
+			{doc.status === "ready" && !failed ? (
 				<Text className="text-[15px] font-medium tabular-nums text-black">
 					{formatMoney(doc.totalAmount)}
 				</Text>
@@ -302,9 +261,7 @@ function MonthPicker({
 						>
 							<ChevronLeft color="#111" size={22} />
 						</Pressable>
-						<Text className="min-w-[80px] text-center text-[22px] font-medium text-black">
-							{year}
-						</Text>
+						<Text className="min-w-20 text-center text-[22px] font-medium text-black">{year}</Text>
 						<Pressable
 							accessibilityLabel="Año siguiente"
 							className="h-10 w-10 items-center justify-center"

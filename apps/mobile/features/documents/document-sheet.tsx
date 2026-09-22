@@ -1,28 +1,34 @@
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { type ReactNode, useEffect, useState } from "react";
+import { useState, type ReactNode } from "react";
+import { Alert, View } from "react-native";
+
 import {
-	ActivityIndicator,
-	Alert,
-	Pressable,
-	ScrollView,
+	BottomSheet,
+	Button,
+	Column,
+	FieldGroup,
+	ListItem,
+	Picker,
+	RNHostView,
 	Text,
 	TextInput,
-	View,
-} from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import Animated, { ZoomIn } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+	useNativeState,
+} from "@expo/ui";
 
 import { triggerHaptic } from "@/core/haptics";
-import type { DocumentListItem, DocumentType, UpdateDocumentInput } from "@/features/documents/document";
+import type {
+	DocumentListItem,
+	DocumentType,
+	UpdateDocumentInput,
+} from "@/features/documents/document";
 import {
 	categoryLabel,
 	DOCUMENT_TYPE_OPTIONS,
 	documentTypeLabel,
 	formatIssueDate,
 	formatSoles,
+	isExtractionIncomplete,
 	sourceLabel,
 } from "@/features/documents/document-ui";
 import {
@@ -31,401 +37,272 @@ import {
 	useDocumentImage,
 	useUpdateDocument,
 } from "@/features/documents/use-documents";
-import { Camera, Check, ChevronRight, Receipt } from "@/shared/ui/reicon";
+import { Camera, Receipt } from "@/shared/ui/reicon";
 
 export function DocumentSheet() {
 	const { id, edit } = useLocalSearchParams<{ id: string; edit?: string }>();
 	const { data: doc, isPending } = useDocument(id);
-	const [editing, setEditing] = useState(edit === "1");
+	const [editing, setEdit] = useState(edit === "1");
+
+	function dismiss() {
+		router.back();
+	}
 
 	if (!id) return null;
+
 	if (isPending && !doc) {
 		return (
-			<SheetBody>
-				<ActivityIndicator />
-			</SheetBody>
+			<Sheet onDismiss={dismiss}>
+				<Column spacing={12}>
+					<Text textStyle={{ fontSize: 17 }}>Cargando…</Text>
+				</Column>
+			</Sheet>
 		);
 	}
+
 	if (!doc) {
 		return (
-			<SheetBody>
-				<Text className="text-center text-[16px] text-black/60">
-					No encontramos este comprobante.
-				</Text>
-				<Pressable className="mt-4" onPress={() => router.back()}>
-					<Text className="text-[15px] font-medium">Cerrar</Text>
-				</Pressable>
-			</SheetBody>
+			<Sheet onDismiss={dismiss}>
+				<Column spacing={12}>
+					<Text textStyle={{ fontSize: 17 }}>No encontramos este comprobante.</Text>
+					<Button label="Cerrar" onPress={dismiss} />
+				</Column>
+			</Sheet>
 		);
 	}
-	if (editing) return <EditForm doc={doc} onCancel={() => setEditing(false)} />;
-	if (doc.status === "pending") return <ProcessingState />;
-	if (doc.status === "failed") {
+
+	if (editing) {
+		return <EditForm doc={doc} onCancel={() => setEdit(false)} onDismiss={dismiss} />;
+	}
+
+	if (doc.status === "pending") {
 		return (
-			<FailedState
-				doc={doc}
-				onEdit={() => {
-					void triggerHaptic("selection");
-					setEditing(true);
-				}}
-			/>
+			<Sheet onDismiss={dismiss}>
+				<Column spacing={12}>
+					<DocHero icon="receipt" />
+					<Text textStyle={{ fontSize: 22, fontWeight: "600" }}>Leyendo tu comprobante.</Text>
+					<Text textStyle={{ fontSize: 15, color: "#737373" }}>
+						Esto suele tomar unos segundos. Puedes cerrar esta pantalla.
+					</Text>
+				</Column>
+			</Sheet>
 		);
 	}
+
+	const failed =
+		doc.status === "failed" || (doc.status === "ready" && isExtractionIncomplete(doc));
+
+	if (failed) {
+		return (
+			<Sheet onDismiss={dismiss} snapPoints={["half", "full"]}>
+				<FieldGroup>
+					<FieldGroup.Section>
+						<DocHero id={doc.id} icon="camera" />
+						<Text textStyle={{ fontSize: 22, fontWeight: "600" }}>No pudimos leerlo</Text>
+						<Text textStyle={{ fontSize: 15, color: "#737373" }}>
+							La foto no es lo bastante clara. Puedes intentar de nuevo o ingresar los datos a
+							mano.
+						</Text>
+					</FieldGroup.Section>
+					<FieldGroup.Section>
+						<Button
+							label="Reintentar"
+							onPress={() => {
+								void triggerHaptic("selection");
+								router.replace("/guardar");
+							}}
+						/>
+						<Button
+							label="Ingresar a mano"
+							variant="outlined"
+							onPress={() => {
+								void triggerHaptic("selection");
+								setEdit(true);
+							}}
+						/>
+						<DeleteButton id={doc.id} />
+					</FieldGroup.Section>
+				</FieldGroup>
+			</Sheet>
+		);
+	}
+
 	return (
-		<ReadyDetail
-			doc={doc}
-			onEdit={() => {
-				void triggerHaptic("selection");
-				setEditing(true);
-			}}
-		/>
+		<Sheet onDismiss={dismiss} snapPoints={["half", "full"]}>
+			<FieldGroup>
+				<FieldGroup.Section>
+					<DocHero id={doc.id} icon="receipt" />
+					<Text textStyle={{ fontSize: 22, fontWeight: "600" }}>
+						{doc.issuerName ?? "Comprobante"}
+					</Text>
+					<Text textStyle={{ fontSize: 28, fontWeight: "600" }}>
+						{formatSoles(doc.totalAmount)}
+					</Text>
+				</FieldGroup.Section>
+				<FieldGroup.Section title="Detalle">
+					<ListItem trailing={formatIssueDate(doc.issueDate)}>Fecha</ListItem>
+					<ListItem trailing={categoryLabel(doc.category)}>Categoría</ListItem>
+					<ListItem trailing={doc.issuerTaxId || "—"}>RUC</ListItem>
+					<ListItem trailing={documentTypeLabel(doc.documentType)}>Tipo</ListItem>
+					<ListItem trailing={doc.documentNumber || "—"}>Número</ListItem>
+					<ListItem trailing={sourceLabel(doc.source)}>Origen</ListItem>
+				</FieldGroup.Section>
+				<FieldGroup.Section>
+					<Button
+						label="Editar información"
+						variant="outlined"
+						onPress={() => {
+							void triggerHaptic("selection");
+							setEdit(true);
+						}}
+					/>
+					<DeleteButton id={doc.id} />
+				</FieldGroup.Section>
+			</FieldGroup>
+		</Sheet>
 	);
 }
 
-/** Aire bajo el grabber nativo del formSheet. */
-function SheetBody({ children }: { children: ReactNode }) {
-	const insets = useSafeAreaInsets();
+function Sheet({
+	children,
+	onDismiss,
+	snapPoints,
+}: {
+	children: ReactNode;
+	onDismiss: () => void;
+	snapPoints?: Array<"half" | "full">;
+}) {
 	return (
-		<View
-			className="bg-white px-6"
-			style={{ paddingTop: 28, paddingBottom: Math.max(insets.bottom, 16) }}
+		<BottomSheet
+			isPresented
+			onDismiss={onDismiss}
+			showDragIndicator
+			snapPoints={snapPoints}
+			contentPadding={0}
+			containerColor="#fff"
 		>
-			<StatusBar style="dark" />
 			{children}
-		</View>
+		</BottomSheet>
 	);
 }
 
-function ProcessingState() {
-	return (
-		<SheetBody>
-			<Placeholder icon="receipt" />
-			<Text className="mt-6 text-[26px] font-medium tracking-tight text-black">
-				Leyendo tu comprobante.
-			</Text>
-			<Text className="mt-2 pb-4 text-[15px] leading-6 text-black/45">
-				Esto suele tomar unos segundos. Puedes cerrar esta pantalla.
-			</Text>
-		</SheetBody>
-	);
-}
-
-function FailedState({ doc, onEdit }: { doc: DocumentListItem; onEdit: () => void }) {
-	return (
-		<SheetBody>
-			<ScrollView bounces={false} keyboardShouldPersistTaps="handled">
-				<DocImage id={doc.id} fallback="camera" />
-				<Eyebrow>Lectura fallida</Eyebrow>
-				<Text className="mt-3 text-[28px] font-medium tracking-tight text-black">
-					No pudimos <Text className="italic text-orange-700">leerlo</Text>
-				</Text>
-				<Text className="mt-2 text-[15px] leading-6 text-black/45">
-					La foto no es lo bastante clara. Puedes intentar de nuevo o ingresar los datos a mano.
-				</Text>
-				<Pressable
-					className="mt-8 items-center rounded-full bg-black py-4"
-					onPress={() => {
-						void triggerHaptic("selection");
-						router.replace("/guardar");
-					}}
-				>
-					<Text className="text-[16px] font-medium text-white">Reintentar</Text>
-				</Pressable>
-				<Pressable
-					className="mt-3 items-center rounded-full border border-black/10 py-4"
-					onPress={onEdit}
-				>
-					<Text className="text-[16px] font-medium text-black">Ingresar a mano</Text>
-				</Pressable>
-				<DeleteButton id={doc.id} />
-			</ScrollView>
-		</SheetBody>
-	);
-}
-
-function ReadyDetail({ doc, onEdit }: { doc: DocumentListItem; onEdit: () => void }) {
-	return (
-		<SheetBody>
-			<ScrollView bounces={false}>
-				<DocImage id={doc.id} fallback="receipt" />
-				<Text selectable className="mt-5 text-[28px] font-medium tracking-tight text-black">
-					{doc.issuerName ?? "Comprobante"}
-				</Text>
-				<Text
-					selectable
-					className="mt-1 text-[32px] font-medium tabular-nums tracking-tight text-black"
-				>
-					{formatSoles(doc.totalAmount)}
-				</Text>
-				<View className="mt-6">
-					<InfoRow label="Fecha" value={formatIssueDate(doc.issueDate)} />
-					<InfoRow label="Categoría" value={categoryLabel(doc.category)} />
-					<InfoRow label="RUC" value={doc.issuerTaxId || "—"} />
-					<InfoRow label="Tipo" value={documentTypeLabel(doc.documentType)} />
-					<InfoRow label="Número" value={doc.documentNumber || "—"} />
-					<InfoRow label="Origen" value={sourceLabel(doc.source)} last />
-				</View>
-				<Pressable
-					className="mt-6 items-center rounded-full border border-black/10 py-4"
-					onPress={onEdit}
-				>
-					<Text className="text-[16px] font-medium text-black">Editar información</Text>
-				</Pressable>
-				<DeleteButton id={doc.id} />
-			</ScrollView>
-		</SheetBody>
-	);
-}
-
-function EditForm({ doc, onCancel }: { doc: DocumentListItem; onCancel: () => void }) {
-	const update = useUpdateDocument();
-	const [typeOpen, setTypeOpen] = useState(false);
-	const [saved, setSaved] = useState(false);
+function EditForm({
+	doc,
+	onCancel,
+	onDismiss,
+}: {
+	doc: DocumentListItem;
+	onCancel: () => void;
+	onDismiss: () => void;
+}) {
+	const { mutateAsync, isPending } = useUpdateDocument();
 	const [error, setError] = useState<string | null>(null);
-	const [form, setForm] = useState({
-		issuerName: doc.issuerName ?? "",
-		issuerTaxId: doc.issuerTaxId ?? "",
-		issueDate: toDisplayDate(doc.issueDate),
-		documentType: (doc.documentType === "unknown" ? "boleta" : doc.documentType) as DocumentType,
-		documentNumber: doc.documentNumber ?? "",
-		totalAmount: doc.totalAmount ?? "",
-		igvAmount: doc.igvAmount ?? "",
-	});
 
-	useEffect(() => {
-		if (!saved) return;
-		const t = setTimeout(onCancel, 700);
-		return () => clearTimeout(t);
-	}, [saved, onCancel]);
+	const issuerName = useNativeState(doc.issuerName ?? "");
+	const issuerTaxId = useNativeState(doc.issuerTaxId ?? "");
+	const issueDate = useNativeState(isoToDisplay(doc.issueDate));
+	const documentNumber = useNativeState(doc.documentNumber ?? "");
+	const totalAmount = useNativeState(doc.totalAmount ?? "");
+	const igvAmount = useNativeState(doc.igvAmount ?? "");
+	const [documentType, setDocumentType] = useState<DocumentType>(
+		doc.documentType === "unknown" ? "boleta" : (doc.documentType as DocumentType),
+	);
 
 	async function save() {
 		setError(null);
 		const patch: UpdateDocumentInput = {
-			issuerName: emptyToNull(form.issuerName),
-			issuerTaxId: emptyToNull(form.issuerTaxId),
-			issueDate: parseDateInput(form.issueDate),
-			documentType: form.documentType,
-			documentNumber: emptyToNull(form.documentNumber),
-			totalAmount: normalizeAmount(form.totalAmount),
-			igvAmount: form.igvAmount.trim() ? normalizeAmount(form.igvAmount) : null,
+			issuerName: trimOrNull(issuerName.value),
+			issuerTaxId: trimOrNull(issuerTaxId.value),
+			issueDate: displayToIso(issueDate.value),
+			documentType,
+			documentNumber: trimOrNull(documentNumber.value),
+			totalAmount: parseAmount(totalAmount.value),
+			igvAmount: igvAmount.value.trim() ? parseAmount(igvAmount.value) : null,
 		};
 		try {
-			await update.mutateAsync({ id: doc.id, patch });
-			await triggerHaptic("success");
-			setSaved(true);
+			await mutateAsync({ id: doc.id, patch });
+			void triggerHaptic("success");
+			onCancel();
 		} catch {
 			setError("No se pudieron guardar los cambios. Revisa los datos.");
-			await triggerHaptic("error");
+			void triggerHaptic("error");
 		}
 	}
 
-	if (saved) {
-		return (
-			<SheetBody>
-				<View className="items-center py-16">
-					<Animated.View entering={ZoomIn.springify().damping(16).stiffness(280)}>
-						<View className="h-14 w-14 items-center justify-center rounded-full bg-black">
-							<Check color="#fff" size={26} />
-						</View>
-					</Animated.View>
-					<Text className="mt-4 text-[18px] font-medium text-black">Guardado</Text>
-				</View>
-			</SheetBody>
-		);
-	}
-
 	return (
-		<SheetBody>
-			<KeyboardAwareScrollView
-				bottomOffset={24}
-				extraKeyboardSpace={12}
-				keyboardShouldPersistTaps="handled"
-				mode="insets"
-			>
-				<Eyebrow>Editar comprobante</Eyebrow>
-				<Text className="mt-3 text-[28px] font-medium tracking-tight text-black">
-					<Text className="italic text-orange-700">Completa</Text> los datos.
-				</Text>
-				<Text className="mt-2 text-[15px] text-black/45">
-					Corrige lo que falte. Konti guarda tus cambios.
-				</Text>
+		<Sheet onDismiss={onDismiss} snapPoints={["full"]}>
+			<FieldGroup>
+				<FieldGroup.Section title="Editar comprobante">
+					<TextInput value={issuerName} placeholder="Comercio" />
+					<TextInput value={issuerTaxId} placeholder="RUC" keyboardType="number-pad" />
+					<TextInput value={issueDate} placeholder="DD/MM/AAAA" />
+					<Picker selectedValue={documentType} onValueChange={setDocumentType} appearance="menu">
+						{DOCUMENT_TYPE_OPTIONS.map((opt) => (
+							<Picker.Item key={opt.value} label={opt.label} value={opt.value} />
+						))}
+					</Picker>
+					<TextInput value={documentNumber} placeholder="Número" />
+					<TextInput value={totalAmount} placeholder="Monto S/" keyboardType="decimal-pad" />
+					<TextInput value={igvAmount} placeholder="IGV (opcional)" keyboardType="decimal-pad" />
+				</FieldGroup.Section>
+				{error ? (
+					<FieldGroup.Section>
+						<Text textStyle={{ fontSize: 13, color: "#dc2626" }}>{error}</Text>
+					</FieldGroup.Section>
+				) : null}
+				<FieldGroup.Section>
+					<Button
+						label={isPending ? "Guardando..." : "Guardar cambios"}
+						disabled={isPending}
+						onPress={() => void save()}
+					/>
+					<Button label="Cancelar" variant="text" onPress={onCancel} />
+					<DeleteButton id={doc.id} />
+				</FieldGroup.Section>
+			</FieldGroup>
+		</Sheet>
+	);
+}
 
-				<View className="mt-6">
-					<FieldRow
-						label="Comercio"
-						value={form.issuerName}
-						onChange={(v) => setForm((f) => ({ ...f, issuerName: v }))}
-					/>
-					<FieldRow
-						label="RUC"
-						value={form.issuerTaxId}
-						keyboardType="number-pad"
-						onChange={(v) => setForm((f) => ({ ...f, issuerTaxId: v }))}
-					/>
-					<FieldRow
-						label="Fecha"
-						value={form.issueDate}
-						placeholder="DD/MM/AAAA"
-						onChange={(v) => setForm((f) => ({ ...f, issueDate: v }))}
-					/>
-					<Pressable
-						className="flex-row items-center border-b border-black/10 py-3.5"
-						onPress={() => setTypeOpen((o) => !o)}
-					>
-						<Text className="flex-1 text-[15px] text-black/45">Tipo</Text>
-						<Text className="mr-1 text-[15px] font-medium text-black">
-							{documentTypeLabel(form.documentType)}
-						</Text>
-						<ChevronRight color="#111" size={16} />
-					</Pressable>
-					{typeOpen
-						? DOCUMENT_TYPE_OPTIONS.map((opt) => (
-								<Pressable
-									key={opt.value}
-									className="py-3"
-									onPress={() => {
-										setForm((f) => ({ ...f, documentType: opt.value }));
-										setTypeOpen(false);
-									}}
-								>
-									<Text
-										className={`text-right text-[15px] ${
-											form.documentType === opt.value ? "font-medium text-black" : "text-black/50"
-										}`}
-									>
-										{opt.label}
-									</Text>
-								</Pressable>
-							))
-						: null}
-					<FieldRow
-						label="Número"
-						value={form.documentNumber}
-						onChange={(v) => setForm((f) => ({ ...f, documentNumber: v }))}
-					/>
-					<FieldRow
-						label="Monto"
-						value={form.totalAmount}
-						keyboardType="decimal-pad"
-						prefix="S/"
-						onChange={(v) => setForm((f) => ({ ...f, totalAmount: v }))}
-					/>
-					<FieldRow
-						label="IGV"
-						value={form.igvAmount}
-						keyboardType="decimal-pad"
-						placeholder="Sin completar"
-						onChange={(v) => setForm((f) => ({ ...f, igvAmount: v }))}
-						last
-					/>
-				</View>
-
-				{error ? <Text className="mt-4 text-[13px] text-red-600">{error}</Text> : null}
-
-				<Pressable
-					className="mt-8 items-center rounded-full bg-black py-4"
-					disabled={update.isPending}
-					onPress={() => void save()}
+function DocHero({ id, icon }: { id?: string; icon: "camera" | "receipt" }) {
+	const { data } = useDocumentImage(id ?? "", Boolean(id));
+	return (
+		<RNHostView matchContents>
+			{data?.url ? (
+				<Image
+					source={{ uri: data.url }}
+					contentFit="cover"
+					style={{ height: 176, width: "100%", borderRadius: 16, backgroundColor: "#f5f5f5" }}
+				/>
+			) : (
+				<View
+					style={{
+						height: 176,
+						width: "100%",
+						borderRadius: 16,
+						backgroundColor: "#f5f5f5",
+						alignItems: "center",
+						justifyContent: "center",
+					}}
 				>
-					<Text className="text-[16px] font-medium text-white">
-						{update.isPending ? "Guardando..." : "Guardar cambios"}
-					</Text>
-				</Pressable>
-				<Pressable className="mt-2 items-center py-3" onPress={onCancel}>
-					<Text className="text-[15px] text-black/45">Cancelar</Text>
-				</Pressable>
-			</KeyboardAwareScrollView>
-		</SheetBody>
-	);
-}
-
-function Eyebrow({ children }: { children: string }) {
-	return (
-		<View className="flex-row items-center gap-2">
-			<View className="h-1.5 w-1.5 rounded-full bg-orange-400" />
-			<Text className="text-[11px] font-medium uppercase tracking-widest text-black/40">
-				{children}
-			</Text>
-		</View>
-	);
-}
-
-function FieldRow({
-	label,
-	value,
-	onChange,
-	placeholder,
-	keyboardType,
-	prefix,
-	last,
-}: {
-	label: string;
-	value: string;
-	onChange: (value: string) => void;
-	placeholder?: string;
-	keyboardType?: "number-pad" | "decimal-pad";
-	prefix?: string;
-	last?: boolean;
-}) {
-	return (
-		<View className={`flex-row items-center py-3.5 ${last ? "" : "border-b border-black/10"}`}>
-			<Text className="w-[110px] text-[15px] text-black/45">{label}</Text>
-			{prefix ? <Text className="mr-1 text-[15px] font-medium text-black">{prefix}</Text> : null}
-			<TextInput
-				className="flex-1 text-right text-[15px] font-medium text-black"
-				value={value}
-				onChangeText={onChange}
-				placeholder={placeholder}
-				placeholderTextColor="#b0b0b0"
-				keyboardType={keyboardType}
-				autoCapitalize="none"
-			/>
-			<ChevronRight color="#bbb" size={16} />
-		</View>
-	);
-}
-
-function InfoRow({ label, value, last }: { label: string; value: string; last?: boolean }) {
-	return (
-		<View
-			className={`flex-row items-center justify-between py-3.5 ${last ? "" : "border-b border-black/10"}`}
-		>
-			<Text className="text-[15px] text-black/45">{label}</Text>
-			<Text selectable className="text-[15px] font-medium text-black">
-				{value}
-			</Text>
-		</View>
-	);
-}
-
-function DocImage({ id, fallback }: { id: string; fallback: "camera" | "receipt" }) {
-	const { data } = useDocumentImage(id, true);
-	if (data?.url) {
-		return (
-			<Image
-				source={{ uri: data.url }}
-				contentFit="cover"
-				className="h-44 w-full rounded-2xl bg-black/5"
-			/>
-		);
-	}
-	return <Placeholder icon={fallback} />;
-}
-
-function Placeholder({ icon }: { icon: "camera" | "receipt" }) {
-	return (
-		<View className="h-44 w-full items-center justify-center rounded-2xl bg-black/5">
-			{icon === "camera" ? <Camera color="#c4c4c4" size={32} /> : <Receipt color="#c4c4c4" size={36} />}
-		</View>
+					{icon === "camera" ? (
+						<Camera color="#c4c4c4" size={32} />
+					) : (
+						<Receipt color="#c4c4c4" size={36} />
+					)}
+				</View>
+			)}
+		</RNHostView>
 	);
 }
 
 function DeleteButton({ id }: { id: string }) {
-	const remove = useDeleteDocument();
+	const { mutateAsync, isPending } = useDeleteDocument();
 	return (
-		<Pressable
-			className="mt-4 items-center py-3"
-			disabled={remove.isPending}
+		<Button
+			label="Eliminar comprobante"
+			variant="text"
+			disabled={isPending}
 			onPress={() => {
 				Alert.alert("Eliminar comprobante", "Esta acción no se puede deshacer.", [
 					{ text: "Cancelar", style: "cancel" },
@@ -434,39 +311,39 @@ function DeleteButton({ id }: { id: string }) {
 						style: "destructive",
 						onPress: () => {
 							void triggerHaptic("warning");
-							void remove
-								.mutateAsync(id)
+							void mutateAsync(id)
 								.then(() => router.back())
 								.catch(() => Alert.alert("No se pudo eliminar", "Inténtalo de nuevo."));
 						},
 					},
 				]);
 			}}
-		>
-			<Text className="text-[15px] text-red-600">Eliminar comprobante</Text>
-		</Pressable>
+		/>
 	);
 }
 
-function emptyToNull(value: string): string | null {
+function trimOrNull(value: string): string | null {
 	const t = value.trim();
 	return t || null;
 }
 
-function normalizeAmount(raw: string): string | null {
-	const t = raw.trim().replace(",", ".").replace(/[^\d.]/g, "");
+function parseAmount(raw: string): string | null {
+	const t = raw
+		.trim()
+		.replace(",", ".")
+		.replace(/[^\d.]/g, "");
 	if (!t) return null;
 	const n = Number(t);
 	return Number.isNaN(n) ? t : n.toFixed(2);
 }
 
-function toDisplayDate(iso: string | null | undefined): string {
+function isoToDisplay(iso: string | null | undefined): string {
 	if (!iso) return "";
 	const [y, m, d] = iso.slice(0, 10).split("-");
 	return y && m && d ? `${d}/${m}/${y}` : iso;
 }
 
-function parseDateInput(raw: string): string | null {
+function displayToIso(raw: string): string | null {
 	const t = raw.trim();
 	if (!t) return null;
 	const dmy = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(t);

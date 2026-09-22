@@ -47,16 +47,10 @@ function RootNavigator() {
 				<Stack.Screen
 					name="comprobante/[id]"
 					options={{
-						presentation: "formSheet",
+						presentation: "transparentModal",
 						headerShown: false,
-						sheetGrabberVisible: true,
-						sheetAllowedDetents: "fitToContents",
-						sheetCornerRadius: 28,
-						sheetShouldOverflowTopInset: false,
-						sheetExpandsWhenScrolledToEdge: false,
-						animation: "slide_from_bottom",
-						animationDuration: 350,
-						contentStyle: { backgroundColor: "#fff" },
+						animation: "none",
+						contentStyle: { backgroundColor: "transparent" },
 					}}
 				/>
 			</Stack.Protected>

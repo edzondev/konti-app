@@ -55,11 +55,9 @@ export function HomeDeductionsCard({ deductions }: HomeDeductionsCardProps) {
 			<View className="min-w-0 flex-1">
 				<DeductionsEyebrow />
 				<HighlightSummary summary={deductions.summary} />
-				<Text className="mt-2 text-[13px] text-konti-ink-muted">
-					{deductions.categoriesLine}
-				</Text>
+				<Text className="mt-2 text-[13px] text-konti-ink-muted">{deductions.categoriesLine}</Text>
 			</View>
-			<ChevronRight colorClassName="text-konti-ink-subtle" size={18} />
+			<ChevronRight colorClassName="accent-konti-ink-subtle" size={18} />
 		</View>
 	);
 }

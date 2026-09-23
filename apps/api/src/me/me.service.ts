@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { InjectDrizzle } from "@nestjs/drizzle";
 import { eq } from "drizzle-orm";
 import { PostHog } from "posthog-node";
-import { InjectDatabase } from "../database/database.decorators.js";
 import type { Database } from "../database/database.types.js";
 import { documents } from "../database/schema/app.schema.js";
 import { user } from "../database/schema/auth.schema.js";
@@ -12,7 +12,7 @@ export class MeService {
 	private readonly logger = new Logger(MeService.name);
 
 	constructor(
-		@InjectDatabase()
+		@InjectDrizzle()
 		private readonly db: Database,
 		private readonly storage: StorageService,
 		private readonly posthog: PostHog,

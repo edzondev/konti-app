@@ -6,8 +6,8 @@ import {
 	Logger,
 	NotFoundException,
 } from "@nestjs/common";
+import { InjectDrizzle } from "@nestjs/drizzle";
 import { and, desc, eq, gte, isNull, lt, lte, or } from "drizzle-orm";
-import { InjectDatabase } from "../database/database.decorators.js";
 import type { Database } from "../database/database.types.js";
 import { documents } from "../database/schema/app.schema.js";
 import { type Category, categoryLabel, DEDUCTIBLE_CATEGORIES } from "../ingestion/category-map.js";
@@ -40,7 +40,7 @@ export class DocumentsService {
 	private readonly logger = new Logger(DocumentsService.name);
 
 	constructor(
-		@InjectDatabase()
+		@InjectDrizzle()
 		private readonly db: Database,
 		private readonly storage: StorageService,
 		private readonly ingestion: IngestionService,
@@ -215,9 +215,10 @@ export class DocumentsService {
 		return updated;
 	}
 
-	async getImageUrl(userId: string, id: string): Promise<{ url: string; expiresAt: string }> {
+	async getImageBuffer(userId: string, id: string): Promise<{ buffer: Buffer; mimeType: string }> {
 		const doc = await this.findOne(userId, id);
-		return this.storage.downloadUrlWithExpiry(doc.objectKey);
+		const { body, contentType } = await this.storage.getObject(doc.objectKey);
+		return { buffer: body, mimeType: doc.mimeType ?? contentType ?? "application/octet-stream" };
 	}
 
 	async softDelete(userId: string, id: string): Promise<void> {

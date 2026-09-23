@@ -9,6 +9,7 @@
 		"userInterfaceStyle": "automatic",
 		"ios": {
 			"supportsTablet": true,
+			"deploymentTarget": "16.4",
 			"infoPlist": {
 				"NSCameraUsageDescription": "Konti usa la cámara para guardar tus comprobantes."
 			}
@@ -61,14 +62,7 @@
 					"photosPermission": "Konti necesita acceso a tus fotos para guardar tus comprobantes."
 				}
 			],
-			[
-				"expo-build-properties",
-				{
-					"ios": {
-						"deploymentTarget": "16.4"
-					}
-				}
-			]
+			"expo-build-properties"
 		],
 		"experiments": {
 			"typedRoutes": true,

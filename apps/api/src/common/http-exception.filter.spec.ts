@@ -5,6 +5,7 @@ import { HttpExceptionFilter } from "./http-exception.filter.js";
 function mockHost(statusSpy: ReturnType<typeof vi.fn>, jsonSpy: ReturnType<typeof vi.fn>) {
 	return {
 		switchToHttp: () => ({
+			getRequest: () => ({ method: "POST", url: "/documents" }),
 			getResponse: () => ({
 				status: statusSpy.mockReturnValue({ json: jsonSpy }),
 			}),

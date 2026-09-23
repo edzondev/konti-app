@@ -17,6 +17,7 @@ import { buildDocumentObjectKey } from "../storage/object-keys.js";
 import { StorageService } from "../storage/storage.service.js";
 import { CreateDocumentDto, UpdateDocumentDto } from "./documents.dto.js";
 import { generateInsight } from "./insight-rules.js";
+import { getUit } from "./uit.js";
 
 interface UploadInput {
 	buffer: Buffer;
@@ -358,6 +359,54 @@ export class DocumentsService {
 		};
 	}
 
+	async deductiblesByYear(userId: string, year?: number | string) {
+		const target = year !== undefined && year !== "" ? Number(year) : currentYear();
+		const { start, end } = yearRange(target);
+		const uit = getUit(target);
+
+		const rows = await this.db
+			.select({
+				totalAmount: documents.totalAmount,
+				category: documents.category,
+				issueDate: documents.issueDate,
+			})
+			.from(documents)
+			.where(
+				and(
+					visibleToUser(userId),
+					eq(documents.status, "ready"),
+					gte(documents.issueDate, start),
+					lte(documents.issueDate, end),
+				),
+			);
+
+		const deductibleSet = new Set<Category>(DEDUCTIBLE_CATEGORIES);
+		const deductibleDocs = rows.filter((d) => deductibleSet.has(d.category));
+
+		const amountsByCategory = new Map<Category, number>();
+		for (const doc of deductibleDocs) {
+			amountsByCategory.set(
+				doc.category,
+				(amountsByCategory.get(doc.category) ?? 0) + Number(doc.totalAmount ?? 0),
+			);
+		}
+
+		const categories = [...amountsByCategory.entries()]
+			.sort((a, b) => b[1] - a[1])
+			.map(([name, amount]) => ({ name: categoryLabel(name), amount }));
+
+		const totalAmount = deductibleDocs.reduce((acc, d) => acc + Number(d.totalAmount ?? 0), 0);
+
+		return {
+			year: target,
+			totalAmount,
+			documentCount: deductibleDocs.length,
+			categories,
+			uit,
+			topAmount: 3 * uit,
+		};
+	}
+
 	private async processInBackground(
 		userId: string,
 		documentId: string,
@@ -428,6 +477,22 @@ function currentMonth(): string {
 		year: "numeric",
 		month: "2-digit",
 	}).format(new Date());
+}
+
+function currentYear(): number {
+	return Number(
+		new Intl.DateTimeFormat("en-CA", {
+			timeZone: PERU_TIME_ZONE,
+			year: "numeric",
+		}).format(new Date()),
+	);
+}
+
+function yearRange(year: number): { start: string; end: string } {
+	if (!Number.isInteger(year) || year < 1000 || year > 9999) {
+		throw new BadRequestException(`Año inválido: ${year}`);
+	}
+	return { start: `${year}-01-01`, end: `${year}-12-31` };
 }
 
 function monthRange(month: string): { start: string; end: string } {

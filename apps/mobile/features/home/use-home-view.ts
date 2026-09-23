@@ -9,9 +9,11 @@ export type HomeView =
 	| {
 			kind: "ready";
 			monthLabel: string;
+			monthName: string;
 			totalAmountLabel: string;
 			insight: string;
 			categories: { name: string; amountLabel: string; muted: boolean }[];
+			deductibles: HomeSummary["deductibles"];
 			deductions:
 				| { variant: "none"; message: string }
 				| {
@@ -25,10 +27,12 @@ export type HomeView =
 
 function toReadyView(summary: HomeSummary): HomeView {
 	const { deductibles } = summary;
+	const label = monthLabel(summary.month);
 
 	return {
 		kind: "ready",
-		monthLabel: monthLabel(summary.month),
+		monthLabel: label,
+		monthName: label.split(" ")[0]!.toLowerCase(),
 		totalAmountLabel: formatMoney(summary.totalAmount),
 		insight: summary.insight,
 		categories: summary.categories.map(({ name, amount }) => ({
@@ -36,6 +40,7 @@ function toReadyView(summary: HomeSummary): HomeView {
 			amountLabel: formatMoney(amount),
 			muted: name === "Otros",
 		})),
+		deductibles,
 		deductions:
 			deductibles.count === 0
 				? {

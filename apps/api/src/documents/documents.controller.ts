@@ -26,6 +26,7 @@ import { CurrentUser } from "../auth/current-user.decorator.js";
 import { DocumentMimeTypeSchema } from "../storage/mime.js";
 import {
 	CreateDocumentDto,
+	DeductiblesYearQueryDto,
 	DocumentIdParamDto,
 	ListDocumentsQueryDto,
 	UpdateDocumentDto,
@@ -79,6 +80,15 @@ export class DocumentsController {
 	@Get("summary")
 	async summary(@CurrentUser() user: AuthUser, @Query() query: ListDocumentsQueryDto) {
 		return this.documentsService.summary(user.id, query.month);
+	}
+
+	// Antes de @Get(':id') para que "deductibles" no se interprete como UUID.
+	@Get("deductibles/year")
+	async deductiblesByYear(
+		@CurrentUser() user: AuthUser,
+		@Query() query: DeductiblesYearQueryDto,
+	) {
+		return this.documentsService.deductiblesByYear(user.id, query.year);
 	}
 
 	// Antes de @Get(':id') para que "image" no se interprete como UUID.

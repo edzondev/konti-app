@@ -1,5 +1,9 @@
+import { type Href, router } from "expo-router";
+import { useState } from "react";
 import { ScrollView, Text } from "react-native";
 
+import { currentLimaYear } from "@/features/deductions/deductibles-year";
+import { DeductionsSheet } from "@/features/deductions/deductions-sheet";
 import { UniSafeAreaView } from "@/shared/ui/safe-area";
 
 import { HomeAmountBlock } from "./home-amount-block";
@@ -12,6 +16,7 @@ import { useHomeView } from "./use-home-view";
 
 export function HomeScreen() {
 	const view = useHomeView();
+	const [sheetOpen, setSheetOpen] = useState(false);
 
 	return (
 		<UniSafeAreaView className="flex-1 bg-konti-bg" edges={["top"]}>
@@ -35,10 +40,23 @@ export function HomeScreen() {
 							totalAmountLabel={view.totalAmountLabel}
 						/>
 						<HomeCategories categories={view.categories} />
-						<HomeDeductionsCard deductions={view.deductions} />
+						<HomeDeductionsCard deductions={view.deductions} onPress={() => setSheetOpen(true)} />
 					</>
 				) : null}
 			</ScrollView>
+			{view.kind === "ready" ? (
+				<DeductionsSheet
+					deductibles={view.deductibles}
+					isPresented={sheetOpen}
+					monthName={view.monthName}
+					onDismiss={() => setSheetOpen(false)}
+					onOpenYear={() => {
+						setSheetOpen(false);
+						router.navigate(`/deducciones/${currentLimaYear()}` as Href);
+					}}
+					onUnderstood={() => setSheetOpen(false)}
+				/>
+			) : null}
 		</UniSafeAreaView>
 	);
 }

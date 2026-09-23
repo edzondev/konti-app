@@ -44,6 +44,7 @@ function RootNavigator() {
 
 			<Stack.Protected guard={Boolean(session)}>
 				<Stack.Screen name="(tabs)" />
+				<Stack.Screen name="deducciones/[year]" />
 			</Stack.Protected>
 		</Stack>
 	);

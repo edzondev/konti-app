@@ -83,4 +83,68 @@ describe("DocumentsService", () => {
 
 		await expect(service.softDelete("user-1", "doc-1")).resolves.toBeUndefined();
 	});
+
+	describe("deductiblesByYear", () => {
+		function mockSelectRows(
+			rows: Array<{
+				totalAmount: string | null;
+				category: string;
+				issueDate: string | null;
+			}>,
+		) {
+			db.select.mockReturnValue({
+				from: vi.fn().mockReturnValue({
+					where: vi.fn().mockResolvedValue(rows),
+				}),
+			});
+		}
+
+		it("empty year returns zeros and empty categories", async () => {
+			mockSelectRows([]);
+
+			const result = await service.deductiblesByYear("user-1", 2026);
+
+			expect(result).toEqual({
+				year: 2026,
+				totalAmount: 0,
+				documentCount: 0,
+				categories: [],
+				uit: 5500,
+				topAmount: 16500,
+			});
+		});
+
+		it("excludes supermercado from totals", async () => {
+			mockSelectRows([
+				{ totalAmount: "100", category: "restaurantes", issueDate: "2026-06-01" },
+				{ totalAmount: "999", category: "supermercado", issueDate: "2026-06-02" },
+			]);
+
+			const result = await service.deductiblesByYear("user-1", 2026);
+
+			expect(result.totalAmount).toBe(100);
+			expect(result.documentCount).toBe(1);
+			expect(result.categories).toEqual([{ name: "Restaurantes", amount: 100 }]);
+		});
+
+		it("counts docs on Jan 1 and Dec 31", async () => {
+			mockSelectRows([
+				{ totalAmount: "50", category: "servicios_medicos", issueDate: "2026-01-01" },
+				{ totalAmount: "75", category: "servicios_profesionales", issueDate: "2026-12-31" },
+				{ totalAmount: "10", category: "supermercado", issueDate: "2026-01-01" },
+			]);
+
+			const result = await service.deductiblesByYear("user-1", 2026);
+
+			expect(result.totalAmount).toBe(125);
+			expect(result.documentCount).toBe(2);
+			expect(result.categories).toEqual(
+				expect.arrayContaining([
+					{ name: "Servicios médicos", amount: 50 },
+					{ name: "Servicios profesionales", amount: 75 },
+				]),
+			);
+			expect(result.categories).toHaveLength(2);
+		});
+	});
 });

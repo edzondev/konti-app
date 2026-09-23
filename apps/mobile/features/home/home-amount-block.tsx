@@ -6,11 +6,7 @@ type HomeAmountBlockProps = {
 	insight: string;
 };
 
-export function HomeAmountBlock({
-	monthLabel,
-	totalAmountLabel,
-	insight,
-}: HomeAmountBlockProps) {
+export function HomeAmountBlock({ monthLabel, totalAmountLabel, insight }: HomeAmountBlockProps) {
 	return (
 		<View className="mt-8">
 			<View className="flex-row items-center gap-2">
@@ -20,16 +16,14 @@ export function HomeAmountBlock({
 				</Text>
 			</View>
 
-			<View className="mt-[18px] flex-row items-baseline gap-2">
+			<View className="mt-4.5 flex-row items-baseline gap-2">
 				<Text className="text-[30px] tracking-tight text-konti-ink-subtle">S/</Text>
 				<Text className="font-sans-light text-[60px] tabular-nums tracking-tight text-konti-ink">
 					{totalAmountLabel}
 				</Text>
 			</View>
 
-			<Text className="mt-3.5 max-w-[300px] text-[15px] leading-6 text-konti-ink-muted">
-				{insight}
-			</Text>
+			<Text className="mt-3.5 max-w-75 text-[15px] leading-6 text-konti-ink-muted">{insight}</Text>
 		</View>
 	);
 }

@@ -59,6 +59,20 @@ export class StorageService {
 		this.logger.log(`deleted ${objectKey}`);
 	}
 
+	async getObject(objectKey: string): Promise<{ body: Buffer; contentType: string | undefined }> {
+		const response = await this.client.send(
+			new GetObjectCommand({ Bucket: this.bucket, Key: objectKey }),
+		);
+		if (!response.Body) {
+			throw new Error(`Object not found: ${objectKey}`);
+		}
+		const bytes = await response.Body.transformToByteArray();
+		return {
+			body: Buffer.from(bytes),
+			contentType: response.ContentType,
+		};
+	}
+
 	async downloadUrl(objectKey: string): Promise<string> {
 		return getSignedUrl(
 			this.client,

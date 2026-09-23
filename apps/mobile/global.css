@@ -10,6 +10,10 @@
 	--font-mono-medium: "GeistMono-Medium";
 }
 
+@utility shadow-konti-fab {
+	box-shadow: 0 8px 24px oklch(0% 0 0 / 0.47);
+}
+
 @layer theme {
 	:root {
 		@variant dark {

@@ -1,4 +1,4 @@
-import { ScrollView } from "react-native";
+import { ScrollView, Text } from "react-native";
 
 import { UniSafeAreaView } from "@/shared/ui/safe-area";
 
@@ -23,6 +23,9 @@ export function HomeScreen() {
 				showsVerticalScrollIndicator={false}
 			>
 				{view.kind === "loading" ? <HomeSkeleton /> : null}
+				{view.kind === "error" ? (
+					<Text className="mt-12 font-sans text-[15px] text-konti-ink-muted">{view.message}</Text>
+				) : null}
 				{view.kind === "empty" ? <HomeEmpty monthLabel={view.monthLabel} /> : null}
 				{view.kind === "ready" ? (
 					<>

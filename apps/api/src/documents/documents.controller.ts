@@ -4,13 +4,16 @@ import {
 	Controller,
 	Delete,
 	Get,
+	Header,
 	HttpCode,
+	Logger,
 	MaxFileSizeValidator,
 	Param,
 	ParseFilePipe,
 	Patch,
 	Post,
 	Query,
+	StreamableFile,
 	UploadedFile,
 	UseGuards,
 	UseInterceptors,
@@ -35,6 +38,8 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 @UseGuards(AuthGuard)
 @Controller("documents")
 export class DocumentsController {
+	private readonly logger = new Logger(DocumentsController.name);
+
 	constructor(private readonly documentsService: DocumentsService) {}
 
 	@Post()
@@ -50,6 +55,10 @@ export class DocumentsController {
 		)
 		file: Express.Multer.File,
 	) {
+		this.logger.log(
+			`create user=${user.id} source=${dto.source} mime=${file.mimetype} bytes=${file.size} qr=${dto.qrPayload ? "yes" : "no"}`,
+		);
+
 		const mimeType = v.safeParse(DocumentMimeTypeSchema, file.mimetype);
 		if (!mimeType.success) {
 			throw new BadRequestException("Tipo de archivo no permitido");
@@ -74,11 +83,13 @@ export class DocumentsController {
 
 	// Antes de @Get(':id') para que "image" no se interprete como UUID.
 	@Get(":id/image")
+	@Header("Cache-Control", "private, max-age=300")
 	async getImage(
 		@CurrentUser() user: AuthUser,
 		@Param() params: DocumentIdParamDto,
-	): Promise<{ url: string; expiresAt: string }> {
-		return this.documentsService.getImageUrl(user.id, params.id);
+	): Promise<StreamableFile> {
+		const { buffer, mimeType } = await this.documentsService.getImageBuffer(user.id, params.id);
+		return new StreamableFile(buffer, { type: mimeType, disposition: "inline" });
 	}
 
 	@Get(":id")

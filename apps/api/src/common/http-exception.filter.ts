@@ -15,6 +15,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
 	catch(exception: unknown, host: ArgumentsHost): void {
 		const ctx = host.switchToHttp();
 		const response = ctx.getResponse<Response>();
+		const request = ctx.getRequest<{ method?: string; url?: string }>();
+		const where = `${request?.method ?? "?"} ${request?.url ?? "?"}`;
 		const isProd = process.env.NODE_ENV === "production";
 
 		if (exception instanceof HttpException) {
@@ -26,6 +28,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
 					: typeof raw === "object" && raw !== null && "message" in raw
 						? (raw as { message: string | string[] }).message
 						: exception.message;
+			const detail = Array.isArray(message) ? message.join("; ") : message;
+
+			this.logger.warn(`${where} ${statusCode} ${detail}`);
 
 			response.status(statusCode).json({
 				statusCode,
@@ -36,7 +41,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 		}
 
 		this.logger.error(
-			"Unhandled exception",
+			`${where} unhandled`,
 			exception instanceof Error ? exception.stack : undefined,
 		);
 

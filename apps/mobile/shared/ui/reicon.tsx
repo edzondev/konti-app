@@ -13,6 +13,7 @@ import HomeIcon from "reicon-react-native/icons/Home";
 import ImageIcon from "reicon-react-native/icons/Image";
 import MenuIcon from "reicon-react-native/icons/Menu";
 import ReceiptIcon from "reicon-react-native/icons/Receipt";
+import UserIcon from "reicon-react-native/icons/User";
 import XIcon from "reicon-react-native/icons/X";
 import { withUniwind } from "uniwind";
 
@@ -32,4 +33,5 @@ export const Home = withUniwind(HomeIcon);
 export const Image = withUniwind(ImageIcon);
 export const Menu = withUniwind(MenuIcon);
 export const Receipt = withUniwind(ReceiptIcon);
+export const User = withUniwind(UserIcon);
 export const X = withUniwind(XIcon);

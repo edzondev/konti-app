@@ -19,10 +19,7 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
 
 			<View className="mt-4 gap-2.5">
 				{categories.map((category) => (
-					<View
-						key={category.name}
-						className="flex-row items-baseline justify-between gap-3"
-					>
+					<View key={category.name} className="flex-row items-baseline justify-between gap-3">
 						<Text
 							className={
 								category.muted

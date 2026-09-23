@@ -1,5 +1,5 @@
-import { Redirect } from "expo-router";
+import { ScanScreen } from "@/features/scan/scan-screen";
 
 export default function GuardarScreen() {
-	return <Redirect href="/comprobantes" />;
+	return <ScanScreen />;
 }

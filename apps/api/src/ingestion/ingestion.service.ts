@@ -1,8 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { InjectDrizzle } from "@nestjs/drizzle";
 import { and, count, desc, eq, gte, isNotNull, isNull } from "drizzle-orm";
 import type { Env } from "../config/env.js";
-import { InjectDatabase } from "../database/database.decorators.js";
 import type { Database } from "../database/database.types.js";
 import { documents } from "../database/schema/app.schema.js";
 import { type Category, categorizeByName } from "./category-map.js";
@@ -29,7 +29,7 @@ export class IngestionService {
 	private readonly logger = new Logger(IngestionService.name);
 
 	constructor(
-		@InjectDatabase()
+		@InjectDrizzle()
 		private readonly db: Database,
 		private readonly ocr: OcrClient,
 		private readonly config: ConfigService<Env, true>,

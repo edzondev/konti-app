@@ -15,8 +15,8 @@ process.loadEnvFile();
 @Module({
 	imports: [
 		ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
-		AuthModule,
 		DatabaseModule,
+		AuthModule,
 		DocumentsModule,
 		StorageModule,
 		IngestionModule,

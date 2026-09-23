@@ -1,8 +1,10 @@
-import { activeHomeMock } from "./home-mock"; // change which mock activeHomeMock points at for QA.
 import { formatMoney, monthLabel } from "./home-format";
+import { currentLimaMonth, type HomeSummary } from "./home-summary";
+import { useHomeSummary } from "./use-home-summary";
 
 export type HomeView =
 	| { kind: "loading" }
+	| { kind: "error"; message: string }
 	| { kind: "empty"; monthLabel: string }
 	| {
 			kind: "ready";
@@ -21,26 +23,15 @@ export type HomeView =
 				  };
 	  };
 
-export function useHomeView(): HomeView {
-	const mock = activeHomeMock;
-	const label = monthLabel(mock.month);
-
-	if (mock.status === "loading") {
-		return { kind: "loading" };
-	}
-
-	if (mock.documentCount === 0) {
-		return { kind: "empty", monthLabel: label };
-	}
-
-	const { deductibles } = mock;
+function toReadyView(summary: HomeSummary): HomeView {
+	const { deductibles } = summary;
 
 	return {
 		kind: "ready",
-		monthLabel: label,
-		totalAmountLabel: formatMoney(mock.totalAmount),
-		insight: mock.insight,
-		categories: mock.categories.map(({ name, amount }) => ({
+		monthLabel: monthLabel(summary.month),
+		totalAmountLabel: formatMoney(summary.totalAmount),
+		insight: summary.insight,
+		categories: summary.categories.map(({ name, amount }) => ({
 			name,
 			amountLabel: formatMoney(amount),
 			muted: name === "Otros",
@@ -63,4 +54,18 @@ export function useHomeView(): HomeView {
 						categoriesLine: `Categorías: ${deductibles.categoryNames.join(", ")}.`,
 					},
 	};
+}
+
+export function useHomeView(): HomeView {
+	const month = currentLimaMonth();
+	const { data, isPending, isError } = useHomeSummary(month);
+
+	if (isPending) return { kind: "loading" };
+	if (isError) {
+		return { kind: "error", message: "No pudimos cargar tu resumen." };
+	}
+	if (data.documentCount === 0) {
+		return { kind: "empty", monthLabel: monthLabel(data.month) };
+	}
+	return toReadyView(data);
 }

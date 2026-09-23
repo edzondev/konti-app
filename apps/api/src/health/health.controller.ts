@@ -1,12 +1,12 @@
 import { Controller, Get, ServiceUnavailableException } from "@nestjs/common";
+import { InjectDrizzle } from "@nestjs/drizzle";
 import { sql } from "drizzle-orm";
-import { InjectDatabase } from "../database/database.decorators.js";
 import type { Database } from "../database/database.types.js";
 
 @Controller("health")
 export class HealthController {
 	constructor(
-		@InjectDatabase()
+		@InjectDrizzle()
 		private readonly db: Database,
 	) {}
 

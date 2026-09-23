@@ -15,8 +15,13 @@ export interface AuthUser {
 	name: string;
 }
 
+export interface AuthSession {
+	id: string;
+}
+
 export interface AuthedRequest extends Request {
 	user: AuthUser;
+	session: AuthSession;
 }
 
 @Injectable()
@@ -33,6 +38,7 @@ export class AuthGuard implements CanActivate {
 		if (!session) throw new UnauthorizedException();
 
 		request.user = session.user;
+		request.session = { id: session.session.id };
 		return true;
 	}
 }

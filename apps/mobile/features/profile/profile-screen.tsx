@@ -3,7 +3,7 @@ import { Linking, Pressable, ScrollView, Text, View } from "react-native";
 
 import { DeleteAccountSheet } from "@/features/profile/delete-account-sheet";
 import { PRIVACY_POLICY_URL, TERMS_URL } from "@/features/profile/legal";
-import { ProfileRow, ProfileSection, ProfileValue } from "@/features/profile/profile-rows";
+import { ProfileRow, ProfileSection } from "@/features/profile/profile-rows";
 import { useCurrentUser } from "@/features/profile/use-current-user";
 import { useDeleteAccount } from "@/features/profile/use-delete-account";
 import { useSignOut } from "@/features/profile/use-sign-out";
@@ -50,10 +50,6 @@ export function ProfileScreen() {
 					</View>
 				</View>
 
-				<ProfileSection title="PLAN">
-					<ProfileRow label="Tu plan" trailing={<ProfileValue>Gratis</ProfileValue>} border={false} />
-				</ProfileSection>
-
 				<ProfileSection title="CUENTA">
 					<ProfileRow
 						label="Privacidad y datos"
@@ -67,7 +63,7 @@ export function ProfileScreen() {
 
 				<ProfileSection title="LEGAL">
 					<ProfileRow
-						label="Términos"
+						label="Términos y condiciones"
 						onPress={() => {
 							void Linking.openURL(TERMS_URL);
 						}}

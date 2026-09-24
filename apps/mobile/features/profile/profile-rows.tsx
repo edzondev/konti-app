@@ -87,7 +87,3 @@ export function ProfileRow({
 		</Pressable>
 	);
 }
-
-export function ProfileValue({ children }: { children: string }) {
-	return <Text className="font-sans text-[15px] text-konti-ink-muted">{children}</Text>;
-}

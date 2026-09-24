@@ -4,6 +4,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
 import { QueryProvider } from "./query-provider";
+import { ToastHost } from "./toast";
 
 const GestureHandlerRootView = withUniwind(GestureHandlerRootViewComponent);
 
@@ -12,7 +13,10 @@ export function AppProviders({ children }: PropsWithChildren) {
 		<SafeAreaProvider initialMetrics={initialWindowMetrics}>
 			<GestureHandlerRootView className="flex-1">
 				<KeyboardProvider preload={false}>
-					<QueryProvider>{children}</QueryProvider>
+					<QueryProvider>
+						{children}
+						<ToastHost />
+					</QueryProvider>
 				</KeyboardProvider>
 			</GestureHandlerRootView>
 		</SafeAreaProvider>

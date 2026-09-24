@@ -5,4 +5,5 @@ export const QUERY_KEYS = {
 	documentsMonth: (month: string) => [...QUERY_KEYS.documents, month] as const,
 	documentImage: (id: string) => [...QUERY_KEYS.documents, "image", id] as const,
 	deductiblesYear: (year: number) => ["deductibles", "year", year] as const,
+	sessions: ["sessions"] as const,
 } as const;

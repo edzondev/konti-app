@@ -1,0 +1,19 @@
+---
+import { routes } from "../lib/links";
+---
+
+<header
+	class="mx-auto box-border flex max-w-[1200px] items-center justify-between gap-4 px-[clamp(24px,4vw,48px)] py-6"
+>
+	<a
+		href={routes.home}
+		class="text-[24px] font-normal tracking-[-0.04em] text-konti-ink"
+	>
+		kont<span class="text-konti-accent">i</span>
+	</a>
+	<nav class="flex items-center gap-x-[clamp(16px,3vw,32px)] text-[14px]">
+		<a href={routes.comoFunciona} class="text-konti-muted">Cómo funciona</a>
+		<a href={routes.faq} class="text-konti-muted">Preguntas</a>
+		<a href={routes.descargar} class="font-medium text-konti-ink">Descargar</a>
+	</nav>
+</header>

@@ -1,0 +1,29 @@
+---
+import FaqAccordion from './FaqAccordion';
+---
+
+<section id="faq" class="py-section">
+	<div
+		class="mx-auto flex max-w-[1200px] flex-wrap gap-y-12 gap-x-[clamp(40px,6vw,96px)] px-gutter box-border"
+	>
+		<div class="min-w-0 flex-[1_1_300px]">
+			<div
+				class="font-mono text-[12px] uppercase tracking-[0.16em] text-konti-muted"
+			>
+				Preguntas
+			</div>
+			<h2
+				class="mt-5 mb-0 text-title font-light tracking-[-0.035em] leading-[1.1] text-balance"
+			>
+				Lo que la gente{' '}
+				<span
+					class="font-sans italic font-normal text-[1.14em] tracking-[-0.01em] text-konti-accent-deep"
+					>pregunta.</span
+				>
+			</h2>
+		</div>
+		<div class="min-w-0 flex-[2_1_520px]">
+			<FaqAccordion client:visible />
+		</div>
+	</div>
+</section>

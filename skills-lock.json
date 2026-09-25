@@ -1,0 +1,252 @@
+{
+	"version": 1,
+	"skills": {
+		"accessibility": {
+			"source": "addyosmani/web-quality-skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "bffe3d08cfe92ebad63699f74ce29e35c19850ebfbf474c1463183cfe34d6a09"
+		},
+		"best-practices": {
+			"source": "better-auth/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "0d59bc23f61ba03b850aa3b81392044c5c7fa3662a5f61b98490b20b0f14a56a"
+		},
+		"brainstorming": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/brainstorming/SKILL.md",
+			"computedHash": "fef7f05d17a88e6b498f24d1b2081880a4666a664cc49881f56527808f26fbd6"
+		},
+		"building-native-ui": {
+			"source": "expo/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "5bfac6ea4750cb2bf6d2b703ebb8d524d447c80f9e7bf9b5a55f6f7544e6c246"
+		},
+		"caveman": {
+			"source": "juliusbrussee/caveman",
+			"sourceType": "github",
+			"skillPath": "skills/caveman/SKILL.md",
+			"computedHash": "43ab924e4422a09c24d16dc81349771513bc801c1be21077c252952fe753e6b6"
+		},
+		"composition-patterns": {
+			"source": "vercel-labs/agent-skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "c124390cc3441844903ada94cb5820b23d922f2d0ad34e01e029e410197c8a32"
+		},
+		"design-mobile-apps": {
+			"source": "sleekdotdesign/agent-skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "8ad96e3ae91f09355837322681a0bcb01ab6caadb7a6db663b47bf7185c72ea3"
+		},
+		"dispatching-parallel-agents": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/dispatching-parallel-agents/SKILL.md",
+			"computedHash": "b011107f17188e0b2898bb1856b5bac8b49537cc86e737c82126558a235bd62a"
+		},
+		"drizzle": {
+			"source": "bobmatnyc/claude-mpm-skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "ee38c0b7737febd7409d84e613099a0f276e215e0bbda418b2593786ea8a4754"
+		},
+		"emailAndPassword": {
+			"source": "better-auth/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "1cbc9527756aa933c0f2f5ad7f18fe493f78ef0f4b6f073b624fbf6ccbd463c9"
+		},
+		"executing-plans": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/executing-plans/SKILL.md",
+			"computedHash": "94e9cac359a40652ba8986bd418911bf0331e3aad9c3233740f39594d0d56340"
+		},
+		"expo-api-routes": {
+			"source": "expo/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "8b4ce4d0ab40f0633dfc202c2b91bcf4c6d318393634a37960c37b1c2f9d7893"
+		},
+		"expo-cicd-workflows": {
+			"source": "expo/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "09dffe4e7c971274eb3cad655e3bf157b7473d1fce996057730573b0bedf7c5e"
+		},
+		"expo-deployment": {
+			"source": "expo/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "b9a9d3cffec27445ddaac16599f4bc17d2f29438c1d938d11d70a788f82ee8ea"
+		},
+		"expo-dev-client": {
+			"source": "expo/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "d6a174489d3e438ad337955c304d2241d54971c6996f213f1381176b125106ca"
+		},
+		"expo-tailwind-setup": {
+			"source": "expo/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "420489ebf1b3a954ff71d6794819ba212d4b64d8d47c4f0db9a4bc30d25f194b"
+		},
+		"finishing-a-development-branch": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/finishing-a-development-branch/SKILL.md",
+			"computedHash": "4f571e7befb8b0946d9d7770232c818812412e9ab1dfb811f847edfba1fc6275"
+		},
+		"frontend-design": {
+			"source": "anthropics/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "82fb11a63fb1e35ee2469516ed02d54695f783115b1540c0e783197af4240a3a"
+		},
+		"native-data-fetching": {
+			"source": "expo/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "ce74c0616f566814d0c9a82585817719f39f82853bf1a50c9e590e0c7c7051f4"
+		},
+		"nestjs-best-practices": {
+			"source": "kadajett/agent-nestjs-skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "7f14f088a79090183152c2aa556f708b2f5b7d0dacfb0ad339df2d498ba52aa3"
+		},
+		"nodejs-backend-patterns": {
+			"source": "wshobson/agents",
+			"sourceType": "autoskills-registry",
+			"computedHash": "710a5e6f83c46e8f6c43356df55c143a7375c4414559a581654ce51709138c55"
+		},
+		"nodejs-best-practices": {
+			"source": "sickn33/antigravity-awesome-skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "7361ab02fb6b09913e3bdd9cf61c629ed6c17de9485e6a781054e5d437ccfc29"
+		},
+		"nodejs-express-server": {
+			"source": "aj-geddes/useful-ai-prompts",
+			"sourceType": "autoskills-registry",
+			"computedHash": "b15b3e6dda23d3f3c230285a122de9df3aabae6408dc2bd52038445e60ba745e"
+		},
+		"organization": {
+			"source": "better-auth/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "74bd4e58dd4b66466f79cf0d00a5e75d5ca81b98c0461ee8cd7faba7d8dc16fa"
+		},
+		"ponytail": {
+			"source": "dietrichgebert/ponytail",
+			"sourceType": "github",
+			"skillPath": "skills/ponytail/SKILL.md",
+			"computedHash": "9e8d05cbbaf6dc38f0cffc924c09b3cbe76d94ba4ba0d09bde803da2f8c6b5a0"
+		},
+		"react-best-practices": {
+			"source": "vercel-labs/agent-skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "502eb06700e2c3cb1bd7f710860528f72281320bd5171a2087b05a090b573dc1"
+		},
+		"receiving-code-review": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/receiving-code-review/SKILL.md",
+			"computedHash": "59361179fc9225173e0c145ffd9bafbf9fdbf8b43ce3dc308497a0b4f83a6063"
+		},
+		"requesting-code-review": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/requesting-code-review/SKILL.md",
+			"computedHash": "2abaeac1de432c76abda0ca7ba618901d2e94f8817b3650f9c523acea2d224f5"
+		},
+		"seo": {
+			"source": "addyosmani/web-quality-skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "c184da724d1c61ad077f27418ea8e7e88fd54bcdf98165e18be7e4681cbd5e20"
+		},
+		"subagent-driven-development": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/subagent-driven-development/SKILL.md",
+			"computedHash": "aacfc60b54e36c583bcc0746ba0d92cb8eb648728e4882e1d67b913ba7218536"
+		},
+		"systematic-debugging": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/systematic-debugging/SKILL.md",
+			"computedHash": "3589907ee34dc8b1b7223a33fac98ab841a9e42f9960ab4433a832f0c6f00be0"
+		},
+		"tailwind-css-patterns": {
+			"source": "giuseppe-trisciuoglio/developer-kit",
+			"sourceType": "autoskills-registry",
+			"computedHash": "8fd534b64b3f305ade80c207e2f9ba4338d5e409e355af9f724c36764b6709c1"
+		},
+		"test-driven-development": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/test-driven-development/SKILL.md",
+			"computedHash": "3cfe4ebb6fa7288f668d87880d279c8e48f7a92b63415e296857060f5ce22e05"
+		},
+		"turborepo": {
+			"source": "vercel/turborepo",
+			"sourceType": "autoskills-registry",
+			"computedHash": "341f67c77a99b473c48207db023503509de7955af1517ce39e17b21a0127d79c"
+		},
+		"twoFactor": {
+			"source": "better-auth/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "85230144b20eed676d0cbe8d28997cb9ccc0b293517204215adad0d74fae9a9d"
+		},
+		"typescript-advanced-types": {
+			"source": "wshobson/agents",
+			"sourceType": "autoskills-registry",
+			"computedHash": "5ca0e177c6aaaba1889255691224daafdb7d71f317cc70bede1590d3907ded42"
+		},
+		"uniwind": {
+			"source": "uni-stack/uniwind",
+			"sourceType": "github",
+			"skillPath": "skills/uniwind/SKILL.md",
+			"computedHash": "4f3d033154e0ecb4e9cb8ffd9d273884002fa9b499123dceb894623b0eadc859"
+		},
+		"upgrading-expo": {
+			"source": "expo/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "e0248389b6ad8b07da953c5d790021b8f241e5769f9358ba03c2ec2bd3c8e423"
+		},
+		"use-dom": {
+			"source": "expo/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "77b56e964db680ac3efc8e11bba139d199285b08ecc5d94a6c433069537251d3"
+		},
+		"using-superpowers": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/using-superpowers/SKILL.md",
+			"computedHash": "ef8670c2a2d8e2f6ed52d6f3219759903300ca13afc5ec2e25826a735112562b"
+		},
+		"vercel-react-native-skills": {
+			"source": "vercel-labs/agent-skills",
+			"sourceType": "github",
+			"skillPath": "skills/react-native-skills/SKILL.md",
+			"computedHash": "a804b4e848059822638c390359976f7021380bcefb1469d473aa4e9202c15ecb"
+		},
+		"verification-before-completion": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/verification-before-completion/SKILL.md",
+			"computedHash": "b529822bdac4b197b180fe12225cff86b930b65910435103c10622df7f041651"
+		},
+		"vitest": {
+			"source": "antfu/skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "be7329a28a492b802061206c2d75603ab294f25f541bc5421d5de8d41abe68b1"
+		},
+		"writing-plans": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/writing-plans/SKILL.md",
+			"computedHash": "cc8517a6bc569a0633b585649291688217b8a65d547c2ac5fa0923e56ecffa8c"
+		},
+		"writing-skills": {
+			"source": "obra/superpowers",
+			"sourceType": "github",
+			"skillPath": "skills/writing-skills/SKILL.md",
+			"computedHash": "7a13d9b3fd40e886c97f4b467ccc0f5edce03d606ea0dedc72d568d6e813e206"
+		},
+		"zod": {
+			"source": "pproenca/dot-skills",
+			"sourceType": "autoskills-registry",
+			"computedHash": "aa8a97195b07763d37494b511f48be90979fd6826c031956c831cfc58f6a24b8"
+		}
+	}
+}

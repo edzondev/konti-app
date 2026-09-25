@@ -1,0 +1,50 @@
+---
+import { CONTACT_EMAIL, routes } from "../lib/links";
+---
+
+<footer class="mx-auto max-w-[1200px] px-gutter pt-[72px] pb-10 box-border">
+	<div
+		class="grid gap-10 [grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))]"
+	>
+		<div class="col-span-1">
+			<a href={routes.home} class="text-[24px] tracking-[-0.04em] text-konti-ink">
+				kont<span class="text-konti-accent">i</span>
+			</a>
+			<div class="mt-2.5 max-w-[220px] text-[14px] leading-[1.5] text-konti-muted">
+				Tu mini contador personal.
+			</div>
+		</div>
+		<div class="flex flex-col gap-3 text-[14px]">
+			<span
+				class="mb-1 font-mono text-[11px] uppercase tracking-[0.16em] text-[rgba(23,21,15,0.45)]"
+			>
+				Konti
+			</span>
+			<a href={routes.home}>Producto</a>
+			<a href={routes.comoFunciona}>Cómo funciona</a>
+			<span class="text-konti-subtle">Precios · pronto</span>
+		</div>
+		<div class="flex flex-col gap-3 text-[14px]">
+			<span
+				class="mb-1 font-mono text-[11px] uppercase tracking-[0.16em] text-[rgba(23,21,15,0.45)]"
+			>
+				Legal
+			</span>
+			<a href={routes.terminos}>Términos</a>
+			<a href={routes.privacidad}>Privacidad</a>
+		</div>
+		<div class="flex flex-col gap-3 text-[14px]">
+			<span
+				class="mb-1 font-mono text-[11px] uppercase tracking-[0.16em] text-[rgba(23,21,15,0.45)]"
+			>
+				Contacto
+			</span>
+			<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+		</div>
+	</div>
+	<div
+		class="mt-16 border-t border-[rgba(23,21,15,0.08)] pt-6 font-mono text-[12px] text-[rgba(23,21,15,0.45)]"
+	>
+		© 2026 Konti. Hecho en Perú.
+	</div>
+</footer>

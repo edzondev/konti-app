@@ -1,0 +1,59 @@
+---
+import { routes } from "../lib/links";
+---
+
+<section class="bg-konti-accent-subtle py-section-sm">
+	<div
+		class="mx-auto flex max-w-[1200px] flex-col items-center px-gutter text-center box-border"
+	>
+		<svg
+			width="48"
+			height="48"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			class="text-konti-ink"
+			stroke-width="1.1"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			aria-hidden="true"
+		>
+			<rect x="5" y="10.5" width="14" height="10" rx="2.5"></rect>
+			<path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"></path>
+			<path d="M12 14.5v2"></path>
+		</svg>
+		<h2
+			class="mt-7 mb-0 font-sans font-normal text-display-sm leading-[1.02] tracking-[-0.02em]"
+		>
+			Tus datos son <span class="italic text-konti-accent-deep">tuyos.</span>
+		</h2>
+		<div
+			class="mt-10 flex max-w-[900px] flex-wrap justify-center gap-x-10 gap-y-3 text-[17px] leading-[1.5]"
+		>
+			<span class="inline-flex items-start gap-2.5 text-left">
+				<span
+					class="mt-[9px] size-1.5 shrink-0 rounded-full bg-konti-accent"
+				></span>
+				No vendemos tus datos.
+			</span>
+			<span class="inline-flex items-start gap-2.5 text-left">
+				<span
+					class="mt-[9px] size-1.5 shrink-0 rounded-full bg-konti-accent"
+				></span>
+				No compartimos con terceros con fines comerciales.
+			</span>
+			<span class="inline-flex items-start gap-2.5 text-left">
+				<span
+					class="mt-[9px] size-1.5 shrink-0 rounded-full bg-konti-accent"
+				></span>
+				Puedes eliminar tu cuenta y todos tus datos cuando quieras.
+			</span>
+		</div>
+		<a
+			href={routes.privacidad}
+			class="mt-10 border-b border-[rgba(23,21,15,0.25)] pb-0.5 text-[15px] font-medium"
+		>
+			Leer nuestra política de privacidad →
+		</a>
+	</div>
+</section>

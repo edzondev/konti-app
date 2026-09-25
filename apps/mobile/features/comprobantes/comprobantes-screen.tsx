@@ -1,49 +1,78 @@
 import { BottomSheet, RNHostView } from "@expo/ui";
-import { useState } from "react";
-import {
-	ActivityIndicator,
-	Pressable,
-	ScrollView,
-	Text,
-	useWindowDimensions,
-	View,
-} from "react-native";
-import { useResolveClassNames } from "uniwind";
-import { shiftMonth, toListView } from "@/features/comprobantes/comprobantes-list";
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
+
+import { type ListRow } from "@/features/comprobantes/comprobantes-list";
 import { DocumentEditScreen } from "@/features/comprobantes/document-edit-screen";
 import { DocumentScreen } from "@/features/comprobantes/document-screen";
 import { MonthPicker } from "@/features/comprobantes/month-sheet";
-import { useDocuments } from "@/features/comprobantes/use-comprobantes";
-import { currentLimaMonth } from "@/features/home/home-summary";
+import { useComprobantesScreen } from "@/features/comprobantes/use-comprobantes-screen";
 import { AlertTriangle, ChevronLeft, ChevronRight, Receipt } from "@/shared/ui/reicon";
 import { UniSafeAreaView } from "@/shared/ui/safe-area";
 
-export function ComprobantesScreen() {
-	const latestMonth = currentLimaMonth();
-	const [month, setMonth] = useState(latestMonth);
-	const [pickerOpen, setPickerOpen] = useState(false);
-	const [documentId, setDocumentId] = useState<string | null>(null);
-	const [editing, setEditing] = useState(false);
-	const { height } = useWindowDimensions();
-	const sheetBackground = useResolveClassNames("bg-konti-bg");
-	const documentsQuery = useDocuments(month);
+function DocumentRows({ rows, onOpen }: { rows: ListRow[]; onOpen: (id: string) => void }) {
+	return rows.map((row) => (
+		<Pressable
+			key={row.id}
+			accessibilityRole="button"
+			accessibilityLabel={row.title}
+			onPress={() => onOpen(row.id)}
+			className={
+				row.kind === "failed"
+					? "mt-2 flex-row items-center gap-3 rounded-2xl border border-konti-amber bg-konti-surface-raised px-3 py-3"
+					: "mt-2 flex-row items-center gap-3 rounded-2xl bg-konti-surface-raised px-3 py-3"
+			}
+		>
+			{row.kind === "ready" ? (
+				<Receipt colorClassName="accent-konti-ink-muted" size={18} />
+			) : row.kind === "pending" ? (
+				<ActivityIndicator colorClassName="accent-konti-ink-muted" />
+			) : (
+				<AlertTriangle colorClassName="accent-konti-amber" size={18} />
+			)}
+			<View className="flex-1">
+				<Text className="font-sans-medium text-[15px] text-konti-ink">{row.title}</Text>
+				<Text className="text-[13px] text-konti-ink-muted">{row.subtitle}</Text>
+			</View>
+			{row.kind === "ready" ? (
+				<Text className="font-sans-medium text-konti-ink" selectable>
+					{row.amountLabel}
+				</Text>
+			) : null}
+		</Pressable>
+	));
+}
 
-	const selectedDocument = documentsQuery.data?.find((doc) => doc.id === documentId) ?? null;
-	const view = toListView(
-		documentsQuery.isPending
-			? { status: "pending", month }
-			: documentsQuery.isError
-				? { status: "error", month }
-				: { status: "success", documents: documentsQuery.data ?? [], month },
-	);
+export function ComprobantesScreen() {
+	const {
+		view,
+		month,
+		pickerOpen,
+		selectedDocument,
+		editing,
+		height,
+		sheetBackground,
+		refreshing,
+		onRefresh,
+		goToPreviousMonth,
+		goToNextMonth,
+		openPicker,
+		closePicker,
+		selectMonth,
+		openDocument,
+		closeDocument,
+		startEditing,
+		stopEditing,
+	} = useComprobantesScreen();
 
 	return (
 		<UniSafeAreaView className="flex-1 bg-konti-bg" edges={["top"]}>
 			<ScrollView
 				className="flex-1"
-				contentContainerClassName={view.kind === "empty" ? "grow px-6 pb-28" : "px-6 pb-28"}
+				alwaysBounceVertical
+				contentContainerClassName="grow px-6 pb-28"
 				contentInsetAdjustmentBehavior="automatic"
 				showsVerticalScrollIndicator={false}
+				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
 			>
 				<Text className="font-sans-light text-[32px] tracking-tight text-konti-ink">
 					Comprobantes
@@ -54,7 +83,7 @@ export function ComprobantesScreen() {
 						accessibilityLabel="Mes anterior"
 						accessibilityRole="button"
 						className="h-11 w-11 items-center justify-center"
-						onPress={() => setMonth(shiftMonth(month, -1))}
+						onPress={goToPreviousMonth}
 					>
 						<ChevronLeft colorClassName="accent-konti-ink-muted" size={18} />
 					</Pressable>
@@ -62,7 +91,7 @@ export function ComprobantesScreen() {
 						accessibilityLabel="Elegir mes"
 						accessibilityRole="button"
 						className="flex-1 items-center"
-						onPress={() => setPickerOpen(true)}
+						onPress={openPicker}
 					>
 						<Text className="font-sans-medium text-[15px] text-konti-ink">{view.monthLabel}</Text>
 						{view.kind === "empty" || view.kind === "ready" ? (
@@ -80,7 +109,7 @@ export function ComprobantesScreen() {
 								? "h-11 w-11 items-center justify-center"
 								: "h-11 w-11 items-center justify-center opacity-30"
 						}
-						onPress={view.canGoNext ? () => setMonth(shiftMonth(month, 1)) : undefined}
+						onPress={view.canGoNext ? goToNextMonth : undefined}
 					>
 						<ChevronRight colorClassName="accent-konti-ink-muted" size={18} />
 					</Pressable>
@@ -111,6 +140,23 @@ export function ComprobantesScreen() {
 					</View>
 				) : null}
 
+				{view.kind === "ready" && view.undatedRows.length > 0 ? (
+					<View className="mt-6">
+						<View className="flex-row items-center gap-2">
+							<View className="h-1.5 w-1.5 rounded-full bg-konti-amber" />
+							<Text className="font-mono text-[11px] uppercase tracking-[0.16em] text-konti-ink-muted">
+								Sin fecha
+							</Text>
+						</View>
+						<Text className="mt-2 text-[15px] leading-6 text-konti-ink-muted">
+							{view.undatedRows.length === 1
+								? "Complétala para ver si deduce."
+								: "Complétalas para ver si deducen."}
+						</Text>
+						<DocumentRows rows={view.undatedRows} onOpen={openDocument} />
+					</View>
+				) : null}
+
 				{view.kind === "ready"
 					? view.sections.map((section) => (
 							<View key={section.title} className="mt-6">
@@ -120,66 +166,23 @@ export function ComprobantesScreen() {
 										{section.title}
 									</Text>
 								</View>
-								{section.rows.map((row) => (
-									<Pressable
-										key={row.id}
-										accessibilityRole="button"
-										accessibilityLabel={row.title}
-										onPress={() => {
-											setEditing(false);
-											setDocumentId(row.id);
-										}}
-										className={
-											row.kind === "failed"
-												? "mt-2 flex-row items-center gap-3 rounded-2xl border border-konti-amber bg-konti-surface-raised px-3 py-3"
-												: "mt-2 flex-row items-center gap-3 rounded-2xl bg-konti-surface-raised px-3 py-3"
-										}
-									>
-										{row.kind === "ready" ? (
-											<Receipt colorClassName="accent-konti-ink-muted" size={18} />
-										) : row.kind === "pending" ? (
-											<ActivityIndicator colorClassName="accent-konti-ink-muted" />
-										) : (
-											<AlertTriangle colorClassName="accent-konti-amber" size={18} />
-										)}
-										<View className="flex-1">
-											<Text className="font-sans-medium text-[15px] text-konti-ink">
-												{row.title}
-											</Text>
-											<Text className="text-[13px] text-konti-ink-muted">{row.subtitle}</Text>
-										</View>
-										{row.kind === "ready" ? (
-											<Text className="font-sans-medium text-konti-ink" selectable>
-												{row.amountLabel}
-											</Text>
-										) : null}
-									</Pressable>
-								))}
+								<DocumentRows rows={section.rows} onOpen={openDocument} />
 							</View>
 						))
 					: null}
 			</ScrollView>
 			<BottomSheet
 				isPresented={pickerOpen}
-				onDismiss={() => setPickerOpen(false)}
+				onDismiss={closePicker}
 				containerColor={sheetBackground.backgroundColor}
 			>
 				<RNHostView matchContents>
-					<MonthPicker
-						month={month}
-						onSelect={(value) => {
-							setMonth(value);
-							setPickerOpen(false);
-						}}
-					/>
+					<MonthPicker month={month} onSelect={selectMonth} />
 				</RNHostView>
 			</BottomSheet>
 			<BottomSheet
 				isPresented={selectedDocument != null}
-				onDismiss={() => {
-					setDocumentId(null);
-					setEditing(false);
-				}}
+				onDismiss={closeDocument}
 				snapPoints={["full"]}
 				containerColor={sheetBackground.backgroundColor}
 			>
@@ -190,16 +193,13 @@ export function ComprobantesScreen() {
 								<DocumentEditScreen
 									key={selectedDocument.id}
 									document={selectedDocument}
-									onClose={() => setEditing(false)}
+									onClose={stopEditing}
 								/>
 							) : (
 								<DocumentScreen
 									document={selectedDocument}
-									onEdit={() => setEditing(true)}
-									onClose={() => {
-										setDocumentId(null);
-										setEditing(false);
-									}}
+									onEdit={startEditing}
+									onClose={closeDocument}
 								/>
 							)}
 						</View>

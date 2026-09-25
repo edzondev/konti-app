@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://konti.dev/sitemap-index.xml

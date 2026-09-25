@@ -194,8 +194,8 @@ export function normalizeIssuerName(raw: string): string {
 }
 
 /**
- * Categoriza solo por nombre (pura). Busca si el nombre normalizado
- * contiene alguna clave del mapa; la más larga gana.
+ * Categoriza solo por nombre (pura). La clave normalizada tiene que
+ * coincidir como palabra o frase; la más larga gana.
  */
 export function categorizeByName(name: string | null | undefined): Category {
 	if (!name?.trim()) return "otros";
@@ -203,11 +203,13 @@ export function categorizeByName(name: string | null | undefined): Category {
 	const normalized = normalizeIssuerName(name);
 	if (!normalized) return "otros";
 
+	const haystack = ` ${normalized} `;
 	let bestKey = "";
 	let bestCategory: Category = "otros";
 
-	for (const [key, category] of Object.entries(CATEGORY_MAP)) {
-		if (normalized.includes(key) && key.length > bestKey.length) {
+	for (const [rawKey, category] of Object.entries(CATEGORY_MAP)) {
+		const key = normalizeIssuerName(rawKey);
+		if (key.length > bestKey.length && haystack.includes(` ${key} `)) {
 			bestKey = key;
 			bestCategory = category;
 		}

@@ -58,3 +58,16 @@ describe("createAuth google clientId", () => {
 		]);
 	});
 });
+
+describe("createAuth emailAndPassword", () => {
+	it("disables email and password", () => {
+		const auth = createAuth({} as Database, config() as never);
+		const emailAndPassword = (
+			auth.options as {
+				emailAndPassword: { enabled: boolean };
+			}
+		).emailAndPassword;
+
+		expect(emailAndPassword.enabled).toBe(false);
+	});
+});

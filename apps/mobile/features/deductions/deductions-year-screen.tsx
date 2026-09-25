@@ -28,7 +28,7 @@ export function DeductionsYearScreen({ year }: DeductionsYearScreenProps) {
 				<Pressable
 					accessibilityLabel="Volver"
 					accessibilityRole="button"
-					className="h-11 w-11 items-center justify-start"
+					className="-ml-2 h-11 w-11 items-start justify-center"
 					onPress={() => router.back()}
 				>
 					<ChevronLeft colorClassName="accent-konti-ink-muted" size={18} />
@@ -97,9 +97,12 @@ export function DeductionsYearScreen({ year }: DeductionsYearScreenProps) {
 									style={{ width: `${progress * 100}%` }}
 								/>
 							</View>
-							<Text className="mt-2.5 text-[13px] text-konti-ink-muted">
-								Del tope anual de 3 UIT
-							</Text>
+							<View className="mt-2.5 flex-row items-baseline justify-between gap-3">
+								<Text className="text-[13px] text-konti-ink-muted">Del tope anual de 3 UIT</Text>
+								<Text className="font-mono text-[13px] tabular-nums text-konti-ink">
+									{`S/ ${formatMoney(data.topAmount)}`}
+								</Text>
+							</View>
 						</View>
 
 						{data.categories.length > 0 ? (
@@ -130,7 +133,7 @@ export function DeductionsYearScreen({ year }: DeductionsYearScreenProps) {
 						)}
 
 						{data.totalAmount > 0 ? (
-							<View className="mt-8 rounded-[20px] border border-konti-amber bg-konti-amber-tint px-5 py-[18px]">
+							<View className="mt-8 rounded-[20px] border border-konti-amber bg-konti-amber-tint px-5 py-4.5">
 								<Text className="text-[15px] leading-6 text-konti-ink">
 									Este monto podría reducir tu impuesto anual. Confirma con tu contador.
 								</Text>

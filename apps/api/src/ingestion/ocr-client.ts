@@ -3,13 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import * as v from "valibot";
 import type { Env } from "../config/env.js";
 import type { ExtractedDocument } from "./ingestion.types.js";
-import {
-	AmountCandidateSchema,
-	DocumentNumberSchema,
-	IsoDateSchema,
-	normalizeAmountCandidate,
-	RucSchema,
-} from "./schemas.js";
+import { AmountSchema, DocumentNumberSchema, IsoDateSchema, RucSchema } from "./schemas.js";
 
 interface MistralOcrResponse {
 	pages?: Array<{ markdown?: string }>;
@@ -68,29 +62,116 @@ export class OcrClient {
 	}
 }
 
+const IMAGE_LINE = /^!\[[^\]]*]\([^)]*\)$/;
+const TOTAL_LABEL =
+	/\b(?:importe\s+a\s+pagar|importe\s+total|monto\s+total|total\s+a\s+pagar|total)\b/i;
+const IGV_LABEL = /\bigv\b/i;
+const ISSUER_NOISE =
+	/^(?:ruc|fecha|boleta|factura|ticket|recibo|serie|n(?:ú|u)mero|importe|total|igv|op\.?|cantidad|descripci[oó]n)\b/i;
+
 // Parser heurístico sobre el markdown que devuelve Mistral: extrae con regex y
 // valida cada campo con valibot. Si no encuentra un campo, lo deja en null.
-function parseMarkdown(markdown: string): ExtractedDocument {
+export function parseMarkdown(markdown: string): ExtractedDocument {
 	const lines = markdown.split("\n").map((l) => l.trim());
 
 	const ruc = markdown.match(/\b(10|15|17|20)\d{9}\b/)?.[0];
 	const dateParts = markdown.match(/\b(\d{2})[/-](\d{2})[/-](\d{4})\b/);
-	const amount = markdown.match(/total[^\d]*(\d+[.,]\d{2})/i)?.[1];
-	const igv = markdown.match(/igv[^\d]*(\d+[.,]\d{2})/i)?.[1];
+	const amount = labeledAmount(lines, TOTAL_LABEL) ?? largestAmount(markdown);
+	const igv = labeledAmount(lines, IGV_LABEL);
 	const numberParts = markdown.match(/\b([BFE]\d{3})-?(\d{1,8})\b/);
 
 	const rawDate = dateParts ? `${dateParts[3]}-${dateParts[2]}-${dateParts[1]}` : undefined;
 	const rawNumber = numberParts ? `${numberParts[1]}-${numberParts[2]}` : undefined;
 
 	return {
-		documentType: "unknown",
-		issuerName: lines[0] || null,
+		documentType: documentTypeOf(markdown),
+		issuerName: issuerNameOf(lines),
 		issuerTaxId: v.is(RucSchema, ruc) ? ruc : null,
 		issueDate: v.is(IsoDateSchema, rawDate) ? rawDate : null,
 		documentNumber: v.is(DocumentNumberSchema, rawNumber) ? rawNumber : null,
 		currencyCode: "PEN",
-		totalAmount:
-			amount && v.is(AmountCandidateSchema, amount) ? normalizeAmountCandidate(amount) : null,
-		igvAmount: igv && v.is(AmountCandidateSchema, igv) ? normalizeAmountCandidate(igv) : null,
+		totalAmount: amount ?? null,
+		igvAmount: igv ?? null,
 	};
+}
+
+function labeledAmount(lines: string[], label: RegExp): string | undefined {
+	let found: string | undefined;
+	for (let i = 0; i < lines.length; i++) {
+		const line = lines[i] ?? "";
+		if (!label.test(line)) continue;
+		const amount = moneyValues(line).at(-1) ?? amountBelow(lines, i);
+		if (amount) found = amount;
+	}
+	return found;
+}
+
+function amountBelow(lines: string[], index: number): string | undefined {
+	const end = Math.min(lines.length, index + 4);
+	for (let j = index + 1; j < end; j++) {
+		const line = lines[j] ?? "";
+		if (!line) continue;
+		return moneyOnly(line);
+	}
+	return undefined;
+}
+
+function moneyOnly(line: string): string | undefined {
+	const cleaned = line
+		.replaceAll("|", " ")
+		.replaceAll("*", " ")
+		.replace(/^#+\s*/, "")
+		.trim();
+	const values = moneyValues(cleaned);
+	if (values.length !== 1) return undefined;
+	const rest = cleaned
+		.replace(/\d{1,3}(?:[.,]\d{3})+[.,]\d{2}|\d+[.,]\d{2}/g, "")
+		.replace(/s\/\.?/gi, "")
+		.trim();
+	return rest.length === 0 ? values[0] : undefined;
+}
+
+// ponytail: el monto mayor cuando no hay total etiquetado. Falla si un precio de línea supera al total (descuento).
+function largestAmount(markdown: string): string | undefined {
+	return moneyValues(markdown).reduce<string | undefined>((best, value) => {
+		if (!best || Number(value) > Number(best)) return value;
+		return best;
+	}, undefined);
+}
+
+function moneyValues(line: string): string[] {
+	return [...line.matchAll(/\d{1,3}(?:[.,]\d{3})+[.,]\d{2}|\d+[.,]\d{2}/g)]
+		.map((match) => moneyValue(match[0]))
+		.filter((value): value is string => value !== null);
+}
+
+function moneyValue(raw: string): string | null {
+	const comma = raw.lastIndexOf(",");
+	const dot = raw.lastIndexOf(".");
+	const normalized =
+		comma > dot ? raw.replaceAll(".", "").replace(",", ".") : raw.replaceAll(",", "");
+	return v.is(AmountSchema, normalized) ? normalized : null;
+}
+
+function documentTypeOf(markdown: string): ExtractedDocument["documentType"] {
+	if (/recibo\s+(?:por\s+)?honorarios/i.test(markdown)) return "recibo_honorarios";
+	if (/\bfactura\b/i.test(markdown)) return "factura";
+	if (/\bboleta\b/i.test(markdown)) return "boleta";
+	if (/\bticket\b/i.test(markdown)) return "ticket";
+	return "unknown";
+}
+
+function issuerNameOf(lines: string[]): string | null {
+	for (const raw of lines) {
+		if (!raw || IMAGE_LINE.test(raw)) continue;
+		const line = raw
+			.replace(/^#+\s*/, "")
+			.replaceAll("*", "")
+			.trim();
+		if (!line || IMAGE_LINE.test(line) || ISSUER_NOISE.test(line)) continue;
+		if (line.startsWith("|") || /^-{3,}$/.test(line)) continue;
+		if (!/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]{3}/.test(line)) continue;
+		return line;
+	}
+	return null;
 }

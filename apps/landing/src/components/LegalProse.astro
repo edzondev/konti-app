@@ -1,0 +1,116 @@
+---
+interface Props {
+	class?: string;
+	html?: string;
+}
+
+const { class: className, html } = Astro.props;
+---
+
+{
+	html ? (
+		<div class:list={["legal-prose", className]} set:html={html} />
+	) : (
+		<div class:list={["legal-prose", className]}>
+			<slot />
+		</div>
+	)
+}
+
+<style>
+	.legal-prose :global(h2) {
+		margin: 2.5rem 0 0;
+		font-size: 1.25rem;
+		font-weight: 500;
+		letter-spacing: -0.02em;
+		line-height: 1.3;
+		color: var(--color-konti-ink);
+	}
+
+	.legal-prose :global(h3) {
+		margin: 1.75rem 0 0;
+		font-size: 1.0625rem;
+		font-weight: 500;
+		letter-spacing: -0.015em;
+		color: var(--color-konti-ink);
+	}
+
+	.legal-prose :global(p),
+	.legal-prose :global(ul),
+	.legal-prose :global(ol),
+	.legal-prose :global(table) {
+		margin: 1rem 0 0;
+		font-size: 1rem;
+		line-height: 1.65;
+		color: rgba(23, 21, 15, 0.75);
+	}
+
+	.legal-prose :global(ul),
+	.legal-prose :global(ol) {
+		padding-left: 1.25rem;
+	}
+
+	.legal-prose :global(li) {
+		margin-top: 0.5rem;
+	}
+
+	.legal-prose :global(li::marker) {
+		color: var(--color-konti-muted);
+	}
+
+	.legal-prose :global(strong) {
+		font-weight: 500;
+		color: var(--color-konti-ink);
+	}
+
+	.legal-prose :global(a) {
+		color: var(--color-konti-ink);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+		text-decoration-color: rgba(23, 21, 15, 0.25);
+	}
+
+	.legal-prose :global(a:hover) {
+		color: var(--color-konti-accent-hover);
+		text-decoration-color: var(--color-konti-accent-hover);
+	}
+
+	.legal-prose :global(table) {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.875rem;
+		line-height: 1.5;
+		overflow-x: auto;
+		display: block;
+	}
+
+	.legal-prose :global(thead) {
+		border-bottom: 1px solid rgba(23, 21, 15, 0.12);
+	}
+
+	.legal-prose :global(th),
+	.legal-prose :global(td) {
+		padding: 0.75rem 0.875rem;
+		text-align: left;
+		vertical-align: top;
+		border-bottom: 1px solid rgba(23, 21, 15, 0.08);
+	}
+
+	.legal-prose :global(th) {
+		font-family: var(--font-mono);
+		font-size: 0.6875rem;
+		font-weight: 500;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: rgba(23, 21, 15, 0.45);
+		white-space: nowrap;
+	}
+
+	.legal-prose :global(td) {
+		color: rgba(23, 21, 15, 0.75);
+	}
+
+	.legal-prose :global(tr:last-child td) {
+		border-bottom: 0;
+	}
+</style>

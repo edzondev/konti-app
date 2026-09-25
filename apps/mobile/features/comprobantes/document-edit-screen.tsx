@@ -1,21 +1,16 @@
-import { type ReactNode, useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
-import {
-	KeyboardAwareScrollView,
-	KeyboardStickyView,
-	KeyboardToolbar,
-} from "react-native-keyboard-controller";
+import { type ReactNode } from "react";
+import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 
 import { type Document } from "@/features/comprobantes/comprobantes-document";
 import {
+	CATEGORY_LABELS,
 	DOCUMENT_TYPE_LABELS,
 	type DocumentEditDraft,
 	type DraftErrors,
-	toEditDraft,
-	toUpdatePayload,
-	validateDraft,
 } from "@/features/comprobantes/document-form";
-import { useUpdateDocument } from "@/features/comprobantes/use-comprobantes";
+import { useDocumentEdit } from "@/features/comprobantes/use-document-edit";
+import { ChevronDown } from "@/shared/ui/reicon";
 
 const DOCUMENT_TYPES = ["boleta", "factura", "recibo_honorarios", "ticket"] as const;
 
@@ -23,6 +18,31 @@ function typeLabel(documentType: DocumentEditDraft["documentType"]) {
 	return DOCUMENT_TYPE_LABELS[documentType];
 }
 
+const FIELD_INPUT = "flex-1 p-0 text-right font-sans text-[15px] leading-5 text-konti-ink";
+const FIELD_ROW =
+	"min-h-11 flex-row items-center justify-between gap-3 border-b border-konti-border py-3";
+
+function SelectValue({ label, muted, open }: { label: string; muted?: boolean; open: boolean }) {
+	return (
+		<View className="min-w-0 flex-1 flex-row items-center justify-end gap-1.5">
+			<Text
+				className={
+					muted
+						? "shrink text-right font-sans text-[15px] leading-5 text-konti-ink-muted"
+						: "shrink text-right font-sans text-[15px] leading-5 text-konti-ink"
+				}
+				numberOfLines={1}
+			>
+				{label}
+			</Text>
+			<ChevronDown
+				colorClassName="accent-konti-ink-muted"
+				size={14}
+				style={open ? { transform: [{ rotate: "180deg" }] } : undefined}
+			/>
+		</View>
+	);
+}
 function FieldRow({
 	label,
 	error,
@@ -34,8 +54,8 @@ function FieldRow({
 }) {
 	return (
 		<View>
-			<View className="flex-row items-center justify-between gap-3 border-b border-konti-border py-3">
-				<Text className="w-24 text-konti-ink-muted">{label}</Text>
+			<View className={FIELD_ROW}>
+				<Text className="w-28 shrink-0 text-konti-ink-muted">{label}</Text>
 				{children}
 			</View>
 			{error ? <Text className="text-[12px] text-konti-danger">{error}</Text> : null}
@@ -47,16 +67,26 @@ function EditForm({
 	draft,
 	fieldErrors,
 	typesOpen,
+	categoriesOpen,
 	onChange,
 	onToggleTypes,
 	onPickType,
+	onToggleCategories,
+	onPickCategory,
+	onFocusFooterField,
+	onBlurFooterField,
 }: {
 	draft: DocumentEditDraft;
 	fieldErrors: DraftErrors;
 	typesOpen: boolean;
+	categoriesOpen: boolean;
 	onChange: (key: keyof DocumentEditDraft, value: string) => void;
 	onToggleTypes: () => void;
 	onPickType: (value: DocumentEditDraft["documentType"]) => void;
+	onToggleCategories: () => void;
+	onPickCategory: (value: Document["category"]) => void;
+	onFocusFooterField: () => void;
+	onBlurFooterField: () => void;
 }) {
 	const currentType = typeLabel(draft.documentType);
 
@@ -80,14 +110,14 @@ function EditForm({
 					<TextInput
 						value={draft.issuerName}
 						onChangeText={(value) => onChange("issuerName", value)}
-						className="flex-1 text-right font-sans text-[15px] text-konti-ink"
+						className={FIELD_INPUT}
 					/>
 				</FieldRow>
 				<FieldRow label="RUC" error={fieldErrors.issuerTaxId}>
 					<TextInput
 						value={draft.issuerTaxId}
 						onChangeText={(value) => onChange("issuerTaxId", value)}
-						className="flex-1 text-right font-sans text-[15px] text-konti-ink"
+						className={FIELD_INPUT}
 					/>
 				</FieldRow>
 				<FieldRow label="Fecha" error={fieldErrors.issueDate}>
@@ -95,25 +125,24 @@ function EditForm({
 						value={draft.issueDate}
 						onChangeText={(value) => onChange("issueDate", value)}
 						placeholder="dd/mm/aaaa"
-						className="flex-1 text-right font-sans text-[15px] text-konti-ink"
+						className={FIELD_INPUT}
 					/>
 				</FieldRow>
 				<View>
-					<Pressable
-						onPress={onToggleTypes}
-						className="flex-row items-center justify-between gap-3 border-b border-konti-border py-3"
-					>
-						<Text className="w-24 text-konti-ink-muted">Tipo</Text>
-						<Text
-							className={
-								currentType === "Sin completar" ? "text-konti-ink-muted" : "text-konti-ink"
-							}
-						>
-							{currentType}
-						</Text>
+					<Pressable onPress={onToggleTypes} className={FIELD_ROW}>
+						<Text className="w-28 shrink-0 text-konti-ink-muted">Tipo</Text>
+						<SelectValue
+							label={currentType}
+							muted={currentType === "Sin completar"}
+							open={typesOpen}
+						/>
 					</Pressable>
 					{typesOpen ? (
-						<View className="border-b border-konti-border">
+						<Animated.View
+							entering={FadeInDown.duration(180)}
+							exiting={FadeOutUp.duration(120)}
+							className="border-b border-konti-border"
+						>
 							{DOCUMENT_TYPES.map((documentType) => {
 								const selected = draft.documentType === documentType;
 								return (
@@ -124,7 +153,9 @@ function EditForm({
 									>
 										<Text
 											className={
-												selected ? "text-right text-konti-ink" : "text-right text-konti-ink-muted"
+												selected
+													? "text-right font-sans text-[15px] leading-5 text-konti-ink"
+													: "text-right font-sans text-[15px] leading-5 text-konti-ink-muted"
 											}
 										>
 											{DOCUMENT_TYPE_LABELS[documentType]}
@@ -132,14 +163,48 @@ function EditForm({
 									</Pressable>
 								);
 							})}
-						</View>
+						</Animated.View>
 					) : null}
 				</View>
-				<FieldRow label="Número">
+				<View>
+					<Pressable onPress={onToggleCategories} className={FIELD_ROW}>
+						<Text className="w-28 shrink-0 text-konti-ink-muted">Categoría</Text>
+						<SelectValue label={CATEGORY_LABELS[draft.category]} open={categoriesOpen} />
+					</Pressable>
+					{categoriesOpen ? (
+						<Animated.View
+							entering={FadeInDown.duration(180)}
+							exiting={FadeOutUp.duration(120)}
+							className="border-b border-konti-border"
+						>
+							{(Object.keys(CATEGORY_LABELS) as Document["category"][]).map((category) => {
+								const selected = draft.category === category;
+								return (
+									<Pressable
+										key={category}
+										onPress={() => onPickCategory(category)}
+										className="py-3"
+									>
+										<Text
+											className={
+												selected
+													? "text-right font-sans text-[15px] leading-5 text-konti-ink"
+													: "text-right font-sans text-[15px] leading-5 text-konti-ink-muted"
+											}
+										>
+											{CATEGORY_LABELS[category]}
+										</Text>
+									</Pressable>
+								);
+							})}
+						</Animated.View>
+					) : null}
+				</View>
+				<FieldRow label="Número boleta">
 					<TextInput
 						value={draft.documentNumber}
 						onChangeText={(value) => onChange("documentNumber", value)}
-						className="flex-1 text-right font-sans text-[15px] text-konti-ink"
+						className={FIELD_INPUT}
 					/>
 				</FieldRow>
 				<FieldRow label="Monto" error={fieldErrors.totalAmount}>
@@ -147,7 +212,9 @@ function EditForm({
 						value={draft.totalAmount}
 						onChangeText={(value) => onChange("totalAmount", value)}
 						keyboardType="decimal-pad"
-						className="flex-1 text-right font-sans text-[15px] text-konti-ink"
+						onFocus={onFocusFooterField}
+						onBlur={onBlurFooterField}
+						className={FIELD_INPUT}
 					/>
 				</FieldRow>
 				<FieldRow label="IGV" error={fieldErrors.igvAmount}>
@@ -157,7 +224,9 @@ function EditForm({
 						placeholder="Sin completar"
 						placeholderTextColorClassName="accent-konti-ink-faint"
 						keyboardType="decimal-pad"
-						className="flex-1 text-right font-sans text-[15px] text-konti-ink"
+						onFocus={onFocusFooterField}
+						onBlur={onBlurFooterField}
+						className={FIELD_INPUT}
 					/>
 				</FieldRow>
 			</View>
@@ -170,81 +239,73 @@ export function DocumentEditScreen({
 	onClose,
 }: {
 	document: Document;
-	onClose: () => void;
+	onClose: (updated?: Document) => void;
 }) {
-	const update = useUpdateDocument(document.id);
-	const [draft, setDraft] = useState(() => toEditDraft(document));
-	const [fieldErrors, setFieldErrors] = useState<DraftErrors>({});
-	const [typesOpen, setTypesOpen] = useState(false);
-
-	function onChange(key: keyof DocumentEditDraft, value: string) {
-		if (update.isError) update.reset();
-		setDraft((current) => ({ ...current, [key]: value }));
-	}
-
-	function onSave() {
-		if (update.isPending) return;
-		const errors = validateDraft(draft);
-		if (Object.values(errors).some(Boolean)) {
-			setFieldErrors(errors);
-			return;
-		}
-		setFieldErrors({});
-		const payload = toUpdatePayload(document, draft);
-		if (payload === null) {
-			onClose();
-			return;
-		}
-		update.mutate(payload, { onSuccess: onClose });
-	}
+	const {
+		draft,
+		fieldErrors,
+		typesOpen,
+		categoriesOpen,
+		paddingBottom,
+		scrollRef,
+		isPending,
+		isError,
+		onChange,
+		focusFooterField,
+		blurFooterField,
+		onToggleTypes,
+		onPickType,
+		onToggleCategories,
+		onPickCategory,
+		onLayout,
+		onSave,
+	} = useDocumentEdit(document, onClose);
 
 	return (
-		<View className="flex-1 bg-konti-bg">
-			<KeyboardAwareScrollView
+		<View className="flex-1 bg-konti-bg" style={{ paddingBottom }}>
+			<ScrollView
+				ref={scrollRef}
 				className="flex-1"
-				bottomOffset={24}
-				contentInsetAdjustmentBehavior="automatic"
 				contentContainerClassName="px-2 pb-6"
-				extraKeyboardSpace={88}
+				contentInsetAdjustmentBehavior="automatic"
+				keyboardShouldPersistTaps="handled"
+				onLayout={onLayout}
 			>
 				<EditForm
 					draft={draft}
 					fieldErrors={fieldErrors}
 					typesOpen={typesOpen}
+					categoriesOpen={categoriesOpen}
 					onChange={onChange}
-					onToggleTypes={() => setTypesOpen((open) => !open)}
-					onPickType={(value) => {
-						onChange("documentType", value);
-						setTypesOpen(false);
-					}}
+					onFocusFooterField={focusFooterField}
+					onBlurFooterField={blurFooterField}
+					onToggleTypes={onToggleTypes}
+					onPickType={onPickType}
+					onToggleCategories={onToggleCategories}
+					onPickCategory={onPickCategory}
 				/>
-			</KeyboardAwareScrollView>
-			<KeyboardStickyView offset={{ opened: 8 }}>
-				<View className="border-t border-konti-border bg-konti-bg px-5 pb-3 pt-3">
-					<Pressable
-						disabled={update.isPending}
-						onPress={onSave}
-						className={
-							update.isPending
-								? "h-14 items-center justify-center rounded-full bg-konti-ink opacity-50"
-								: "h-14 items-center justify-center rounded-full bg-konti-ink"
-						}
-					>
-						<Text className="font-sans-medium text-konti-on-ink">Guardar cambios</Text>
-					</Pressable>
-					{update.isError ? (
-						<Text className="mt-3 text-center text-[12px] text-konti-danger">
-							No pudimos guardar los cambios.
-						</Text>
-					) : null}
-					<Pressable onPress={onClose}>
-						<Text className="mt-3 text-center text-konti-ink-muted">Cancelar</Text>
-					</Pressable>
-				</View>
-			</KeyboardStickyView>
-			<KeyboardToolbar>
-				<KeyboardToolbar.Done text="Listo" />
-			</KeyboardToolbar>
+			</ScrollView>
+			<View className="border-t border-konti-border bg-konti-bg px-5 pb-5 pt-4">
+				<Pressable
+					disabled={isPending}
+					onPress={onSave}
+					className={
+						isPending
+							? "h-14 items-center justify-center rounded-full bg-konti-ink opacity-50"
+							: "h-14 items-center justify-center rounded-full bg-konti-ink"
+					}
+				>
+					<Text className="font-sans-medium text-konti-on-ink">Guardar cambios</Text>
+				</Pressable>
+				{isError ? (
+					<Text className="mt-3 text-center text-[12px] text-konti-danger">
+						No pudimos guardar los cambios.
+					</Text>
+				) : null}
+				<Pressable onPress={() => onClose()} className="mt-5 py-2">
+					<Text className="text-center text-konti-ink-muted">Cancelar</Text>
+				</Pressable>
+			</View>
 		</View>
 	);
 }

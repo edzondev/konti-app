@@ -5,6 +5,7 @@ import {
 	formatClock,
 	groupDocuments,
 	toListView,
+	undatedDeductibleNote,
 } from "@/features/comprobantes/comprobantes-list";
 
 const now = new Date("2026-09-22T15:00:00.000Z");
@@ -15,6 +16,7 @@ function doc(partial: Partial<Document> & Pick<Document, "id">): Document {
 		source: "camera",
 		documentType: "boleta",
 		category: "otros",
+		extractionSource: null,
 		issuerName: null,
 		issuerTaxId: null,
 		issueDate: null,
@@ -60,6 +62,15 @@ describe("groupDocuments", () => {
 		expect(groups.some((g) => g.title === "Hoy")).toBe(false);
 		expect(groups.some((g) => g.title === "Esta semana")).toBe(false);
 		expect(groups.some((g) => g.title === "Semana pasada")).toBe(false);
+	});
+
+	it("keeps a deductible receipt without a date out of the week groups", () => {
+		const groups = groupDocuments(
+			[doc({ id: "1", issueDate: null, category: "restaurantes", createdAt: "2026-09-23T00:22:00.000Z" })],
+			"2026-09",
+			now,
+		);
+		expect(groups).toHaveLength(0);
 	});
 
 	it("falls back to createdAt Lima day when issueDate is null", () => {
@@ -173,6 +184,7 @@ describe("toListView", () => {
 				doc({
 					id: "1",
 					status: "pending",
+					extractionSource: "ocr",
 					createdAt: "2026-09-23T00:22:00.000Z",
 				}),
 			],
@@ -186,6 +198,32 @@ describe("toListView", () => {
 			id: "1",
 			title: "Procesando...",
 			subtitle: "Leyendo la foto · Hoy, 7:22 p.m.",
+		});
+	});
+
+	it("maps a manual pending row to complete-by-hand copy", () => {
+		const view = toListView({
+			status: "success",
+			month: "2026-09",
+			now,
+			documents: [
+				doc({
+					id: "1",
+					status: "pending",
+					extractionSource: "manual",
+					createdAt: "2026-09-23T00:22:00.000Z",
+				}),
+			],
+		});
+
+		expect(view.kind).toBe("ready");
+		if (view.kind !== "ready") return;
+		const row = view.sections[0]?.rows[0];
+		expect(row).toEqual({
+			kind: "pending",
+			id: "1",
+			title: "Completar datos",
+			subtitle: "Ingresa los campos · Hoy, 7:22 p.m.",
 		});
 	});
 
@@ -217,6 +255,80 @@ describe("toListView", () => {
 			kind: "error",
 			message: "No pudimos cargar tus comprobantes.",
 		});
+	});
+
+	it("lists deductible receipts without a date apart from dated sections", () => {
+		const view = toListView({
+			status: "success",
+			month: "2026-09",
+			now,
+			documents: [
+				doc({
+					id: "1",
+					status: "ready",
+					category: "restaurantes",
+					issuerName: "Osaka",
+					issueDate: null,
+					totalAmount: "80.00",
+					createdAt: "2026-09-23T00:22:00.000Z",
+				}),
+				doc({
+					id: "2",
+					status: "ready",
+					category: "supermercado",
+					issueDate: "2026-09-22",
+					totalAmount: "10.00",
+				}),
+			],
+		});
+
+		expect(view.kind).toBe("ready");
+		if (view.kind !== "ready") return;
+		expect(view.undatedRows).toEqual([
+			{
+				kind: "ready",
+				id: "1",
+				title: "Osaka",
+				subtitle: "Restaurantes · Sin fecha",
+				amountLabel: "80.00",
+			},
+		]);
+		expect(view.sections.some((section) => section.rows.some((row) => row.id === "1"))).toBe(false);
+	});
+
+	it("names one or two undated receipts and counts the rest", () => {
+		const osaka = doc({
+			id: "1",
+			status: "ready",
+			category: "restaurantes",
+			issuerName: "Osaka",
+			issueDate: null,
+		});
+		const clinic = doc({
+			id: "2",
+			status: "ready",
+			category: "servicios_medicos",
+			issuerName: "Clínica",
+			issueDate: null,
+		});
+		const lawyer = doc({
+			id: "3",
+			status: "ready",
+			category: "servicios_profesionales",
+			issuerName: "Estudio",
+			issueDate: null,
+		});
+
+		expect(undatedDeductibleNote([osaka])).toBe(
+			"Osaka sin fecha. Complétala para ver si deduce.",
+		);
+		expect(undatedDeductibleNote([osaka, clinic])).toBe(
+			"Osaka y Clínica sin fecha. Complétalas para ver si deducen.",
+		);
+		expect(undatedDeductibleNote([osaka, clinic, lawyer])).toBe(
+			"3 boletas sin fecha. Complétalas para ver si deducen.",
+		);
+		expect(undatedDeductibleNote([doc({ id: "9", category: "transporte", issueDate: null })])).toBeNull();
 	});
 
 	it("sets canGoNext based on month", () => {

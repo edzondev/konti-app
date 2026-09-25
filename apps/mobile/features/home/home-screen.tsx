@@ -2,6 +2,8 @@ import { type Href, router } from "expo-router";
 import { useState } from "react";
 import { ScrollView, Text } from "react-native";
 
+import { undatedDeductibleNote } from "@/features/comprobantes/comprobantes-list";
+import { useDocuments } from "@/features/comprobantes/use-comprobantes";
 import { currentLimaYear } from "@/features/deductions/deductibles-year";
 import { DeductionsSheet } from "@/features/deductions/deductions-sheet";
 import { UniSafeAreaView } from "@/shared/ui/safe-area";
@@ -11,19 +13,27 @@ import { HomeCategories } from "./home-categories";
 import { HomeDeductionsCard } from "./home-deductions-card";
 import { HomeEmpty } from "./home-empty";
 import { HomeHeader } from "./home-header";
+import { HomeMissingDates } from "./home-missing-dates";
 import { HomeSkeleton } from "./home-skeleton";
+import { currentLimaMonth } from "./home-summary";
 import { useHomeView } from "./use-home-view";
 
 export function HomeScreen() {
 	const view = useHomeView();
+	const documents = useDocuments(currentLimaMonth());
+	const missingDateNote = undatedDeductibleNote(documents.data ?? []);
 	const [sheetOpen, setSheetOpen] = useState(false);
+
+	function openComprobantes() {
+		router.push("/comprobantes");
+	}
 
 	return (
 		<UniSafeAreaView className="flex-1 bg-konti-bg" edges={["top"]}>
 			<HomeHeader />
 			<ScrollView
 				className="flex-1"
-				contentContainerClassName="px-6 pb-8"
+				contentContainerClassName="px-6 pb-28"
 				contentInsetAdjustmentBehavior="automatic"
 				showsVerticalScrollIndicator={false}
 			>
@@ -32,6 +42,9 @@ export function HomeScreen() {
 					<Text className="mt-12 font-sans text-[15px] text-konti-ink-muted">{view.message}</Text>
 				) : null}
 				{view.kind === "empty" ? <HomeEmpty monthLabel={view.monthLabel} /> : null}
+				{view.kind === "empty" && missingDateNote ? (
+					<HomeMissingDates note={missingDateNote} onPress={openComprobantes} />
+				) : null}
 				{view.kind === "ready" ? (
 					<>
 						<HomeAmountBlock
@@ -41,6 +54,9 @@ export function HomeScreen() {
 						/>
 						<HomeCategories categories={view.categories} />
 						<HomeDeductionsCard deductions={view.deductions} onPress={() => setSheetOpen(true)} />
+						{missingDateNote ? (
+							<HomeMissingDates note={missingDateNote} onPress={openComprobantes} />
+						) : null}
 					</>
 				) : null}
 			</ScrollView>

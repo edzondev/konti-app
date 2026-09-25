@@ -8,8 +8,8 @@ import {
 } from "@nestjs/common";
 import type { AuthedRequest } from "../auth/auth.guard.js";
 
-const LIMIT = 20;
-const WINDOW_MS = 60_000;
+const LIMIT = 30;
+const WINDOW_MS = 60 * 60 * 1000;
 
 interface WindowEntry {
 	count: number;
@@ -18,7 +18,7 @@ interface WindowEntry {
 
 /**
  * Rate limit in-memory por userId. Solo para POST /documents.
- * Sin Redis: válido para V1 (~10 usuarios, un proceso).
+ * 30 capturas por hora. Sin Redis: válido para V1 (~10 usuarios, un proceso).
  */
 @Injectable()
 export class DocumentsRateLimitGuard implements CanActivate {

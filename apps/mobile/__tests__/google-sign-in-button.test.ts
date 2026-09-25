@@ -82,13 +82,16 @@ const GOOGLE_USER = {
 	},
 } as const;
 
-function renderButtonPress(): () => Promise<void> {
-	const root = GoogleSignInButton() as ReactElement<{ children: ReactNode }>;
-	const button = Children.toArray(root.props.children)[0] as ReactElement<{
+function renderButton(disabled?: boolean) {
+	const root = GoogleSignInButton({ disabled }) as ReactElement<{ children: ReactNode }>;
+	return Children.toArray(root.props.children)[0] as ReactElement<{
+		disabled?: boolean;
 		onPress: () => Promise<void>;
 	}>;
+}
 
-	return button.props.onPress;
+function renderButtonPress(): () => Promise<void> {
+	return renderButton().props.onPress;
 }
 
 describe("GoogleSignInButton", () => {
@@ -107,6 +110,17 @@ describe("GoogleSignInButton", () => {
 		google.presentExplicitSignIn.mockReset().mockResolvedValue(GOOGLE_USER);
 		auth.social.mockReset().mockResolvedValue({ data: {}, error: null });
 		haptics.trigger.mockReset().mockResolvedValue();
+	});
+
+	it("ignores press while disabled", async () => {
+		const button = renderButton(true);
+
+		expect(button.props.disabled).toBe(true);
+		await button.props.onPress();
+
+		expect(google.checkPlayServices).not.toHaveBeenCalled();
+		expect(google.presentExplicitSignIn).not.toHaveBeenCalled();
+		expect(auth.social).not.toHaveBeenCalled();
 	});
 
 	it("checks Play Services before opening Google's explicit account selector", async () => {

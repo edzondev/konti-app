@@ -1,0 +1,149 @@
+---
+import PhoneReceipts from "./mockups/PhoneReceipts.astro";
+import PhoneDeductions from "./mockups/PhoneDeductions.astro";
+import PhoneVoice from "./mockups/PhoneVoice.astro";
+---
+
+<section
+	class="border-t border-[rgba(23,21,15,0.08)] py-[clamp(96px,12vw,160px)]"
+>
+	<div
+		class="mx-auto box-border flex max-w-[1200px] flex-col gap-[clamp(96px,12vw,160px)] px-[clamp(24px,4vw,48px)]"
+	>
+		<!-- Categorías -->
+		<div
+			class="flex flex-wrap items-center gap-x-[clamp(40px,6vw,96px)] gap-y-12"
+		>
+			<div class="min-w-0 flex-[1_1_420px]">
+				<div
+					class="font-mono text-[12px] uppercase tracking-[0.16em] text-konti-muted"
+				>
+					En qué se fue
+				</div>
+				<h3
+					class="mt-5 mb-0 text-balance text-[clamp(34px,5vw,48px)] font-light leading-[1.1] tracking-[-0.035em]"
+				>
+					Konti sabe que Plaza Vea es <span
+						class="font-sans text-[1.14em] font-normal italic tracking-[-0.01em] text-konti-accent-deep"
+						>supermercado.</span
+					>
+				</h3>
+				<div
+					class="mt-7 flex max-w-[480px] flex-col gap-4 text-[18px] leading-[1.6] text-konti-muted"
+				>
+					<p class="m-0">
+						No tienes que etiquetar nada. Konti reconoce el comercio y asigna
+						una categoría: restaurantes, supermercado, transporte, servicios
+						médicos, y más.
+					</p>
+					<p class="m-0">Tú ves el resumen. Él hace el trabajo.</p>
+				</div>
+			</div>
+			<div
+				class="box-border flex h-[520px] min-w-0 flex-[1_1_420px] justify-center overflow-hidden rounded-[24px] bg-[rgba(23,21,15,0.03)] px-6 pt-14"
+			>
+				<div
+					class="box-border h-[640px] w-full max-w-[340px] shrink-0 rounded-[48px] bg-konti-ink p-2.5"
+				>
+					<div
+						class="h-full overflow-hidden rounded-[38px] bg-konti-bg px-[18px] pt-14"
+					>
+						<PhoneReceipts />
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Deducciones (row-reverse) -->
+		<div
+			class="flex flex-row-reverse flex-wrap items-center gap-x-[clamp(40px,6vw,96px)] gap-y-12"
+		>
+			<div class="min-w-0 flex-[1_1_420px]">
+				<div
+					class="font-mono text-[12px] uppercase tracking-[0.16em] text-konti-muted"
+				>
+					Deducciones
+				</div>
+				<h3
+					class="mt-5 mb-0 text-balance text-[clamp(34px,5vw,48px)] font-light leading-[1.1] tracking-[-0.035em]"
+				>
+					Los gastos que podrían <span
+						class="font-sans text-[1.14em] font-normal italic tracking-[-0.01em] text-konti-accent-deep"
+						>reducir tu impuesto.</span
+					>
+				</h3>
+				<div
+					class="mt-7 flex max-w-[480px] flex-col gap-4 text-[18px] leading-[1.6] text-konti-muted"
+				>
+					<p class="m-0">
+						En Perú, restaurantes, servicios médicos y servicios profesionales
+						suelen aplicar a deducciones. Konti los identifica y te muestra
+						cuánto suman.
+					</p>
+					<p class="m-0">
+						No calcula impuestos. Solo te dice qué tienes. Confirma con tu
+						contador.
+					</p>
+				</div>
+			</div>
+			<div
+				class="box-border flex h-[520px] min-w-0 flex-[1_1_420px] justify-center overflow-hidden rounded-[24px] bg-konti-accent-subtle px-6 pt-14"
+			>
+				<div
+					class="box-border h-[640px] w-full max-w-[340px] shrink-0 rounded-[48px] bg-konti-ink p-2.5"
+				>
+					<div
+						class="h-full overflow-hidden rounded-[38px] bg-konti-surface px-[22px] pt-[52px]"
+					>
+						<PhoneDeductions />
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Voz -->
+		<div
+			class="flex flex-wrap items-center gap-x-[clamp(40px,6vw,96px)] gap-y-12"
+		>
+			<div class="min-w-0 flex-[1_1_420px]">
+				<div
+					class="font-mono text-[12px] uppercase tracking-[0.16em] text-konti-muted"
+				>
+					La voz de Konti
+				</div>
+				<h3
+					class="mt-5 mb-0 text-balance text-[clamp(34px,5vw,48px)] font-light leading-[1.1] tracking-[-0.035em]"
+				>
+					Un contador que te habla <span
+						class="font-sans text-[1.14em] font-normal italic tracking-[-0.01em] text-konti-accent-deep"
+						>sin tecnicismos.</span
+					>
+				</h3>
+				<div
+					class="mt-7 flex max-w-[480px] flex-col gap-4 text-[18px] leading-[1.6] text-konti-muted"
+				>
+					<p class="m-0">
+						«Vas parecido a agosto. Nada fuera de lo normal.» Eso es Konti. Una
+						frase clara que resume tu mes.
+					</p>
+					<p class="m-0">
+						Sin gráficos. Sin tablas. Sin que tengas que interpretar nada.
+					</p>
+				</div>
+			</div>
+			<div
+				class="box-border flex h-[520px] min-w-0 flex-[1_1_420px] justify-center overflow-hidden rounded-[24px] bg-[rgba(23,21,15,0.03)] px-6 pt-14"
+			>
+				<div
+					class="box-border h-[640px] w-full max-w-[340px] shrink-0 rounded-[48px] bg-konti-ink p-2.5"
+				>
+					<div
+						class="h-full overflow-hidden rounded-[38px] bg-konti-bg px-[22px] pt-[52px]"
+					>
+						<PhoneVoice />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

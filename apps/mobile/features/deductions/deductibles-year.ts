@@ -14,17 +14,18 @@ export const DeductiblesYearSchema = z.object({
 	),
 	uit: z.number(),
 	topAmount: z.number(),
+	restaurantAmount: z.number(),
 });
 
 export type DeductiblesYear = z.infer<typeof DeductiblesYearSchema>;
 
+const limaYearFormat = new Intl.DateTimeFormat("en-CA", {
+	timeZone: "America/Lima",
+	year: "numeric",
+});
+
 export function currentLimaYear(now = new Date()): number {
-	return Number(
-		new Intl.DateTimeFormat("en-CA", {
-			timeZone: "America/Lima",
-			year: "numeric",
-		}).format(now),
-	);
+	return Number(limaYearFormat.format(now));
 }
 
 export async function fetchDeductiblesYear(year: number): Promise<DeductiblesYear> {

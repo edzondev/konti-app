@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { Linking, Pressable, ScrollView, Text, View } from "react-native";
 
 import { DeleteAccountSheet } from "@/features/profile/delete-account-sheet";
-import { PRIVACY_POLICY_URL, TERMS_URL } from "@/features/profile/legal";
+import { PRIVACY_URL, TERMS_URL } from "@/features/profile/legal";
 import { ProfileRow, ProfileSection } from "@/features/profile/profile-rows";
 import { useCurrentUser } from "@/features/profile/use-current-user";
 import { useDeleteAccount } from "@/features/profile/use-delete-account";
@@ -71,7 +71,7 @@ export function ProfileScreen() {
 					<ProfileRow
 						label="Política de privacidad"
 						onPress={() => {
-							void Linking.openURL(PRIVACY_POLICY_URL);
+							void Linking.openURL(PRIVACY_URL);
 						}}
 						border={false}
 					/>

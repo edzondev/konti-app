@@ -1,10 +1,12 @@
 import "react-native-reanimated";
 import "../global.css";
 
-import { useEffect } from "react";
 import { GoogleOneTapSignIn } from "@react-native-google-signin/google-signin";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { useUniwind } from "uniwind";
 
 import { AppProviders } from "@/core/app-providers";
 import { authClient } from "@/core/auth-client";
@@ -15,6 +17,11 @@ export { ErrorBoundary } from "expo-router";
 export const unstable_settings = {
 	initialRouteName: "(tabs)",
 };
+
+SplashScreen.setOptions({
+	fade: true,
+	duration: 1000,
+});
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -28,8 +35,11 @@ GoogleOneTapSignIn.configure({
 });
 
 export default function RootLayout() {
+	const { theme } = useUniwind();
+
 	return (
 		<AppProviders>
+			<StatusBar style={theme === "dark" ? "light" : "dark"} />
 			<RootNavigator />
 		</AppProviders>
 	);

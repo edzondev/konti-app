@@ -21,6 +21,8 @@ class PostHogLifecycle implements OnApplicationShutdown {
 			useFactory: (config: ConfigService<Env, true>) =>
 				new PostHog(config.getOrThrow("POSTHOG_API_KEY"), {
 					host: config.getOrThrow("POSTHOG_HOST"),
+					flushAt: 1,
+					flushInterval: 0,
 				}),
 			inject: [ConfigService],
 		},

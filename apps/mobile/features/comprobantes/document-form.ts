@@ -25,6 +25,7 @@ export type DocumentEditDraft = {
 	issuerTaxId: string;
 	issueDate: string;
 	documentType: Document["documentType"];
+	category: Document["category"];
 	documentNumber: string;
 	totalAmount: string;
 	igvAmount: string;
@@ -43,6 +44,7 @@ export type DocumentUpdatePayload = {
 	issueDate?: string | null;
 	documentNumber?: string | null;
 	documentType?: Document["documentType"];
+	category?: Document["category"];
 	totalAmount?: string | null;
 	igvAmount?: string | null;
 };
@@ -97,6 +99,7 @@ export function toEditDraft(document: Document): DocumentEditDraft {
 		issuerTaxId: document.issuerTaxId ?? "",
 		issueDate: document.issueDate ? isoToDisplayDate(document.issueDate) : "",
 		documentType: document.documentType,
+		category: document.category,
 		documentNumber: document.documentNumber ?? "",
 		totalAmount: document.totalAmount ?? "",
 		igvAmount: document.igvAmount ?? "",
@@ -156,6 +159,10 @@ export function toUpdatePayload(
 
 	if (draft.documentType !== original.documentType) {
 		payload.documentType = draft.documentType;
+	}
+
+	if (draft.category !== original.category) {
+		payload.category = draft.category;
 	}
 
 	const draftTotalAmount = draftTextValue(normalizeAmount(draft.totalAmount));

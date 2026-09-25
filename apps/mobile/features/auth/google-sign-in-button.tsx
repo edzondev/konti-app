@@ -9,6 +9,7 @@ import { useUniwind } from "uniwind";
 
 import { authClient } from "@/core/auth-client";
 import { triggerHaptic } from "@/core/haptics";
+import { markTermsAccepted } from "@/features/auth/terms-acceptance";
 
 const DEFAULT_ERROR_MESSAGE = "No se pudo entrar. Inténtalo de nuevo.";
 
@@ -30,13 +31,13 @@ function googleErrorMessage(error: unknown): string {
 	}
 }
 
-export function GoogleSignInButton() {
+export function GoogleSignInButton({ disabled = false }: { disabled?: boolean }) {
 	const { theme } = useUniwind();
 	const [isSigningIn, setIsSigningIn] = useState(false);
 	const [message, setMessage] = useState<string | null>(null);
 
 	async function handlePress() {
-		if (isSigningIn) {
+		if (disabled || isSigningIn) {
 			return;
 		}
 
@@ -72,6 +73,7 @@ export function GoogleSignInButton() {
 				return;
 			}
 
+			markTermsAccepted();
 			await triggerHaptic("success");
 		} catch (error) {
 			setMessage(googleErrorMessage(error));
@@ -84,7 +86,7 @@ export function GoogleSignInButton() {
 	return (
 		<View className="w-full gap-3">
 			<GoogleLogoButton
-				disabled={isSigningIn}
+				disabled={disabled || isSigningIn}
 				label={isSigningIn ? "Iniciando sesión..." : "Continuar con Google"}
 				onPress={handlePress}
 				shape="circular"
@@ -92,7 +94,7 @@ export function GoogleSignInButton() {
 				theme={theme === "dark" ? "light" : "dark"}
 			/>
 
-			{message ? <Text className="text-konti-ivory/50">{message}</Text> : null}
+			{message ? <Text className="text-konti-ink-muted">{message}</Text> : null}
 		</View>
 	);
 }

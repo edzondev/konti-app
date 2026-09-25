@@ -1,36 +1,23 @@
 import { BottomSheet, RNHostView } from "@expo/ui";
-import { useState } from "react";
-import { Pressable, Text, TextInput, useWindowDimensions, View } from "react-native";
-import { useResolveClassNames } from "uniwind";
+import { Pressable, Text, TextInput, View } from "react-native";
 
-import { useDeleteAccountSheetState } from "@/features/profile/use-delete-account";
-
-const CONFIRM_WORD = "ELIMINAR";
+import { useDeleteAccountSheet } from "@/features/profile/use-delete-account";
 
 export function DeleteAccountSheet() {
-	const { isPresented, dismiss, confirmDelete } = useDeleteAccountSheetState();
-	const [text, setText] = useState("");
-	const [busy, setBusy] = useState(false);
-	const { height, width } = useWindowDimensions();
-	const sheetBackground = useResolveClassNames("bg-konti-bg");
-	const canConfirm = text === CONFIRM_WORD && !busy;
-
-	function onDismiss() {
-		if (busy) return;
-		setText("");
-		dismiss();
-	}
-
-	async function onConfirm() {
-		if (!canConfirm) return;
-		setBusy(true);
-		try {
-			await confirmDelete();
-			setText("");
-		} finally {
-			setBusy(false);
-		}
-	}
+	const {
+		busy,
+		canConfirm,
+		confirmWord,
+		height,
+		isPresented,
+		onConfirm,
+		onDismiss,
+		placeholderColor,
+		setText,
+		sheetBackground,
+		text,
+		width,
+	} = useDeleteAccountSheet();
 
 	return (
 		<BottomSheet
@@ -47,16 +34,16 @@ export function DeleteAccountSheet() {
 							Eliminar <Text className="italic text-konti-danger">cuenta</Text>
 						</Text>
 						<Text className="mt-3 text-[15px] leading-6 text-konti-ink-muted">
-							Se borrarán tus datos de forma permanente. Escribe {CONFIRM_WORD} para confirmar.
+							Se borrarán tus datos de forma permanente. Escribe {confirmWord} para confirmar.
 						</Text>
 						<TextInput
-							accessibilityLabel={`Escribe ${CONFIRM_WORD} para confirmar`}
+							accessibilityLabel={`Escribe ${confirmWord} para confirmar`}
 							autoCapitalize="characters"
 							autoCorrect={false}
 							className="mt-6 rounded-2xl border border-konti-border bg-konti-fill px-4 py-3 font-sans-medium text-[16px] text-konti-ink"
 							onChangeText={setText}
-							placeholder={CONFIRM_WORD}
-							placeholderTextColor="#9CA3AF"
+							placeholder={confirmWord}
+							placeholderTextColor={placeholderColor}
 							value={text}
 						/>
 						<Pressable

@@ -5,7 +5,7 @@ import { StandardSchemaValidationPipe } from "nestjs-standard-schema";
 import { PostHog } from "posthog-node";
 import { PostHogInterceptor } from "posthog-node/nestjs";
 import { AppModule } from "./app.module.js";
-import { AUTH } from "./auth/auth.constants.js";
+import { AUTH, AUTH_TRUSTED_ORIGINS } from "./auth/auth.constants.js";
 import type { Auth } from "./auth/auth.factory.js";
 import { HttpExceptionFilter } from "./common/http-exception.filter.js";
 
@@ -15,7 +15,7 @@ async function bootstrap() {
 	});
 
 	app.enableCors({
-		origin: true, // dev: acepta todo. En prod se restringe.
+		origin: [...AUTH_TRUSTED_ORIGINS],
 		credentials: true,
 	});
 

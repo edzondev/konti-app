@@ -1,5 +1,5 @@
 import { formatMoney, monthLabel } from "@/features/home/home-format";
-import { currentLimaMonth } from "@/features/home/home-summary";
+import { currentLimaMonth, formatLimaDay } from "@/features/home/home-summary";
 import type { Document } from "./comprobantes-document";
 import { CATEGORY_LABELS } from "./document-form";
 
@@ -21,12 +21,7 @@ const MONTH_ABBR = [
 ] as const;
 
 export function limaDayIso(date: Date): string {
-	return new Intl.DateTimeFormat("en-CA", {
-		timeZone: "America/Lima",
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-	}).format(date);
+	return formatLimaDay(date);
 }
 
 function parseIsoDate(isoDate: string): { y: number; m: number; d: number } {
@@ -96,6 +91,33 @@ function rangeTitle(start: string, end: string): string {
 	return `${startParts.d}–${endParts.d} ${endAbbr}`;
 }
 
+const DEDUCTIBLE_CATEGORIES = new Set<Document["category"]>([
+	"restaurantes",
+	"servicios_medicos",
+	"servicios_profesionales",
+]);
+
+function needsDateForDeduction(document: Document): boolean {
+	return (
+		document.issueDate == null &&
+		document.status === "ready" &&
+		DEDUCTIBLE_CATEGORIES.has(document.category)
+	);
+}
+
+export function undatedDeductibleNote(documents: Document[]): string | null {
+	const names = documents
+		.filter(needsDateForDeduction)
+		.map((document) => document.issuerName?.trim() || "Comprobante");
+
+	if (names.length === 0) return null;
+	if (names.length === 1) return `${names[0]} sin fecha. Complétala para ver si deduce.`;
+	if (names.length === 2) {
+		return `${names[0]} y ${names[1]} sin fecha. Complétalas para ver si deducen.`;
+	}
+	return `${names.length} boletas sin fecha. Complétalas para ver si deducen.`;
+}
+
 function anchorDay(document: Document): string {
 	if (document.issueDate) {
 		return document.issueDate;
@@ -103,13 +125,15 @@ function anchorDay(document: Document): string {
 	return limaDayIso(new Date(document.createdAt));
 }
 
+const limaClockFormat = new Intl.DateTimeFormat("en-US", {
+	timeZone: "America/Lima",
+	hour: "numeric",
+	minute: "2-digit",
+	hour12: true,
+});
+
 export function formatClock(iso: string): string {
-	const parts = new Intl.DateTimeFormat("en-US", {
-		timeZone: "America/Lima",
-		hour: "numeric",
-		minute: "2-digit",
-		hour12: true,
-	}).formatToParts(new Date(iso));
+	const parts = limaClockFormat.formatToParts(new Date(iso));
 
 	const hour = parts.find((part) => part.type === "hour")?.value ?? "0";
 	const minute = parts.find((part) => part.type === "minute")?.value ?? "00";
@@ -177,6 +201,8 @@ export function groupDocuments(
 	const grouped = new Map<string, { title: string; sortKey: string; documents: Document[] }>();
 
 	for (const document of documents) {
+		if (needsDateForDeduction(document)) continue;
+
 		const anchor = anchorDay(document);
 		if (!anchor.startsWith(`${month}-`)) {
 			continue;
@@ -229,6 +255,15 @@ function countLabel(count: number): string {
 }
 
 function toListRow(document: Document, todayIso: string): ListRow {
+	if (document.status === "pending" && document.extractionSource === "manual") {
+		return {
+			kind: "pending",
+			id: document.id,
+			title: "Completar datos",
+			subtitle: `Ingresa los campos · ${whenLabel(document.createdAt, todayIso)}`,
+		};
+	}
+
 	if (document.status === "pending") {
 		return {
 			kind: "pending",
@@ -259,6 +294,16 @@ function toListRow(document: Document, todayIso: string): ListRow {
 	};
 }
 
+function toUndatedRow(document: Document): ListRow {
+	return {
+		kind: "ready",
+		id: document.id,
+		title: document.issuerName?.trim() || "Comprobante",
+		subtitle: `${CATEGORY_LABELS[document.category]} · Sin fecha`,
+		amountLabel: document.totalAmount === null ? "" : formatMoney(Number(document.totalAmount)),
+	};
+}
+
 export type ListRow =
 	| {
 			kind: "ready";
@@ -267,7 +312,12 @@ export type ListRow =
 			subtitle: string;
 			amountLabel: string;
 	  }
-	| { kind: "pending"; id: string; title: "Procesando..."; subtitle: string }
+	| {
+			kind: "pending";
+			id: string;
+			title: "Procesando..." | "Completar datos";
+			subtitle: string;
+	  }
 	| {
 			kind: "failed";
 			id: string;
@@ -297,6 +347,7 @@ export type ComprobantesListView =
 			countLabel: string;
 			canGoNext: boolean;
 			sections: { title: string; rows: ListRow[] }[];
+			undatedRows: ListRow[];
 	  };
 
 export function toListView(input: {
@@ -348,6 +399,10 @@ export function toListView(input: {
 		title: section.title,
 		rows: section.documents.map((document) => toListRow(document, todayIso)),
 	}));
+	const undatedRows = documents
+		.filter(needsDateForDeduction)
+		.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+		.map(toUndatedRow);
 
 	return {
 		kind: "ready",
@@ -356,5 +411,6 @@ export function toListView(input: {
 		countLabel: countLabel(documents.length),
 		canGoNext: next,
 		sections,
+		undatedRows,
 	};
 }

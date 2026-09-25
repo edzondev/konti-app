@@ -1,12 +1,14 @@
 import "react-native-reanimated";
 import "../global.css";
 
+import { useEffect } from "react";
 import { GoogleOneTapSignIn } from "@react-native-google-signin/google-signin";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 
 import { AppProviders } from "@/core/app-providers";
 import { authClient } from "@/core/auth-client";
+import { endAccountDeletion, markTermsAccepted } from "@/features/auth/terms-acceptance";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -35,6 +37,11 @@ export default function RootLayout() {
 
 function RootNavigator() {
 	const { data: session } = authClient.useSession();
+
+	useEffect(() => {
+		if (session) markTermsAccepted();
+		else endAccountDeletion();
+	}, [session]);
 
 	return (
 		<Stack screenOptions={{ headerShown: false }}>

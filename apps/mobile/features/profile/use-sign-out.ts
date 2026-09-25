@@ -1,7 +1,6 @@
-import { router } from "expo-router";
-
 import { authClient } from "@/core/auth-client";
 import { clearLocalUserData } from "@/core/clear-local-user-data";
+import { queryClient } from "@/core/query-provider";
 import { reportError } from "@/core/report-error";
 import { showToast } from "@/core/toast";
 
@@ -11,8 +10,9 @@ export function useSignOut() {
 		const userId = session.data?.user?.id;
 		try {
 			await authClient.signOut();
+			await queryClient.cancelQueries();
 			if (userId) await clearLocalUserData(userId);
-			router.replace("/(auth)/sign-in");
+			queryClient.clear();
 		} catch (error) {
 			reportError("sign out failed", error);
 			showToast("No se pudo cerrar sesión.");

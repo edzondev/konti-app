@@ -1,0 +1,128 @@
+---
+import PhoneHome from "./mockups/PhoneHome.astro";
+---
+
+<section class="pt-[clamp(88px,12vw,160px)]">
+	<div
+		class="mx-auto box-border flex max-w-[1200px] flex-col items-center px-[clamp(24px,4vw,48px)] text-center"
+	>
+		<div class="flex items-center gap-2.5">
+			<span class="size-1.5 rounded-full bg-konti-accent"></span>
+			<span
+				class="font-mono text-[12px] uppercase tracking-[0.16em] text-konti-muted"
+			>
+				Para personas en Perú
+			</span>
+		</div>
+		<h1
+			class="m-0 mt-8 max-w-[980px] text-balance text-[clamp(44px,7.2vw,72px)] font-light leading-[1.02] tracking-[-0.04em]"
+		>
+			Tu contador personal, <span
+				class="font-sans text-[1.14em] font-normal italic tracking-[-0.015em] text-konti-accent-deep"
+				>en el bolsillo.</span
+			>
+		</h1>
+		<p
+			class="m-0 mt-7 max-w-[640px] text-pretty text-[clamp(17px,2vw,20px)] leading-normal text-konti-muted"
+		>
+			Toma una foto de tu boleta. Konti la entiende, la organiza, y te dice qué
+			significa. Sin saber de contabilidad.
+		</p>
+		<div class="mt-11 flex flex-wrap justify-center gap-3">
+			<a
+				href="#descargar"
+				class="inline-flex h-14 shrink-0 items-center gap-2.5 whitespace-nowrap rounded-button bg-konti-ink px-7 text-[16px] font-medium tracking-[-0.01em] text-konti-bg no-underline transition-transform duration-[180ms] ease-out hover:translate-y-[-1px] hover:text-konti-bg"
+			>
+				<svg
+					width="20"
+					height="20"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.6"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M5 17.5V11a7 7 0 0 1 14 0v6.5H5Z"></path>
+					<path d="M7.5 5.5 6 3.5M16.5 5.5 18 3.5"></path>
+					<path d="M9.5 9.6v.1M14.5 9.6v.1"></path>
+				</svg>
+				Descargar para Android
+			</a>
+			<a
+				href="#como-funciona"
+				class="box-border inline-flex h-14 shrink-0 items-center whitespace-nowrap rounded-button border border-[rgba(23,21,15,0.16)] px-7 text-[16px] font-medium tracking-[-0.01em] text-konti-ink transition-[border-color] duration-[180ms] ease-out hover:border-[rgba(23,21,15,0.4)] hover:text-konti-ink"
+			>
+				Ver cómo funciona
+			</a>
+		</div>
+		<div
+			class="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-2.5 text-[14px] text-konti-muted"
+		>
+			<span class="inline-flex items-center gap-1.5">
+				<svg
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					class="stroke-konti-success"
+					stroke-width="2.2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+					><path d="m4.5 12.5 5 5 10-11"></path></svg
+				>
+				Gratis para siempre en su versión base
+			</span>
+			<span class="inline-flex items-center gap-1.5">
+				<svg
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					class="stroke-konti-success"
+					stroke-width="2.2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+					><path d="m4.5 12.5 5 5 10-11"></path></svg
+				>
+				Puedes ver tus comprobantes sin conexión
+			</span>
+			<span class="inline-flex items-center gap-1.5">
+				<svg
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					class="stroke-konti-success"
+					stroke-width="2.2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+					><path d="m4.5 12.5 5 5 10-11"></path></svg
+				>
+				Hecho en Perú
+			</span>
+		</div>
+
+		<div
+			class="relative mt-[clamp(64px,8vw,96px)] flex h-[clamp(440px,50vw,560px)] w-full justify-center overflow-hidden border-b border-[rgba(23,21,15,0.1)]"
+		>
+			<div
+				class="box-border h-[780px] w-full max-w-[380px] shrink-0 rounded-[52px] bg-konti-ink p-2.5"
+			>
+				<div
+					class="h-full overflow-hidden rounded-[42px] bg-konti-bg px-6 text-left"
+				>
+					<PhoneHome />
+				</div>
+			</div>
+			<div
+				class="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(to_bottom,rgba(245,241,234,0),#F5F1EA)]"
+			>
+			</div>
+		</div>
+	</div>
+</section>

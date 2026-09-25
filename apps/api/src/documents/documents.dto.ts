@@ -1,5 +1,6 @@
 import { createStandardSchemaDTO } from "nestjs-standard-schema";
 import * as v from "valibot";
+import { CATEGORIES } from "../ingestion/category-map.js";
 import { AmountSchema, IsoDateSchema, RucSchema } from "../ingestion/schemas.js";
 
 export const CreateDocumentSchema = v.object({
@@ -19,6 +20,7 @@ export const UpdateDocumentSchema = v.object({
 	currencyCode: v.optional(v.nullable(v.pipe(v.string(), v.regex(/^[A-Z]{3}$/)))),
 	totalAmount: v.optional(v.nullable(AmountSchema)),
 	igvAmount: v.optional(v.nullable(AmountSchema)),
+	category: v.optional(v.picklist(CATEGORIES)),
 });
 
 export const ListDocumentsQuerySchema = v.object({

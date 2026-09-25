@@ -1,0 +1,37 @@
+---
+import { getEntry } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LegalProse from "../components/LegalProse.astro";
+import { fillLegalTokens } from "../lib/legal-entity";
+
+const entry = await getEntry("legal", "privacidad");
+if (!entry?.rendered?.html) {
+	throw new Error("Missing content entry: legal/privacidad");
+}
+
+const html = fillLegalTokens(entry.rendered.html);
+const updatedLabel = entry.data.updated.toLocaleDateString("es-PE", {
+	year: "numeric",
+	month: "long",
+	day: "numeric",
+});
+---
+
+<BaseLayout
+	title={`${entry.data.title} — Konti`}
+	description={entry.data.description}
+	canonicalPath="/privacidad/"
+>
+	<article class="mx-auto max-w-[720px] px-gutter pt-24 pb-20 box-border">
+		<a href="/" class="text-[14px] text-konti-muted">← Volver a Konti</a>
+		<h1
+			class="mt-8 mb-0 font-sans font-normal text-[clamp(36px,5vw,48px)] tracking-[-0.02em] leading-[1.1]"
+		>
+			{entry.data.title}
+		</h1>
+		<p class="m-0 mt-3 text-[14px] text-[rgba(23,21,15,0.45)]">
+			Última actualización: {updatedLabel} · konti.dev
+		</p>
+		<LegalProse class="mt-10" html={html} />
+	</article>
+</BaseLayout>

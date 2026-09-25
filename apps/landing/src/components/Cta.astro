@@ -1,0 +1,49 @@
+---
+import { PLAY_STORE_URL } from '../lib/links';
+---
+
+<section id="descargar" class="bg-konti-ink py-section-cta text-konti-bg">
+	<div
+		class="mx-auto flex max-w-[1200px] flex-col items-center px-gutter text-center box-border"
+	>
+		<h2 class="m-0 text-display font-light tracking-[-0.04em] leading-[1.05]">
+			Todo empieza con una{' '}
+			<span
+				class="font-sans italic font-normal text-[1.14em] tracking-[-0.015em] text-konti-accent"
+				>foto.</span
+			>
+		</h2>
+		<p class="m-0 mt-6 text-lead leading-[1.5] text-[rgba(245,241,234,0.62)]">
+			Descarga Konti y deja de preocuparte por tus boletas.
+		</p>
+		<a
+			href={PLAY_STORE_URL}
+			target="_blank"
+			rel="noopener noreferrer"
+			class="mt-11 inline-flex h-14 shrink-0 items-center gap-2.5 whitespace-nowrap rounded-button bg-konti-bg px-7 text-[16px] font-medium tracking-[-0.01em] text-konti-ink hover:bg-white hover:text-konti-ink"
+		>
+			<svg
+				width="20"
+				height="20"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="1.6"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				aria-hidden="true"
+			>
+				<path d="M5 17.5V11a7 7 0 0 1 14 0v6.5H5Z"></path>
+				<path d="M7.5 5.5 6 3.5M16.5 5.5 18 3.5"></path>
+				<path d="M9.5 9.6v.1M14.5 9.6v.1"></path>
+			</svg>
+			Descargar para Android
+		</a>
+		<a
+			href="#"
+			class="mt-6 text-[14px] text-[rgba(245,241,234,0.62)] hover:text-konti-bg"
+		>
+			También en iOS próximamente →
+		</a>
+	</div>
+</section>

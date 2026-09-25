@@ -103,6 +103,35 @@ describe("IngestionService", () => {
 		expect(setArg.category).toBe("otros");
 	});
 
+	it("trata un qrPayload que no es SUNAT pero sí texto local como source local y no llama OCR", async () => {
+		vi.mocked(ocr.extract).mockResolvedValue({
+			documentType: "unknown",
+			issuerName: null,
+			issuerTaxId: null,
+			issueDate: null,
+			documentNumber: null,
+			currencyCode: "PEN",
+			totalAmount: "1.00",
+			igvAmount: null,
+		});
+
+		await service.process({
+			documentId: "doc-qr-local",
+			userId: "user-1",
+			buffer: Buffer.from("x"),
+			mimeType: "image/jpeg",
+			qrPayload: "RUC 20543722309 Fecha 21/08/2026 Total 50.00",
+		});
+
+		expect(ocr.extract).not.toHaveBeenCalled();
+		const setArg = setMock.mock.calls[0]?.[0] as {
+			extractionSource: string;
+			totalAmount: string;
+		};
+		expect(setArg.extractionSource).toBe("local");
+		expect(setArg.totalAmount).toBe("50.00");
+	});
+
 	it("categoriza por issuerName conocido del mismo RUC", async () => {
 		const whereFn = vi.fn().mockReturnValue({
 			orderBy: vi.fn().mockReturnValue({
@@ -172,7 +201,7 @@ describe("IngestionService", () => {
 			extractionSource: string;
 			totalAmount: string | null;
 		};
-		expect(setArg.status).toBe("failed");
+		expect(setArg.status).toBe("pending");
 		expect(setArg.extractionSource).toBe("manual");
 		expect(setArg.totalAmount).toBeNull();
 	});

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { apiFetch } from "@/core/api-fetch";
+import { authClient } from "@/core/auth-client";
 import { QUERY_KEYS } from "@/core/query-keys";
 import {
 	MeSessionsResponseSchema,
@@ -15,8 +16,11 @@ export async function fetchSessions(): Promise<MeSession[]> {
 }
 
 export function useSessions() {
+	const userId = authClient.useSession().data?.user?.id;
+
 	return useQuery({
-		queryKey: QUERY_KEYS.sessions,
+		queryKey: QUERY_KEYS.sessions(userId ?? ""),
 		queryFn: fetchSessions,
+		enabled: Boolean(userId),
 	});
 }

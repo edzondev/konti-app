@@ -58,6 +58,25 @@ function DocumentImagePreview({ id }: { id: string }) {
 	);
 }
 
+function ManualPendingBody({ onEdit }: { onEdit: () => void }) {
+	return (
+		<View>
+			<Text className="mt-6 font-sans-light text-[28px] text-konti-ink">
+				Completa los datos a mano.
+			</Text>
+			<Text className="mt-3 text-[15px] text-konti-ink-muted">
+				Este comprobante no se leyó solo. Ingresa los campos.
+			</Text>
+			<Pressable
+				onPress={onEdit}
+				className="mt-6 h-14 items-center justify-center rounded-full bg-konti-ink"
+			>
+				<Text className="font-sans-medium text-konti-on-ink">Completar datos</Text>
+			</Pressable>
+		</View>
+	);
+}
+
 function PendingBody() {
 	return (
 		<View>
@@ -140,7 +159,7 @@ function ReadyBody({
 		{ label: "Categoría", value: CATEGORY_LABELS[document.category] },
 		{ label: "RUC", value: document.issuerTaxId ?? "Sin completar" },
 		{ label: "Tipo", value: DOCUMENT_TYPE_LABELS[document.documentType] },
-		{ label: "Número", value: document.documentNumber ?? "Sin completar" },
+		{ label: "Número boleta", value: document.documentNumber ?? "Sin completar" },
 		{ label: "Origen", value: SOURCE_LABELS[document.source] },
 	];
 	const amountLabel =
@@ -207,7 +226,12 @@ export function DocumentScreen({
 				contentInsetAdjustmentBehavior="automatic"
 				contentContainerClassName="px-2 pb-10"
 			>
-				{document.status === "pending" ? <PendingBody /> : null}
+				{document.status === "pending" && document.extractionSource === "manual" ? (
+					<ManualPendingBody onEdit={onEdit} />
+				) : null}
+				{document.status === "pending" && document.extractionSource !== "manual" ? (
+					<PendingBody />
+				) : null}
 				{document.status === "failed" ? (
 					<FailedBody id={document.id} onEdit={onEdit} onDelete={onDelete} onClose={onClose} />
 				) : null}

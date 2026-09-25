@@ -15,7 +15,7 @@ function getOrCreateEncryptionKey(): string {
 	const existing = SecureStore.getItem(SECURE_KEY);
 	if (existing) return existing;
 
-	const key = bytesToHex(Crypto.getRandomBytes(8));
+	const key = bytesToHex(Crypto.getRandomBytes(32));
 	SecureStore.setItem(SECURE_KEY, key);
 	return key;
 }

@@ -1,4 +1,5 @@
-import { ApiError, apiFetch } from "@/core/api-fetch";
+import { apiFetch } from "@/core/api-fetch";
+import { reportError } from "@/core/report-error";
 
 function documentFields(input: { source: "camera" | "gallery"; qrPayload?: string | null }): {
 	source: "camera" | "gallery";
@@ -37,11 +38,7 @@ export async function uploadDocument(input: {
 			body: buildDocumentFormData(input),
 		});
 	} catch (error) {
-		if (error instanceof ApiError) {
-			console.error("[scan] POST /documents failed", error.status, error.message);
-		} else {
-			console.error("[scan] POST /documents failed", error);
-		}
+		reportError("[scan] POST /documents failed", error);
 		throw error;
 	}
 }

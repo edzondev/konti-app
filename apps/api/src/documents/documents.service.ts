@@ -7,7 +7,8 @@ import {
 	NotFoundException,
 } from "@nestjs/common";
 import { InjectDrizzle } from "@nestjs/drizzle";
-import { and, desc, eq, gte, isNull, lt, lte, or } from "drizzle-orm";
+import { and, count, desc, eq, gte, isNull, lt, lte, ne, or } from "drizzle-orm";
+import { PostHog } from "posthog-node";
 import type { Database } from "../database/database.types.js";
 import { documents } from "../database/schema/app.schema.js";
 import { type Category, categoryLabel, DEDUCTIBLE_CATEGORIES } from "../ingestion/category-map.js";
@@ -34,6 +35,7 @@ const EDITABLE_FIELDS = [
 	"currencyCode",
 	"totalAmount",
 	"igvAmount",
+	"category",
 ] as const;
 
 @Injectable()
@@ -45,6 +47,7 @@ export class DocumentsService {
 		private readonly db: Database,
 		private readonly storage: StorageService,
 		private readonly ingestion: IngestionService,
+		private readonly posthog: PostHog,
 	) {}
 
 	async create(userId: string, dto: CreateDocumentDto, file: UploadInput) {
@@ -64,6 +67,46 @@ export class DocumentsService {
 			.limit(1);
 
 		if (existing) {
+			if (existing.status === "failed") {
+				const [reset] = await this.db
+					.update(documents)
+					.set({
+						status: "pending",
+						extractionSource: null,
+						documentType: "unknown",
+						issuerName: null,
+						issuerTaxId: null,
+						issueDate: null,
+						documentNumber: null,
+						currencyCode: null,
+						totalAmount: null,
+						igvAmount: null,
+						category: "otros",
+						wasUserCorrected: false,
+						updatedAt: new Date(),
+					})
+					.where(
+						and(
+							eq(documents.id, existing.id),
+							eq(documents.userId, userId),
+							eq(documents.status, "failed"),
+							isNull(documents.deletedAt),
+						),
+					)
+					.returning();
+
+				if (reset) {
+					void this.processInBackground(
+						userId,
+						reset.id,
+						file.buffer,
+						file.mimeType,
+						dto.qrPayload,
+						dto.localText,
+					);
+					return reset;
+				}
+			}
 			return existing;
 		}
 
@@ -118,6 +161,12 @@ export class DocumentsService {
 			throw error;
 		}
 
+		this.posthog.capture({
+			distinctId: userId,
+			event: "document_created",
+			properties: { source: dto.source },
+		});
+
 		void this.processInBackground(
 			userId,
 			document.id,
@@ -134,19 +183,7 @@ export class DocumentsService {
 		const filters = [visibleToUser(userId)];
 
 		if (month) {
-			const { start, end } = monthRange(month);
-			const createdStart = limaMonthStart(month);
-			const createdEndExclusive = limaMonthStart(shiftMonth(month, 1));
-			filters.push(
-				or(
-					and(gte(documents.issueDate, start), lte(documents.issueDate, end)),
-					and(
-						isNull(documents.issueDate),
-						gte(documents.createdAt, createdStart),
-						lt(documents.createdAt, createdEndExclusive),
-					),
-				),
-			);
+			filters.push(monthWindow(month));
 		}
 
 		return this.db
@@ -178,6 +215,7 @@ export class DocumentsService {
 			currencyCode?: string | null;
 			totalAmount?: string | null;
 			igvAmount?: string | null;
+			category?: Category;
 		} = {};
 		let changed = false;
 
@@ -188,6 +226,8 @@ export class DocumentsService {
 
 			if (field === "documentType") {
 				patch.documentType = value as (typeof documents.$inferSelect)["documentType"];
+			} else if (field === "category") {
+				patch.category = value as Category;
 			} else {
 				patch[field] = value;
 			}
@@ -227,9 +267,18 @@ export class DocumentsService {
 			.update(documents)
 			.set({ deletedAt: new Date(), updatedAt: new Date() })
 			.where(and(visibleToUser(userId), eq(documents.id, id)))
-			.returning({ id: documents.id });
+			.returning({ id: documents.id, objectKey: documents.objectKey });
 
 		if (!updated) throw new NotFoundException("Document not found");
+
+		try {
+			await this.storage.delete(updated.objectKey);
+		} catch (error) {
+			this.logger.error(
+				`No se pudo borrar storage tras soft-delete (${updated.id})`,
+				error instanceof Error ? error.stack : undefined,
+			);
+		}
 	}
 
 	async summary(userId: string, month?: string) {
@@ -349,10 +398,23 @@ export class DocumentsService {
 			categoryShares,
 		});
 
+		const [processingRow] = await this.db
+			.select({ count: count() })
+			.from(documents)
+			.where(
+				and(
+					visibleToUser(userId),
+					eq(documents.status, "pending"),
+					or(isNull(documents.extractionSource), ne(documents.extractionSource, "manual")),
+					monthWindow(target),
+				),
+			);
+
 		return {
 			month: target,
 			totalAmount,
 			documentCount,
+			processingCount: Number(processingRow?.count ?? 0),
 			insight,
 			categories,
 			deductibles,
@@ -404,6 +466,7 @@ export class DocumentsService {
 			categories,
 			uit,
 			topAmount: 3 * uit,
+			restaurantAmount: amountsByCategory.get("restaurantes") ?? 0,
 		};
 	}
 
@@ -493,6 +556,21 @@ function yearRange(year: number): { start: string; end: string } {
 		throw new BadRequestException(`Año inválido: ${year}`);
 	}
 	return { start: `${year}-01-01`, end: `${year}-12-31` };
+}
+
+/** issueDate en el mes, o createdAt en el mes Lima si issueDate es null. */
+function monthWindow(month: string) {
+	const { start, end } = monthRange(month);
+	const createdStart = limaMonthStart(month);
+	const createdEndExclusive = limaMonthStart(shiftMonth(month, 1));
+	return or(
+		and(gte(documents.issueDate, start), lte(documents.issueDate, end)),
+		and(
+			isNull(documents.issueDate),
+			gte(documents.createdAt, createdStart),
+			lt(documents.createdAt, createdEndExclusive),
+		),
+	);
 }
 
 function monthRange(month: string): { start: string; end: string } {

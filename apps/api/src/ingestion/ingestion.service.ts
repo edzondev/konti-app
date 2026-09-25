@@ -38,7 +38,12 @@ export class IngestionService {
 	async process(input: IngestionInput): Promise<void> {
 		const { extracted, source } = await this.extract(input);
 		const category = await this.resolveCategory(input.userId, extracted);
-		const status = isExtractionIncomplete(extracted.totalAmount) ? "failed" : "ready";
+		const status =
+			source === "manual"
+				? "pending"
+				: isExtractionIncomplete(extracted.totalAmount)
+					? "failed"
+					: "ready";
 
 		// No pisar soft-delete, docs ya listos/fallidos, ni correcciones del usuario.
 		const [applied] = await this.db
@@ -111,10 +116,12 @@ export class IngestionService {
 			if (parsed) {
 				return { extracted: parsed, source: "qr" };
 			}
+			const fromQrText = parseLocalText(input.qrPayload);
+			if (fromQrText) {
+				return { extracted: fromQrText, source: "local" };
+			}
 			this.logger.warn(`QR parse failed for document ${input.documentId}`);
-		}
-
-		if (input.localText) {
+		} else if (input.localText) {
 			const parsed = parseLocalText(input.localText);
 			if (parsed) {
 				return { extracted: parsed, source: "local" };

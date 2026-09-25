@@ -18,7 +18,7 @@ export function createAuth(db: Database, configService: ConfigService<Env, true>
 		secret: configService.getOrThrow("BETTER_AUTH_SECRET"),
 		baseURL: configService.getOrThrow("BETTER_AUTH_URL"),
 		emailAndPassword: {
-			enabled: true,
+			enabled: false,
 		},
 		plugins: [expo() as BetterAuthPlugin],
 		trustedOrigins: [...AUTH_TRUSTED_ORIGINS],

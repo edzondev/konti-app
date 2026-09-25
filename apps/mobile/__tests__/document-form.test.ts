@@ -15,6 +15,7 @@ function doc(partial: Partial<Document> = {}): Document {
 		source: "camera",
 		documentType: "boleta",
 		category: "otros",
+		extractionSource: null,
 		issuerName: null,
 		issuerTaxId: null,
 		issueDate: null,
@@ -39,6 +40,7 @@ describe("toEditDraft", () => {
 					documentNumber: "F001-42",
 					totalAmount: "10.50",
 					igvAmount: "1.89",
+					category: "supermercado",
 				}),
 			),
 		).toEqual({
@@ -49,6 +51,7 @@ describe("toEditDraft", () => {
 			documentNumber: "F001-42",
 			totalAmount: "10.50",
 			igvAmount: "1.89",
+			category: "supermercado",
 		});
 	});
 });
@@ -81,17 +84,21 @@ describe("validateDraft", () => {
 });
 
 describe("toUpdatePayload", () => {
-	it("returns only changed fields without category", () => {
+	it("returns only changed fields and sends category only when it changes", () => {
 		const original = doc({
 			issuerName: "Plaza Vea",
 			issueDate: "2026-09-22",
 			totalAmount: "10.00",
+			category: "otros",
 		});
 		const draft = toEditDraft(original);
 		const payload = toUpdatePayload(original, { ...draft, issuerName: "Wong" });
 
 		expect(payload).toEqual({ issuerName: "Wong" });
-		expect(Object.keys(payload ?? {})).not.toContain("category");
+		expect(payload).not.toHaveProperty("category");
+		expect(toUpdatePayload(original, { ...draft, category: "restaurantes" })).toEqual({
+			category: "restaurantes",
+		});
 	});
 
 	it("returns null when the draft is unchanged", () => {

@@ -4,8 +4,13 @@ import { z } from "zod";
 
 import { apiFetch } from "@/core/api-fetch";
 import { authClient } from "@/core/auth-client";
-import { QUERY_KEYS } from "@/core/query-keys";
-import { type Document, DocumentSchema } from "@/features/comprobantes/comprobantes-document";
+import { isDocumentImageKey, QUERY_KEYS } from "@/core/query-keys";
+import {
+	type Document,
+	DocumentSchema,
+	loadDocuments,
+	readCachedDocuments,
+} from "@/features/comprobantes/comprobantes-document";
 import type { DocumentUpdatePayload } from "@/features/comprobantes/document-form";
 
 function getBaseUrl(): string {
@@ -37,40 +42,61 @@ export async function fetchDocuments(month: string): Promise<Document[]> {
 	return z.array(DocumentSchema).parse(data);
 }
 
-export function documentImageQueryOptions(id: string) {
+function useUserId(): string | undefined {
+	return authClient.useSession().data?.user?.id;
+}
+
+export function documentImageQueryOptions(userId: string, id: string) {
 	return queryOptions({
-		queryKey: QUERY_KEYS.documentImage(id),
+		queryKey: QUERY_KEYS.documentImage(userId, id),
 		queryFn: () => fetchDocumentImageFile(id),
 		staleTime: 5 * 60 * 1000,
 	});
 }
 
 export function useDocuments(month: string) {
+	const userId = useUserId();
+
 	return useQuery({
-		queryKey: QUERY_KEYS.documentsMonth(month),
-		queryFn: () => fetchDocuments(month),
+		queryKey: QUERY_KEYS.documentsMonth(userId ?? "", month),
+		queryFn: ({ signal }) => loadDocuments(userId!, month, fetchDocuments, signal),
+		enabled: Boolean(userId),
+		placeholderData: userId ? readCachedDocuments(userId, month) : undefined,
 		refetchInterval: (query) =>
-			query.state.data?.some((d) => d.status === "pending") ? 3000 : false,
+			query.state.data?.some((d) => d.status === "pending" && d.extractionSource !== "manual")
+				? 3000
+				: false,
 	});
 }
 
 export function useDocumentImage(id: string, enabled: boolean) {
+	const userId = useUserId();
+
 	return useQuery({
-		...documentImageQueryOptions(id),
-		enabled,
+		...documentImageQueryOptions(userId ?? "", id),
+		enabled: enabled && Boolean(userId),
 	});
 }
 
-export function invalidateDocumentMetadata(queryClient: ReturnType<typeof useQueryClient>) {
+export function invalidateDocumentMetadata(
+	queryClient: ReturnType<typeof useQueryClient>,
+	userId?: string,
+) {
 	void queryClient.invalidateQueries({
-		queryKey: QUERY_KEYS.documents,
-		predicate: (query) => query.queryKey[1] !== "image",
+		queryKey: userId ? QUERY_KEYS.documents(userId) : QUERY_KEYS.documentsRoot,
+		predicate: (query) => !isDocumentImageKey(query.queryKey),
 	});
-	void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.home });
+	void queryClient.invalidateQueries({
+		queryKey: userId ? QUERY_KEYS.home(userId) : QUERY_KEYS.homeRoot,
+	});
+	void queryClient.invalidateQueries({
+		queryKey: userId ? QUERY_KEYS.deductibles(userId) : QUERY_KEYS.deductiblesRoot,
+	});
 }
 
 export function useUpdateDocument(id: string) {
 	const queryClient = useQueryClient();
+	const userId = useUserId();
 
 	return useMutation({
 		mutationFn: (payload: DocumentUpdatePayload) =>
@@ -80,19 +106,24 @@ export function useUpdateDocument(id: string) {
 				body: JSON.stringify(payload),
 			}),
 		onSuccess: () => {
-			invalidateDocumentMetadata(queryClient);
+			if (userId) invalidateDocumentMetadata(queryClient, userId);
 		},
 	});
 }
 
 export function useDeleteDocument(id: string) {
 	const queryClient = useQueryClient();
+	const userId = useUserId();
 
 	return useMutation({
 		mutationFn: () => apiFetch(`/documents/${id}`, { method: "DELETE" }),
 		onSuccess: () => {
-			queryClient.removeQueries({ queryKey: QUERY_KEYS.documentImage(id), exact: true });
-			invalidateDocumentMetadata(queryClient);
+			if (!userId) return;
+			queryClient.removeQueries({
+				queryKey: QUERY_KEYS.documentImage(userId, id),
+				exact: true,
+			});
+			invalidateDocumentMetadata(queryClient, userId);
 		},
 	});
 }

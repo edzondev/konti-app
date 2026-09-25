@@ -63,14 +63,20 @@ function toReadyView(summary: HomeSummary): HomeView {
 
 export function useHomeView(): HomeView {
 	const month = currentLimaMonth();
-	const { data, isPending, isError } = useHomeSummary(month);
+	const { data, isError } = useHomeSummary(month);
 
-	if (isPending) return { kind: "loading" };
+	if (data) {
+		if (data.documentCount === 0 && data.processingCount > 0) {
+			return { kind: "loading" };
+		}
+		if (data.documentCount === 0) {
+			return { kind: "empty", monthLabel: monthLabel(data.month) };
+		}
+		return toReadyView(data);
+	}
+
 	if (isError) {
 		return { kind: "error", message: "No pudimos cargar tu resumen." };
 	}
-	if (data.documentCount === 0) {
-		return { kind: "empty", monthLabel: monthLabel(data.month) };
-	}
-	return toReadyView(data);
+	return { kind: "loading" };
 }

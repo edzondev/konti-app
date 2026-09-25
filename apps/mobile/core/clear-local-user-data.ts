@@ -1,6 +1,8 @@
 import * as SecureStore from "expo-secure-store";
 
 import { getAppStorage } from "@/core/storage";
+import { forgetDocumentsMemory } from "@/features/comprobantes/comprobantes-document";
+import { forgetHomeSummaryMemory } from "@/features/home/home-summary";
 
 /** Better Auth Expo (`storagePrefix: "konti"`) — see `@better-auth/expo` client.js */
 const AUTH_SECURE_KEYS = ["konti_cookie", "konti_session_data"] as const;
@@ -14,6 +16,8 @@ async function deleteSecureKey(key: string): Promise<void> {
 }
 
 export async function clearLocalUserData(userId: string): Promise<void> {
+	forgetHomeSummaryMemory(userId);
+	forgetDocumentsMemory(userId);
 	const storage = getAppStorage();
 	const prefix = `user_${userId}_`;
 	for (const key of storage.getAllKeys()) {

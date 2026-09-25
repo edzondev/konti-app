@@ -1,5 +1,5 @@
 import { type ReactElement, useEffect, useRef } from "react";
-import { Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { NitroImage } from "react-native-nitro-image";
 import Animated, {
 	Easing,
@@ -14,8 +14,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Check, Image, X } from "@/shared/ui/reicon";
 
 const BRACKET_IN = 20;
-const DETECTED_AMBER = "#E2A654";
-const WARM_WHITE = "#F4EDE3";
 const CORNER_EDGES = ["tl", "tr", "bl", "br"] as const;
 
 const CORNER_CLASS = {
@@ -55,8 +53,8 @@ function GuideCorner({
 
 	return (
 		<Animated.View
-			className={CORNER_CLASS[edge]}
-			style={[{ borderColor: detected ? DETECTED_AMBER : WARM_WHITE }, animatedStyle]}
+			className={`${CORNER_CLASS[edge]} ${detected ? "border-konti-amber" : "border-konti-paper"}`}
+			style={animatedStyle}
 		/>
 	);
 }
@@ -152,6 +150,7 @@ export function ScanOverlay({
 }): ReactElement {
 	const insets = useSafeAreaInsets();
 	const detected = phase === "detected";
+	const saving = busy && savedPath === null;
 	const tighten = useSharedValue(0);
 	const focusKey = useRef(0);
 	const focusSeen = useRef(focusPoint);
@@ -188,25 +187,21 @@ export function ScanOverlay({
 				</Pressable>
 				<View
 					pointerEvents="none"
-					className={detected ? "rounded-full px-3.5 py-2" : "rounded-full bg-black/50 px-3.5 py-2"}
-					style={
-						detected
-							? {
-									borderCurve: "continuous",
-									backgroundColor: "rgba(226,166,84,0.20)",
-								}
-							: { borderCurve: "continuous" }
+					className={
+						detected && !saving
+							? "rounded-full bg-konti-amber/20 px-3.5 py-2"
+							: "rounded-full bg-black/50 px-3.5 py-2"
 					}
+					style={{ borderCurve: "continuous" }}
 				>
 					<Text
 						className={
-							detected
-								? "font-mono text-[11px] uppercase tracking-[0.16em]"
+							detected && !saving
+								? "font-mono text-[11px] uppercase tracking-[0.16em] text-konti-amber"
 								: "font-mono text-[11px] uppercase tracking-[0.16em] text-white"
 						}
-						style={detected ? { color: DETECTED_AMBER } : undefined}
 					>
-						{detected ? "QR detectado" : "Buscando comprobante"}
+						{saving ? "Guardando" : detected ? "QR detectado" : "Buscando comprobante"}
 					</Text>
 				</View>
 				<View pointerEvents="none" className="size-11" />
@@ -222,6 +217,17 @@ export function ScanOverlay({
 
 			{focusPoint !== null ? (
 				<FocusMark key={focusKey.current} x={focusPoint.x} y={focusPoint.y} />
+			) : null}
+
+			{saving ? (
+				<View
+					pointerEvents="none"
+					className="absolute inset-x-4 flex-row items-center gap-3 rounded-2xl bg-black/70 px-4 py-4"
+					style={{ bottom: bottom + 128, borderCurve: "continuous" }}
+				>
+					<ActivityIndicator colorClassName="accent-white" />
+					<Text className="font-sans-medium text-[15px] text-white">Guardando…</Text>
+				</View>
 			) : null}
 
 			{savedPath !== null ? <SavedCard path={savedPath} bottom={bottom + 128} /> : null}

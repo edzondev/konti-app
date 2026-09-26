@@ -4,5 +4,6 @@ packages:
 allowBuilds:
   esbuild: true
 trustLockfile: true
+verifyDepsBeforeRun: false
 minimumReleaseAgeExclude:
   - '@nestjs/drizzle@0.0.1'

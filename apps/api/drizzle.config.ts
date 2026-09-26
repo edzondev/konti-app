@@ -1,10 +1,14 @@
+import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "drizzle-kit";
 
-// El .env vive en la raíz del monorepo, no en apps/api. Lo cargamos por ruta
-// absoluta para que drizzle-kit funcione sin importar el cwd.
-process.loadEnvFile(resolve(dirname(fileURLToPath(import.meta.url)), "../../.env"));
+// En local el .env vive en la raíz del monorepo. En Railway no hay archivo:
+// DATABASE_URL ya viene en el entorno.
+const envFile = resolve(dirname(fileURLToPath(import.meta.url)), "../../.env");
+if (existsSync(envFile)) {
+	process.loadEnvFile(envFile);
+}
 
 // Preferimos la URL directa (sin pooler) para migraciones; si no existe,
 // caemos a DATABASE_URL en lugar de fallar en silencio.

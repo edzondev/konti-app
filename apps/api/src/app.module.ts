@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./auth/auth.module.js";
@@ -10,7 +12,10 @@ import { MeModule } from "./me/me.module.js";
 import { PostHogModule } from "./posthog/posthog.module.js";
 import { StorageModule } from "./storage/storage.module.js";
 
-process.loadEnvFile();
+const envFile = resolve(process.cwd(), ".env");
+if (existsSync(envFile)) {
+	process.loadEnvFile(envFile);
+}
 
 @Module({
 	imports: [

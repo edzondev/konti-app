@@ -46,7 +46,12 @@ export default function RootLayout() {
 }
 
 function RootNavigator() {
-	const { data: session } = authClient.useSession();
+	const { data: session, isPending } = authClient.useSession();
+
+	useEffect(() => {
+		if (isPending) return;
+		void SplashScreen.hideAsync();
+	}, [isPending]);
 
 	useEffect(() => {
 		if (session) markTermsAccepted();

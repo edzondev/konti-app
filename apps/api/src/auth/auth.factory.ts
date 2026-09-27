@@ -29,6 +29,9 @@ export function createAuth(db: Database, configService: ConfigService<Env, true>
 				sameSite: "lax",
 				secure: isProd,
 			},
+			ipAddress: {
+				ipAddressHeaders: ["x-forwarded-for"],
+			},
 		},
 		socialProviders: {
 			google: {

@@ -14,19 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "65550562628-6ek0rtaresepgrqogfa0hrsp8ss73hc2.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.konti.app",
-            "certificate_hash": "b3ca7d36ab0420acac490dd46063afc3e9618901"
-          }
-        },
-        {
           "client_id": "65550562628-d9bp5gan4igi8cevivijekk7pr4e646o.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.konti.app",
-            "certificate_hash": "ee51e983b324dab9df3776615ddb7c448e9f7524"
+            "certificate_hash": "5ba373b752e4447929a98e4f3c707264769d8cd6"
           }
         },
         {

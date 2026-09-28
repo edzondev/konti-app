@@ -1,5 +1,13 @@
 import { BottomSheet, RNHostView } from "@expo/ui";
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
+import {
+	ActivityIndicator,
+	Pressable,
+	RefreshControl,
+	ScrollView,
+	Text,
+	useWindowDimensions,
+	View,
+} from "react-native";
 
 import { type ListRow } from "@/features/comprobantes/comprobantes-list";
 import { DocumentEditScreen } from "@/features/comprobantes/document-edit-screen";
@@ -63,9 +71,30 @@ export function ComprobantesScreen() {
 		startEditing,
 		stopEditing,
 	} = useComprobantesScreen();
+	const { width } = useWindowDimensions();
+
+	const hugContent =
+		selectedDocument != null && !editing && selectedDocument.status !== "ready";
+	const readingLabel =
+		selectedDocument == null || editing
+			? null
+			: selectedDocument.status === "failed"
+				? "COMPROBANTE · NO PUDIMOS LEERLO"
+				: selectedDocument.status === "pending" &&
+					  selectedDocument.extractionSource !== "manual"
+					? "COMPROBANTE · PROCESANDO"
+					: null;
 
 	return (
 		<UniSafeAreaView className="flex-1 bg-konti-bg" edges={["top"]}>
+			{readingLabel != null ? (
+				<Text
+					pointerEvents="none"
+					className="px-6 pt-2 font-mono text-[11px] uppercase tracking-[0.16em] text-konti-ink-muted"
+				>
+					{readingLabel}
+				</Text>
+			) : null}
 			<ScrollView
 				className="flex-1"
 				alwaysBounceVertical
@@ -183,27 +212,40 @@ export function ComprobantesScreen() {
 			<BottomSheet
 				isPresented={selectedDocument != null}
 				onDismiss={closeDocument}
-				snapPoints={["full"]}
+				snapPoints={hugContent ? undefined : ["full"]}
+				contentPadding={hugContent ? 0 : undefined}
 				containerColor={sheetBackground.backgroundColor}
 			>
 				{selectedDocument != null ? (
-					<RNHostView style={{ height }}>
-						<View className="flex-1 bg-konti-surface-raised">
-							{editing ? (
-								<DocumentEditScreen
-									key={selectedDocument.id}
-									document={selectedDocument}
-									onClose={stopEditing}
-								/>
-							) : (
+					hugContent ? (
+						<RNHostView matchContents style={{ width }}>
+							<View className="bg-konti-surface-raised" style={{ width }}>
 								<DocumentScreen
 									document={selectedDocument}
 									onEdit={startEditing}
 									onClose={closeDocument}
 								/>
-							)}
-						</View>
-					</RNHostView>
+							</View>
+						</RNHostView>
+					) : (
+						<RNHostView style={{ height }}>
+							<View className="flex-1 bg-konti-surface-raised">
+								{editing ? (
+									<DocumentEditScreen
+										key={selectedDocument.id}
+										document={selectedDocument}
+										onClose={stopEditing}
+									/>
+								) : (
+									<DocumentScreen
+										document={selectedDocument}
+										onEdit={startEditing}
+										onClose={closeDocument}
+									/>
+								)}
+							</View>
+						</RNHostView>
+					)
 				) : null}
 			</BottomSheet>
 		</UniSafeAreaView>

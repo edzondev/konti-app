@@ -1,6 +1,14 @@
 import { router } from "expo-router";
+import { useEffect } from "react";
 import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { NitroImage } from "react-native-nitro-image";
+import Animated, {
+	Easing,
+	useAnimatedStyle,
+	useSharedValue,
+	withRepeat,
+	withTiming,
+} from "react-native-reanimated";
 
 import { type Document } from "@/features/comprobantes/comprobantes-document";
 import { CATEGORY_LABELS, DOCUMENT_TYPE_LABELS } from "@/features/comprobantes/document-form";
@@ -77,6 +85,41 @@ function ManualPendingBody({ onEdit }: { onEdit: () => void }) {
 	);
 }
 
+function ReadingProgress() {
+	const progress = useSharedValue(0);
+	const trackWidth = useSharedValue(0);
+
+	useEffect(() => {
+		progress.set(
+			withRepeat(
+				withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.cubic) }),
+				-1,
+				false,
+			),
+		);
+	}, [progress]);
+
+	const segmentStyle = useAnimatedStyle(() => {
+		const width = trackWidth.get();
+		const segment = Math.min(width, Math.max(48, width * 0.28));
+		return {
+			width: segment,
+			transform: [{ translateX: progress.get() * Math.max(0, width - segment) }],
+		};
+	});
+
+	return (
+		<View
+			className="mx-6 mt-8 mb-6 h-1 overflow-hidden rounded-full bg-konti-border"
+			onLayout={(event) => {
+				trackWidth.set(event.nativeEvent.layout.width);
+			}}
+		>
+			<Animated.View className="h-full rounded-full bg-konti-amber" style={segmentStyle} />
+		</View>
+	);
+}
+
 function PendingBody() {
 	return (
 		<View>
@@ -86,10 +129,9 @@ function PendingBody() {
 			<Text className="mt-6 font-sans-light text-[28px] text-konti-ink">
 				Leyendo tu comprobante.
 			</Text>
-			<Text className="mt-3 text-[15px] text-konti-ink-muted">
+			<Text className="mt-3 text-[15px] leading-6 text-konti-ink-muted">
 				Esto suele tomar unos segundos. Puedes cerrar esta pantalla.
 			</Text>
-			<View className="mt-8 h-1 w-16 rounded-full bg-konti-amber" />
 		</View>
 	);
 }
@@ -115,7 +157,7 @@ function FailedBody({
 				</Text>
 			</View>
 			<Text className="mt-3 font-sans-light text-[32px] text-konti-ink">
-				No pudimos <Text className="text-konti-amber-deep">leerlo</Text>
+				No pudimos <Text className="italic text-konti-amber">leerlo</Text>
 			</Text>
 			<Text className="mt-3 text-konti-ink-muted">
 				La foto no es lo bastante clara. Puedes intentar de nuevo o ingresar los datos a mano.
@@ -194,6 +236,15 @@ function ReadyBody({
 	);
 }
 
+function DeletionMessage({ isError }: { isError: boolean }) {
+	if (!isError) return null;
+	return (
+		<Text className="mt-3 text-center text-[12px] text-konti-danger">
+			No pudimos eliminar el comprobante.
+		</Text>
+	);
+}
+
 export function DocumentScreen({
 	document,
 	onEdit,
@@ -219,6 +270,36 @@ export function DocumentScreen({
 		]);
 	}
 
+	if (document.status === "pending" && document.extractionSource === "manual") {
+		return (
+			<View className="bg-konti-bg px-6 pb-8 pt-2">
+				<ManualPendingBody onEdit={onEdit} />
+				<DeletionMessage isError={deletion.isError} />
+			</View>
+		);
+	}
+
+	if (document.status === "pending") {
+		return (
+			<View className="w-full bg-konti-bg pt-2">
+				<View className="px-6">
+					<PendingBody />
+				</View>
+				<ReadingProgress />
+				<DeletionMessage isError={deletion.isError} />
+			</View>
+		);
+	}
+
+	if (document.status === "failed") {
+		return (
+			<View className="bg-konti-bg px-6 pb-8 pt-2">
+				<FailedBody id={document.id} onEdit={onEdit} onDelete={onDelete} onClose={onClose} />
+				<DeletionMessage isError={deletion.isError} />
+			</View>
+		);
+	}
+
 	return (
 		<View className="flex-1 bg-konti-bg">
 			<ScrollView
@@ -226,23 +307,8 @@ export function DocumentScreen({
 				contentInsetAdjustmentBehavior="automatic"
 				contentContainerClassName="px-2 pb-10"
 			>
-				{document.status === "pending" && document.extractionSource === "manual" ? (
-					<ManualPendingBody onEdit={onEdit} />
-				) : null}
-				{document.status === "pending" && document.extractionSource !== "manual" ? (
-					<PendingBody />
-				) : null}
-				{document.status === "failed" ? (
-					<FailedBody id={document.id} onEdit={onEdit} onDelete={onDelete} onClose={onClose} />
-				) : null}
-				{document.status === "ready" ? (
-					<ReadyBody document={document} onEdit={onEdit} onDelete={onDelete} />
-				) : null}
-				{deletion.isError ? (
-					<Text className="mt-3 text-center text-[12px] text-konti-danger">
-						No pudimos eliminar el comprobante.
-					</Text>
-				) : null}
+				<ReadyBody document={document} onEdit={onEdit} onDelete={onDelete} />
+				<DeletionMessage isError={deletion.isError} />
 			</ScrollView>
 		</View>
 	);

@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Check, Image, X } from "@/shared/ui/reicon";
+import { Check, Flash, FlashSlash, Image, X } from "@/shared/ui/reicon";
 
 const BRACKET_IN = 20;
 const CORNER_EDGES = ["tl", "tr", "bl", "br"] as const;
@@ -138,6 +138,9 @@ export function ScanOverlay({
 	onClose,
 	onShutter,
 	onGallery,
+	showFlash,
+	flashEnabled,
+	onToggleFlash,
 }: {
 	phase: "searching" | "detected";
 	savedPath: string | null;
@@ -147,6 +150,9 @@ export function ScanOverlay({
 	onClose: () => void;
 	onShutter: () => void;
 	onGallery: () => void;
+	showFlash: boolean;
+	flashEnabled: boolean;
+	onToggleFlash: () => void;
 }): ReactElement {
 	const insets = useSafeAreaInsets();
 	const detected = phase === "detected";
@@ -256,7 +262,22 @@ export function ScanOverlay({
 					>
 						<View pointerEvents="none" className="size-14 rounded-full bg-white" />
 					</Pressable>
-					<View pointerEvents="none" className="size-12" />
+					{showFlash ? (
+						<Pressable
+							accessibilityRole="button"
+							accessibilityLabel={flashEnabled ? "Apagar flash" : "Encender flash"}
+							className="size-12 items-center justify-center rounded-full bg-black/50 active:opacity-70"
+							onPress={onToggleFlash}
+						>
+							{flashEnabled ? (
+								<Flash colorClassName="accent-white" size={22} />
+							) : (
+								<FlashSlash colorClassName="accent-white" size={22} />
+							)}
+						</Pressable>
+					) : (
+						<View pointerEvents="none" className="size-12" />
+					)}
 				</View>
 				{error !== null ? (
 					<Text selectable className="mt-3 text-center text-[13px] text-white">

@@ -8,6 +8,7 @@ import type { GestureResponderEvent } from "react-native";
 import {
 	type CameraRef,
 	type Photo,
+	type TorchMode,
 	useCameraDevice,
 	useCameraPermission,
 	usePhotoOutput,
@@ -54,13 +55,13 @@ function deleteCameraTemp(file: File | null) {
 export function useScan() {
 	const focused = useIsFocused();
 	const queryClient = useQueryClient();
-	const { hasPermission, requestPermission } = useCameraPermission();
+	const { hasPermission, requestPermission, canRequestPermission } = useCameraPermission();
 	const device = useCameraDevice("back", {
 		physicalDevices: ["wide-angle"],
 	});
 	const photoOutput = usePhotoOutput({
 		containerFormat: "jpeg",
-		qualityPrioritization: device?.supportsSpeedQualityPrioritization ? "speed" : "balanced",
+		qualityPrioritization: "balanced",
 	});
 	const cameraRef = useRef<CameraRef>(null);
 	const holdRef = useRef<QrHold>({ value: null, since: null });
@@ -71,12 +72,14 @@ export function useScan() {
 	const phaseRef = useRef<Phase>("searching");
 	const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const captureQrRef = useRef<(qrPayload: string) => void>(() => {});
+	const flashEnabledRef = useRef(false);
 
 	const [phase, setPhase] = useState<Phase>("searching");
 	const [savedPath, setSavedPath] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [focusPoint, setFocusPoint] = useState<{ x: number; y: number } | null>(null);
+	const [flashEnabled, setFlashEnabled] = useState(false);
 
 	useEffect(() => {
 		return () => {
@@ -112,7 +115,8 @@ export function useScan() {
 		let cameraTemp: File | null = null;
 		try {
 			await lightImpact();
-			photo = await photoOutput.capturePhoto({ flashMode: "off", enableShutterSound: false }, {});
+			const flashMode = flashEnabledRef.current && device?.hasFlash ? "on" : "off";
+			photo = await photoOutput.capturePhoto({ flashMode, enableShutterSound: false }, {});
 			const filePath = await photo.saveToTemporaryFileAsync();
 			const file = new File(fileUri(filePath));
 			cameraTemp = file;
@@ -218,9 +222,10 @@ export function useScan() {
 			y: event.nativeEvent.locationY,
 		};
 		setFocusPoint(point);
+		if (device?.supportsFocusMetering === false) return;
 		void cameraRef.current
 			?.focusTo(point, { responsiveness: "snappy", adaptiveness: "continuous" })
-			.catch(() => {});
+			.catch((error) => reportError("[scan] enfoque", error));
 	}
 
 	function onShutter() {
@@ -235,6 +240,15 @@ export function useScan() {
 		router.back();
 	}
 
+	function onToggleFlash() {
+		const next = !flashEnabledRef.current;
+		flashEnabledRef.current = next;
+		setFlashEnabled(next);
+	}
+
+	const showFlash = Boolean(device?.hasFlash || device?.hasTorch);
+	const torchMode: TorchMode = flashEnabled && device?.hasTorch ? "on" : "off";
+
 	return {
 		hasPermission,
 		requestPermission,
@@ -248,6 +262,11 @@ export function useScan() {
 		busy,
 		error,
 		focusPoint,
+		flashEnabled,
+		showFlash,
+		torchMode,
+		onToggleFlash,
+		canRequestPermission,
 		onRequestPermission,
 		onTapFocus,
 		onShutter,

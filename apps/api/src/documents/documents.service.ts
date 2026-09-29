@@ -13,6 +13,7 @@ import type { Database } from "../database/database.types.js";
 import { documents } from "../database/schema/app.schema.js";
 import { type Category, categoryLabel, DEDUCTIBLE_CATEGORIES } from "../ingestion/category-map.js";
 import { IngestionService } from "../ingestion/ingestion.service.js";
+import { parseQrPayload } from "../ingestion/qr-parser.js";
 import type { DocumentMimeType } from "../storage/mime.js";
 import { buildDocumentObjectKey } from "../storage/object-keys.js";
 import { StorageService } from "../storage/storage.service.js";
@@ -102,12 +103,30 @@ export class DocumentsService {
 						file.buffer,
 						file.mimeType,
 						dto.qrPayload,
-						dto.localText,
 					);
 					return reset;
 				}
 			}
 			return existing;
+		}
+
+		if (dto.qrPayload) {
+			const parsed = parseQrPayload(dto.qrPayload);
+			if (parsed?.issuerTaxId && parsed.documentNumber) {
+				const [sameReceipt] = await this.db
+					.select()
+					.from(documents)
+					.where(
+						and(
+							eq(documents.userId, userId),
+							eq(documents.issuerTaxId, parsed.issuerTaxId),
+							eq(documents.documentNumber, parsed.documentNumber),
+							isNull(documents.deletedAt),
+						),
+					)
+					.limit(1);
+				if (sameReceipt) return sameReceipt;
+			}
 		}
 
 		const objectKey = buildDocumentObjectKey(userId, file.mimeType);
@@ -167,14 +186,7 @@ export class DocumentsService {
 			properties: { source: dto.source },
 		});
 
-		void this.processInBackground(
-			userId,
-			document.id,
-			file.buffer,
-			file.mimeType,
-			dto.qrPayload,
-			dto.localText,
-		);
+		void this.processInBackground(userId, document.id, file.buffer, file.mimeType, dto.qrPayload);
 
 		return document;
 	}
@@ -476,7 +488,6 @@ export class DocumentsService {
 		buffer: Buffer,
 		mimeType: DocumentMimeType,
 		qrPayload?: string,
-		localText?: string,
 	): Promise<void> {
 		try {
 			await this.ingestion.process({
@@ -485,7 +496,6 @@ export class DocumentsService {
 				buffer,
 				mimeType,
 				qrPayload,
-				localText,
 			});
 		} catch (error) {
 			this.logger.error(

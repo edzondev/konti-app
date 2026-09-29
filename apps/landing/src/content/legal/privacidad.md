@@ -51,6 +51,7 @@ Para poder ofrecerte el servicio, compartimos ciertos datos con terceros proveed
 | **Google LLC** (Google Sign-In) | Autenticación de usuario | Nombre, correo electrónico | EE. UU. |
 | **Cloudflare, Inc.** (R2) | Almacenamiento de imágenes de comprobantes | Imágenes de comprobantes | EE. UU. (red global) |
 | **Mistral AI** | Reconocimiento óptico de caracteres (OCR) para comprobantes sin QR | Imagen del comprobante | Francia / EE. UU. |
+| **TypeSafe** (System One / Jev) | Extracción de campos del texto OCR (emisor, montos, fecha) | Texto OCR del comprobante (puede incluir nombre o documento del cliente si aparecen impresos) | EE. UU. |
 | **PostHog, Inc.** | Analítica de uso anónima | Eventos de uso, tipo de dispositivo | EE. UU. / UE |
 | **Functional Software, Inc.** (Sentry) | Monitoreo de errores | Trazas de error, datos técnicos | EE. UU. |
 

@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { parse } from "valibot";
+
 import { apiFetch } from "@/core/api-fetch";
 import { authClient } from "@/core/auth-client";
 import { QUERY_KEYS } from "@/core/query-keys";
@@ -14,7 +16,7 @@ import {
 
 export async function fetchHomeSummary(month: string): Promise<HomeSummary> {
 	const raw = await apiFetch<unknown>(`/documents/summary?month=${encodeURIComponent(month)}`);
-	return HomeSummarySchema.parse(raw);
+	return parse(HomeSummarySchema, raw);
 }
 
 export function useHomeSummary(month = currentLimaMonth()) {

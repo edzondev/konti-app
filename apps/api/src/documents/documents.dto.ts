@@ -1,18 +1,16 @@
 import { createStandardSchemaDTO } from "nestjs-standard-schema";
 import * as v from "valibot";
 import { CATEGORIES } from "../ingestion/category-map.js";
+import { DOCUMENT_TYPES } from "../ingestion/ingestion.types.js";
 import { AmountSchema, IsoDateSchema, RucSchema } from "../ingestion/schemas.js";
 
 export const CreateDocumentSchema = v.object({
 	source: v.picklist(["camera", "gallery", "share"]),
 	qrPayload: v.optional(v.pipe(v.string(), v.maxLength(2000))),
-	localText: v.optional(v.pipe(v.string(), v.maxLength(2000))),
 });
 
 export const UpdateDocumentSchema = v.object({
-	documentType: v.optional(
-		v.picklist(["boleta", "factura", "recibo_honorarios", "ticket", "unknown"]),
-	),
+	documentType: v.optional(v.picklist(DOCUMENT_TYPES)),
 	issuerName: v.optional(v.nullable(v.pipe(v.string(), v.maxLength(200)))),
 	issuerTaxId: v.optional(v.nullable(RucSchema)),
 	issueDate: v.optional(v.nullable(IsoDateSchema)),

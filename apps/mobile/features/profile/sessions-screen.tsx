@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 
 import { useRevokeSession } from "@/features/profile/use-revoke-session";
-import { useSessions, type MeSession } from "@/features/profile/use-sessions";
+import { type MeSession, useSessions } from "@/features/profile/use-sessions";
 import { ChevronLeft } from "@/shared/ui/reicon";
 import { UniSafeAreaView } from "@/shared/ui/safe-area";
 

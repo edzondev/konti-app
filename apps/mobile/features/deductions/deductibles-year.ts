@@ -1,23 +1,23 @@
-import { z } from "zod";
+import * as v from "valibot";
 
 import { apiFetch } from "@/core/api-fetch";
 
-export const DeductiblesYearSchema = z.object({
-	year: z.number(),
-	totalAmount: z.number(),
-	documentCount: z.number(),
-	categories: z.array(
-		z.object({
-			name: z.string(),
-			amount: z.number(),
+export const DeductiblesYearSchema = v.object({
+	year: v.number(),
+	totalAmount: v.number(),
+	documentCount: v.number(),
+	categories: v.array(
+		v.object({
+			name: v.string(),
+			amount: v.number(),
 		}),
 	),
-	uit: z.number(),
-	topAmount: z.number(),
-	restaurantAmount: z.number(),
+	uit: v.number(),
+	topAmount: v.number(),
+	restaurantAmount: v.number(),
 });
 
-export type DeductiblesYear = z.infer<typeof DeductiblesYearSchema>;
+export type DeductiblesYear = v.InferOutput<typeof DeductiblesYearSchema>;
 
 const limaYearFormat = new Intl.DateTimeFormat("en-CA", {
 	timeZone: "America/Lima",
@@ -30,5 +30,5 @@ export function currentLimaYear(now = new Date()): number {
 
 export async function fetchDeductiblesYear(year: number): Promise<DeductiblesYear> {
 	const raw = await apiFetch<unknown>(`/documents/deductibles/year?year=${year}`);
-	return DeductiblesYearSchema.parse(raw);
+	return v.parse(DeductiblesYearSchema, raw);
 }

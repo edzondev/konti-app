@@ -23,8 +23,6 @@ import { uploadDocument } from "@/features/scan/upload-document";
 const BARCODE_FORMATS: ["qr-code"] = ["qr-code"];
 const SAVED_MS = 2000;
 
-type Phase = "searching" | "detected";
-
 async function lightImpact() {
 	try {
 		await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -69,20 +67,22 @@ export function useScan() {
 	const busyRef = useRef(false);
 	const savedPathRef = useRef<string | null>(null);
 	const cameraTempRef = useRef<File | null>(null);
-	const phaseRef = useRef<Phase>("searching");
 	const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const captureQrRef = useRef<(qrPayload: string) => void>(() => {});
-	const flashEnabledRef = useRef(false);
+	const mountedRef = useRef(true);
+	const captureRef = useRef<(qrPayload?: string) => void>(() => {});
 
-	const [phase, setPhase] = useState<Phase>("searching");
+	const [qrText, setQrText] = useState<string | null>(null);
 	const [savedPath, setSavedPath] = useState<string | null>(null);
+	const quietUntilGoneRef = useRef(false);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [focusPoint, setFocusPoint] = useState<{ x: number; y: number } | null>(null);
 	const [flashEnabled, setFlashEnabled] = useState(false);
 
 	useEffect(() => {
+		mountedRef.current = true;
 		return () => {
+			mountedRef.current = false;
 			if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
 			const cameraTemp = cameraTempRef.current;
 			cameraTempRef.current = null;
@@ -96,40 +96,41 @@ export function useScan() {
 		invalidateDocumentMetadata(queryClient);
 		if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
 		savedTimerRef.current = setTimeout(() => {
+			if (!mountedRef.current) return;
 			savedPathRef.current = null;
 			setSavedPath(null);
+			setQrText(null);
+			quietUntilGoneRef.current = true;
 			const cameraTemp = cameraTempRef.current;
 			cameraTempRef.current = null;
 			deleteCameraTemp(cameraTemp);
-			phaseRef.current = "searching";
-			setPhase("searching");
 		}, SAVED_MS);
 	}
 
 	async function captureFromCamera(qrPayload?: string) {
 		if (busyRef.current) return;
 		busyRef.current = true;
-		setBusy(true);
-		setError(null);
+		if (mountedRef.current) setBusy(true);
+		if (mountedRef.current) setError(null);
 		let photo: Photo | null = null;
 		let cameraTemp: File | null = null;
 		try {
 			await lightImpact();
-			const flashMode = flashEnabledRef.current && device?.hasFlash ? "on" : "off";
+			const flashMode = flashEnabled && device?.hasFlash ? "on" : "off";
 			photo = await photoOutput.capturePhoto({ flashMode, enableShutterSound: false }, {});
+			if (!mountedRef.current) return;
 			const filePath = await photo.saveToTemporaryFileAsync();
+			if (!mountedRef.current) return;
 			const file = new File(fileUri(filePath));
 			cameraTemp = file;
 			deleteCameraTemp(cameraTempRef.current);
 			cameraTempRef.current = file;
 			const filename = file.name || "boleta.jpg";
-			if (qrPayload) {
-				await uploadDocument({ file, filename, source: "camera", qrPayload });
-			} else {
-				await uploadDocument({ file, filename, source: "camera" });
-			}
+			await uploadDocument({ file, filename, source: "camera", qrPayload });
+			if (!mountedRef.current) return;
 			showSaved(filePath);
 		} catch (error) {
+			if (!mountedRef.current) return;
 			reportError("[scan] captura", error);
 			setError("No se pudo guardar la boleta.");
 			if (cameraTempRef.current === cameraTemp) cameraTempRef.current = null;
@@ -137,13 +138,13 @@ export function useScan() {
 		} finally {
 			photo?.dispose();
 			busyRef.current = false;
-			setBusy(false);
+			if (mountedRef.current) setBusy(false);
 		}
 	}
 
-	captureQrRef.current = (qrPayload: string) => {
-		void captureFromCamera(qrPayload);
-	};
+	useEffect(() => {
+		captureRef.current = captureFromCamera;
+	});
 
 	const onBarcodeScanned = useCallback((barcodes: Barcode[]) => {
 		const qr = barcodes.find((barcode) => barcode.format === "qr-code");
@@ -158,22 +159,16 @@ export function useScan() {
 		latchedRef.current = next.latch.value;
 
 		if (!raw) {
+			quietUntilGoneRef.current = false;
 			if (savedPathRef.current || busyRef.current) return;
-			if (phaseRef.current !== "searching") {
-				phaseRef.current = "searching";
-				setPhase("searching");
-			}
+			setQrText(null);
 			return;
 		}
 
-		if (!next.stableValue) return;
+		if (quietUntilGoneRef.current || !next.stableValue) return;
 
-		if (phaseRef.current !== "detected") {
-			phaseRef.current = "detected";
-			setPhase("detected");
-		}
-
-		if (next.captureValue) captureQrRef.current(next.captureValue);
+		setQrText((prev) => (prev === next.stableValue ? prev : next.stableValue));
+		if (next.captureValue) captureRef.current(next.captureValue);
 	}, []);
 
 	const onScanError = useCallback((error: Error) => {
@@ -182,6 +177,7 @@ export function useScan() {
 
 	const barcodeOutput = useBarcodeScannerOutput({
 		barcodeFormats: BARCODE_FORMATS,
+		outputResolution: "preview",
 		onBarcodeScanned,
 		onError: onScanError,
 	});
@@ -189,26 +185,30 @@ export function useScan() {
 	async function pickFromGallery() {
 		if (busyRef.current) return;
 		busyRef.current = true;
-		setError(null);
+		if (mountedRef.current) {
+			setBusy(true);
+			setError(null);
+		}
 		try {
 			const result = await launchImageLibraryAsync({ mediaTypes: ["images"] });
-			if (result.canceled) return;
+			if (!mountedRef.current || result.canceled) return;
 			const asset = result.assets[0];
 			if (!asset) return;
-			setBusy(true);
 			const file = new File(asset.uri);
 			await uploadDocument({
 				file,
 				filename: asset.fileName ?? (file.name || "boleta.jpg"),
 				source: "gallery",
 			});
+			if (!mountedRef.current) return;
 			showSaved(previewPath(asset.uri));
 		} catch (error) {
+			if (!mountedRef.current) return;
 			reportError("[scan] galería", error);
 			setError("No se pudo guardar la boleta.");
 		} finally {
 			busyRef.current = false;
-			setBusy(false);
+			if (mountedRef.current) setBusy(false);
 		}
 	}
 
@@ -241,9 +241,7 @@ export function useScan() {
 	}
 
 	function onToggleFlash() {
-		const next = !flashEnabledRef.current;
-		flashEnabledRef.current = next;
-		setFlashEnabled(next);
+		setFlashEnabled((current) => !current);
 	}
 
 	const showFlash = Boolean(device?.hasFlash || device?.hasTorch);
@@ -257,7 +255,7 @@ export function useScan() {
 		photoOutput,
 		barcodeOutput,
 		focused,
-		phase,
+		qrText,
 		savedPath,
 		busy,
 		error,

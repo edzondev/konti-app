@@ -13,6 +13,7 @@ const base = {
 	R2_SECRET_ACCESS_KEY: "c",
 	R2_BUCKET_NAME: "bucket",
 	MISTRAL_API_KEY: "m",
+	TYPESAFE_API_KEY: "t",
 	POSTHOG_API_KEY: "p",
 };
 

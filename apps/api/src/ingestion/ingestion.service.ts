@@ -1,13 +1,13 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectDrizzle } from "@nestjs/drizzle";
-import { and, count, desc, eq, gte, isNotNull, isNull } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, isNotNull, isNull } from "drizzle-orm";
 import type { Env } from "../config/env.js";
 import type { Database } from "../database/database.types.js";
 import { documents } from "../database/schema/app.schema.js";
 import { type Category, categorizeByName } from "./category-map.js";
-import type { ExtractedDocument } from "./ingestion.types.js";
-import { parseLocalText } from "./local-parser.js";
+import { FieldJudge } from "./field-judge.js";
+import { type ExtractedDocument, emptyExtraction } from "./ingestion.types.js";
 import { OcrClient } from "./ocr-client.js";
 import { parseQrPayload } from "./qr-parser.js";
 
@@ -17,10 +17,9 @@ interface IngestionInput {
 	buffer: Buffer;
 	mimeType: string;
 	qrPayload?: string;
-	localText?: string;
 }
 
-type ExtractionSource = "qr" | "local" | "ocr" | "manual";
+type ExtractionSource = "qr" | "ocr" | "manual";
 
 const PERU_TIME_ZONE = "America/Lima";
 
@@ -32,16 +31,19 @@ export class IngestionService {
 		@InjectDrizzle()
 		private readonly db: Database,
 		private readonly ocr: OcrClient,
+		private readonly fields: FieldJudge,
 		private readonly config: ConfigService<Env, true>,
 	) {}
 
 	async process(input: IngestionInput): Promise<void> {
 		const { extracted, source } = await this.extract(input);
 		const category = await this.resolveCategory(input.userId, extracted);
+		const drop = await this.shouldDropDuplicate(input, extracted);
+		const incomplete = isExtractionIncomplete(extracted.totalAmount);
 		const status =
-			source === "manual"
+			drop || source === "manual" || (source === "ocr" && incomplete)
 				? "pending"
-				: isExtractionIncomplete(extracted.totalAmount)
+				: incomplete
 					? "failed"
 					: "ready";
 
@@ -53,6 +55,7 @@ export class IngestionService {
 				category,
 				status,
 				extractionSource: source,
+				...(drop ? { deletedAt: new Date() } : {}),
 				updatedAt: new Date(),
 			})
 			.where(
@@ -73,6 +76,33 @@ export class IngestionService {
 		}
 
 		this.logger.log(`document ${input.documentId} ${status} via ${source} category=${category}`);
+	}
+
+	/** Mismo RUC + número, otro vivo más antiguo (o del mismo instante): el actual se oculta. */
+	private async shouldDropDuplicate(
+		input: IngestionInput,
+		extracted: ExtractedDocument,
+	): Promise<boolean> {
+		const issuerTaxId = extracted.issuerTaxId?.trim();
+		const documentNumber = extracted.documentNumber?.trim();
+		if (!issuerTaxId || !documentNumber) return false;
+
+		// Los 2 más antiguos bastan: si el actual no está ahí, es más nuevo.
+		const rows = await this.db
+			.select({ id: documents.id, createdAt: documents.createdAt })
+			.from(documents)
+			.where(
+				and(
+					eq(documents.userId, input.userId),
+					eq(documents.issuerTaxId, issuerTaxId),
+					eq(documents.documentNumber, documentNumber),
+					isNull(documents.deletedAt),
+				),
+			)
+			.orderBy(asc(documents.createdAt))
+			.limit(2);
+
+		return shouldSoftDeleteDuplicate(input.documentId, rows);
 	}
 
 	/**
@@ -116,17 +146,7 @@ export class IngestionService {
 			if (parsed) {
 				return { extracted: parsed, source: "qr" };
 			}
-			const fromQrText = parseLocalText(input.qrPayload);
-			if (fromQrText) {
-				return { extracted: fromQrText, source: "local" };
-			}
 			this.logger.warn(`QR parse failed for document ${input.documentId}`);
-		} else if (input.localText) {
-			const parsed = parseLocalText(input.localText);
-			if (parsed) {
-				return { extracted: parsed, source: "local" };
-			}
-			this.logger.warn(`Local parse failed for document ${input.documentId}`);
 		}
 
 		const budgetAvailable = await this.hasOcrBudget();
@@ -135,8 +155,28 @@ export class IngestionService {
 			return { extracted: emptyExtraction(), source: "manual" };
 		}
 
-		const extracted = await this.ocr.extract(input.buffer, input.mimeType);
-		return { extracted, source: "ocr" };
+		const markdown = await this.ocr.extract(input.buffer, input.mimeType);
+		if (!markdown.trim()) {
+			return { extracted: emptyExtraction(), source: "ocr" };
+		}
+
+		try {
+			const picked = await this.fields.pick(markdown);
+			if (!picked.confident) {
+				// Conservar emisor/fecha/etc.; solo el total va a revisión.
+				return {
+					extracted: { ...picked.extracted, totalAmount: null },
+					source: "ocr",
+				};
+			}
+			return { extracted: picked.extracted, source: "ocr" };
+		} catch (error) {
+			this.logger.warn(
+				`TypeSafe failed for document ${input.documentId}; keeping OCR slot as pending`,
+				error instanceof Error ? error.message : undefined,
+			);
+			return { extracted: emptyExtraction(), source: "ocr" };
+		}
 	}
 
 	/** Tope global de la API: cuenta docs del mes (Lima) ya marcados como ocr. */
@@ -152,17 +192,17 @@ export class IngestionService {
 	}
 }
 
-function emptyExtraction(): ExtractedDocument {
-	return {
-		documentType: "unknown",
-		issuerName: null,
-		issuerTaxId: null,
-		issueDate: null,
-		documentNumber: null,
-		currencyCode: null,
-		totalAmount: null,
-		igvAmount: null,
-	};
+/** El más antiguo gana. `rows` son vivos con el mismo RUC y número, más antiguos primero. */
+export function shouldSoftDeleteDuplicate(
+	currentId: string,
+	rows: ReadonlyArray<{ id: string; createdAt: Date }>,
+): boolean {
+	const current = rows.find((row) => row.id === currentId);
+	return rows.some((row) => {
+		if (row.id === currentId) return false;
+		if (!current) return true;
+		return row.createdAt.getTime() <= current.createdAt.getTime();
+	});
 }
 
 /** Incomplete = no usable total: null/empty, NaN, or <= 0. */

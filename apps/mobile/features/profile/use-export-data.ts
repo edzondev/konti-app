@@ -1,6 +1,8 @@
-import { useState } from "react";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import { useState } from "react";
+
+import { parse } from "valibot";
 
 import { apiFetch } from "@/core/api-fetch";
 import { reportError } from "@/core/report-error";
@@ -22,7 +24,7 @@ export function useExportData() {
 		setIsExporting(true);
 		try {
 			const raw = await apiFetch<unknown>("/me/export");
-			const data = MeExportSchema.parse(raw);
+			const data = parse(MeExportSchema, raw);
 			const file = new File(Paths.cache, localExportFileName());
 			if (file.exists) file.delete();
 			file.create();

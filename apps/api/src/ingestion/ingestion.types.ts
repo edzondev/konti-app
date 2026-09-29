@@ -1,4 +1,25 @@
-export type DocumentType = "boleta" | "factura" | "recibo_honorarios" | "ticket" | "unknown";
+export const DOCUMENT_TYPES = [
+	"boleta",
+	"factura",
+	"recibo_honorarios",
+	"ticket",
+	"unknown",
+] as const;
+
+export type DocumentType = (typeof DOCUMENT_TYPES)[number];
+
+export function emptyExtraction(): ExtractedDocument {
+	return {
+		documentType: "unknown",
+		issuerName: null,
+		issuerTaxId: null,
+		issueDate: null,
+		documentNumber: null,
+		currencyCode: null,
+		totalAmount: null,
+		igvAmount: null,
+	};
+}
 
 export interface ExtractedDocument {
 	documentType: DocumentType;

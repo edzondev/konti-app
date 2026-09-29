@@ -72,7 +72,7 @@ export function ScanScreen() {
 		photoOutput,
 		barcodeOutput,
 		focused,
-		phase,
+		qrText,
 		savedPath,
 		busy,
 		error,
@@ -121,7 +121,7 @@ export function ScanScreen() {
 				<Pressable accessible={false} className="absolute inset-0" onPress={onTapFocus} />
 			</View>
 			<ScanOverlay
-				phase={phase}
+				qrText={qrText}
 				savedPath={savedPath}
 				busy={busy}
 				error={error}

@@ -1,6 +1,6 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { File, Paths } from "expo-file-system";
-import { z } from "zod";
+import * as v from "valibot";
 
 import { apiFetch } from "@/core/api-fetch";
 import { authClient } from "@/core/auth-client";
@@ -11,6 +11,7 @@ import {
 	loadDocuments,
 	readCachedDocuments,
 } from "@/features/comprobantes/comprobantes-document";
+import { isStillProcessing } from "@/features/comprobantes/comprobantes-list";
 import type { DocumentUpdatePayload } from "@/features/comprobantes/document-form";
 
 function getBaseUrl(): string {
@@ -39,7 +40,7 @@ export async function fetchDocumentImageFile(id: string): Promise<string> {
 
 export async function fetchDocuments(month: string): Promise<Document[]> {
 	const data = await apiFetch<unknown>(`/documents?month=${encodeURIComponent(month)}`);
-	return z.array(DocumentSchema).parse(data);
+	return v.parse(v.array(DocumentSchema), data);
 }
 
 function useUserId(): string | undefined {
@@ -63,9 +64,7 @@ export function useDocuments(month: string) {
 		enabled: Boolean(userId),
 		placeholderData: userId ? readCachedDocuments(userId, month) : undefined,
 		refetchInterval: (query) =>
-			query.state.data?.some((d) => d.status === "pending" && d.extractionSource !== "manual")
-				? 3000
-				: false,
+			query.state.data?.some((d) => isStillProcessing(d)) ? 3000 : false,
 	});
 }
 

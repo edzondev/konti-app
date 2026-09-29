@@ -2,7 +2,7 @@ import { ConfigContext, ExpoConfig } from "expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
 	...config,
-	name: "app-konti",
+	name: "konti",
 	slug: "app-konti",
 	version: "0.0.1",
 	orientation: "portrait",

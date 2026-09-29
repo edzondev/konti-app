@@ -1,49 +1,49 @@
-import { z } from "zod";
+import * as v from "valibot";
 
-export const MeSessionSchema = z.object({
-	id: z.string(),
-	createdAt: z.string(),
-	expiresAt: z.string(),
-	ipMasked: z.string(),
-	label: z.string(),
-	isCurrent: z.boolean(),
+export const MeSessionSchema = v.object({
+	id: v.string(),
+	createdAt: v.string(),
+	expiresAt: v.string(),
+	ipMasked: v.string(),
+	label: v.string(),
+	isCurrent: v.boolean(),
 });
 
-export type MeSession = z.infer<typeof MeSessionSchema>;
+export type MeSession = v.InferOutput<typeof MeSessionSchema>;
 
-export const MeSessionsResponseSchema = z.array(MeSessionSchema);
+export const MeSessionsResponseSchema = v.array(MeSessionSchema);
 
-export const MeExportDocumentSchema = z.object({
-	id: z.string(),
-	status: z.string(),
-	source: z.string(),
-	mimeType: z.string(),
-	sizeBytes: z.number(),
-	sha256: z.string(),
-	documentType: z.string(),
-	issuerName: z.string().nullable(),
-	issuerTaxId: z.string().nullable(),
-	issueDate: z.string().nullable(),
-	documentNumber: z.string().nullable(),
-	currencyCode: z.string().nullable(),
-	totalAmount: z.string().nullable(),
-	igvAmount: z.string().nullable(),
-	extractionSource: z.string().nullable(),
-	wasUserCorrected: z.boolean(),
-	category: z.string(),
-	createdAt: z.string(),
-	updatedAt: z.string(),
+export const MeExportDocumentSchema = v.object({
+	id: v.string(),
+	status: v.string(),
+	source: v.string(),
+	mimeType: v.string(),
+	sizeBytes: v.number(),
+	sha256: v.string(),
+	documentType: v.string(),
+	issuerName: v.nullable(v.string()),
+	issuerTaxId: v.nullable(v.string()),
+	issueDate: v.nullable(v.string()),
+	documentNumber: v.nullable(v.string()),
+	currencyCode: v.nullable(v.string()),
+	totalAmount: v.nullable(v.string()),
+	igvAmount: v.nullable(v.string()),
+	extractionSource: v.nullable(v.string()),
+	wasUserCorrected: v.boolean(),
+	category: v.string(),
+	createdAt: v.string(),
+	updatedAt: v.string(),
 });
 
-export const MeExportSchema = z.object({
-	exportedAt: z.string(),
-	user: z.object({
-		id: z.string(),
-		name: z.string(),
-		email: z.string(),
-		createdAt: z.string(),
+export const MeExportSchema = v.object({
+	exportedAt: v.string(),
+	user: v.object({
+		id: v.string(),
+		name: v.string(),
+		email: v.string(),
+		createdAt: v.string(),
 	}),
-	documents: z.array(MeExportDocumentSchema),
+	documents: v.array(MeExportDocumentSchema),
 });
 
-export type MeExport = z.infer<typeof MeExportSchema>;
+export type MeExport = v.InferOutput<typeof MeExportSchema>;

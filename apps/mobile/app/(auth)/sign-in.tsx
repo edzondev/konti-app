@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { Linking, Pressable, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { triggerHaptic } from "@/core/haptics";
 import { GoogleSignInButton } from "@/features/auth/google-sign-in-button";
 import { hasAcceptedTerms } from "@/features/auth/terms-acceptance";
 import { PRIVACY_URL, TERMS_URL } from "@/features/profile/legal";
 import { Check } from "@/shared/ui/reicon";
+import { UniSafeAreaView } from "@/shared/ui/safe-area";
 
 export default function SignInScreen() {
 	const returning = hasAcceptedTerms();
 	const [accepted, setAccepted] = useState(false);
-	const insets = useSafeAreaInsets();
 
 	function toggleAccepted() {
 		void triggerHaptic("selection");
@@ -19,22 +18,29 @@ export default function SignInScreen() {
 	}
 
 	return (
-		<View className="flex-1 bg-konti-bg px-7.5" style={{ paddingBottom: insets.bottom + 32 }}>
-			<Text className="mt-8 font-normal text-[20px] tracking-tight text-konti-ink">
-				kont<Text className="text-konti-amber">i</Text>
-			</Text>
-			<View className="flex-1" />
-			<Text className="font-light text-[34px] leading-10 tracking-tight text-konti-ink">
-				Tus comprobantes, <Text className="italic text-konti-amber">en orden</Text>.
-			</Text>
-			<Text className="mt-3.5 w-full text-[15.5px] leading-6 text-konti-ink-muted">
-				Konti guarda y clasifica tus boletas. No calcula impuestos.
-			</Text>
-			<View className="mt-8 w-full">
-				<GoogleSignInButton disabled={!returning && !accepted} />
+		<UniSafeAreaView className="flex-1 bg-konti-bg px-7" edges={["top", "bottom"]}>
+			<View className="items-center pt-4">
+				<Text className="font-mono text-[11px] uppercase tracking-[0.16em] text-konti-ink-muted">
+					BIENVENIDA
+				</Text>
+				<Text className="mt-3 text-[20px] tracking-tight text-konti-ink">
+					kont<Text className="text-konti-amber">i</Text>
+				</Text>
 			</View>
+
+			<View className="w-full flex-1 items-center justify-center">
+				<Text className="w-full text-center font-sans-light text-[34px] leading-10 tracking-tight text-konti-ink">
+					Tu mini contador{"\n"}
+					<Text className="italic text-konti-amber">personal.</Text>
+				</Text>
+				<Text className="mt-3.5 w-full text-center text-[15.5px] leading-6 text-konti-ink-muted">
+					Toma una foto de tu boleta y Konti te dice qué significa.
+				</Text>
+			</View>
+
+			<GoogleSignInButton disabled={!returning && !accepted} />
 			{returning ? null : (
-				<View className="mt-7 w-full flex-row flex-wrap items-center">
+				<View className="mt-7 w-full flex-row flex-wrap items-center justify-center">
 					<Pressable
 						accessibilityLabel="Acepto los términos y la política de privacidad"
 						accessibilityRole="checkbox"
@@ -75,6 +81,6 @@ export default function SignInScreen() {
 					</Pressable>
 				</View>
 			)}
-		</View>
+		</UniSafeAreaView>
 	);
 }

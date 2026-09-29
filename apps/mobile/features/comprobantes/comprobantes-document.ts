@@ -1,13 +1,13 @@
-import { z } from "zod";
+import * as v from "valibot";
 
 import { getAppStorage } from "@/core/storage";
 
-export const DocumentSchema = z.object({
-	status: z.enum(["pending", "ready", "failed"]),
-	extractionSource: z.enum(["qr", "ocr", "local", "manual"]).nullable(),
-	source: z.enum(["camera", "gallery", "share"]),
-	documentType: z.enum(["boleta", "factura", "recibo_honorarios", "ticket", "unknown"]),
-	category: z.enum([
+export const DocumentSchema = v.object({
+	status: v.picklist(["pending", "ready", "failed"]),
+	extractionSource: v.nullable(v.picklist(["qr", "ocr", "manual"])),
+	source: v.picklist(["camera", "gallery", "share"]),
+	documentType: v.picklist(["boleta", "factura", "recibo_honorarios", "ticket", "unknown"]),
+	category: v.picklist([
 		"restaurantes",
 		"supermercado",
 		"transporte",
@@ -18,20 +18,20 @@ export const DocumentSchema = z.object({
 		"educacion",
 		"otros",
 	]),
-	id: z.string(),
-	issuerName: z.string().nullable(),
-	issuerTaxId: z.string().nullable(),
-	issueDate: z.string().nullable(),
-	documentNumber: z.string().nullable(),
-	currencyCode: z.string().nullable(),
-	totalAmount: z.string().nullable(),
-	igvAmount: z.string().nullable(),
-	createdAt: z.string(),
+	id: v.string(),
+	issuerName: v.nullable(v.string()),
+	issuerTaxId: v.nullable(v.string()),
+	issueDate: v.nullable(v.string()),
+	documentNumber: v.nullable(v.string()),
+	currencyCode: v.nullable(v.string()),
+	totalAmount: v.nullable(v.string()),
+	igvAmount: v.nullable(v.string()),
+	createdAt: v.string(),
 });
 
-export type Document = z.infer<typeof DocumentSchema>;
+export type Document = v.InferOutput<typeof DocumentSchema>;
 
-const DocumentsCacheSchema = z.array(DocumentSchema);
+const DocumentsCacheSchema = v.array(DocumentSchema);
 
 const documentsMemory = new Map<string, Document[] | undefined>();
 
@@ -61,8 +61,8 @@ export function readCachedDocuments(userId: string, month: string): Document[] |
 		return undefined;
 	}
 	try {
-		const parsed = DocumentsCacheSchema.safeParse(JSON.parse(raw));
-		const value = parsed.success ? parsed.data : undefined;
+		const parsed = v.safeParse(DocumentsCacheSchema, JSON.parse(raw));
+		const value = parsed.success ? parsed.output : undefined;
 		documentsMemory.set(key, value);
 		return value;
 	} catch {

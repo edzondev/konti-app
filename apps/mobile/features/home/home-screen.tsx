@@ -6,6 +6,7 @@ import { undatedDeductibleNote } from "@/features/comprobantes/comprobantes-list
 import { useDocuments } from "@/features/comprobantes/use-comprobantes";
 import { currentLimaYear } from "@/features/deductions/deductibles-year";
 import { DeductionsSheet } from "@/features/deductions/deductions-sheet";
+import { triggerHaptic } from "@/core/haptics";
 import { UniSafeAreaView } from "@/shared/ui/safe-area";
 
 import { HomeAmountBlock } from "./home-amount-block";
@@ -28,6 +29,11 @@ export function HomeScreen() {
 		router.push("/comprobantes");
 	}
 
+	function openScan() {
+		void triggerHaptic("selection");
+		router.push("/guardar");
+	}
+
 	return (
 		<UniSafeAreaView className="flex-1 bg-konti-bg" edges={["top"]}>
 			<HomeHeader />
@@ -41,7 +47,9 @@ export function HomeScreen() {
 				{view.kind === "error" ? (
 					<Text className="mt-12 font-sans text-[15px] text-konti-ink-muted">{view.message}</Text>
 				) : null}
-				{view.kind === "empty" ? <HomeEmpty monthLabel={view.monthLabel} /> : null}
+				{view.kind === "empty" ? (
+					<HomeEmpty monthLabel={view.monthLabel} onScan={openScan} />
+				) : null}
 				{view.kind === "empty" && missingDateNote ? (
 					<HomeMissingDates note={missingDateNote} onPress={openComprobantes} />
 				) : null}

@@ -66,7 +66,14 @@ describe("groupDocuments", () => {
 
 	it("keeps a deductible receipt without a date out of the week groups", () => {
 		const groups = groupDocuments(
-			[doc({ id: "1", issueDate: null, category: "restaurantes", createdAt: "2026-09-23T00:22:00.000Z" })],
+			[
+				doc({
+					id: "1",
+					issueDate: null,
+					category: "restaurantes",
+					createdAt: "2026-09-23T00:22:00.000Z",
+				}),
+			],
 			"2026-09",
 			now,
 		);
@@ -175,7 +182,7 @@ describe("toListView", () => {
 		});
 	});
 
-	it("maps pending row fields", () => {
+	it("maps finished OCR without total to complete-by-hand copy", () => {
 		const view = toListView({
 			status: "success",
 			month: "2026-09",
@@ -185,6 +192,32 @@ describe("toListView", () => {
 					id: "1",
 					status: "pending",
 					extractionSource: "ocr",
+					createdAt: "2026-09-23T00:22:00.000Z",
+				}),
+			],
+		});
+
+		expect(view.kind).toBe("ready");
+		if (view.kind !== "ready") return;
+		const row = view.sections[0]?.rows[0];
+		expect(row).toEqual({
+			kind: "pending",
+			id: "1",
+			title: "Completar datos",
+			subtitle: "Ingresa los campos · Hoy, 7:22 p.m.",
+		});
+	});
+
+	it("maps pending row still without source to processing copy", () => {
+		const view = toListView({
+			status: "success",
+			month: "2026-09",
+			now,
+			documents: [
+				doc({
+					id: "1",
+					status: "pending",
+					extractionSource: null,
 					createdAt: "2026-09-23T00:22:00.000Z",
 				}),
 			],
@@ -319,16 +352,16 @@ describe("toListView", () => {
 			issueDate: null,
 		});
 
-		expect(undatedDeductibleNote([osaka])).toBe(
-			"Osaka sin fecha. Complétala para ver si deduce.",
-		);
+		expect(undatedDeductibleNote([osaka])).toBe("Osaka sin fecha. Complétala para ver si deduce.");
 		expect(undatedDeductibleNote([osaka, clinic])).toBe(
 			"Osaka y Clínica sin fecha. Complétalas para ver si deducen.",
 		);
 		expect(undatedDeductibleNote([osaka, clinic, lawyer])).toBe(
 			"3 boletas sin fecha. Complétalas para ver si deducen.",
 		);
-		expect(undatedDeductibleNote([doc({ id: "9", category: "transporte", issueDate: null })])).toBeNull();
+		expect(
+			undatedDeductibleNote([doc({ id: "9", category: "transporte", issueDate: null })]),
+		).toBeNull();
 	});
 
 	it("sets canGoNext based on month", () => {

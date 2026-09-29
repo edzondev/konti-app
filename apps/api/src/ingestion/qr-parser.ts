@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import type { DocumentType, ExtractedDocument } from "./ingestion.types.js";
-import { IsoDateSchema } from "./schemas.js";
+import { IsoDateSchema, RucSchema } from "./schemas.js";
 
 const DOC_TYPE_MAP: Record<string, DocumentType> = {
 	"01": "factura",
@@ -15,11 +15,10 @@ const DOC_TYPE_MAP: Record<string, DocumentType> = {
 	R8: "recibo_honorarios",
 };
 
-const RucSchema = v.pipe(v.string(), v.regex(/^\d{11}$/));
-const SeriesSchema = v.pipe(v.string(), v.regex(/^([A-Z]\d{3}|[A-Z]{2}\d{2})$/)); // F001, FF01, B001, E001, T001, etc.
+const SeriesSchema = v.pipe(v.string(), v.regex(/^([A-Z]\d{3}|[A-Z]{2}\d{2})$/));
 const CorrelativeSchema = v.pipe(v.string(), v.regex(/^\d{1,8}$/));
-// montos SUNAT siempre con 2 decimales: descarta RUC, correlativo y doc. del adquiriente
-const AmountSchema = v.pipe(v.string(), v.regex(/^\d+\.\d{2}$/));
+// SUNAT siempre manda 2 decimales; un entero sería serie o correlativo.
+const SUNAT_CENTS = /^\d+\.\d{2}$/;
 
 export function parseQrPayload(raw: string): ExtractedDocument | null {
 	const trimmed = raw.trim();
@@ -53,7 +52,7 @@ export function parseQrPayload(raw: string): ExtractedDocument | null {
 
 	// Monto total: entre los valores con 2 decimales (IGV, total), el total es el mayor
 	const amounts = parts
-		.filter((p) => v.is(AmountSchema, p))
+		.filter((p) => SUNAT_CENTS.test(p))
 		.map(Number)
 		.sort((a, b) => b - a);
 	const topAmount = amounts[0];

@@ -11,6 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { previewQrText } from "@/features/scan/qr-preview";
 import { Check, Flash, FlashSlash, Image, X } from "@/shared/ui/reicon";
 
 const BRACKET_IN = 20;
@@ -129,8 +130,58 @@ function SavedCard({ path, bottom }: { path: string; bottom: number }) {
 	);
 }
 
+function QrSheet({
+	text,
+	status,
+	bottom,
+}: {
+	text: string;
+	status: string | null;
+	bottom: number;
+}) {
+	const shown = useSharedValue(0);
+
+	useEffect(() => {
+		shown.set(withSpring(1, { damping: 18, stiffness: 180 }));
+	}, [shown]);
+
+	const animatedStyle = useAnimatedStyle(() => {
+		const t = shown.get();
+		return {
+			opacity: t,
+			transform: [{ translateY: (1 - t) * 16 }],
+		};
+	});
+
+	return (
+		<Animated.View
+			className="absolute inset-x-4 rounded-2xl bg-black/80 px-4 py-4"
+			style={[
+				{
+					bottom,
+					borderCurve: "continuous",
+					boxShadow: "0 16px 40px rgba(0, 0, 0, 0.55)",
+				},
+				animatedStyle,
+			]}
+		>
+			<Text className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/45">Texto</Text>
+			<Text
+				selectable
+				numberOfLines={4}
+				className="mt-2 font-mono text-[13px] leading-5 text-white"
+			>
+				{previewQrText(text)}
+			</Text>
+			{status !== null ? (
+				<Text className="mt-3 font-sans-medium text-[13px] text-konti-amber">{status}</Text>
+			) : null}
+		</Animated.View>
+	);
+}
+
 export function ScanOverlay({
-	phase,
+	qrText,
 	savedPath,
 	busy,
 	error,
@@ -142,7 +193,7 @@ export function ScanOverlay({
 	flashEnabled,
 	onToggleFlash,
 }: {
-	phase: "searching" | "detected";
+	qrText: string | null;
 	savedPath: string | null;
 	busy: boolean;
 	error: string | null;
@@ -155,8 +206,10 @@ export function ScanOverlay({
 	onToggleFlash: () => void;
 }): ReactElement {
 	const insets = useSafeAreaInsets();
-	const detected = phase === "detected";
+	const detected = qrText !== null;
 	const saving = busy && savedPath === null;
+	const chip = detected ? "Texto" : saving ? "Guardando" : "Buscando comprobante";
+	const sheetStatus = saving ? "Guardando" : savedPath !== null ? "Guardado" : null;
 	const tighten = useSharedValue(0);
 	const focusKey = useRef(0);
 	const focusSeen = useRef(focusPoint);
@@ -207,7 +260,7 @@ export function ScanOverlay({
 								: "font-mono text-[11px] uppercase tracking-[0.16em] text-white"
 						}
 					>
-						{saving ? "Guardando" : detected ? "QR detectado" : "Buscando comprobante"}
+						{chip}
 					</Text>
 				</View>
 				<View pointerEvents="none" className="size-11" />
@@ -225,7 +278,11 @@ export function ScanOverlay({
 				<FocusMark key={focusKey.current} x={focusPoint.x} y={focusPoint.y} />
 			) : null}
 
-			{saving ? (
+			{qrText !== null ? (
+				<QrSheet text={qrText} status={sheetStatus} bottom={bottom + 128} />
+			) : null}
+
+			{saving && qrText === null ? (
 				<View
 					pointerEvents="none"
 					className="absolute inset-x-4 flex-row items-center gap-3 rounded-2xl bg-black/70 px-4 py-4"
@@ -236,7 +293,9 @@ export function ScanOverlay({
 				</View>
 			) : null}
 
-			{savedPath !== null ? <SavedCard path={savedPath} bottom={bottom + 128} /> : null}
+			{savedPath !== null && qrText === null ? (
+				<SavedCard path={savedPath} bottom={bottom + 128} />
+			) : null}
 
 			<View
 				pointerEvents="box-none"

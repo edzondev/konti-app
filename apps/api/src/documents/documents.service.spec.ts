@@ -82,6 +82,44 @@ describe("DocumentsService", () => {
 		expect(posthog.capture).not.toHaveBeenCalled();
 	});
 
+	it("create: otro JPEG del mismo QR SUNAT devuelve el comprobante vivo y no sube", async () => {
+		const existing = {
+			id: "doc-sunat",
+			userId: "user-1",
+			issuerTaxId: "20543722309",
+			documentNumber: "BC35-00105975",
+			status: "ready",
+		};
+		const limit = vi
+			.fn()
+			.mockResolvedValueOnce([])
+			.mockResolvedValueOnce([existing]);
+		db.select.mockReturnValue({
+			from: vi.fn().mockReturnValue({
+				where: vi.fn().mockReturnValue({ limit }),
+			}),
+		});
+		db.insert.mockReturnValue({
+			values: vi.fn().mockReturnValue({
+				returning: vi.fn().mockResolvedValue([{ id: "doc-new", status: "pending" }]),
+			}),
+		});
+
+		const result = await service.create(
+			"user-1",
+			{
+				source: "camera",
+				qrPayload: "20543722309|03|BC35|00105975|111.35|2026-08-21",
+			},
+			{ buffer: Buffer.from("other-jpeg-bytes"), size: 16, mimeType: "image/jpeg" },
+		);
+
+		expect(storage.upload).not.toHaveBeenCalled();
+		expect(db.insert).not.toHaveBeenCalled();
+		expect(result).toBe(existing);
+		expect(ingestion.process).not.toHaveBeenCalled();
+	});
+
 	it("create: pending en proceso (extractionSource null) no relanza la ingesta", async () => {
 		const existing = {
 			id: "doc-pending",

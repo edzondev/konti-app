@@ -62,7 +62,7 @@ export const documents = pgTable(
 		totalAmount: numeric("total_amount", { precision: 14, scale: 2 }),
 		igvAmount: numeric("igv_amount", { precision: 14, scale: 2 }),
 		// Cómo se obtuvieron los datos
-		extractionSource: text("extraction_source").$type<"qr" | "ocr" | "local" | "manual">(),
+		extractionSource: text("extraction_source").$type<"qr" | "ocr" | "manual">(),
 		wasUserCorrected: boolean("was_user_corrected").default(false).notNull(),
 
 		// Categoría de gasto (Home / deducibles)

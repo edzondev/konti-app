@@ -1,17 +1,13 @@
-import {
-	GoogleLogoButton,
-	GoogleOneTapSignIn,
-	statusCodes,
-} from "@react-native-google-signin/google-signin";
+import { GoogleOneTapSignIn, statusCodes } from "@react-native-google-signin/google-signin";
 import { useState } from "react";
-import { Text, View } from "react-native";
-import { useUniwind } from "uniwind";
+import { Image, Pressable, Text, View } from "react-native";
 
 import { authClient } from "@/core/auth-client";
 import { triggerHaptic } from "@/core/haptics";
 import { markTermsAccepted } from "@/features/auth/terms-acceptance";
 
 const DEFAULT_ERROR_MESSAGE = "No se pudo entrar. Inténtalo de nuevo.";
+const GOOGLE_LOGO = require("../../node_modules/@react-native-google-signin/google-signin/src/buttons/assets/logo.png");
 
 function googleErrorMessage(error: unknown): string {
 	const code =
@@ -32,7 +28,6 @@ function googleErrorMessage(error: unknown): string {
 }
 
 export function GoogleSignInButton({ disabled = false }: { disabled?: boolean }) {
-	const { theme } = useUniwind();
 	const [isSigningIn, setIsSigningIn] = useState(false);
 	const [message, setMessage] = useState<string | null>(null);
 
@@ -85,14 +80,22 @@ export function GoogleSignInButton({ disabled = false }: { disabled?: boolean })
 
 	return (
 		<View className="w-full gap-3">
-			<GoogleLogoButton
+			<Pressable
+				accessibilityRole="button"
+				className="h-[58px] w-full flex-row items-center justify-center gap-3 rounded-full bg-white disabled:opacity-50"
 				disabled={disabled || isSigningIn}
-				label={isSigningIn ? "Iniciando sesión..." : "Continuar con Google"}
 				onPress={handlePress}
-				shape="circular"
-				style={{ height: 58, width: "100%" }}
-				theme={theme === "dark" ? "light" : "dark"}
-			/>
+			>
+				<Image
+					accessibilityIgnoresInvertColors
+					accessible={false}
+					source={GOOGLE_LOGO}
+					style={{ flexShrink: 0, height: 20, width: 20 }}
+				/>
+				<Text className="font-sans-medium text-base text-black" numberOfLines={1}>
+					{isSigningIn ? "Iniciando sesión..." : "Continuar con Google"}
+				</Text>
+			</Pressable>
 
 			{message ? <Text className="text-konti-ink-muted">{message}</Text> : null}
 		</View>

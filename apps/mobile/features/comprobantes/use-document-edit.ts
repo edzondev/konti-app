@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { type ScrollView } from "react-native";
 import { useKeyboardState } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as v from "valibot";
 
 import { triggerHaptic } from "@/core/haptics";
 import { type Document, DocumentSchema } from "@/features/comprobantes/comprobantes-document";
@@ -60,9 +61,9 @@ export function useDocumentEdit(document: Document, onClose: (updated?: Document
 		}
 		update.mutate(payload, {
 			onSuccess: (data) => {
-				const parsed = DocumentSchema.safeParse(data);
+				const parsed = v.safeParse(DocumentSchema, data);
 				void triggerHaptic("success");
-				onClose(parsed.success ? parsed.data : undefined);
+				onClose(parsed.success ? parsed.output : undefined);
 			},
 			onError: () => {
 				void triggerHaptic("error");

@@ -1,31 +1,31 @@
-import { z } from "zod";
+import * as v from "valibot";
 
 import { getAppStorage } from "@/core/storage";
 
-export const HomeSummarySchema = z.object({
-	month: z.string(),
-	totalAmount: z.number(),
-	documentCount: z.number(),
-	processingCount: z.number(),
-	insight: z.string(),
-	categories: z.array(
-		z.object({
-			name: z.string(),
-			amount: z.number(),
+export const HomeSummarySchema = v.object({
+	month: v.string(),
+	totalAmount: v.number(),
+	documentCount: v.number(),
+	processingCount: v.number(),
+	insight: v.string(),
+	categories: v.array(
+		v.object({
+			name: v.string(),
+			amount: v.number(),
 		}),
 	),
-	deductibles: z.object({
-		count: z.number(),
-		totalAmount: z.number(),
-		categoryNames: z.array(z.string()),
-		items: z.array(
-			z.object({
-				categoryName: z.string(),
-				documents: z.array(
-					z.object({
-						id: z.string(),
-						issuerName: z.string().nullable(),
-						totalAmount: z.string().nullable(),
+	deductibles: v.object({
+		count: v.number(),
+		totalAmount: v.number(),
+		categoryNames: v.array(v.string()),
+		items: v.array(
+			v.object({
+				categoryName: v.string(),
+				documents: v.array(
+					v.object({
+						id: v.string(),
+						issuerName: v.nullable(v.string()),
+						totalAmount: v.nullable(v.string()),
 					}),
 				),
 			}),
@@ -33,7 +33,7 @@ export const HomeSummarySchema = z.object({
 	}),
 });
 
-export type HomeSummary = z.infer<typeof HomeSummarySchema>;
+export type HomeSummary = v.InferOutput<typeof HomeSummarySchema>;
 
 const summaryMemory = new Map<string, HomeSummary | undefined>();
 
@@ -63,8 +63,8 @@ export function readCachedHomeSummary(userId: string, month: string): HomeSummar
 		return undefined;
 	}
 	try {
-		const parsed = HomeSummarySchema.safeParse(JSON.parse(raw));
-		const value = parsed.success ? parsed.data : undefined;
+		const parsed = v.safeParse(HomeSummarySchema, JSON.parse(raw));
+		const value = parsed.success ? parsed.output : undefined;
 		summaryMemory.set(key, value);
 		return value;
 	} catch {

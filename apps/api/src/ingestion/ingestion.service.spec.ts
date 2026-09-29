@@ -1,13 +1,71 @@
 import type { ConfigService } from "@nestjs/config";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Env } from "../config/env.js";
-import { IngestionService } from "./ingestion.service.js";
+import { FieldJudge } from "./field-judge.js";
+import { IngestionService, shouldSoftDeleteDuplicate } from "./ingestion.service.js";
 import { OcrClient } from "./ocr-client.js";
+
+describe("shouldSoftDeleteDuplicate", () => {
+	const older = new Date("2026-08-01T12:00:00.000Z");
+	const current = new Date("2026-08-21T12:00:00.000Z");
+
+	it("borra el actual si otro vivo tiene createdAt anterior", () => {
+		expect(
+			shouldSoftDeleteDuplicate("doc-current", [
+				{ id: "doc-older", createdAt: older },
+				{ id: "doc-current", createdAt: current },
+			]),
+		).toBe(true);
+	});
+
+	it("borra el actual si el otro tiene el mismo createdAt", () => {
+		expect(
+			shouldSoftDeleteDuplicate("doc-current", [
+				{ id: "doc-tie", createdAt: current },
+				{ id: "doc-current", createdAt: current },
+			]),
+		).toBe(true);
+	});
+
+	it("conserva el actual cuando es el más antiguo", () => {
+		expect(
+			shouldSoftDeleteDuplicate("doc-older", [
+				{ id: "doc-older", createdAt: older },
+				{ id: "doc-current", createdAt: current },
+			]),
+		).toBe(false);
+	});
+
+	it("no borra si no hay otro comprobante", () => {
+		expect(shouldSoftDeleteDuplicate("doc-current", [{ id: "doc-current", createdAt: current }])).toBe(
+			false,
+		);
+		expect(shouldSoftDeleteDuplicate("doc-current", [])).toBe(false);
+	});
+});
 
 describe("IngestionService", () => {
 	const ocr = {
 		extract: vi.fn(),
 	} as unknown as OcrClient;
+
+	const fields = {
+		pick: vi.fn(),
+	} as unknown as FieldJudge;
+
+	const readyPick = {
+		confident: true,
+		extracted: {
+			documentType: "boleta" as const,
+			issuerName: "COMERCIO SAC",
+			issuerTaxId: "20543722309",
+			issueDate: "2026-08-21",
+			documentNumber: null,
+			currencyCode: "PEN",
+			totalAmount: "50.00",
+			igvAmount: null,
+		},
+	};
 
 	const config = {
 		get: vi.fn().mockReturnValue(100),
@@ -30,37 +88,22 @@ describe("IngestionService", () => {
 		setMock = vi.fn().mockReturnValue({ where: whereMock });
 		db = {
 			update: vi.fn().mockReturnValue({ set: setMock }),
-			select: vi.fn().mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockReturnValue({
-						orderBy: vi.fn().mockReturnValue({
-							limit: vi.fn().mockResolvedValue([]),
-						}),
-						// OCR budget path: where() resolves to rows with count
-						then: undefined,
-					}),
-				}),
-			}),
+			select: vi.fn(),
 		};
 
-		// Dual path: budget count vs category lookup
-		const whereFn = vi.fn().mockImplementation(() => {
-			const chain = {
+		// `await where()` cuenta el cupo; `.orderBy().limit()` busca el emisor.
+		const whereFn = vi.fn().mockImplementation(() =>
+			Object.assign(Promise.resolve([{ count: 0 }]), {
 				orderBy: vi.fn().mockReturnValue({
 					limit: vi.fn().mockResolvedValue([]),
 				}),
-			};
-			// Thenable for `await select...where()` (OCR budget)
-			Object.assign(chain, {
-				then: (resolve: (v: unknown) => unknown) => Promise.resolve([{ count: 0 }]).then(resolve),
-			});
-			return chain;
-		});
+			}),
+		);
 		db.select = vi.fn().mockReturnValue({
 			from: vi.fn().mockReturnValue({ where: whereFn }),
 		});
 
-		service = new IngestionService(db as never, ocr, config);
+		service = new IngestionService(db as never, ocr, fields, config);
 	});
 
 	it("guarda extractionSource=qr cuando el QR parsea", async () => {
@@ -83,60 +126,37 @@ describe("IngestionService", () => {
 		expect(setArg.category).toBe("otros");
 	});
 
-	it("guarda extractionSource=local cuando localText parsea", async () => {
-		await service.process({
-			documentId: "doc-local",
-			userId: "user-1",
-			buffer: Buffer.from("x"),
-			mimeType: "image/jpeg",
-			localText: "RUC 20543722309 Fecha 21/08/2026 Total 50.00",
-		});
-
-		expect(ocr.extract).not.toHaveBeenCalled();
-		const setArg = setMock.mock.calls[0]?.[0] as {
-			extractionSource: string;
-			totalAmount: string;
-			category: string;
-		};
-		expect(setArg.extractionSource).toBe("local");
-		expect(setArg.totalAmount).toBe("50.00");
-		expect(setArg.category).toBe("otros");
-	});
-
-	it("trata un qrPayload que no es SUNAT pero sí texto local como source local y no llama OCR", async () => {
-		vi.mocked(ocr.extract).mockResolvedValue({
-			documentType: "unknown",
-			issuerName: null,
-			issuerTaxId: null,
-			issueDate: null,
-			documentNumber: null,
-			currencyCode: "PEN",
-			totalAmount: "1.00",
-			igvAmount: null,
-		});
+	it("un QR que no es SUNAT sigue a OCR y no queda como local", async () => {
+		vi.mocked(ocr.extract).mockResolvedValue("TOTAL 50.00");
+		vi.mocked(fields.pick).mockResolvedValue(readyPick);
 
 		await service.process({
 			documentId: "doc-qr-local",
 			userId: "user-1",
 			buffer: Buffer.from("x"),
 			mimeType: "image/jpeg",
-			qrPayload: "RUC 20543722309 Fecha 21/08/2026 Total 50.00",
+			qrPayload: "https://drive.google.com/file/d/abc",
 		});
 
-		expect(ocr.extract).not.toHaveBeenCalled();
+		expect(ocr.extract).toHaveBeenCalledOnce();
 		const setArg = setMock.mock.calls[0]?.[0] as {
 			extractionSource: string;
 			totalAmount: string;
 		};
-		expect(setArg.extractionSource).toBe("local");
+		expect(setArg.extractionSource).toBe("ocr");
 		expect(setArg.totalAmount).toBe("50.00");
 	});
 
 	it("categoriza por issuerName conocido del mismo RUC", async () => {
-		const whereFn = vi.fn().mockReturnValue({
-			orderBy: vi.fn().mockReturnValue({
-				limit: vi.fn().mockResolvedValue([{ issuerName: "Wong" }]),
-			}),
+		let call = 0;
+		const whereFn = vi.fn().mockImplementation(() => {
+			call += 1;
+			const rows = call === 1 ? [{ issuerName: "Wong" }] : [];
+			return {
+				orderBy: vi.fn().mockReturnValue({
+					limit: vi.fn().mockResolvedValue(rows),
+				}),
+			};
 		});
 		db.select = vi.fn().mockReturnValue({
 			from: vi.fn().mockReturnValue({ where: whereFn }),
@@ -154,17 +174,9 @@ describe("IngestionService", () => {
 		expect(setArg.category).toBe("supermercado");
 	});
 
-	it("guarda extractionSource=ocr cuando el QR es basura y hay cupo", async () => {
-		vi.mocked(ocr.extract).mockResolvedValue({
-			documentType: "unknown",
-			issuerName: null,
-			issuerTaxId: null,
-			issueDate: null,
-			documentNumber: null,
-			currencyCode: "PEN",
-			totalAmount: null,
-			igvAmount: null,
-		});
+	it("guarda extractionSource=ocr cuando Jev confirma el total", async () => {
+		vi.mocked(ocr.extract).mockResolvedValue("TOTAL 50.00");
+		vi.mocked(fields.pick).mockResolvedValue(readyPick);
 
 		await service.process({
 			documentId: "doc-2",
@@ -180,9 +192,63 @@ describe("IngestionService", () => {
 			extractionSource: string;
 			category: string;
 		};
-		expect(setArg.status).toBe("failed");
+		expect(setArg.status).toBe("ready");
 		expect(setArg.extractionSource).toBe("ocr");
 		expect(setArg.category).toBe("otros");
+	});
+
+	it("degrada a pending vía ocr si Jev no está seguro del total", async () => {
+		vi.mocked(ocr.extract).mockResolvedValue("foto borrosa");
+		vi.mocked(fields.pick).mockResolvedValue({
+			confident: false,
+			extracted: {
+				...readyPick.extracted,
+				totalAmount: null,
+				issuerName: "COMERCIO SAC",
+				issueDate: "2026-08-21",
+			},
+		});
+
+		await service.process({
+			documentId: "doc-unsure",
+			userId: "user-1",
+			buffer: Buffer.from("x"),
+			mimeType: "image/jpeg",
+		});
+
+		const setArg = setMock.mock.calls[0]?.[0] as {
+			status: string;
+			extractionSource: string;
+			totalAmount: string | null;
+			issuerName: string | null;
+			issueDate: string | null;
+		};
+		expect(setArg.status).toBe("pending");
+		expect(setArg.extractionSource).toBe("ocr");
+		expect(setArg.totalAmount).toBeNull();
+		expect(setArg.issuerName).toBe("COMERCIO SAC");
+		expect(setArg.issueDate).toBe("2026-08-21");
+	});
+
+	it("degrada a pending vía ocr si TypeSafe falla tras Mistral", async () => {
+		vi.mocked(ocr.extract).mockResolvedValue("TOTAL 50.00");
+		vi.mocked(fields.pick).mockRejectedValue(new Error("TypeSafe timed out after 30000ms"));
+
+		await service.process({
+			documentId: "doc-typesafe-down",
+			userId: "user-1",
+			buffer: Buffer.from("x"),
+			mimeType: "image/jpeg",
+		});
+
+		const setArg = setMock.mock.calls[0]?.[0] as {
+			status: string;
+			extractionSource: string;
+			totalAmount: string | null;
+		};
+		expect(setArg.status).toBe("pending");
+		expect(setArg.extractionSource).toBe("ocr");
+		expect(setArg.totalAmount).toBeNull();
 	});
 
 	it("degrada a manual sin llamar Mistral cuando no hay cupo OCR", async () => {
@@ -220,5 +286,44 @@ describe("IngestionService", () => {
 		});
 
 		expect(ocr.extract).not.toHaveBeenCalled();
+	});
+
+	it("soft-delete el doc actual si ya hay un comprobante vivo más antiguo con el mismo RUC y número", async () => {
+		const older = new Date("2026-08-01T12:00:00.000Z");
+		const current = new Date("2026-08-21T12:00:00.000Z");
+		let call = 0;
+		const whereFn = vi.fn().mockImplementation(() => {
+			call += 1;
+			const rows =
+				call === 1
+					? []
+					: [
+							{ id: "doc-older", createdAt: older },
+							{ id: "doc-current", createdAt: current },
+						];
+			return {
+				orderBy: vi.fn().mockReturnValue({
+					limit: vi.fn().mockResolvedValue(rows),
+				}),
+			};
+		});
+		db.select = vi.fn().mockReturnValue({
+			from: vi.fn().mockReturnValue({ where: whereFn }),
+		});
+
+		await service.process({
+			documentId: "doc-current",
+			userId: "user-1",
+			buffer: Buffer.from("x"),
+			mimeType: "image/jpeg",
+			qrPayload: "20543722309|03|BC35|00105975|111.35|2026-08-21",
+		});
+
+		const setArg = setMock.mock.calls[0]?.[0] as {
+			status: string;
+			deletedAt?: Date;
+		};
+		expect(setArg.deletedAt).toBeInstanceOf(Date);
+		expect(setArg.status).not.toBe("ready");
 	});
 });

@@ -34,12 +34,14 @@ export const EnvSchema = v.object({
 	R2_DOWNLOAD_TTL_SECONDS: numberFromEnv(300, 1),
 
 	MISTRAL_API_KEY: v.pipe(v.string(), v.minLength(1)),
+	TYPESAFE_API_KEY: v.pipe(v.string(), v.minLength(1)),
 
 	POSTHOG_API_KEY: v.pipe(v.string(), v.minLength(1)),
 	POSTHOG_HOST: v.optional(v.pipe(v.string(), v.url()), "https://us.i.posthog.com"),
 
 	// Tope global de llamadas Mistral OCR por mes (America/Lima). 0 = degradar a manual.
 	OCR_MONTHLY_LIMIT: numberFromEnv(100, 0),
+	// Mistral y TypeSafe comparten este tope.
 	OCR_TIMEOUT_MS: numberFromEnv(30_000, 1_000),
 });
 

@@ -11,6 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { type Document } from "@/features/comprobantes/comprobantes-document";
+import { needsUserInput } from "@/features/comprobantes/comprobantes-list";
 import { CATEGORY_LABELS, DOCUMENT_TYPE_LABELS } from "@/features/comprobantes/document-form";
 import { useDeleteDocument, useDocumentImage } from "@/features/comprobantes/use-comprobantes";
 import { formatMoney } from "@/features/home/home-format";
@@ -91,11 +92,7 @@ function ReadingProgress() {
 
 	useEffect(() => {
 		progress.set(
-			withRepeat(
-				withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.cubic) }),
-				-1,
-				false,
-			),
+			withRepeat(withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.cubic) }), -1, false),
 		);
 	}, [progress]);
 
@@ -270,7 +267,7 @@ export function DocumentScreen({
 		]);
 	}
 
-	if (document.status === "pending" && document.extractionSource === "manual") {
+	if (needsUserInput(document)) {
 		return (
 			<View className="bg-konti-bg px-6 pb-8 pt-2">
 				<ManualPendingBody onEdit={onEdit} />

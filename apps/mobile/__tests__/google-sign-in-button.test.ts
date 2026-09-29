@@ -20,6 +20,16 @@ const haptics = vi.hoisted(() => ({
 	trigger: vi.fn<() => Promise<void>>(),
 }));
 
+vi.hoisted(() => {
+	const { Module } = require("node:module") as {
+		Module: { _extensions: Record<string, (mod: { exports: unknown }) => void> };
+	};
+	// Metro bundles this png; Node would parse it as JavaScript.
+	Module._extensions[".png"] = (mod) => {
+		mod.exports = 1;
+	};
+});
+
 vi.mock("react", async () => {
 	const actual = await vi.importActual<typeof import("react")>("react");
 
@@ -33,12 +43,10 @@ vi.mock("react", async () => {
 });
 
 vi.mock("react-native", () => ({
+	Image: "Image",
+	Pressable: "Pressable",
 	Text: "Text",
 	View: "View",
-}));
-
-vi.mock("uniwind", () => ({
-	useUniwind: () => ({ theme: "dark" }),
 }));
 
 vi.mock("@react-native-google-signin/google-signin", () => ({
@@ -94,6 +102,33 @@ function renderButtonPress(): () => Promise<void> {
 	return renderButton().props.onPress;
 }
 
+function buttonTree(disabled?: boolean) {
+	reactState.next = 0;
+	const root = GoogleSignInButton({ disabled }) as ReactElement<{ children?: ReactNode }>;
+	const texts: string[] = [];
+	const images: ReactElement<{ style?: { flexShrink?: number; height?: number; width?: number } }>[] =
+		[];
+
+	function visit(node: ReactNode) {
+		for (const child of Children.toArray(node)) {
+			if (typeof child === "string" || typeof child === "number") {
+				texts.push(String(child));
+				continue;
+			}
+
+			const element = child as ReactElement<{
+				children?: ReactNode;
+				style?: { flexShrink?: number; height?: number; width?: number };
+			}>;
+			if (element.type === "Image") images.push(element);
+			visit(element.props.children);
+		}
+	}
+
+	visit(root);
+	return { images, texts };
+}
+
 describe("GoogleSignInButton", () => {
 	beforeEach(() => {
 		reactState.next = 0;
@@ -110,6 +145,21 @@ describe("GoogleSignInButton", () => {
 		google.presentExplicitSignIn.mockReset().mockResolvedValue(GOOGLE_USER);
 		auth.social.mockReset().mockResolvedValue({ data: {}, error: null });
 		haptics.trigger.mockReset().mockResolvedValue();
+	});
+
+	it("keeps a fixed Google logo next to Continuar con Google when disabled", () => {
+		const enabled = buttonTree();
+		const disabled = buttonTree(true);
+
+		expect(enabled.texts).toContain("Continuar con Google");
+		expect(enabled.images).toHaveLength(1);
+		expect(disabled.texts).toContain("Continuar con Google");
+		expect(disabled.images).toHaveLength(1);
+		expect(disabled.images[0]?.props.style).toMatchObject({
+			flexShrink: 0,
+			height: 20,
+			width: 20,
+		});
 	});
 
 	it("ignores press while disabled", async () => {

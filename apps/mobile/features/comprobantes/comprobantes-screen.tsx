@@ -9,7 +9,7 @@ import {
 	View,
 } from "react-native";
 
-import { type ListRow } from "@/features/comprobantes/comprobantes-list";
+import { isStillProcessing, type ListRow } from "@/features/comprobantes/comprobantes-list";
 import { DocumentEditScreen } from "@/features/comprobantes/document-edit-screen";
 import { DocumentScreen } from "@/features/comprobantes/document-screen";
 import { MonthPicker } from "@/features/comprobantes/month-sheet";
@@ -73,15 +73,13 @@ export function ComprobantesScreen() {
 	} = useComprobantesScreen();
 	const { width } = useWindowDimensions();
 
-	const hugContent =
-		selectedDocument != null && !editing && selectedDocument.status !== "ready";
+	const hugContent = selectedDocument != null && !editing && selectedDocument.status !== "ready";
 	const readingLabel =
 		selectedDocument == null || editing
 			? null
 			: selectedDocument.status === "failed"
 				? "COMPROBANTE · NO PUDIMOS LEERLO"
-				: selectedDocument.status === "pending" &&
-					  selectedDocument.extractionSource !== "manual"
+				: isStillProcessing(selectedDocument)
 					? "COMPROBANTE · PROCESANDO"
 					: null;
 

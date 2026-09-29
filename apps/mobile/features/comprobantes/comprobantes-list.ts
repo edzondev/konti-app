@@ -254,8 +254,22 @@ function countLabel(count: number): string {
 	return `${count} comprobantes`;
 }
 
+export function needsUserInput(document: {
+	status: string;
+	extractionSource: string | null;
+}): boolean {
+	return document.status === "pending" && document.extractionSource != null;
+}
+
+export function isStillProcessing(document: {
+	status: string;
+	extractionSource: string | null;
+}): boolean {
+	return document.status === "pending" && document.extractionSource == null;
+}
+
 function toListRow(document: Document, todayIso: string): ListRow {
-	if (document.status === "pending" && document.extractionSource === "manual") {
+	if (needsUserInput(document)) {
 		return {
 			kind: "pending",
 			id: document.id,
@@ -264,7 +278,7 @@ function toListRow(document: Document, todayIso: string): ListRow {
 		};
 	}
 
-	if (document.status === "pending") {
+	if (isStillProcessing(document)) {
 		return {
 			kind: "pending",
 			id: document.id,

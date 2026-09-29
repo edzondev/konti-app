@@ -4,9 +4,10 @@ import { Camera } from "@/shared/ui/reicon";
 
 type HomeEmptyProps = {
 	monthLabel: string;
+	onScan: () => void;
 };
 
-export function HomeEmpty({ monthLabel }: HomeEmptyProps) {
+export function HomeEmpty({ monthLabel, onScan }: HomeEmptyProps) {
 	return (
 		<View className="mt-12">
 			<View className="flex-row items-center gap-2">
@@ -27,7 +28,8 @@ export function HomeEmpty({ monthLabel }: HomeEmptyProps) {
 			<Pressable
 				accessibilityLabel="Escanear comprobante"
 				accessibilityRole="button"
-				className="mt-8 h-14 flex-row items-center gap-3 self-start rounded-full bg-konti-ink px-7.5"
+				className="mt-8 h-14 flex-row items-center gap-3 self-start rounded-full bg-konti-ink px-7.5 active:opacity-80"
+				onPress={onScan}
 			>
 				<Camera colorClassName="accent-konti-on-ink" size={20} />
 				<Text className="font-sans-medium text-base tracking-tight text-konti-on-ink">

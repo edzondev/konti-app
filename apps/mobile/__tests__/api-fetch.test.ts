@@ -23,6 +23,23 @@ describe("apiFetch", () => {
 		);
 	});
 
+	it("sends PostHog tracing headers with the session cookie", async () => {
+		const tracing = await import("../core/posthog-identity.js");
+		tracing.setPostHogTracingClient({
+			getDistinctId: () => "user-1",
+			getSessionId: () => "sess-1",
+		});
+		const { apiFetch } = await import("../core/api-fetch.js");
+
+		await apiFetch("/documents");
+
+		const init = vi.mocked(fetch).mock.calls[0]?.[1] as RequestInit;
+		const headers = new Headers(init.headers);
+		expect(headers.get("Cookie")).toBe("better-auth.session_token=abc");
+		expect(headers.get("x-posthog-distinct-id")).toBe("user-1");
+		expect(headers.get("x-posthog-session-id")).toBe("sess-1");
+	});
+
 	it("sends Cookie header and omits credentials", async () => {
 		const { apiFetch } = await import("../core/api-fetch.js");
 		await apiFetch("/documents");

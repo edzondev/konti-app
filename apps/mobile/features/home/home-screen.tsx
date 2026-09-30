@@ -1,12 +1,14 @@
-import { type Href, router } from "expo-router";
-import { useState } from "react";
+import { type Href, router, useFocusEffect } from "expo-router";
+import { usePostHog } from "posthog-react-native";
+import { useCallback, useRef, useState } from "react";
 import { ScrollView, Text } from "react-native";
 
+import { trackFeature, trackView } from "@/core/funnel-events";
+import { triggerHaptic } from "@/core/haptics";
 import { undatedDeductibleNote } from "@/features/comprobantes/comprobantes-list";
 import { useDocuments } from "@/features/comprobantes/use-comprobantes";
 import { currentLimaYear } from "@/features/deductions/deductibles-year";
 import { DeductionsSheet } from "@/features/deductions/deductions-sheet";
-import { triggerHaptic } from "@/core/haptics";
 import { UniSafeAreaView } from "@/shared/ui/safe-area";
 
 import { HomeAmountBlock } from "./home-amount-block";
@@ -20,6 +22,15 @@ import { currentLimaMonth } from "./home-summary";
 import { useHomeView } from "./use-home-view";
 
 export function HomeScreen() {
+	const posthog = usePostHog();
+	const posthogRef = useRef(posthog);
+	posthogRef.current = posthog;
+	useFocusEffect(
+		useCallback(() => {
+			trackView(posthogRef.current, "home_viewed");
+		}, []),
+	);
+
 	const view = useHomeView();
 	const documents = useDocuments(currentLimaMonth());
 	const missingDateNote = undatedDeductibleNote(documents.data ?? []);
@@ -32,6 +43,11 @@ export function HomeScreen() {
 	function openScan() {
 		void triggerHaptic("selection");
 		router.push("/guardar");
+	}
+
+	function openDeductionsSheet() {
+		trackFeature(posthogRef.current, "deductions_sheet_opened");
+		setSheetOpen(true);
 	}
 
 	return (
@@ -61,7 +77,7 @@ export function HomeScreen() {
 							totalAmountLabel={view.totalAmountLabel}
 						/>
 						<HomeCategories categories={view.categories} />
-						<HomeDeductionsCard deductions={view.deductions} onPress={() => setSheetOpen(true)} />
+						<HomeDeductionsCard deductions={view.deductions} onPress={openDeductionsSheet} />
 						{missingDateNote ? (
 							<HomeMissingDates note={missingDateNote} onPress={openComprobantes} />
 						) : null}

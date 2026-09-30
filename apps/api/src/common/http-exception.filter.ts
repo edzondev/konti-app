@@ -6,6 +6,7 @@ import {
 	HttpStatus,
 	Logger,
 } from "@nestjs/common";
+import * as Sentry from "@sentry/nestjs";
 import type { Response } from "express";
 
 @Catch()
@@ -44,6 +45,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 			`${where} unhandled`,
 			exception instanceof Error ? exception.stack : undefined,
 		);
+		Sentry.captureException(exception);
 
 		response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
 			statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

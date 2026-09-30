@@ -1,4 +1,5 @@
 import { authClient } from "@/core/auth-client";
+import { posthogTracingHeaders } from "@/core/posthog-identity";
 
 export class ApiError extends Error {
 	constructor(
@@ -26,6 +27,9 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 	const headers = new Headers(init.headers);
 	if (cookie) headers.set("Cookie", cookie);
 	if (!headers.has("Accept")) headers.set("Accept", "application/json");
+	for (const [name, value] of Object.entries(posthogTracingHeaders())) {
+		headers.set(name, value);
+	}
 
 	const normalized = path.startsWith("/") ? path : `/${path}`;
 	const response = await fetch(`${getBaseUrl()}${normalized}`, {

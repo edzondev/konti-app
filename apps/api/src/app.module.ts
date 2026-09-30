@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { SentryModule } from "@sentry/nestjs/setup";
 import { AuthModule } from "./auth/auth.module.js";
 import { validateEnv } from "./config/env.js";
 import { DatabaseModule } from "./database/database.module.js";
@@ -20,13 +21,14 @@ if (existsSync(envFile)) {
 @Module({
 	imports: [
 		ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
+		SentryModule.forRoot(),
+		PostHogModule,
 		DatabaseModule,
 		AuthModule,
 		DocumentsModule,
 		StorageModule,
 		IngestionModule,
 		HealthModule,
-		PostHogModule,
 		MeModule,
 	],
 })

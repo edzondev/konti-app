@@ -46,6 +46,7 @@ describe("DocumentsService", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		vi.mocked(ingestion.process).mockReset();
 		db = {
 			select: vi.fn(),
 			insert: vi.fn(),
@@ -90,10 +91,7 @@ describe("DocumentsService", () => {
 			documentNumber: "BC35-00105975",
 			status: "ready",
 		};
-		const limit = vi
-			.fn()
-			.mockResolvedValueOnce([])
-			.mockResolvedValueOnce([existing]);
+		const limit = vi.fn().mockResolvedValueOnce([]).mockResolvedValueOnce([existing]);
 		db.select.mockReturnValue({
 			from: vi.fn().mockReturnValue({
 				where: vi.fn().mockReturnValue({ limit }),
@@ -210,7 +208,7 @@ describe("DocumentsService", () => {
 		});
 	});
 
-	it("create: un insert nuevo emite document_created solo con source", async () => {
+	it("create: un insert nuevo no emite document_created", async () => {
 		db.select.mockReturnValue({
 			from: vi.fn().mockReturnValue({
 				where: vi.fn().mockReturnValue({
@@ -224,15 +222,84 @@ describe("DocumentsService", () => {
 				returning: vi.fn().mockResolvedValue([inserted]),
 			}),
 		});
+		vi.mocked(ingestion.process).mockResolvedValue({ source: "qr", status: "ready" });
 
 		const result = await service.create("user-1", { source: "gallery" }, upload);
 
 		expect(result).toBe(inserted);
-		expect(posthog.capture).toHaveBeenCalledWith({
-			distinctId: "user-1",
-			event: "document_created",
-			properties: { source: "gallery" },
+		await vi.waitFor(() => {
+			expect(posthog.capture).toHaveBeenCalledWith({
+				distinctId: "user-1",
+				event: "document_processed",
+				properties: { extraction_source: "qr", duration_ms: expect.any(Number) },
+			});
 		});
+		expect(posthog.capture).not.toHaveBeenCalledWith(
+			expect.objectContaining({ event: "document_created" }),
+		);
+		expect(posthog.capture).not.toHaveBeenCalledWith(
+			expect.objectContaining({ event: "document_failed" }),
+		);
+	});
+
+	it("create: una ingesta fallida emite document_processed y document_failed", async () => {
+		db.select.mockReturnValue({
+			from: vi.fn().mockReturnValue({
+				where: vi.fn().mockReturnValue({
+					limit: vi.fn().mockResolvedValue([]),
+				}),
+			}),
+		});
+		db.insert.mockReturnValue({
+			values: vi.fn().mockReturnValue({
+				returning: vi.fn().mockResolvedValue([{ id: "doc-new", status: "pending" }]),
+			}),
+		});
+		vi.mocked(ingestion.process).mockResolvedValue({ source: "ocr", status: "failed" });
+
+		await service.create("user-1", { source: "camera" }, upload);
+
+		await vi.waitFor(() => {
+			expect(posthog.capture).toHaveBeenCalledWith({
+				distinctId: "user-1",
+				event: "document_failed",
+				properties: { extraction_source: "ocr", duration_ms: expect.any(Number) },
+			});
+		});
+	});
+
+	it("create: una excepción de ingesta emite document_failed sin origen", async () => {
+		db.select.mockReturnValue({
+			from: vi.fn().mockReturnValue({
+				where: vi.fn().mockReturnValue({
+					limit: vi.fn().mockResolvedValue([]),
+				}),
+			}),
+		});
+		db.insert.mockReturnValue({
+			values: vi.fn().mockReturnValue({
+				returning: vi.fn().mockResolvedValue([{ id: "doc-new", status: "pending" }]),
+			}),
+		});
+		vi.mocked(ingestion.process).mockRejectedValue(new Error("ocr down"));
+		db.update.mockReturnValue({
+			set: vi.fn().mockReturnValue({
+				where: vi.fn().mockResolvedValue(undefined),
+			}),
+		});
+
+		await service.create("user-1", { source: "camera" }, upload);
+
+		await vi.waitFor(() => {
+			expect(posthog.capture).toHaveBeenCalledWith({
+				distinctId: "user-1",
+				event: "document_failed",
+				properties: { duration_ms: expect.any(Number) },
+			});
+		});
+		expect(posthog.capture).not.toHaveBeenCalledWith(
+			expect.objectContaining({ event: "document_processed" }),
+		);
 	});
 
 	it("softDelete: 404 si no hay fila visible", async () => {

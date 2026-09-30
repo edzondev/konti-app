@@ -1,6 +1,6 @@
 import { BadRequestException, NotFoundException } from "@nestjs/common";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PostHog } from "posthog-node";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { StorageService } from "../storage/storage.service.js";
 import { MeService } from "./me.service.js";
 
@@ -133,9 +133,9 @@ describe("MeService", () => {
 
 	describe("revokeSession", () => {
 		it("sesión actual → BadRequestException", async () => {
-			await expect(
-				service.revokeSession("user-1", "sess-1", "sess-1"),
-			).rejects.toBeInstanceOf(BadRequestException);
+			await expect(service.revokeSession("user-1", "sess-1", "sess-1")).rejects.toBeInstanceOf(
+				BadRequestException,
+			);
 			expect(db.delete).not.toHaveBeenCalled();
 		});
 
@@ -161,6 +161,28 @@ describe("MeService", () => {
 			await expect(
 				service.revokeSession("user-1", "sess-current", "sess-other"),
 			).resolves.toBeUndefined();
+		});
+	});
+
+	describe("deleteAccount", () => {
+		it("emite user_deleted con el id y sin propiedades", async () => {
+			db.select.mockReturnValue({
+				from: vi.fn().mockReturnValue({
+					where: vi.fn().mockResolvedValue([]),
+				}),
+			});
+			db.delete.mockReturnValue({
+				where: vi.fn().mockResolvedValue(undefined),
+			});
+
+			await service.deleteAccount("user-1");
+
+			expect(posthog.capture).toHaveBeenCalledTimes(1);
+			expect(posthog.capture).toHaveBeenCalledWith({
+				distinctId: "user-1",
+				event: "user_deleted",
+			});
+			expect(posthog.flush).toHaveBeenCalled();
 		});
 	});
 });

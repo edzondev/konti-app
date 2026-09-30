@@ -1,6 +1,12 @@
 import { BadRequestException, HttpException, HttpStatus, NotFoundException } from "@nestjs/common";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HttpExceptionFilter } from "./http-exception.filter.js";
+
+const captureException = vi.hoisted(() => vi.fn());
+
+vi.mock("@sentry/nestjs", () => ({
+	captureException,
+}));
 
 function mockHost(statusSpy: ReturnType<typeof vi.fn>, jsonSpy: ReturnType<typeof vi.fn>) {
 	return {
@@ -14,6 +20,10 @@ function mockHost(statusSpy: ReturnType<typeof vi.fn>, jsonSpy: ReturnType<typeo
 }
 
 describe("HttpExceptionFilter", () => {
+	beforeEach(() => {
+		captureException.mockClear();
+	});
+
 	it("serializa HttpException con body unificado", () => {
 		const filter = new HttpExceptionFilter();
 		const statusSpy = vi.fn();
@@ -30,6 +40,7 @@ describe("HttpExceptionFilter", () => {
 			message: "Document not found",
 			error: "Not Found",
 		});
+		expect(captureException).not.toHaveBeenCalled();
 	});
 
 	it("mapea 429", () => {
@@ -62,6 +73,7 @@ describe("HttpExceptionFilter", () => {
 				message: "Internal server error",
 				error: "Internal Server Error",
 			});
+			expect(captureException).toHaveBeenCalledTimes(1);
 		} finally {
 			process.env.NODE_ENV = prev;
 		}

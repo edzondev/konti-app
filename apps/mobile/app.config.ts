@@ -63,6 +63,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 			},
 		],
 		"expo-secure-store",
+		"expo-localization",
+		...(process.env.SENTRY_ORG && process.env.SENTRY_PROJECT
+			? [
+					[
+						"@sentry/react-native/expo",
+						{
+							url: "https://sentry.io/",
+							organization: process.env.SENTRY_ORG,
+							project: process.env.SENTRY_PROJECT,
+						},
+					] as [string, { url: string; organization: string; project: string }],
+				]
+			: []),
 		[
 			"expo-image-picker",
 			{

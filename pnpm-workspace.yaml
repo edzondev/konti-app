@@ -2,6 +2,7 @@ packages:
   - "apps/*"
   - "packages/*"
 allowBuilds:
+  '@sentry/cli': set this to true or false
   esbuild: true
 trustLockfile: true
 verifyDepsBeforeRun: false

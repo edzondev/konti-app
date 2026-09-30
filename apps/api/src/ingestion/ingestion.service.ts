@@ -21,6 +21,11 @@ interface IngestionInput {
 
 type ExtractionSource = "qr" | "ocr" | "manual";
 
+export type IngestionOutcome = {
+	source: ExtractionSource;
+	status: "pending" | "ready" | "failed";
+};
+
 const PERU_TIME_ZONE = "America/Lima";
 
 @Injectable()
@@ -35,7 +40,7 @@ export class IngestionService {
 		private readonly config: ConfigService<Env, true>,
 	) {}
 
-	async process(input: IngestionInput): Promise<void> {
+	async process(input: IngestionInput): Promise<IngestionOutcome | null> {
 		const { extracted, source } = await this.extract(input);
 		const category = await this.resolveCategory(input.userId, extracted);
 		const drop = await this.shouldDropDuplicate(input, extracted);
@@ -72,10 +77,11 @@ export class IngestionService {
 			this.logger.warn(
 				`document ${input.documentId} ingest skipped (not pending, corrected, or deleted)`,
 			);
-			return;
+			return null;
 		}
 
 		this.logger.log(`document ${input.documentId} ${status} via ${source} category=${category}`);
+		return { source, status };
 	}
 
 	/** Mismo RUC + número, otro vivo más antiguo (o del mismo instante): el actual se oculta. */

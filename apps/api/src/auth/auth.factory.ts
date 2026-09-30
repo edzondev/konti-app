@@ -7,7 +7,15 @@ import type { Database } from "../database/database.types.js";
 import * as schema from "../database/schema/index.js";
 import { AUTH_TRUSTED_ORIGINS } from "./auth.constants.js";
 
-export function createAuth(db: Database, configService: ConfigService<Env, true>) {
+type Analytics = {
+	capture: (event: { distinctId: string; event: "user_signed_up" }) => void;
+};
+
+export function createAuth(
+	db: Database,
+	configService: ConfigService<Env, true>,
+	posthog?: Analytics,
+) {
 	const isProd = configService.get("NODE_ENV") === "production";
 
 	return betterAuth({
@@ -19,6 +27,15 @@ export function createAuth(db: Database, configService: ConfigService<Env, true>
 		baseURL: configService.getOrThrow("BETTER_AUTH_URL"),
 		emailAndPassword: {
 			enabled: false,
+		},
+		databaseHooks: {
+			user: {
+				create: {
+					after: async (user) => {
+						posthog?.capture({ distinctId: user.id, event: "user_signed_up" });
+					},
+				},
+			},
 		},
 		plugins: [expo() as BetterAuthPlugin],
 		trustedOrigins: [...AUTH_TRUSTED_ORIGINS],

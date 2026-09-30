@@ -1,6 +1,9 @@
 import { useRouter } from "expo-router";
+import { usePostHog } from "posthog-react-native";
+import { useEffect } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
+import { trackFeature } from "@/core/funnel-events";
 import { yearProgress } from "@/features/deductions/deductibles-year-progress";
 import { useDeductiblesYear } from "@/features/deductions/use-deductibles-year";
 import { formatMoney } from "@/features/home/home-format";
@@ -13,6 +16,10 @@ type DeductionsYearScreenProps = {
 
 export function DeductionsYearScreen({ year }: DeductionsYearScreenProps) {
 	const router = useRouter();
+	const posthog = usePostHog();
+	useEffect(() => {
+		trackFeature(posthog, "deductions_year_viewed");
+	}, [posthog]);
 	const query = useDeductiblesYear(year);
 	const data = query.data;
 	const progress = data ? yearProgress(data.totalAmount, data.topAmount) : 0;

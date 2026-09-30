@@ -1,5 +1,12 @@
 import { vi } from "vitest";
 
+vi.mock("@sentry/react-native", () => ({
+	init: vi.fn(),
+	wrap: (component: unknown) => component,
+	captureException: vi.fn(),
+	captureMessage: vi.fn(),
+}));
+
 const secureMemory = new Map<string, string>();
 
 vi.mock("expo-file-system", () => ({

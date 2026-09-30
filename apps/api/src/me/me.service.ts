@@ -1,9 +1,4 @@
-import {
-	BadRequestException,
-	Injectable,
-	Logger,
-	NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectDrizzle } from "@nestjs/drizzle";
 import { and, eq, isNull } from "drizzle-orm";
 import { PostHog } from "posthog-node";
@@ -154,11 +149,7 @@ export class MeService {
 		}));
 	}
 
-	async revokeSession(
-		userId: string,
-		currentSessionId: string,
-		sessionId: string,
-	): Promise<void> {
+	async revokeSession(userId: string, currentSessionId: string, sessionId: string): Promise<void> {
 		if (sessionId === currentSessionId) {
 			throw new BadRequestException("No puedes revocar la sesión actual");
 		}
@@ -174,8 +165,8 @@ export class MeService {
 	}
 
 	async deleteAccount(userId: string): Promise<void> {
-		// 0. Analytics antes de borrar (sin props ni user_id). Flush para no perder el evento.
-		this.posthog.capture({ event: "user_deleted" });
+		// Analytics antes de borrar. Solo el id, sin propiedades de la persona.
+		this.posthog.capture({ distinctId: userId, event: "user_deleted" });
 		await this.posthog.flush();
 
 		// 1. Leer objectKeys ANTES de borrar el user.

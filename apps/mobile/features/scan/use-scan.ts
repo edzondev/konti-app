@@ -2,7 +2,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { File } from "expo-file-system";
 import * as Haptics from "expo-haptics";
 import { launchImageLibraryAsync } from "expo-image-picker";
-import { router, useIsFocused } from "expo-router";
+import { router, useFocusEffect, useIsFocused } from "expo-router";
+import { usePostHog } from "posthog-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { GestureResponderEvent } from "react-native";
 import {
@@ -15,6 +16,7 @@ import {
 } from "react-native-vision-camera";
 import { type Barcode, useBarcodeScannerOutput } from "react-native-vision-camera-barcode-scanner";
 
+import { trackCaptureLeave, trackView } from "@/core/funnel-events";
 import { reportError } from "@/core/report-error";
 import { invalidateDocumentMetadata } from "@/features/comprobantes/use-comprobantes";
 import { observeQrLatch, type QrHold } from "@/features/scan/scan-stability";
@@ -52,6 +54,9 @@ function deleteCameraTemp(file: File | null) {
 
 export function useScan() {
 	const focused = useIsFocused();
+	const posthog = usePostHog();
+	const posthogRef = useRef(posthog);
+	posthogRef.current = posthog;
 	const queryClient = useQueryClient();
 	const { hasPermission, requestPermission, canRequestPermission } = useCameraPermission();
 	const device = useCameraDevice("back", {
@@ -70,6 +75,9 @@ export function useScan() {
 	const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const mountedRef = useRef(true);
 	const captureRef = useRef<(qrPayload?: string) => void>(() => {});
+	const openedAtRef = useRef(0);
+	const uploadedRef = useRef(false);
+	const leaveAtRef = useRef<number | null>(null);
 
 	const [qrText, setQrText] = useState<string | null>(null);
 	const [savedPath, setSavedPath] = useState<string | null>(null);
@@ -89,6 +97,40 @@ export function useScan() {
 			deleteCameraTemp(cameraTemp);
 		};
 	}, []);
+
+	function settlePendingLeave() {
+		const leftAt = leaveAtRef.current;
+		if (leftAt == null) return;
+		leaveAtRef.current = null;
+		trackCaptureLeave(posthogRef.current, {
+			openedAt: openedAtRef.current,
+			leftAt,
+			uploaded: uploadedRef.current,
+			busy: false,
+		});
+	}
+
+	useFocusEffect(
+		useCallback(() => {
+			openedAtRef.current = Date.now();
+			uploadedRef.current = false;
+			leaveAtRef.current = null;
+			trackView(posthogRef.current, "capture_opened");
+			return () => {
+				const leftAt = Date.now();
+				if (busyRef.current) {
+					leaveAtRef.current = leftAt;
+					return;
+				}
+				trackCaptureLeave(posthogRef.current, {
+					openedAt: openedAtRef.current,
+					leftAt,
+					uploaded: uploadedRef.current,
+					busy: false,
+				});
+			};
+		}, []),
+	);
 
 	function showSaved(path: string) {
 		savedPathRef.current = path;
@@ -127,6 +169,7 @@ export function useScan() {
 			cameraTempRef.current = file;
 			const filename = file.name || "boleta.jpg";
 			await uploadDocument({ file, filename, source: "camera", qrPayload });
+			uploadedRef.current = true;
 			if (!mountedRef.current) return;
 			showSaved(filePath);
 		} catch (error) {
@@ -138,6 +181,7 @@ export function useScan() {
 		} finally {
 			photo?.dispose();
 			busyRef.current = false;
+			settlePendingLeave();
 			if (mountedRef.current) setBusy(false);
 		}
 	}
@@ -200,6 +244,7 @@ export function useScan() {
 				filename: asset.fileName ?? (file.name || "boleta.jpg"),
 				source: "gallery",
 			});
+			uploadedRef.current = true;
 			if (!mountedRef.current) return;
 			showSaved(previewPath(asset.uri));
 		} catch (error) {
@@ -208,6 +253,7 @@ export function useScan() {
 			setError("No se pudo guardar la boleta.");
 		} finally {
 			busyRef.current = false;
+			settlePendingLeave();
 			if (mountedRef.current) setBusy(false);
 		}
 	}

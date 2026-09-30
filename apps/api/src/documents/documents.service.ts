@@ -180,12 +180,6 @@ export class DocumentsService {
 			throw error;
 		}
 
-		this.posthog.capture({
-			distinctId: userId,
-			event: "document_created",
-			properties: { source: dto.source },
-		});
-
 		void this.processInBackground(userId, document.id, file.buffer, file.mimeType, dto.qrPayload);
 
 		return document;
@@ -489,20 +483,40 @@ export class DocumentsService {
 		mimeType: DocumentMimeType,
 		qrPayload?: string,
 	): Promise<void> {
+		const started = Date.now();
 		try {
-			await this.ingestion.process({
+			const outcome = await this.ingestion.process({
 				documentId,
 				userId,
 				buffer,
 				mimeType,
 				qrPayload,
 			});
+			if (!outcome) return;
+			const duration_ms = Date.now() - started;
+			this.posthog.capture({
+				distinctId: userId,
+				event: "document_processed",
+				properties: { extraction_source: outcome.source, duration_ms },
+			});
+			if (outcome.status === "failed") {
+				this.posthog.capture({
+					distinctId: userId,
+					event: "document_failed",
+					properties: { extraction_source: outcome.source, duration_ms },
+				});
+			}
 		} catch (error) {
 			this.logger.error(
 				`Ingesta falló para el documento ${documentId}`,
 				error instanceof Error ? error.stack : undefined,
 			);
 			await this.markFailed(documentId);
+			this.posthog.capture({
+				distinctId: userId,
+				event: "document_failed",
+				properties: { duration_ms: Date.now() - started },
+			});
 		}
 	}
 

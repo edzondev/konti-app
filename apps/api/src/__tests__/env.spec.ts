@@ -23,6 +23,14 @@ describe("validateEnv google clients", () => {
 		expect(() => validateEnv(rest)).toThrow(/GOOGLE_ANDROID_CLIENT_ID/);
 	});
 
+	it("allows a missing Sentry DSN", () => {
+		expect(validateEnv(base).SENTRY_DSN).toBeUndefined();
+	});
+
+	it("rejects a Sentry DSN that is not a URL", () => {
+		expect(() => validateEnv({ ...base, SENTRY_DSN: "not-a-url" })).toThrow(/SENTRY_DSN/);
+	});
+
 	it("allows missing GOOGLE_IOS_CLIENT_ID", () => {
 		const env = validateEnv(base);
 		expect(env.GOOGLE_ANDROID_CLIENT_ID).toBe(base.GOOGLE_ANDROID_CLIENT_ID);

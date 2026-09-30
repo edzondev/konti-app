@@ -1,10 +1,12 @@
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
-import { useState } from "react";
+import { usePostHog } from "posthog-react-native";
+import { useRef, useState } from "react";
 
 import { parse } from "valibot";
 
 import { apiFetch } from "@/core/api-fetch";
+import { trackFeature } from "@/core/funnel-events";
 import { reportError } from "@/core/report-error";
 import { showToast } from "@/core/toast";
 import { MeExportSchema } from "@/features/profile/profile-schemas";
@@ -17,10 +19,14 @@ function localExportFileName(d = new Date()): string {
 }
 
 export function useExportData() {
+	const posthog = usePostHog();
+	const posthogRef = useRef(posthog);
+	posthogRef.current = posthog;
 	const [isExporting, setIsExporting] = useState(false);
 
 	async function exportData() {
 		if (isExporting) return;
+		trackFeature(posthogRef.current, "export_requested");
 		setIsExporting(true);
 		try {
 			const raw = await apiFetch<unknown>("/me/export");

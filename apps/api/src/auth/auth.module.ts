@@ -1,6 +1,7 @@
 import { Global, Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { getDrizzleToken } from "@nestjs/drizzle";
+import { PostHog } from "posthog-node";
 import type { Env } from "../config/env.js";
 import type { Database } from "../database/database.types.js";
 import { AUTH } from "./auth.constants.js";
@@ -13,9 +14,9 @@ import { AuthGuard } from "./auth.guard.js";
 		AuthGuard,
 		{
 			provide: AUTH,
-			useFactory: (db: Database, configService: ConfigService<Env, true>) =>
-				createAuth(db, configService),
-			inject: [getDrizzleToken(), ConfigService],
+			useFactory: (db: Database, configService: ConfigService<Env, true>, posthog: PostHog) =>
+				createAuth(db, configService, posthog),
+			inject: [getDrizzleToken(), ConfigService, PostHog],
 		},
 	],
 	exports: [AUTH, AuthGuard],

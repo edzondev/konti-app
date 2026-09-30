@@ -1,15 +1,19 @@
 import "react-native-reanimated";
+import "@/core/sentry";
 import "../global.css";
 
 import { GoogleOneTapSignIn } from "@react-native-google-signin/google-signin";
+import * as Sentry from "@sentry/react-native";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
+import { usePostHog } from "posthog-react-native";
 import { useEffect } from "react";
 import { useUniwind } from "uniwind";
 
 import { AppProviders } from "@/core/app-providers";
 import { authClient } from "@/core/auth-client";
+import { syncPostHogUser } from "@/core/posthog-identity";
 import { endAccountDeletion, markTermsAccepted } from "@/features/auth/terms-acceptance";
 
 export { ErrorBoundary } from "expo-router";
@@ -34,7 +38,7 @@ GoogleOneTapSignIn.configure({
 	webClientId: googleWebClientId,
 });
 
-export default function RootLayout() {
+function RootLayout() {
 	const { theme } = useUniwind();
 
 	return (
@@ -46,12 +50,18 @@ export default function RootLayout() {
 }
 
 function RootNavigator() {
+	const posthog = usePostHog();
 	const { data: session, isPending } = authClient.useSession();
 
 	useEffect(() => {
 		if (isPending) return;
 		void SplashScreen.hideAsync();
 	}, [isPending]);
+
+	useEffect(() => {
+		if (isPending) return;
+		syncPostHogUser(posthog, session?.user.id ?? null);
+	}, [isPending, posthog, session?.user.id]);
 
 	useEffect(() => {
 		if (session) markTermsAccepted();
@@ -73,3 +83,5 @@ function RootNavigator() {
 		</Stack>
 	);
 }
+
+export default Sentry.wrap(RootLayout);

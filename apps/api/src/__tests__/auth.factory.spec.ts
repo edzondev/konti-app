@@ -59,6 +59,30 @@ describe("createAuth google clientId", () => {
 	});
 });
 
+describe("createAuth user_signed_up", () => {
+	it("sends only the user id when an account is created", async () => {
+		const capture = vi.fn();
+		const auth = createAuth({} as Database, config() as never, { capture } as never);
+		const after = (
+			auth.options as unknown as {
+				databaseHooks: {
+					user: {
+						create: { after: (user: { id: string; email: string }) => Promise<void> };
+					};
+				};
+			}
+		).databaseHooks.user.create.after;
+
+		await after?.({ id: "user-1", email: "ada@example.com" });
+
+		expect(capture).toHaveBeenCalledTimes(1);
+		expect(capture).toHaveBeenCalledWith({
+			distinctId: "user-1",
+			event: "user_signed_up",
+		});
+	});
+});
+
 describe("createAuth emailAndPassword", () => {
 	it("disables email and password", () => {
 		const auth = createAuth({} as Database, config() as never);

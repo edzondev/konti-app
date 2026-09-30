@@ -1,9 +1,11 @@
+import { usePostHog } from "posthog-react-native";
 import { useRef, useState } from "react";
 import { type ScrollView } from "react-native";
 import { useKeyboardState } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as v from "valibot";
 
+import { trackFeature } from "@/core/funnel-events";
 import { triggerHaptic } from "@/core/haptics";
 import { type Document, DocumentSchema } from "@/features/comprobantes/comprobantes-document";
 import {
@@ -16,6 +18,9 @@ import {
 import { useUpdateDocument } from "@/features/comprobantes/use-comprobantes";
 
 export function useDocumentEdit(document: Document, onClose: (updated?: Document) => void) {
+	const posthog = usePostHog();
+	const posthogRef = useRef(posthog);
+	posthogRef.current = posthog;
 	const update = useUpdateDocument(document.id);
 	const [draft, setDraft] = useState(() => toEditDraft(document));
 	const [fieldErrors, setFieldErrors] = useState<DraftErrors>({});
@@ -61,6 +66,7 @@ export function useDocumentEdit(document: Document, onClose: (updated?: Document
 		}
 		update.mutate(payload, {
 			onSuccess: (data) => {
+				trackFeature(posthogRef.current, "document_edited");
 				const parsed = v.safeParse(DocumentSchema, data);
 				void triggerHaptic("success");
 				onClose(parsed.success ? parsed.output : undefined);

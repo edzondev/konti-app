@@ -1,3 +1,4 @@
+import "./instrument.js";
 import { NestFactory } from "@nestjs/core";
 import { toNodeHandler } from "better-auth/node";
 import { json, urlencoded } from "express";

@@ -1,7 +1,7 @@
 ---
 import { getEntry } from "astro:content";
-import BaseLayout from "../layouts/BaseLayout.astro";
 import LegalProse from "../components/LegalProse.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
 import { fillLegalTokens } from "../lib/legal-entity";
 
 const entry = await getEntry("legal", "privacidad");
@@ -22,8 +22,9 @@ const updatedLabel = entry.data.updated.toLocaleDateString("es-PE", {
 	description={entry.data.description}
 	canonicalPath="/privacidad/"
 >
+	<main>
 	<article class="mx-auto max-w-[720px] px-gutter pt-24 pb-20 box-border">
-		<a href="/" class="text-[14px] text-konti-muted">← Volver a Konti</a>
+		<a href="/" class="text-[14px] text-konti-muted hover:text-konti-accent-deep">← Volver a Konti</a>
 		<h1
 			class="mt-8 mb-0 font-sans font-normal text-[clamp(36px,5vw,48px)] tracking-[-0.02em] leading-[1.1]"
 		>
@@ -34,4 +35,5 @@ const updatedLabel = entry.data.updated.toLocaleDateString("es-PE", {
 		</p>
 		<LegalProse class="mt-10" html={html} />
 	</article>
+	</main>
 </BaseLayout>

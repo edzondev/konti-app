@@ -5,27 +5,27 @@ export type FaqItem = {
 
 export const FAQ_ITEMS: FaqItem[] = [
 	{
+		q: "¿Para quién es Konti?",
+		a: "Para personas naturales en Perú: si trabajas en planilla, por tu cuenta o haces ambas cosas, Konti te ayuda a entender tus gastos a partir de tus comprobantes. No es un sistema contable para empresas.",
+	},
+	{
 		q: "¿Konti calcula mis impuestos?",
-		a: "No. Konti ordena tus boletas y te muestra qué gastos suelen aplicar a deducciones. El cálculo depende de tu situación, y eso lo confirma tu contador o SUNAT.",
+		a: "No. Organiza tus comprobantes e identifica gastos que podrían aplicar a deducciones. La deducción real depende de tu situación tributaria y de los requisitos vigentes. Confírmalo con SUNAT o tu contador.",
 	},
 	{
-		q: "¿Reemplaza a un contador?",
-		a: "No. Te ayuda a llegar mejor preparado. Y para lo básico, saber cuánto gastaste y en qué, probablemente no necesites uno.",
+		q: "¿Tengo que clasificar cada boleta?",
+		a: "No. Konti reconoce el comercio y asigna una categoría. Por ejemplo, Plaza Vea se clasifica como supermercado y Osaka como restaurante.",
 	},
 	{
-		q: "¿Qué pasa si no tengo boletas con QR?",
-		a: "Igual funciona. Konti lee el texto de la foto. Si algo no queda claro, te pide que lo revises antes de guardarlo.",
-	},
-	{
-		q: "¿Funciona sin internet?",
-		a: "Puedes ver tus comprobantes y el resumen del mes sin conexión si ya los cargaste antes. Capturar boletas nuevas requiere internet.",
+		q: "¿Y si mi comprobante no tiene QR?",
+		a: "Konti también puede leer el texto de la foto. Apunta la cámara a una boleta, factura o recibo legible: no necesitas que tenga un QR.",
 	},
 	{
 		q: "¿Cuánto cuesta?",
-		a: "La versión base es gratis, para siempre. Sin publicidad y sin planes ocultos.",
+		a: "La versión base será gratuita. Podrás empezar a organizar tus comprobantes sin pagar.",
 	},
 	{
-		q: "¿Cómo elimino mi cuenta?",
-		a: "Desde Perfil, en “Eliminar cuenta”. Se borran tu cuenta y todos tus datos. No tienes que escribirnos ni dar explicaciones.",
+		q: "¿Cuándo podré descargarla?",
+		a: "Konti está en la fase final de publicación para Android. El lanzamiento está estimado para octubre de 2026, después de completar la prueba cerrada. Activaremos la descarga cuando esté disponible en Google Play.",
 	},
 ];

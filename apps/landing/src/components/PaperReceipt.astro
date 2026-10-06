@@ -1,0 +1,27 @@
+---
+interface Props {
+	compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+---
+
+<div
+	class:list={["paper-receipt", { compact }]}
+	role="img"
+	aria-label="Boleta de ejemplo de Plaza Vea por 87 soles con 40 céntimos"
+>
+	<div class="receipt-store">plaza vea</div>
+	<p>
+		SUPERMERCADOS PERUANOS S.A.<br />RUC 20100070970<br />BOLETA DE VENTA ELECTRÓNICA
+	</p>
+	<div class="receipt-divider"></div>
+	<div class="receipt-line"><span>LECHE GLORIA X6</span><span>24.90</span></div>
+	<div class="receipt-line"><span>ARROZ COSTEÑO 5KG</span><span>21.50</span></div>
+	<div class="receipt-line"><span>POLLO ENTERO KG</span><span>28.60</span></div>
+	<div class="receipt-line"><span>PALTA FUERTE KG</span><span>12.40</span></div>
+	<div class="receipt-divider"></div>
+	<div class="receipt-line receipt-total"><span>TOTAL S/</span><span>87.40</span></div>
+	<div class="barcode"></div>
+	<p class="receipt-thanks">GRACIAS POR TU COMPRA</p>
+</div>

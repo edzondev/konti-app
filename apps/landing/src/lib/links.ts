@@ -1,8 +1,7 @@
 import { legalEntity } from "./legal-entity";
 
-/** Placeholder until Google Play listing ID is available. */
-export const PLAY_STORE_URL =
-	"https://play.google.com/store/apps/details?id=pe.konti.app";
+/** Google Play listing. The button stays disabled until `launch.available`. */
+export const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.konti.app";
 
 export const CONTACT_EMAIL = legalEntity.contactEmail;
 
@@ -14,6 +13,7 @@ export const routes = {
 	terminos: "/terminos/",
 	privacidad: "/privacidad/",
 	comoFunciona: "/#como-funciona",
-	faq: "/#faq",
+	porQueKonti: "/#por-que-konti",
+	faq: "/#preguntas",
 	descargar: "/#descargar",
 } as const;

@@ -1,0 +1,23 @@
+---
+import { ArrowRight, Smartphone } from "lucide-react";
+import { launch } from "../lib/launch";
+
+interface Props {
+	light?: boolean;
+}
+
+const { light = false } = Astro.props;
+const className = light ? "download-button light" : "download-button";
+---
+
+{
+	launch.available ? (
+		<a class={className} href={launch.googlePlayUrl} target="_blank" rel="noopener noreferrer">
+			<Smartphone size={18} /> Descargar para Android <ArrowRight size={17} />
+		</a>
+	) : (
+		<button class={className} type="button" disabled aria-describedby="launch-status">
+			<Smartphone size={18} /> Descargar para Android <span class="soon-tag">Pronto</span>
+		</button>
+	)
+}

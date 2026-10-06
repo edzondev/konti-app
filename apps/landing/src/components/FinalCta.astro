@@ -1,0 +1,22 @@
+---
+import { Check, ShieldCheck, Smartphone } from "lucide-react";
+import { launch } from "../lib/launch";
+import DownloadButton from "./DownloadButton.astro";
+---
+
+<section class="final-section" id="descargar">
+	<div class="wrap final-inner">
+		<div class="eyebrow"><span class="small-dot"></span> TU PRÓXIMO MES PUEDE SER MÁS SIMPLE</div>
+		<h2>Menos caos.<br /><em>Más «ya lo tengo claro».</em></h2>
+		<p>Todo empieza con la próxima boleta.</p>
+		<DownloadButton light />
+		<span class="final-availability">
+			{launch.available ? "Ya disponible en Google Play" : launch.estimate}
+		</span>
+		<div class="final-trust">
+			<span><Check size={14} /> Versión base gratuita</span>
+			<span><ShieldCheck size={14} /> Sin vender tus datos</span>
+			<span><Smartphone size={14} /> Para Android</span>
+		</div>
+	</div>
+</section>

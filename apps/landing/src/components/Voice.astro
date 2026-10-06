@@ -1,0 +1,27 @@
+---
+import { Sparkles } from "lucide-react";
+import Wordmark from "./Wordmark.astro";
+---
+
+<section class="voice-section">
+	<div class="wrap voice-inner">
+		<div class="voice-intro">
+			<div class="eyebrow"><Sparkles size={14} /> LA FRASE DE TU CONTADOR</div>
+			<h2>No más números<br />que te dejan<br /><em>con más preguntas.</em></h2>
+			<p>Un archivador guarda tus boletas.<br />Konti te dice qué significan.</p>
+		</div>
+		<div class="voice-example">
+			<div class="voice-example-top">
+				<span>SEPTIEMBRE, EN DOS SEGUNDOS</span>
+				<Wordmark />
+			</div>
+			<div class="voice-total"><span>S/</span> 480.50</div>
+			<blockquote>«Vas parecido a agosto.<br /><em>Nada fuera de lo normal.</em>»</blockquote>
+			<div class="voice-bottom">
+				<span class="small-dot"></span>
+				<span>Una conclusión. No otro dashboard.</span>
+				<small>DATOS DE EJEMPLO</small>
+			</div>
+		</div>
+	</div>
+</section>

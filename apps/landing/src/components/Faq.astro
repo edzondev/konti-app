@@ -1,29 +1,41 @@
 ---
-import FaqAccordion from './FaqAccordion';
+import { ArrowRight, ChevronDown } from "lucide-react";
+import { FAQ_ITEMS } from "../lib/faq";
+import { CONTACT_EMAIL } from "../lib/links";
 ---
 
-<section id="faq" class="py-section">
-	<div
-		class="mx-auto flex max-w-[1200px] flex-wrap gap-y-12 gap-x-[clamp(40px,6vw,96px)] px-gutter box-border"
-	>
-		<div class="min-w-0 flex-[1_1_300px]">
-			<div
-				class="font-mono text-[12px] uppercase tracking-[0.16em] text-konti-muted"
-			>
-				Preguntas
-			</div>
-			<h2
-				class="mt-5 mb-0 text-title font-light tracking-[-0.035em] leading-[1.1] text-balance"
-			>
-				Lo que la gente{' '}
-				<span
-					class="font-sans italic font-normal text-[1.14em] tracking-[-0.01em] text-konti-accent-deep"
-					>pregunta.</span
-				>
-			</h2>
-		</div>
-		<div class="min-w-0 flex-[2_1_520px]">
-			<FaqAccordion client:visible />
-		</div>
+<section class="faq-section wrap" id="preguntas">
+	<div class="faq-intro">
+		<div class="eyebrow">SIN LETRA CHICA</div>
+		<h2>Por si te lo<br /><em>estabas preguntando.</em></h2>
+		<p>
+			Y si te queda alguna duda,<br /><a href={`mailto:${CONTACT_EMAIL}`}>escríbenos <ArrowRight size={14} /></a>
+		</p>
+	</div>
+	<div class="faq-list">
+		{
+			FAQ_ITEMS.map((item, index) => (
+				<div class="faq-item">
+					<h3>
+						<button
+							type="button"
+							aria-expanded={index === 1 ? "true" : "false"}
+							aria-controls={`faq-answer-${index}`}
+							id={`faq-question-${index}`}
+						>
+							{item.q}
+							<ChevronDown size={19} className={index === 1 ? "rotated" : undefined} />
+						</button>
+					</h3>
+					<section
+						id={`faq-answer-${index}`}
+						aria-labelledby={`faq-question-${index}`}
+						hidden={index === 1 ? undefined : true}
+					>
+						<p>{item.a}</p>
+					</section>
+				</div>
+			))
+		}
 	</div>
 </section>

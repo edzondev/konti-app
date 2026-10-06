@@ -3,9 +3,9 @@
  * Dummy hasta registrar la entidad real — un solo lugar para ambas páginas.
  */
 export const legalEntity = {
-	name: "Konti S.A.C.",
-	taxId: "20601234567",
-	address: "Av. José Pardo 123, Miraflores, Lima 15074, Perú",
+	name: "Konti",
+	taxId: "10748248621",
+	address: "Av. San Martín, San Juan de Lurigancho, Lima 15442, Perú",
 	contactEmail: "hola@konti.dev",
 	privacyEmail: "privacidad@konti.dev",
 	jurisdiction: "Lima, Perú",

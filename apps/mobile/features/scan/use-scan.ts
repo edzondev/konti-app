@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { GestureResponderEvent } from "react-native";
 import {
 	type CameraRef,
+	CommonResolutions,
 	type Photo,
 	type TorchMode,
 	useCameraDevice,
@@ -57,9 +58,13 @@ export function useScan() {
 	const device = useCameraDevice("back", {
 		physicalDevices: ["wide-angle"],
 	});
+	// "balanced" maps to CAPTURE_MODE_MINIMIZE_LATENCY + PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION
+	// on Android, which downgrades resolution and processing. Receipts need sharp text for OCR/QR.
 	const photoOutput = usePhotoOutput({
 		containerFormat: "jpeg",
-		qualityPrioritization: "balanced",
+		targetResolution: CommonResolutions.UHD_4_3,
+		qualityPrioritization: "quality",
+		quality: 0.95,
 	});
 	const cameraRef = useRef<CameraRef>(null);
 	const holdRef = useRef<QrHold>({ value: null, since: null });
@@ -119,6 +124,7 @@ export function useScan() {
 			const flashMode = flashEnabled && device?.hasFlash ? "on" : "off";
 			photo = await photoOutput.capturePhoto({ flashMode, enableShutterSound: false }, {});
 			if (!mountedRef.current) return;
+			if (__DEV__) console.log(`[scan] foto ${photo.width}x${photo.height}`);
 			const filePath = await photo.saveToTemporaryFileAsync();
 			if (!mountedRef.current) return;
 			const file = new File(fileUri(filePath));

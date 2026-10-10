@@ -7,7 +7,7 @@ import {
 	NotFoundException,
 } from "@nestjs/common";
 import { InjectDrizzle } from "@nestjs/drizzle";
-import { and, count, desc, eq, gte, isNull, lt, lte, ne, or } from "drizzle-orm";
+import { and, count, desc, eq, gte, isNull, lt, lte, or } from "drizzle-orm";
 import { PostHog } from "posthog-node";
 import type { Database } from "../database/database.types.js";
 import { documents } from "../database/schema/app.schema.js";
@@ -417,7 +417,7 @@ export class DocumentsService {
 				and(
 					visibleToUser(userId),
 					eq(documents.status, "pending"),
-					or(isNull(documents.extractionSource), ne(documents.extractionSource, "manual")),
+					isNull(documents.extractionSource),
 					monthWindow(target),
 				),
 			);

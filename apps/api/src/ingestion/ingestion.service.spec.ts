@@ -197,7 +197,7 @@ describe("IngestionService", () => {
 		expect(setArg.category).toBe("otros");
 	});
 
-	it("degrada a pending vía ocr si Jev no está seguro del total", async () => {
+	it("marca failed vía ocr si Jev no está seguro del total", async () => {
 		vi.mocked(ocr.extract).mockResolvedValue("foto borrosa");
 		vi.mocked(fields.pick).mockResolvedValue({
 			confident: false,
@@ -223,14 +223,14 @@ describe("IngestionService", () => {
 			issuerName: string | null;
 			issueDate: string | null;
 		};
-		expect(setArg.status).toBe("pending");
+		expect(setArg.status).toBe("failed");
 		expect(setArg.extractionSource).toBe("ocr");
 		expect(setArg.totalAmount).toBeNull();
 		expect(setArg.issuerName).toBe("COMERCIO SAC");
 		expect(setArg.issueDate).toBe("2026-08-21");
 	});
 
-	it("degrada a pending vía ocr si TypeSafe falla tras Mistral", async () => {
+	it("marca failed vía ocr si TypeSafe falla tras Mistral", async () => {
 		vi.mocked(ocr.extract).mockResolvedValue("TOTAL 50.00");
 		vi.mocked(fields.pick).mockRejectedValue(new Error("TypeSafe timed out after 30000ms"));
 
@@ -246,7 +246,7 @@ describe("IngestionService", () => {
 			extractionSource: string;
 			totalAmount: string | null;
 		};
-		expect(setArg.status).toBe("pending");
+		expect(setArg.status).toBe("failed");
 		expect(setArg.extractionSource).toBe("ocr");
 		expect(setArg.totalAmount).toBeNull();
 	});

@@ -41,11 +41,7 @@ export class IngestionService {
 		const drop = await this.shouldDropDuplicate(input, extracted);
 		const incomplete = isExtractionIncomplete(extracted.totalAmount);
 		const status =
-			drop || source === "manual" || (source === "ocr" && incomplete)
-				? "pending"
-				: incomplete
-					? "failed"
-					: "ready";
+			drop || source === "manual" ? "pending" : incomplete ? "failed" : "ready";
 
 		// No pisar soft-delete, docs ya listos/fallidos, ni correcciones del usuario.
 		const [applied] = await this.db
@@ -172,7 +168,7 @@ export class IngestionService {
 			return { extracted: picked.extracted, source: "ocr" };
 		} catch (error) {
 			this.logger.warn(
-				`TypeSafe failed for document ${input.documentId}; keeping OCR slot as pending`,
+				`TypeSafe failed for document ${input.documentId}; marking OCR extraction incomplete`,
 				error instanceof Error ? error.message : undefined,
 			);
 			return { extracted: emptyExtraction(), source: "ocr" };

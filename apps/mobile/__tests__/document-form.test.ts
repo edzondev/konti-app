@@ -81,6 +81,15 @@ describe("validateDraft", () => {
 
 		expect(validateDraft({ ...draft, totalAmount: "10,50" })).toEqual({});
 	});
+
+	it("accepts dates with dashes, dots, or compact digits", () => {
+		const draft = toEditDraft(doc());
+
+		expect(validateDraft({ ...draft, issueDate: "23-09-2026" })).toEqual({});
+		expect(validateDraft({ ...draft, issueDate: "23.09.2026" })).toEqual({});
+		expect(validateDraft({ ...draft, issueDate: "23092026" })).toEqual({});
+		expect(validateDraft({ ...draft, issueDate: "9/9/2026" })).toEqual({});
+	});
 });
 
 describe("toUpdatePayload", () => {
@@ -130,6 +139,13 @@ describe("toUpdatePayload", () => {
 			issueDate: "2026-09-23",
 			totalAmount: "12.50",
 		});
+
+		expect(
+			toUpdatePayload(original, {
+				...toEditDraft(original),
+				issueDate: "23092026",
+			}),
+		).toEqual({ issueDate: "2026-09-23" });
 	});
 });
 

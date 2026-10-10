@@ -124,7 +124,7 @@ function EditForm({
 					<TextInput
 						value={draft.issueDate}
 						onChangeText={(value) => onChange("issueDate", value)}
-						placeholder="dd/mm/aaaa"
+						placeholder="dd/mm/aaaa o 09092026"
 						className={FIELD_INPUT}
 					/>
 				</FieldRow>

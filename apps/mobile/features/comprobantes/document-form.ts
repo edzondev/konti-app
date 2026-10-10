@@ -58,15 +58,17 @@ function isoToDisplayDate(isoDate: string): string {
 }
 
 function displayDateToIso(displayDate: string): string | null {
-	const match = displayDate.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+	const trimmed = displayDate.trim();
+	const separated = trimmed.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{4})$/);
+	const compact = separated ? null : trimmed.match(/^(\d{2})(\d{2})(\d{4})$/);
+	const match = separated ?? compact;
 	if (!match) {
 		return null;
 	}
 
-	const [, dayText, monthText, yearText] = match;
-	const day = Number(dayText);
-	const month = Number(monthText);
-	const year = Number(yearText);
+	const day = Number(match[1]);
+	const month = Number(match[2]);
+	const year = Number(match[3]);
 	const date = new Date(Date.UTC(year, month - 1, day));
 
 	if (
@@ -77,7 +79,9 @@ function displayDateToIso(displayDate: string): string | null {
 		return null;
 	}
 
-	return `${yearText}-${monthText}-${dayText}`;
+	const dayText = String(day).padStart(2, "0");
+	const monthText = String(month).padStart(2, "0");
+	return `${year}-${monthText}-${dayText}`;
 }
 
 function normalizeAmount(value: string): string {

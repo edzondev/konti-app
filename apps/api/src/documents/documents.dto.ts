@@ -5,7 +5,7 @@ import { DOCUMENT_TYPES } from "../ingestion/ingestion.types.js";
 import { AmountSchema, IsoDateSchema, RucSchema } from "../ingestion/schemas.js";
 
 export const CreateDocumentSchema = v.object({
-	source: v.picklist(["camera", "gallery", "share"]),
+	source: v.picklist(["camera", "gallery"]),
 	qrPayload: v.optional(v.pipe(v.string(), v.maxLength(2000))),
 });
 

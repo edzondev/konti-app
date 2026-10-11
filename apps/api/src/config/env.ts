@@ -31,7 +31,6 @@ export const EnvSchema = v.object({
 	R2_ACCESS_KEY_ID: v.pipe(v.string(), v.minLength(1)),
 	R2_SECRET_ACCESS_KEY: v.pipe(v.string(), v.minLength(1)),
 	R2_BUCKET_NAME: v.pipe(v.string(), v.minLength(1)),
-	R2_DOWNLOAD_TTL_SECONDS: numberFromEnv(300, 1),
 
 	MISTRAL_API_KEY: v.pipe(v.string(), v.minLength(1)),
 	TYPESAFE_API_KEY: v.pipe(v.string(), v.minLength(1)),

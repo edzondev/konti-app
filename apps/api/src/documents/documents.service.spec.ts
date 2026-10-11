@@ -159,7 +159,7 @@ describe("DocumentsService", () => {
 		};
 		mockExisting(existing);
 
-		const result = await service.create("user-1", { source: "share" }, upload);
+		const result = await service.create("user-1", { source: "camera" }, upload);
 
 		expect(result).toBe(existing);
 		expect(ingestion.process).not.toHaveBeenCalled();

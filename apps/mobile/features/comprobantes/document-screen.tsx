@@ -20,7 +20,6 @@ import { Camera, Receipt } from "@/shared/ui/reicon";
 const SOURCE_LABELS: Record<Document["source"], string> = {
 	camera: "Cámara",
 	gallery: "Galería",
-	share: "Compartido",
 };
 
 function displayDate(isoDate: string): string {

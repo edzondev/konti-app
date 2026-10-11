@@ -2109,7 +2109,6 @@
 			inset-inline: 0;
 		}
 	}
-	/* Review: local annotation spacing, quieter left-aligned closing blocks. */
 	.personal-note {
 		justify-content: center;
 	}

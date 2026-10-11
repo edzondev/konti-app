@@ -2,22 +2,13 @@
 @import "./landing.css";
 
 @theme {
-	--color-konti-bg: #f5f1ea;
-	--color-konti-surface: #ffffff;
 	--color-konti-ink: #17150f;
 	--color-konti-muted: #716d63;
-	--color-konti-subtle: rgba(23, 21, 15, 0.35);
-	--color-konti-accent: #e2a654;
-	--color-konti-accent-subtle: rgba(226, 166, 84, 0.1);
 	--color-konti-accent-deep: #936026;
 	--color-konti-accent-hover: #936026;
-	--color-konti-border: rgba(23, 21, 15, 0.13);
-	--color-konti-success: #15803d;
-	--color-konti-danger: #b91c1c;
 
 	--font-sans: "Geist", system-ui, sans-serif;
 	--font-mono: "Geist Mono", ui-monospace, monospace;
-	--font-serif: "Lora", Georgia, serif;
 
 	--spacing-gutter: clamp(24px, 4vw, 48px);
 }

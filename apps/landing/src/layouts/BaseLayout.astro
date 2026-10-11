@@ -19,9 +19,8 @@ const {
 	ogDescription = description,
 } = Astro.props;
 
-const siteOrigin = "https://konti.dev";
-const canonicalUrl = new URL(canonicalPath, siteOrigin).href;
-const ogImageUrl = new URL(ogImage.src, Astro.site ?? siteOrigin).href;
+const canonicalUrl = new URL(canonicalPath, Astro.site).href;
+const ogImageUrl = new URL(ogImage.src, Astro.site).href;
 
 const fontsHref =
 	"https://fonts.googleapis.com/css2?family=Geist:wght@300;400;450;500;550;600;650;700&family=Geist+Mono:wght@400;500&family=Lora:ital,wght@1,400;1,500&display=swap";

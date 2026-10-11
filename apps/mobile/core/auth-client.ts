@@ -23,5 +23,3 @@ const client = createAuthClient({
 export const authClient = client as typeof client & {
 	getCookie: () => Promise<string>;
 };
-
-export type Session = NonNullable<ReturnType<typeof authClient.useSession>["data"]>;

@@ -1,13 +1,12 @@
 import * as Haptics from "expo-haptics";
 
-export type HapticIntent = "selection" | "success" | "warning" | "error";
+export type HapticIntent = "selection" | "success" | "error";
 
 const NOTIFICATION_TYPE: Record<
 	Exclude<HapticIntent, "selection">,
 	Haptics.NotificationFeedbackType
 > = {
 	success: Haptics.NotificationFeedbackType.Success,
-	warning: Haptics.NotificationFeedbackType.Warning,
 	error: Haptics.NotificationFeedbackType.Error,
 };
 

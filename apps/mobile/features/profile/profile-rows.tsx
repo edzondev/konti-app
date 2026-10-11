@@ -18,8 +18,7 @@ type ProfileRowProps = {
 	label: string;
 	onPress?: () => void;
 	disabled?: boolean;
-	trailing?: "chevron" | "soon" | ReactNode;
-	danger?: boolean;
+	trailing?: "chevron" | ReactNode;
 	loading?: boolean;
 	border?: boolean;
 };
@@ -29,15 +28,12 @@ export function ProfileRow({
 	onPress,
 	disabled = false,
 	trailing = "chevron",
-	danger = false,
 	loading = false,
 	border = true,
 }: ProfileRowProps) {
-	const labelClass = danger
-		? "font-sans-medium text-[15px] text-konti-danger"
-		: disabled
-			? "font-sans-medium text-[15px] text-konti-ink-disabled"
-			: "font-sans-medium text-[15px] text-konti-ink";
+	const labelClass = disabled
+		? "font-sans-medium text-[15px] text-konti-ink-disabled"
+		: "font-sans-medium text-[15px] text-konti-ink";
 
 	const content = (
 		<>
@@ -49,8 +45,6 @@ export function ProfileRow({
 					colorClassName={disabled ? "accent-konti-ink-disabled" : "accent-konti-ink-subtle"}
 					size={18}
 				/>
-			) : trailing === "soon" ? (
-				<Text className="font-sans text-[13px] text-konti-ink-disabled">Próximamente</Text>
 			) : (
 				trailing
 			)}

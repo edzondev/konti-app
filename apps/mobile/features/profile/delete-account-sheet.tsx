@@ -1,28 +1,48 @@
 import { BottomSheet, RNHostView } from "@expo/ui";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { useState } from "react";
+import { Pressable, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { useResolveClassNames } from "uniwind";
 
-import { useDeleteAccountSheet } from "@/features/profile/use-delete-account";
+const CONFIRM_WORD = "ELIMINAR";
 
-export function DeleteAccountSheet() {
-	const {
-		busy,
-		canConfirm,
-		confirmWord,
-		height,
-		isPresented,
-		onConfirm,
-		onDismiss,
-		placeholderColor,
-		setText,
-		sheetBackground,
-		text,
-		width,
-	} = useDeleteAccountSheet();
+export function DeleteAccountSheet({
+	isPresented,
+	onDismiss,
+	onConfirm,
+}: {
+	isPresented: boolean;
+	onDismiss: () => void;
+	onConfirm: () => Promise<boolean>;
+}) {
+	const [text, setText] = useState("");
+	const [busy, setBusy] = useState(false);
+	const { height, width } = useWindowDimensions();
+	const sheetBackground = useResolveClassNames("bg-konti-bg");
+	const placeholder = useResolveClassNames("text-konti-ink-faint");
+	const canConfirm = text === CONFIRM_WORD && !busy;
+
+	function dismiss() {
+		if (busy) return;
+		setText("");
+		onDismiss();
+	}
+
+	async function confirm() {
+		if (!canConfirm) return;
+		setBusy(true);
+		try {
+			const deleted = await onConfirm();
+			if (deleted) onDismiss();
+			setText("");
+		} finally {
+			setBusy(false);
+		}
+	}
 
 	return (
 		<BottomSheet
 			isPresented={isPresented}
-			onDismiss={onDismiss}
+			onDismiss={dismiss}
 			snapPoints={["half"]}
 			contentPadding={0}
 			containerColor={sheetBackground.backgroundColor}
@@ -34,16 +54,16 @@ export function DeleteAccountSheet() {
 							Eliminar <Text className="italic text-konti-danger">cuenta</Text>
 						</Text>
 						<Text className="mt-3 text-[15px] leading-6 text-konti-ink-muted">
-							Se borrarán tus datos de forma permanente. Escribe {confirmWord} para confirmar.
+							Se borrarán tus datos de forma permanente. Escribe {CONFIRM_WORD} para confirmar.
 						</Text>
 						<TextInput
-							accessibilityLabel={`Escribe ${confirmWord} para confirmar`}
+							accessibilityLabel={`Escribe ${CONFIRM_WORD} para confirmar`}
 							autoCapitalize="characters"
 							autoCorrect={false}
 							className="mt-6 rounded-2xl border border-konti-border bg-konti-fill px-4 py-3 font-sans-medium text-[16px] text-konti-ink"
 							onChangeText={setText}
-							placeholder={confirmWord}
-							placeholderTextColor={placeholderColor}
+							placeholder={CONFIRM_WORD}
+							placeholderTextColor={placeholder.color}
 							value={text}
 						/>
 						<Pressable
@@ -57,7 +77,7 @@ export function DeleteAccountSheet() {
 							}
 							disabled={!canConfirm}
 							onPress={() => {
-								void onConfirm();
+								void confirm();
 							}}
 						>
 							<Text
@@ -75,7 +95,7 @@ export function DeleteAccountSheet() {
 							accessibilityRole="button"
 							className="mt-3 h-12 items-center justify-center"
 							disabled={busy}
-							onPress={onDismiss}
+							onPress={dismiss}
 						>
 							<Text className="font-sans-medium text-[15px] text-konti-ink-muted">Cancelar</Text>
 						</Pressable>

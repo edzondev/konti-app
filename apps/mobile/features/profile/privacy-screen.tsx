@@ -1,9 +1,10 @@
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
+import { deleteAccount } from "@/features/profile/delete-account";
 import { DeleteAccountSheet } from "@/features/profile/delete-account-sheet";
 import { ProfileRow, ProfileSection } from "@/features/profile/profile-rows";
-import { useDeleteAccount } from "@/features/profile/use-delete-account";
 import { useExportData } from "@/features/profile/use-export-data";
 import { ChevronLeft } from "@/shared/ui/reicon";
 import { UniSafeAreaView } from "@/shared/ui/safe-area";
@@ -11,7 +12,7 @@ import { UniSafeAreaView } from "@/shared/ui/safe-area";
 export function PrivacyScreen() {
 	const router = useRouter();
 	const { exportData, isExporting } = useExportData();
-	const { openDeleteSheet } = useDeleteAccount();
+	const [isPresented, setIsPresented] = useState(false);
 
 	return (
 		<UniSafeAreaView className="flex-1 bg-konti-bg" edges={["top"]}>
@@ -57,13 +58,21 @@ export function PrivacyScreen() {
 						accessibilityRole="button"
 						accessibilityLabel="Eliminar cuenta"
 						className="min-h-12 items-center justify-center py-3 active:opacity-70"
-						onPress={openDeleteSheet}
+						onPress={() => {
+							setIsPresented(true);
+						}}
 					>
 						<Text className="font-sans-medium text-[15px] text-konti-danger">Eliminar cuenta</Text>
 					</Pressable>
 				</View>
 			</ScrollView>
-			<DeleteAccountSheet />
+			<DeleteAccountSheet
+				isPresented={isPresented}
+				onDismiss={() => {
+					setIsPresented(false);
+				}}
+				onConfirm={deleteAccount}
+			/>
 		</UniSafeAreaView>
 	);
 }

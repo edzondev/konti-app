@@ -1,11 +1,12 @@
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { Linking, Pressable, ScrollView, Text, View } from "react-native";
 
+import { deleteAccount } from "@/features/profile/delete-account";
 import { DeleteAccountSheet } from "@/features/profile/delete-account-sheet";
 import { PRIVACY_URL, TERMS_URL } from "@/features/profile/legal";
 import { ProfileRow, ProfileSection } from "@/features/profile/profile-rows";
 import { useCurrentUser } from "@/features/profile/use-current-user";
-import { useDeleteAccount } from "@/features/profile/use-delete-account";
 import { useSignOut } from "@/features/profile/use-sign-out";
 import { UniSafeAreaView } from "@/shared/ui/safe-area";
 
@@ -18,7 +19,7 @@ export function ProfileScreen() {
 	const router = useRouter();
 	const { user, isPending } = useCurrentUser();
 	const { signOut } = useSignOut();
-	const { openDeleteSheet } = useDeleteAccount();
+	const [isPresented, setIsPresented] = useState(false);
 
 	const name = user?.name ?? (isPending ? "…" : "—");
 	const email = user?.email ?? "";
@@ -56,9 +57,8 @@ export function ProfileScreen() {
 						onPress={() => {
 							router.push("/privacidad");
 						}}
+						border={false}
 					/>
-					<ProfileRow label="Notificaciones" disabled trailing="soon" />
-					<ProfileRow label="Apariencia" disabled trailing="soon" border={false} />
 				</ProfileSection>
 
 				<ProfileSection title="LEGAL">
@@ -92,13 +92,21 @@ export function ProfileScreen() {
 						accessibilityRole="button"
 						accessibilityLabel="Eliminar cuenta"
 						className="min-h-12 items-center justify-center py-3 active:opacity-70"
-						onPress={openDeleteSheet}
+						onPress={() => {
+							setIsPresented(true);
+						}}
 					>
 						<Text className="font-sans-medium text-[15px] text-konti-danger">Eliminar cuenta</Text>
 					</Pressable>
 				</View>
 			</ScrollView>
-			<DeleteAccountSheet />
+			<DeleteAccountSheet
+				isPresented={isPresented}
+				onDismiss={() => {
+					setIsPresented(false);
+				}}
+				onConfirm={deleteAccount}
+			/>
 		</UniSafeAreaView>
 	);
 }

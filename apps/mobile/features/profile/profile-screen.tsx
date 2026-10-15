@@ -57,8 +57,9 @@ export function ProfileScreen() {
 						onPress={() => {
 							router.push("/privacidad");
 						}}
-						border={false}
 					/>
+					<ProfileRow label="Notificaciones" disabled trailing="soon" />
+					<ProfileRow label="Apariencia" disabled trailing="soon" border={false} />
 				</ProfileSection>
 
 				<ProfileSection title="LEGAL">

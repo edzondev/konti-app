@@ -5,7 +5,7 @@ import { getAppStorage } from "@/core/storage";
 export const DocumentSchema = v.object({
 	status: v.picklist(["pending", "ready", "failed"]),
 	extractionSource: v.nullable(v.picklist(["qr", "ocr", "manual"])),
-	source: v.picklist(["camera", "gallery", "share"]),
+	source: v.picklist(["camera", "gallery"]),
 	documentType: v.picklist(["boleta", "factura", "recibo_honorarios", "ticket", "unknown"]),
 	category: v.picklist([
 		"restaurantes",

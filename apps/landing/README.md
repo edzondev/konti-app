@@ -34,16 +34,6 @@ En el dev server, revisa la home, `/privacidad/` y `/terminos/`. En la home, cam
 
 El sitio es 100 % estático (HTML/CSS/JS en `dist`). No necesita runtime de servidor.
 
-### Netlify
-
-En la raíz del monorepo hay un `netlify.toml` con:
-
-- **Build command:** `pnpm --filter @repo/landing build`
-- **Publish directory:** `apps/landing/dist`
-- **Node:** 24
-
-Conecta el repositorio en Netlify apuntando a la raíz del monorepo; la config se aplica sola.
-
 ### Vercel
 
 Crea un proyecto con raíz del monorepo y:
